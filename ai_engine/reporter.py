@@ -3,7 +3,7 @@ Generates a fully self-contained HTML bug report.
 All screenshots are embedded as base64 — one file, ready to email to the dev team.
 """
 
-import json
+import ast, json, re
 from pathlib import Path
 from datetime import datetime
 
@@ -193,6 +193,31 @@ tr:hover td{{background:#1c2333}}
                  letter-spacing:.5px;margin-top:4px}}
 .pval.warn{{color:var(--c-medium)}}
 .pval.bad{{color:var(--c-critical)}}
+
+/* ── Per-spec test detail blocks ── */
+.spec-blk{{background:var(--surface);border:1px solid var(--border);
+          border-radius:var(--radius);margin-bottom:16px;overflow:hidden}}
+.spec-blk-hdr{{padding:14px 20px;display:flex;align-items:center;
+              justify-content:space-between;cursor:pointer;user-select:none}}
+.spec-blk-hdr:hover{{background:#1c2333}}
+.spec-blk-title{{font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px}}
+.spec-blk-toggle{{font-size:12px;color:var(--muted)}}
+.spec-blk-body{{display:none}}
+.spec-blk-body.open{{display:block}}
+.test-table{{width:100%;border-collapse:collapse;font-size:12px}}
+.test-table th{{background:#0d1117;color:var(--muted);font-size:10px;
+               text-transform:uppercase;letter-spacing:.5px;padding:8px 14px;text-align:left}}
+.test-table td{{padding:9px 14px;border-top:1px solid var(--border);vertical-align:top}}
+.test-table tr:hover td{{background:#1c2333}}
+.test-row-pass td:first-child{{border-left:3px solid var(--c-pass)}}
+.test-row-fail td:first-child{{border-left:3px solid var(--c-critical)}}
+.test-row-skip td:first-child{{border-left:3px solid var(--muted)}}
+.tname{{font-family:monospace;color:var(--c-low);font-size:12px}}
+.tname-title{{color:var(--text);font-weight:500;margin-bottom:2px}}
+.twhat{{color:var(--muted);font-size:12px}}
+.tdata{{font-family:monospace;color:#a371f7;font-size:11px}}
+.tdata-empty{{color:var(--muted);font-size:11px;font-style:italic}}
+
 .console-err{{background:var(--c-critical-bg);border-left:3px solid var(--c-critical);
              padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;
              font-family:monospace;color:var(--c-critical)}}
@@ -261,7 +286,7 @@ tr:hover td{{background:#1c2333}}
 
 {bug_tickets_html}
 
-<!-- Full Results Table -->
+<!-- Summary Table -->
 <div class="sec-title">All Test Results</div>
 <table>
   <thead>
@@ -273,6 +298,13 @@ tr:hover td{{background:#1c2333}}
     {results_rows}
   </tbody>
 </table>
+
+<!-- Per-Spec Test Details -->
+<div class="sec-title" style="margin-top:40px">
+  Per-Test Breakdown
+  <span class="count">title · what was tested · test data used</span>
+</div>
+{spec_details_html}
 
 <!-- Coverage Gaps -->
 <div class="sec-title" style="margin-top:40px">Coverage Gaps <span class="count">AI Analysis</span></div>
@@ -286,6 +318,16 @@ tr:hover td{{background:#1c2333}}
 </div><!-- /wrap -->
 
 <script>
+function toggleSpec(id){{
+  var body=document.getElementById(id);
+  var btn=body.previousElementSibling;
+  var arrow=btn.querySelector('.spec-blk-toggle');
+  if(body.classList.contains('open')){{
+    body.classList.remove('open');arrow.textContent='▶ Show tests';
+  }}else{{
+    body.classList.add('open');arrow.textContent='▼ Hide tests';
+  }}
+}}
 function toggleErr(id){{
   var el=document.getElementById(id);
   var btn=el.previousElementSibling;
@@ -572,6 +614,144 @@ def _esc(s: str) -> str:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# Per-spec test detail helpers
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _parse_test_file(path: Path) -> dict:
+    """Return {fn_name: {title, docstring, test_data}} by AST-parsing the generated test file."""
+    info = {}
+    if not path.exists():
+        return info
+    try:
+        source = path.read_text(encoding="utf-8")
+        tree   = ast.parse(source)
+        lines  = source.splitlines()
+        for node in ast.walk(tree):
+            if not (isinstance(node, ast.FunctionDef) and node.name.startswith("test_")):
+                continue
+            doc   = ast.get_docstring(node) or ""
+            # Scan first 8 lines of function body for a TEST_DATA comment
+            data  = ""
+            for ln in range(node.lineno, min(node.lineno + 8, len(lines))):
+                if "# TEST_DATA:" in lines[ln]:
+                    data = lines[ln].split("# TEST_DATA:", 1)[-1].strip()
+                    break
+            # Human title: strip "test_" prefix + spec slug prefix, title-case
+            raw_title = node.name[5:]  # remove leading "test_"
+            title = raw_title.replace("_", " ").title()
+            info[node.name] = {"title": title, "docstring": doc, "test_data": data}
+    except Exception:
+        pass
+    return info
+
+
+def _load_pytest_outcomes(json_report_path: str | None) -> dict:
+    """Return {fn_name: outcome} from a pytest JSON report file."""
+    outcomes = {}
+    if not json_report_path:
+        return outcomes
+    p = Path(json_report_path)
+    if not p.exists():
+        return outcomes
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        for t in data.get("tests", []):
+            nodeid  = t.get("nodeid", "")
+            fn_name = nodeid.split("::")[-1].split("[")[0]
+            outcomes[fn_name] = t.get("outcome", "unknown")
+    except Exception:
+        pass
+    return outcomes
+
+
+def _outcome_badge(outcome: str) -> str:
+    mapping = {
+        "passed":  ('<span class="badge PASS">PASS</span>',  "test-row-pass"),
+        "failed":  ('<span class="badge FAIL">FAIL</span>',  "test-row-fail"),
+        "error":   ('<span class="badge FAIL">ERROR</span>', "test-row-fail"),
+        "skipped": ('<span style="color:var(--muted)">⏭ SKIP</span>', "test-row-skip"),
+    }
+    return mapping.get(outcome, (f'<span style="color:var(--muted)">— {_esc(outcome)}</span>', ""))
+
+
+def _spec_detail_block(spec_name: str, result: dict, block_idx: int) -> str:
+    """Build a collapsible per-spec table showing every test with title, description, data."""
+    json_report = result.get("json_report")
+    outcomes    = _load_pytest_outcomes(json_report)
+
+    tests_dir  = Path("tests")
+    test_file  = tests_dir / f"test_{spec_name.replace('-', '_')}.py"
+    test_info  = _parse_test_file(test_file)
+
+    # Merge: all known test names from either source
+    all_names = list(dict.fromkeys(list(test_info.keys()) + list(outcomes.keys())))
+
+    if not all_names:
+        return ""
+
+    total   = len(all_names)
+    passed  = sum(1 for n in all_names if outcomes.get(n) == "passed")
+    failed  = total - passed
+    icon    = "✅" if failed == 0 else "❌"
+    body_id = f"spec-detail-{block_idx}"
+
+    rows = []
+    for fn in all_names:
+        outcome  = outcomes.get(fn, "unknown")
+        badge, row_cls = _outcome_badge(outcome)
+        info     = test_info.get(fn, {})
+        title    = _esc(info.get("title", fn.replace("_", " ").title()))
+        raw_fn   = _esc(fn)
+        docstring= _esc(info.get("docstring", ""))
+        tdata    = info.get("test_data", "")
+
+        what_cell = (
+            f'<div class="tname-title">{title}</div>'
+            f'<div class="twhat">{docstring}</div>'
+            if docstring else
+            f'<div class="tname-title">{title}</div>'
+        )
+        data_cell = (
+            f'<span class="tdata">{_esc(tdata)}</span>'
+            if tdata else
+            '<span class="tdata-empty">—</span>'
+        )
+
+        rows.append(f"""<tr class="{row_cls}">
+          <td>{badge}</td>
+          <td><span class="tname">{raw_fn}</span></td>
+          <td>{what_cell}</td>
+          <td>{data_cell}</td>
+        </tr>""")
+
+    rows_html = "\n".join(rows)
+    label = f"{icon} <code>{_esc(spec_name)}</code> — {passed} passed / {failed} failed / {total} total"
+
+    return f"""
+<div class="spec-blk">
+  <div class="spec-blk-hdr" onclick="toggleSpec('{body_id}')">
+    <span class="spec-blk-title">{label}</span>
+    <span class="spec-blk-toggle">▶ Show tests</span>
+  </div>
+  <div class="spec-blk-body" id="{body_id}">
+    <table class="test-table">
+      <thead>
+        <tr>
+          <th style="width:80px">Status</th>
+          <th style="width:260px">Test Function</th>
+          <th>What It Tested</th>
+          <th style="width:280px">Test Data Used</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows_html}
+      </tbody>
+    </table>
+  </div>
+</div>"""
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # Public entry point
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -593,6 +773,11 @@ def generate_report(all_results: dict, base_url: str, model: str) -> Path:
 
     results_rows = "".join(_result_row(name, r) for name, r in all_results.items())
 
+    spec_details_html = "".join(
+        _spec_detail_block(name, r, i)
+        for i, (name, r) in enumerate(all_results.items())
+    ) or '<p style="color:var(--muted)">No test detail data available.</p>'
+
     gaps_html = "".join(
         _gaps_block(name, r.get("gaps", ""))
         for name, r in all_results.items()
@@ -609,10 +794,11 @@ def generate_report(all_results: dict, base_url: str, model: str) -> Path:
         total_passed = total_passed,
         total_failed = total_failed,
         total_tests  = total_tests,
-        total_bugs   = len(all_bugs),
+        total_bugs       = len(all_bugs),
         bug_tickets_html = bug_tickets_html,
-        results_rows = results_rows,
-        gaps_html    = gaps_html,
+        results_rows     = results_rows,
+        spec_details_html= spec_details_html,
+        gaps_html        = gaps_html,
     )
 
     REPORTS_DIR.mkdir(exist_ok=True)
