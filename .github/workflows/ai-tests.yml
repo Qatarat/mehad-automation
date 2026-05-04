@@ -76,7 +76,8 @@ jobs:
           AI_MODEL: qwen2.5-coder:1.5b
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
           PYTHONPATH: ${{ github.workspace }}
-        run: python ai_engine/agent.py
+          PYTHONUNBUFFERED: "1"          # flush every print() to logs immediately
+        run: python -u ai_engine/agent.py   # -u = unbuffered stdout/stderr
 
       # ── 11. Upload HTML bug report ────────────────────────────────────────
       - name: Upload HTML bug report

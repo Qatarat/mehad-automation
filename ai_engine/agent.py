@@ -14,10 +14,21 @@ import ast
 import re
 import base64
 import subprocess
+import builtins
 from pathlib import Path
 from datetime import datetime
 
 import ollama
+
+# Force every print() to flush immediately so CI logs show in real-time
+_orig_print = builtins.print
+def print(*args, **kwargs):
+    kwargs.setdefault("flush", True)
+    _orig_print(*args, **kwargs)
+
+def log(msg: str):
+    """Timestamped log line — always visible in CI."""
+    _orig_print(f"[{datetime.now().strftime('%H:%M:%S')}] {msg}", flush=True)
 
 # Support both `python ai_engine/agent.py` and `python -m ai_engine.agent`
 try:
@@ -69,6 +80,7 @@ Be precise, technical, and actionable. Developers should be able to reproduce an
 # ── AI calls ──────────────────────────────────────────────────────────────────
 
 def ai_call(system: str, user: str, max_tokens: int = 2048) -> str:
+    log(f"  [AI] Calling {AI_MODEL} (max_tokens={max_tokens}) ...")
     try:
         resp = ollama.chat(
             model=AI_MODEL,
@@ -78,9 +90,11 @@ def ai_call(system: str, user: str, max_tokens: int = 2048) -> str:
             ],
             options={"temperature": 0.05, "num_predict": max_tokens},
         )
-        return resp["message"]["content"]
+        result = resp["message"]["content"]
+        log(f"  [AI] Response received ({len(result)} chars)")
+        return result
     except Exception as e:
-        print(f"  [AI] Ollama error: {e}")
+        log(f"  [AI] Ollama error: {e}")
         return ""
 
 
@@ -136,15 +150,16 @@ SPECIFICATION:
 Write the complete Python test file now.
 """
     for attempt in range(1, MAX_GEN_RETRIES + 1):
-        print(f"    [GENERATE] Attempt {attempt}/{MAX_GEN_RETRIES}...")
+        log(f"    [GENERATE] Attempt {attempt}/{MAX_GEN_RETRIES} — asking AI to write tests...")
         code = clean_code(ai_call(TEST_GEN_PROMPT, prompt))
         if not code:
+            log("    [GENERATE] Empty response, retrying...")
             continue
         valid, err = is_valid_python(code)
         if valid:
-            print(f"    [GENERATE] ✅ {len(code.splitlines())} lines generated")
+            log(f"    [GENERATE] ✅ Valid Python — {len(code.splitlines())} lines")
             return code
-        print(f"    [GENERATE] ❌ Syntax error {err}")
+        log(f"    [GENERATE] ❌ Syntax error: {err} — asking AI to fix...")
         prompt = f"Fix this Python syntax error: {err}\n\nCode:\n{code}\n\nReturn corrected file only."
     return None
 
@@ -168,13 +183,13 @@ FAILURE OUTPUT:
 Return the COMPLETE corrected test file. Python code only.
 """
     for attempt in range(1, MAX_FIX_RETRIES + 1):
-        print(f"    [FIX] Attempt {attempt}/{MAX_FIX_RETRIES}...")
+        log(f"    [FIX] Attempt {attempt}/{MAX_FIX_RETRIES} — AI rewriting failed tests...")
         code = clean_code(ai_call(TEST_GEN_PROMPT, prompt))
         valid, err = is_valid_python(code)
         if valid:
-            print("    [FIX] ✅ Fixed code generated")
+            log("    [FIX] ✅ Fixed code generated")
             return code
-        print(f"    [FIX] ❌ Syntax error in fix: {err}")
+        log(f"    [FIX] ❌ Syntax error in fix: {err}")
     return None
 
 
@@ -430,7 +445,7 @@ class AutonomousTestAgent:
         test_file    = TESTS_DIR / f"test_{name.replace('-', '_')}.py"
 
         # ── Phase 1: Generate ─────────────────────────────────────────────────
-        print("\n  [THINK] AI reading spec and generating tests...")
+        log(f"\n  [THINK] AI reading {spec_path.name} — planning and generating tests...")
         code = generate_tests(spec_path)
 
         if code is None:
@@ -446,35 +461,35 @@ class AutonomousTestAgent:
         print(f"  [SAVE]  {test_file}")
 
         # ── Phase 2: Execute ──────────────────────────────────────────────────
-        print("\n  [EXECUTE] Running tests...")
+        log(f"\n  [EXECUTE] Running {test_file.name} against {BASE_URL} ...")
         results = run_tests(test_file)
         self._show(results)
 
         # ── Phase 3: Fix failures ─────────────────────────────────────────────
         if results["failed"] > 0:
-            print(f"\n  [REFLECT] {results['failed']} failure(s) — AI fixing...")
+            log(f"\n  [REFLECT] {results['failed']} failure(s) — AI analyzing and fixing...")
             fixed = fix_tests(code, results["output"])
             if fixed:
                 code = ensure_imports(fixed)
                 test_file.write_text(code)
-                print("  [EXECUTE] Re-running fixed tests...")
+                log("  [EXECUTE] Re-running fixed tests...")
                 results = run_tests(test_file)
                 self._show(results)
                 if results["failed"] == 0:
-                    print("  [FIX] ✅ All failures resolved!")
+                    log("  [FIX] ✅ All failures resolved!")
                 else:
-                    print(f"  [FIX] ⚠️  {results['failed']} still failing")
+                    log(f"  [FIX] ⚠️  {results['failed']} still failing after fix")
 
         # ── Phase 4: Build bug tickets ────────────────────────────────────────
         bugs = []
         if results["failed"] > 0:
-            print(f"\n  [BUG-ANALYSIS] AI generating bug tickets for {results['failed']} failure(s)...")
+            log(f"\n  [BUG-ANALYSIS] AI writing bug tickets for {results['failed']} failure(s)...")
             shot_index = load_screenshot_index()
             bugs = build_bug_tickets(spec_content, results.get("json_report"), shot_index)
-            print(f"  [BUG-ANALYSIS] {len(bugs)} bug ticket(s) created")
+            log(f"  [BUG-ANALYSIS] {len(bugs)} bug ticket(s) created")
 
         # ── Phase 5: Coverage gaps ────────────────────────────────────────────
-        print("\n  [GAPS] Detecting coverage gaps...")
+        log("\n  [GAPS] AI detecting coverage gaps in spec...")
         gaps = detect_gaps(spec_content, code, results)
         (REPORTS_DIR / f"gaps_{name}.md").write_text(
             f"# Coverage Gaps — {name}\n\nGenerated: {datetime.now().isoformat()}\n\n{gaps}"
@@ -529,16 +544,16 @@ class AutonomousTestAgent:
 
     def _show(self, r: dict):
         icon = "✅" if r["status"] == "passed" else "❌"
-        print(f"  {icon}  Passed: {r['passed']}  Failed: {r['failed']}  Total: {r['total']}")
+        log(f"  {icon}  Passed: {r['passed']}  Failed: {r['failed']}  Total: {r['total']}")
 
     def _banner(self):
-        print("\n" + "═"*62)
-        print("  Markopolo Autonomous AI Test Agent")
-        print(f"  Model   : {AI_MODEL}  (local Ollama — no API key)")
-        print(f"  Target  : {BASE_URL}")
-        print(f"  Specs   : {len(list(SPECS_DIR.glob('*.md')))} files")
-        print(f"  Started : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print("═"*62)
+        log("═"*62)
+        log("  Markopolo Autonomous AI Test Agent")
+        log(f"  Model   : {AI_MODEL}  (local Ollama — no API key)")
+        log(f"  Target  : {BASE_URL}")
+        log(f"  Specs   : {len(list(SPECS_DIR.glob('*.md')))} files")
+        log(f"  Started : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        log("═"*62)
 
 
 # ── Entry point ───────────────────────────────────────────────────────────────
