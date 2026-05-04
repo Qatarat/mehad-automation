@@ -2,25 +2,25 @@ name: Markopolo Autonomous AI Testing
 
 on:
   push:
-    branches: [main]        # trigger on every push to main
+    branches: [main]
   pull_request:
     branches: [main]
   schedule:
-    - cron: "0 2 * * *"    # nightly at 2 AM UTC
-  workflow_dispatch:         # manual run from GitHub UI → Actions tab → Run workflow
+    - cron: "0 2 * * *"
+  workflow_dispatch:
 
 jobs:
   autonomous-ai-test:
     name: AI Test Agent
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90       # 1.5b model needs ~15 min per spec on CPU
 
     steps:
       # ── 1. Checkout ──────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ── 2. Python setup ──────────────────────────────────────────────────
+      # ── 2. Python ────────────────────────────────────────────────────────
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
@@ -31,55 +31,62 @@ jobs:
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      # ── 4. Playwright browser ─────────────────────────────────────────────
+      # ── 4. Playwright ────────────────────────────────────────────────────
       - name: Install Playwright and Chromium
         run: playwright install chromium --with-deps
 
-      # ── 5. Install Ollama ─────────────────────────────────────────────────
+      # ── 5. Ollama ────────────────────────────────────────────────────────
       - name: Install Ollama
         run: curl -fsSL https://ollama.ai/install.sh | sh
 
-      # ── 6. Cache AI model to avoid re-downloading 1GB every run ──────────
+      # ── 6. Cache model (saves 1 GB download on repeat runs) ──────────────
       - name: Cache Ollama model
         uses: actions/cache@v4
         with:
           path: ~/.ollama/models
           key: ollama-qwen2.5-coder-1.5b-v1
 
-      # ── 7. Start Ollama service ───────────────────────────────────────────
+      # ── 7. Start Ollama ───────────────────────────────────────────────────
       - name: Start Ollama service
         run: |
           ollama serve &
-          echo "Waiting for Ollama to be ready..."
           for i in $(seq 1 30); do
-            if curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
-              echo "Ollama is ready"
-              break
-            fi
+            curl -s http://localhost:11434/api/tags > /dev/null 2>&1 && echo "Ollama ready" && break
             sleep 2
           done
 
-      # ── 8. Pull the AI model ──────────────────────────────────────────────
+      # ── 8. Pull model ────────────────────────────────────────────────────
       - name: Pull AI model
         run: |
           ollama pull qwen2.5-coder:1.5b
           ollama list
 
-      # ── 9. Prepare output directories ─────────────────────────────────────
+      # ── 9. Verify everything is installed ────────────────────────────────
+      - name: Verify setup
+        run: |
+          python --version
+          python -c "import ollama; print('ollama OK')"
+          python -c "import playwright; print('playwright OK')"
+          python -c "import pytest; print('pytest OK')"
+          python -c "from ai_engine.reporter import generate_report; print('reporter OK')"
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+
+      # ── 10. Prepare directories ───────────────────────────────────────────
       - name: Prepare directories
         run: mkdir -p tests reports reports/screenshots
 
-      # ── 10. Run the autonomous AI test agent ──────────────────────────────
+      # ── 11. Run the AI agent ──────────────────────────────────────────────
       - name: Run AI Test Agent
         env:
           BASE_URL: https://beta-stg.markopolo.ai
           AI_MODEL: qwen2.5-coder:1.5b
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
           PYTHONPATH: ${{ github.workspace }}
-          PYTHONUNBUFFERED: "1"          # flush every print() to logs immediately
-        run: python -u ai_engine/agent.py   # -u = unbuffered stdout/stderr
+          PYTHONUNBUFFERED: "1"
+        run: python -u ai_engine/agent.py
 
-      # ── 11. Upload HTML bug report ────────────────────────────────────────
+      # ── 12. Upload HTML bug report ────────────────────────────────────────
       - name: Upload HTML bug report
         uses: actions/upload-artifact@v4
         if: always()
@@ -88,16 +95,17 @@ jobs:
           path: reports/bug-report.html
           retention-days: 30
 
-      # ── 12. Upload screenshots (POC evidence) ─────────────────────────────
+      # ── 13. Upload screenshots ────────────────────────────────────────────
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: screenshots-${{ github.run_number }}
           path: reports/screenshots/
+          if-no-files-found: warn
           retention-days: 30
 
-      # ── 13. Upload full reports bundle ────────────────────────────────────
+      # ── 14. Upload all reports ────────────────────────────────────────────
       - name: Upload full reports
         uses: actions/upload-artifact@v4
         if: always()
@@ -106,16 +114,17 @@ jobs:
           path: reports/
           retention-days: 30
 
-      # ── 14. Upload AI-generated test files ───────────────────────────────
+      # ── 15. Upload generated tests ────────────────────────────────────────
       - name: Upload generated tests
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ai-generated-tests-${{ github.run_number }}
           path: tests/
+          if-no-files-found: warn
           retention-days: 30
 
-      # ── 15. Write job summary ─────────────────────────────────────────────
+      # ── 16. Job summary ───────────────────────────────────────────────────
       - name: Write job summary
         if: always()
         run: |
@@ -139,4 +148,4 @@ jobs:
           " >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Download **bug-report-${{ github.run_number }}** from Artifacts for the full HTML report with screenshots." >> $GITHUB_STEP_SUMMARY
+          echo "Download **bug-report-${{ github.run_number }}** from Artifacts for the full HTML report." >> $GITHUB_STEP_SUMMARY

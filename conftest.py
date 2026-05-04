@@ -6,9 +6,29 @@ index file so agent.py can embed them in the HTML bug report.
 
 import re
 import json
+import sys
 import pytest
 from pathlib import Path
 from datetime import datetime
+
+
+def pytest_collectstart(collector):
+    print(f"[COLLECT] Collecting: {collector}", flush=True)
+
+
+def pytest_collection_finish(session):
+    print(f"[COLLECT] Total collected: {len(session.items)} tests", flush=True)
+    for item in session.items:
+        print(f"  → {item.nodeid}", flush=True)
+
+
+def pytest_collecterror(collector, excinfo):
+    print(f"[COLLECT ERROR] {collector}: {excinfo.value}", flush=True)
+
+
+def pytest_exception_interact(node, call, report):
+    if report.failed:
+        print(f"[ERROR] {node.nodeid}:\n{report.longrepr}", flush=True)
 
 SCREENSHOTS_DIR = Path("reports/screenshots")
 _SCREENSHOT_INDEX: dict[str, dict] = {}   # nodeid → {path, timestamp}

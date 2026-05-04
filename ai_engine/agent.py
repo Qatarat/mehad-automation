@@ -195,25 +195,57 @@ Return the COMPLETE corrected test file. Python code only.
 
 # ── Test execution ────────────────────────────────────────────────────────────
 
+def _stream_proc(cmd: list, env: dict, timeout: int = 600) -> tuple[int, str]:
+    """
+    Run a subprocess and stream every output line to CI logs in real-time.
+    Returns (returncode, full_output_text).
+    """
+    lines: list[str] = []
+    try:
+        proc = subprocess.Popen(
+            cmd, env=env,
+            stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            text=True, bufsize=1,
+        )
+        for line in proc.stdout:
+            line = line.rstrip()
+            lines.append(line)
+            log(f"    {line}")          # every pytest line visible in CI
+        proc.wait(timeout=timeout)
+        return proc.returncode, "\n".join(lines)
+    except subprocess.TimeoutExpired:
+        proc.kill()
+        return -1, "\n".join(lines) + "\n[TIMEOUT]"
+    except Exception as e:
+        return -1, f"[SUBPROCESS ERROR] {e}"
+
+
 def run_tests(test_file: Path) -> dict:
     json_report = REPORTS_DIR / f"result_{test_file.stem}.json"
-    cmd = [
+    env = {**os.environ, "BASE_URL": BASE_URL, "PWDEBUG": "0",
+           "PYTHONUNBUFFERED": "1"}
+
+    # ── Step A: collection check — find out what pytest sees ─────────────────
+    log(f"  [COLLECT] Checking what tests pytest can find in {test_file.name}...")
+    collect_cmd = [
         sys.executable, "-m", "pytest",
-        str(test_file), "-v", "--tb=long", "--no-header",
-        "--json-report", f"--json-report-file={json_report}",
-        "--timeout=60",
+        str(test_file), "--collect-only", "-q", "--no-header",
     ]
-    env = {**os.environ, "BASE_URL": BASE_URL, "PWDEBUG": "0"}
+    _rc, collect_out = _stream_proc(collect_cmd, env, timeout=60)
+    if "no tests ran" in collect_out or "collected 0 items" in collect_out:
+        log("  [COLLECT] ⚠️  0 tests collected — check the generated file for import errors")
 
-    try:
-        proc = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=600)
-    except subprocess.TimeoutExpired:
-        return {"status": "timeout", "total": 0, "passed": 0, "failed": 1,
-                "output": "Timed out after 600s", "returncode": -1, "json_report": None}
+    # ── Step B: full test run ─────────────────────────────────────────────────
+    run_cmd = [
+        sys.executable, "-m", "pytest",
+        str(test_file), "-v", "--tb=short", "--no-header",
+        "--json-report", f"--json-report-file={json_report}",
+        "--timeout=30",
+    ]
+    log(f"  [PYTEST] Running: {' '.join(run_cmd)}")
+    returncode, output = _stream_proc(run_cmd, env, timeout=300)
 
-    output = proc.stdout + "\n" + proc.stderr
     passed = failed = total = 0
-
     if json_report.exists():
         try:
             s = json.loads(json_report.read_text()).get("summary", {})
@@ -226,16 +258,25 @@ def run_tests(test_file: Path) -> dict:
     if total == 0:
         for line in output.splitlines():
             for num, status in re.findall(r"(\d+) (passed|failed|error)", line):
-                if status == "passed":             passed = int(num)
+                if status == "passed":              passed = int(num)
                 elif status in ("failed", "error"): failed += int(num)
         total = passed + failed
 
+    if total == 0:
+        log("  [PYTEST] ⚠️  0 tests ran — printing generated file for diagnosis:")
+        try:
+            log(test_file.read_text())
+        except Exception:
+            pass
+
     return {
-        "status": "passed" if proc.returncode == 0 else "failed",
-        "total": total, "passed": passed, "failed": failed,
-        "output": output,
+        "status":      "passed" if returncode == 0 else "failed",
+        "total":       total,
+        "passed":      passed,
+        "failed":      failed,
+        "output":      output,
         "json_report": str(json_report) if json_report.exists() else None,
-        "returncode": proc.returncode,
+        "returncode":  returncode,
     }
 
 
