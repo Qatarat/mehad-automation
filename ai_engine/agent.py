@@ -2,10 +2,9 @@
 Markopolo Autonomous AI Test Agent
 ------------------------------------
 No API keys. No manual scripts. No hardcoded selectors.
-The AI reads MD specs, thinks, plans, generates, executes, fixes, and reports.
 
-Local:  python ai_engine/agent.py
-CI/CD:  Triggered automatically on push via GitHub Actions
+Pipeline per spec:
+  THINK → GENERATE → EXECUTE → REFLECT/FIX → BUG ANALYSIS → GAP DETECT → REPORT
 """
 
 import os
@@ -13,144 +12,147 @@ import sys
 import json
 import ast
 import re
+import base64
 import subprocess
-import time
 from pathlib import Path
 from datetime import datetime
 
 import ollama
+from ai_engine.reporter import generate_report
 
-# ── Configuration ────────────────────────────────────────────────────────────
-BASE_URL   = os.getenv("BASE_URL",  "https://beta-stg.markopolo.ai")
-AI_MODEL   = os.getenv("AI_MODEL",  "qwen2.5-coder:1.5b")
-SPECS_DIR  = Path("specs")
-TESTS_DIR  = Path("tests")
-REPORTS_DIR = Path("reports")
+# ── Config ────────────────────────────────────────────────────────────────────
+BASE_URL     = os.getenv("BASE_URL",  "https://beta-stg.markopolo.ai")
+AI_MODEL     = os.getenv("AI_MODEL",  "qwen2.5-coder:1.5b")
+SPECS_DIR    = Path("specs")
+TESTS_DIR    = Path("tests")
+REPORTS_DIR  = Path("reports")
+SHOTS_DIR    = Path("reports/screenshots")
 MAX_GEN_RETRIES = 3
 MAX_FIX_RETRIES = 2
 
-# ── System Prompt ─────────────────────────────────────────────────────────────
-# This is the "intelligence" — what the AI knows about how to test
-SYSTEM_PROMPT = """You are a world-class QA automation engineer. You write Playwright (Python/pytest) tests.
+BUG_COUNTER = [0]   # mutable so nested functions can increment
 
-WHAT YOU KNOW:
-- You understand web application testing deeply: UI flows, API contracts, validation rules, security
-- You know how to find bugs that manual testers miss: timing issues, race conditions, edge inputs
-- You know that good tests are independent, deterministic, and meaningful — not just happy-path coverage
 
-PLAYWRIGHT RULES YOU ALWAYS FOLLOW:
-1. Imports at top: import os, import time, import pytest, from playwright.sync_api import Page, expect
+# ── System prompts ────────────────────────────────────────────────────────────
+
+TEST_GEN_PROMPT = """You are a world-class QA automation engineer. You write Playwright (Python/pytest) tests.
+
+PLAYWRIGHT RULES:
+1. Imports: import os, import time, import pytest, from playwright.sync_api import Page, expect
 2. BASE_URL = os.getenv("BASE_URL", "https://beta-stg.markopolo.ai")
 3. Test functions start with test_
-4. Use pytest `page: Page` fixture (built-in from pytest-playwright)
-5. Navigation: page.goto(url) then page.wait_for_load_state("networkidle")
-6. Selectors priority (best → worst):
-   page.get_by_role("button", name="Sign in")
-   page.get_by_label("Email")
-   page.get_by_placeholder("Enter your email")
-   page.locator('input[type="email"]')
-   page.locator('[data-testid="email"]')
-7. Assertions: expect(locator).to_be_visible(), expect(page).to_have_url(), expect(locator).to_contain_text()
-8. Waits: page.wait_for_load_state(), expect(locator).to_be_visible(timeout=10000)
-9. For unique emails in tests: f"qa_{int(time.time())}@mailinator.com"
-10. Each test cleans up after itself — no shared state
+4. Navigation: page.goto(url) then page.wait_for_load_state("networkidle")
+5. Selector priority: get_by_role > get_by_label > get_by_placeholder > locator('input[type]')
+6. Assertions: expect(locator).to_be_visible(), expect(page).to_have_url(), expect(locator).to_contain_text()
+7. Unique emails: f"qa_{int(time.time())}@mailinator.com"
+8. Passwords: os.getenv("TEST_PASSWORD", "Test@1234!")
+9. Every test must be independent — no shared state
 
-TEST TYPES YOU GENERATE:
-- Functional: every user flow, every button, every link
-- Validation: empty fields, format errors, length limits, required fields
-- Edge Cases: special chars, XSS strings, SQL strings, very long inputs, spaces-only
-- Security: XSS in inputs, SQL injection — verify they don't crash and show safe errors
-- Navigation: all internal links lead to correct pages
-- Error States: wrong credentials, network errors, expired tokens
-- Accessibility: labels exist, tab order is logical, aria attributes present
-- Responsive: test at 375px (mobile) viewport
+TEST TYPES TO GENERATE:
+- Functional (all user flows), Validation (empty/invalid/boundary inputs),
+  Edge Cases (XSS, SQLi, special chars, very long inputs),
+  Navigation (all links), Error States, Accessibility (labels/aria),
+  Responsive (375px mobile viewport via page.set_viewport_size)
 
-OUTPUT FORMAT:
-- Output ONLY valid Python code
-- No markdown fences (no ```python blocks)
-- No explanation text before or after the code
-- Every function must have a clear docstring of ONE sentence max
+OUTPUT: valid Python code only. No markdown fences. No explanation text.
 """
 
-# ── AI Thinking ───────────────────────────────────────────────────────────────
+BUG_ANALYST_PROMPT = """You are a senior QA lead writing formal bug tickets for a development team.
+Be precise, technical, and actionable. Developers should be able to reproduce and fix with no extra info."""
 
-def ai_think(prompt: str, context: str = "") -> str:
-    """Call Ollama locally — zero API keys, zero cost, fully private."""
-    full_prompt = f"CONTEXT:\n{context}\n\nTASK:\n{prompt}" if context else prompt
+
+# ── AI calls ──────────────────────────────────────────────────────────────────
+
+def ai_call(system: str, user: str, max_tokens: int = 2048) -> str:
     try:
-        response = ollama.chat(
+        resp = ollama.chat(
             model=AI_MODEL,
             messages=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user",   "content": full_prompt},
+                {"role": "system", "content": system},
+                {"role": "user",   "content": user},
             ],
-            options={"temperature": 0.05, "num_predict": 4096},
+            options={"temperature": 0.05, "num_predict": max_tokens},
         )
-        return response["message"]["content"]
+        return resp["message"]["content"]
     except Exception as e:
-        print(f"  [AI ERROR] Ollama call failed: {e}")
+        print(f"  [AI] Ollama error: {e}")
         return ""
 
 
+# ── Code helpers ──────────────────────────────────────────────────────────────
+
 def clean_code(raw: str) -> str:
-    """Strip markdown fences and leading/trailing whitespace from AI output."""
     raw = raw.strip()
-    # Remove ```python or ``` fences
     raw = re.sub(r"^```[a-zA-Z]*\n?", "", raw)
     raw = re.sub(r"\n?```$", "", raw)
     return raw.strip()
 
 
 def is_valid_python(code: str) -> tuple[bool, str]:
-    """Return (is_valid, error_message)."""
     try:
         ast.parse(code)
         return True, ""
     except SyntaxError as e:
-        return False, f"SyntaxError line {e.lineno}: {e.msg}"
+        return False, f"line {e.lineno}: {e.msg}"
 
 
-# ── Test Generation ───────────────────────────────────────────────────────────
+def ensure_imports(code: str) -> str:
+    lines = []
+    if "import os"              not in code: lines.append("import os")
+    if "import time"            not in code: lines.append("import time")
+    if "import pytest"          not in code: lines.append("import pytest")
+    if "from playwright.sync_api" not in code:
+        lines.append("from playwright.sync_api import Page, expect")
+    if "BASE_URL" not in code:
+        lines.append(f'BASE_URL = os.getenv("BASE_URL", "{BASE_URL}")')
+    return ("\n".join(lines) + "\n\n" + code) if lines else code
 
-def build_generation_prompt(spec_content: str, page_name: str) -> str:
-    return f"""
-Read the following specification for the "{page_name}" page.
-Generate a COMPLETE pytest + Playwright test file.
 
-REQUIRED COVERAGE (do not skip any):
-1. ALL User Flows listed in the spec — every numbered step
-2. ALL Edge Cases listed in the Edge Cases table — every EC-XX row
-3. ALL Validation Rules — test both valid and invalid inputs for each rule
-4. ALL Error States — verify correct error messages appear
-5. ALL Navigation links — verify each link reaches the correct URL
-6. Security inputs from Test Data section — verify safe handling
-7. At least one mobile viewport test (375px wide) using page.set_viewport_size
+# ── Test generation ───────────────────────────────────────────────────────────
 
-IMPORTANT NOTES:
-- For tests that need a real account (e.g. login), use placeholder credentials and mark with @pytest.mark.skip if credentials are unknown
-- For signup tests, always generate unique emails using: f"qa_{{int(time.time())}}@mailinator.com"
-- Never hardcode passwords — use: os.getenv("TEST_PASSWORD", "Test@1234!")
-- If the page redirects after success, assert the new URL
-- Every test must be completely independent
+def generate_tests(spec_path: Path) -> str | None:
+    spec = spec_path.read_text()
+    page_name = spec_path.stem
+    prompt = f"""
+Read the specification for "{page_name}" and generate a COMPLETE pytest+Playwright test file.
+
+Cover ALL of the following — do not skip any:
+- Every User Flow (numbered steps)
+- Every Edge Case (EC-XX rows)
+- Every Validation Rule (valid AND invalid inputs)
+- All Error States and their messages
+- All Navigation links
+- Security inputs (XSS, SQLi) from Test Data section
+- One mobile viewport test at 375px
 
 SPECIFICATION:
-{spec_content}
+{spec}
 
-Write the complete test file now. Python code only, no explanation.
+Write the complete Python test file now.
 """
+    for attempt in range(1, MAX_GEN_RETRIES + 1):
+        print(f"    [GENERATE] Attempt {attempt}/{MAX_GEN_RETRIES}...")
+        code = clean_code(ai_call(TEST_GEN_PROMPT, prompt))
+        if not code:
+            continue
+        valid, err = is_valid_python(code)
+        if valid:
+            print(f"    [GENERATE] ✅ {len(code.splitlines())} lines generated")
+            return code
+        print(f"    [GENERATE] ❌ Syntax error {err}")
+        prompt = f"Fix this Python syntax error: {err}\n\nCode:\n{code}\n\nReturn corrected file only."
+    return None
 
 
-def build_fix_prompt(test_code: str, failure_output: str) -> str:
-    return f"""
-The following Playwright tests have failures. Analyze each failure and fix the root cause.
+def fix_tests(test_code: str, failure_output: str) -> str | None:
+    prompt = f"""Fix the failing Playwright tests below.
 
-FAILURE REASONS TO CHECK:
-1. Wrong selector → switch to a more flexible one (role > label > placeholder > CSS)
-2. Element not visible yet → add expect(locator).to_be_visible(timeout=15000) before interacting
-3. Wrong URL → double-check BASE_URL usage
-4. Wrong assertion text → update to match what the app actually shows
-5. Timeout → slow network, add wait_for_load_state("networkidle") after navigation
-6. Test order dependency → make each test navigate fresh
+Common causes:
+1. Wrong selector → use role/label/placeholder instead of CSS
+2. Element not ready → add expect(locator).to_be_visible(timeout=15000)
+3. Wrong URL → verify BASE_URL path
+4. Wrong assertion text → match what app actually shows
+5. Timing → add wait_for_load_state("networkidle") after navigation
 
 FAILED TEST CODE:
 {test_code}
@@ -158,139 +160,224 @@ FAILED TEST CODE:
 FAILURE OUTPUT:
 {failure_output[:3000]}
 
-Rewrite the COMPLETE test file with ALL fixes applied. Python code only.
+Return the COMPLETE corrected test file. Python code only.
 """
-
-
-def generate_test_file(spec_path: Path) -> str | None:
-    """AI generates a test file from a spec. Returns valid Python code or None."""
-    spec_content = spec_path.read_text()
-    page_name = spec_path.stem
-    prompt = build_generation_prompt(spec_content, page_name)
-
-    for attempt in range(1, MAX_GEN_RETRIES + 1):
-        print(f"    [GENERATE] Attempt {attempt}/{MAX_GEN_RETRIES}...")
-        raw = ai_think(prompt)
-        code = clean_code(raw)
-
-        if not code:
-            print(f"    [GENERATE] Empty response, retrying...")
-            continue
-
-        valid, err = is_valid_python(code)
-        if valid:
-            print(f"    [GENERATE] ✅ Valid Python generated ({len(code.splitlines())} lines)")
-            return code
-        else:
-            print(f"    [GENERATE] ❌ Syntax error: {err}")
-            # Ask AI to fix syntax
-            prompt = f"Fix the Python syntax error in this code.\nError: {err}\n\nCode:\n{code}\n\nReturn corrected code only."
-
-    return None
-
-
-def fix_test_file(test_code: str, failure_output: str) -> str | None:
-    """AI rewrites tests to fix failures. Returns valid Python or None."""
-    prompt = build_fix_prompt(test_code, failure_output)
-
     for attempt in range(1, MAX_FIX_RETRIES + 1):
-        print(f"    [FIX] Fix attempt {attempt}/{MAX_FIX_RETRIES}...")
-        raw = ai_think(prompt)
-        code = clean_code(raw)
-
+        print(f"    [FIX] Attempt {attempt}/{MAX_FIX_RETRIES}...")
+        code = clean_code(ai_call(TEST_GEN_PROMPT, prompt))
         valid, err = is_valid_python(code)
         if valid:
-            print(f"    [FIX] ✅ Fixed code generated")
+            print("    [FIX] ✅ Fixed code generated")
             return code
-        else:
-            print(f"    [FIX] ❌ Fix attempt had syntax error: {err}")
-
+        print(f"    [FIX] ❌ Syntax error in fix: {err}")
     return None
 
 
-# ── Test Execution ────────────────────────────────────────────────────────────
+# ── Test execution ────────────────────────────────────────────────────────────
 
 def run_tests(test_file: Path) -> dict:
-    """Execute pytest and return structured results."""
     json_report = REPORTS_DIR / f"result_{test_file.stem}.json"
-    html_report = REPORTS_DIR / f"result_{test_file.stem}.html"
-
     cmd = [
         sys.executable, "-m", "pytest",
-        str(test_file),
-        "-v",
-        "--tb=short",
-        "--no-header",
-        "--json-report",
-        f"--json-report-file={json_report}",
-        f"--html={html_report}",
-        "--self-contained-html",
+        str(test_file), "-v", "--tb=long", "--no-header",
+        "--json-report", f"--json-report-file={json_report}",
         "--timeout=60",
     ]
-
-    env = os.environ.copy()
-    env["BASE_URL"] = BASE_URL
-    env["PWDEBUG"] = "0"
+    env = {**os.environ, "BASE_URL": BASE_URL, "PWDEBUG": "0"}
 
     try:
-        proc = subprocess.run(
-            cmd, capture_output=True, text=True, env=env, timeout=600
-        )
-        output = proc.stdout + "\n" + proc.stderr
+        proc = subprocess.run(cmd, capture_output=True, text=True, env=env, timeout=600)
     except subprocess.TimeoutExpired:
         return {"status": "timeout", "total": 0, "passed": 0, "failed": 1,
-                "output": "Test execution timed out after 600s", "returncode": -1}
+                "output": "Timed out after 600s", "returncode": -1, "json_report": None}
 
+    output = proc.stdout + "\n" + proc.stderr
     passed = failed = total = 0
 
     if json_report.exists():
         try:
-            data = json.loads(json_report.read_text())
-            s = data.get("summary", {})
+            s = json.loads(json_report.read_text()).get("summary", {})
             passed = s.get("passed", 0)
             failed = s.get("failed", 0) + s.get("error", 0)
             total  = s.get("total", 0)
         except Exception:
             pass
 
-    # Fallback parse from stdout
     if total == 0:
         for line in output.splitlines():
-            nums = re.findall(r"(\d+) (passed|failed|error)", line)
-            for num, status in nums:
-                if status == "passed":    passed = int(num)
+            for num, status in re.findall(r"(\d+) (passed|failed|error)", line):
+                if status == "passed":             passed = int(num)
                 elif status in ("failed", "error"): failed += int(num)
-            total = passed + failed
+        total = passed + failed
 
     return {
         "status": "passed" if proc.returncode == 0 else "failed",
-        "total":  total,
-        "passed": passed,
-        "failed": failed,
+        "total": total, "passed": passed, "failed": failed,
         "output": output,
-        "html_report": str(html_report),
+        "json_report": str(json_report) if json_report.exists() else None,
         "returncode": proc.returncode,
     }
 
 
-# ── Gap Detection ─────────────────────────────────────────────────────────────
+# ── Screenshot helpers ────────────────────────────────────────────────────────
+
+def load_screenshot_index() -> dict:
+    idx_file = SHOTS_DIR / "_index.json"
+    if idx_file.exists():
+        try:
+            return json.loads(idx_file.read_text())
+        except Exception:
+            pass
+    return {}
+
+
+def screenshot_to_b64(path: str) -> str | None:
+    try:
+        data = Path(path).read_bytes()
+        return "data:image/png;base64," + base64.b64encode(data).decode()
+    except Exception:
+        return None
+
+
+# ── AI bug analysis ───────────────────────────────────────────────────────────
+
+def ai_analyze_failure(test_name: str, error_msg: str, traceback: str,
+                       spec_snippet: str, page_url: str) -> dict:
+    prompt = f"""
+Write a formal bug ticket for this test failure.
+
+TEST NAME: {test_name}
+PAGE URL:  {page_url}
+ERROR:     {error_msg}
+TRACEBACK (last lines):
+{traceback[-1500:]}
+
+RELEVANT SPEC:
+{spec_snippet[:1500]}
+
+Use EXACTLY this format (copy the labels verbatim):
+SEVERITY: [CRITICAL|HIGH|MEDIUM|LOW]
+PRIORITY: [P0|P1|P2|P3]
+TITLE: one-line specific title
+DESCRIPTION: 2–3 sentence explanation of the bug
+STEPS:
+1. step one
+2. step two
+3. step three
+EXPECTED: what the spec says should happen
+ACTUAL: what actually happened per the error
+ROOT_CAUSE: 1–2 sentences on the likely technical cause
+SUGGESTED_FIX: specific actionable fix for the developer
+"""
+    raw = ai_call(BUG_ANALYST_PROMPT, prompt, max_tokens=1024)
+    return _parse_bug_analysis(raw, test_name, page_url)
+
+
+def _parse_bug_analysis(text: str, test_name: str, page_url: str) -> dict:
+    def extract(label: str, stop_labels: list[str]) -> str:
+        stop = "|".join(re.escape(s) for s in stop_labels)
+        m = re.search(
+            rf"{label}:\s*(.+?)(?=(?:{stop}):|$)", text,
+            re.DOTALL | re.IGNORECASE,
+        )
+        return m.group(1).strip() if m else ""
+
+    severity = extract("SEVERITY", []).split()[0].upper() if extract("SEVERITY", []) else "MEDIUM"
+    if severity not in ("CRITICAL", "HIGH", "MEDIUM", "LOW"):
+        severity = "MEDIUM"
+
+    priority_raw = extract("PRIORITY", ["TITLE"]).split()[0].upper()
+    priority = priority_raw if re.match(r"P[0-3]", priority_raw) else "P2"
+
+    steps_block = re.search(r"STEPS:\n((?:\d+\..+\n?)+)", text, re.MULTILINE)
+    steps = re.findall(r"\d+\.\s*(.+)", steps_block.group(1)) if steps_block else [
+        f"Navigate to {page_url}",
+        "Perform the action described in the test",
+        "Observe the result",
+    ]
+
+    BUG_COUNTER[0] += 1
+    return {
+        "id":            f"BUG-{BUG_COUNTER[0]:03d}",
+        "test_name":     test_name,
+        "severity":      severity,
+        "priority":      priority,
+        "title":         extract("TITLE",       ["DESCRIPTION"]) or test_name.replace("_", " ").title(),
+        "description":   extract("DESCRIPTION", ["STEPS"]),
+        "steps":         steps,
+        "expected":      extract("EXPECTED",    ["ACTUAL"]),
+        "actual":        extract("ACTUAL",      ["ROOT_CAUSE"]),
+        "root_cause":    extract("ROOT_CAUSE",  ["SUGGESTED_FIX"]),
+        "suggested_fix": extract("SUGGESTED_FIX", []),
+        "page_url":      page_url,
+    }
+
+
+# ── Bug ticket builder ────────────────────────────────────────────────────────
+
+def build_bug_tickets(spec_content: str, json_report_path: str | None,
+                      screenshot_index: dict) -> list[dict]:
+    if not json_report_path or not Path(json_report_path).exists():
+        return []
+
+    try:
+        report_data = json.loads(Path(json_report_path).read_text())
+    except Exception:
+        return []
+
+    bugs = []
+    for test in report_data.get("tests", []):
+        if test.get("outcome") not in ("failed", "error"):
+            continue
+
+        node_id   = test.get("nodeid", "")
+        test_name = node_id.split("::")[-1]
+        call      = test.get("call", {})
+        crash     = call.get("crash", {})
+        error_msg = crash.get("message", "")
+        traceback = call.get("longrepr", "") or "\n".join(
+            f"{t.get('path','')}: {t.get('message','')}" for t in call.get("traceback", [])
+        )
+        page_url  = BASE_URL
+
+        # Find screenshot
+        shot_info    = screenshot_index.get(node_id, {})
+        shot_path    = shot_info.get("path", "")
+        page_url     = shot_info.get("url", BASE_URL) or BASE_URL
+        screenshot_b64 = screenshot_to_b64(shot_path) if shot_path else None
+        timestamp    = shot_info.get("timestamp", datetime.now().isoformat())
+
+        # AI generates the bug fields
+        print(f"    [BUG-AI] Analyzing failure: {test_name}")
+        bug = ai_analyze_failure(test_name, error_msg, traceback, spec_content, page_url)
+
+        # Enrich with runtime data
+        bug.update({
+            "node_id":        node_id,
+            "error_message":  error_msg,
+            "traceback":      traceback,
+            "screenshot_b64": screenshot_b64,
+            "screenshot_path": shot_path,
+            "duration":       f"{call.get('duration', 0):.2f}s",
+            "timestamp":      timestamp,
+            "browser":        "Chromium",
+            "viewport":       "1280×720",
+            "env":            "Staging",
+        })
+        bugs.append(bug)
+
+    return bugs
+
+
+# ── Gap detection ─────────────────────────────────────────────────────────────
 
 def detect_gaps(spec_content: str, test_code: str, results: dict) -> str:
-    """AI identifies what the generated tests missed."""
     prompt = f"""
-You are a senior QA engineer reviewing test coverage.
-Compare the specification requirements against the actual test code and execution results.
+Review this test specification and the test code written for it.
+Identify EVERY requirement, user flow, edge case, and validation rule that is NOT covered.
 
-FIND ALL GAPS — things that should be tested but are NOT in the test code:
-1. User flows not covered
-2. Edge cases from the spec not tested
-3. Validation rules not verified
-4. Error states not asserted
-5. Security scenarios missing
-6. Accessibility not checked
-
-FORMAT your response as a bullet list:
-- [MISSING] <what> — <why it matters> — <how to test it>
+For each gap write:
+- [MISSING] <what was not tested> — <why it matters> — <how to add it>
 
 SPECIFICATION:
 {spec_content[:3000]}
@@ -298,15 +385,14 @@ SPECIFICATION:
 TEST CODE WRITTEN:
 {test_code[:2000]}
 
-TEST RESULTS:
-Passed: {results.get('passed', 0)}, Failed: {results.get('failed', 0)}, Total: {results.get('total', 0)}
+Stats: {results.get('passed', 0)} passed, {results.get('failed', 0)} failed, {results.get('total', 0)} total.
 
-List every gap you find. Be specific.
+List every gap. Be specific and actionable.
 """
-    return ai_think(prompt)
+    return ai_call(BUG_ANALYST_PROMPT, prompt)
 
 
-# ── Main Agent ────────────────────────────────────────────────────────────────
+# ── Main agent ────────────────────────────────────────────────────────────────
 
 class AutonomousTestAgent:
 
@@ -316,151 +402,141 @@ class AutonomousTestAgent:
         REPORTS_DIR.mkdir(exist_ok=True)
 
     def run(self):
-        self._print_banner()
+        self._banner()
         specs = sorted(SPECS_DIR.glob("*.md"))
         if not specs:
-            print("[ERROR] No .md spec files found in specs/")
+            print("[ERROR] No .md spec files in specs/")
             sys.exit(1)
 
         for spec_path in specs:
-            self._process_spec(spec_path)
+            self._process(spec_path)
 
-        self._final_summary()
+        self._final_report()
 
     # ── Per-spec pipeline ─────────────────────────────────────────────────────
 
-    def _process_spec(self, spec_path: Path):
-        page_name = spec_path.stem
-        print(f"\n{'━'*60}")
+    def _process(self, spec_path: Path):
+        name = spec_path.stem
+        print(f"\n{'━'*62}")
         print(f"  SPEC: {spec_path.name}")
-        print(f"{'━'*60}")
+        print(f"{'━'*62}")
 
         spec_content = spec_path.read_text()
-        test_file = TESTS_DIR / f"test_{page_name.replace('-', '_')}.py"
+        test_file    = TESTS_DIR / f"test_{name.replace('-', '_')}.py"
 
-        # ── Phase 1: Think + Generate ─────────────────────────────────────────
-        print("\n  [THINK] AI is reading spec and planning tests...")
-        test_code = generate_test_file(spec_path)
+        # ── Phase 1: Generate ─────────────────────────────────────────────────
+        print("\n  [THINK] AI reading spec and generating tests...")
+        code = generate_tests(spec_path)
 
-        if test_code is None:
-            print(f"  [ERROR] Could not generate valid code for {page_name}")
-            self.all_results[page_name] = {
+        if code is None:
+            print(f"  [ERROR] Code generation failed for {name}")
+            self.all_results[name] = {
                 "status": "generation_failed", "total": 0, "passed": 0, "failed": 0,
-                "output": "AI code generation failed after all retries.", "gaps": ""
+                "bugs": [], "gaps": "Generation failed — no tests were run.",
             }
             return
 
-        # Ensure required imports are present
-        test_code = self._ensure_imports(test_code)
-        test_file.write_text(test_code)
-        print(f"  [SAVE] {test_file}")
+        code = ensure_imports(code)
+        test_file.write_text(code)
+        print(f"  [SAVE]  {test_file}")
 
         # ── Phase 2: Execute ──────────────────────────────────────────────────
-        print("\n  [EXECUTE] Running generated tests...")
+        print("\n  [EXECUTE] Running tests...")
         results = run_tests(test_file)
-        self._print_run_summary(results)
+        self._show(results)
 
-        # ── Phase 3: Reflect + Fix ────────────────────────────────────────────
+        # ── Phase 3: Fix failures ─────────────────────────────────────────────
         if results["failed"] > 0:
-            print(f"\n  [REFLECT] {results['failed']} failure(s) — AI is analyzing and fixing...")
-            fixed_code = fix_test_file(test_code, results["output"])
-
-            if fixed_code:
-                test_file.write_text(self._ensure_imports(fixed_code))
+            print(f"\n  [REFLECT] {results['failed']} failure(s) — AI fixing...")
+            fixed = fix_tests(code, results["output"])
+            if fixed:
+                code = ensure_imports(fixed)
+                test_file.write_text(code)
                 print("  [EXECUTE] Re-running fixed tests...")
                 results = run_tests(test_file)
-                test_code = fixed_code
-                self._print_run_summary(results)
-
+                self._show(results)
                 if results["failed"] == 0:
-                    print("  [FIX] ✅ All failures resolved by AI!")
+                    print("  [FIX] ✅ All failures resolved!")
                 else:
-                    print(f"  [FIX] ⚠️  {results['failed']} test(s) still failing after fix attempt")
-            else:
-                print("  [FIX] ⚠️  AI could not generate a valid fix")
+                    print(f"  [FIX] ⚠️  {results['failed']} still failing")
 
-        # ── Phase 4: Detect Gaps ──────────────────────────────────────────────
-        print("\n  [ANALYZE] Detecting coverage gaps...")
-        gaps = detect_gaps(spec_content, test_code, results)
-        gaps_file = REPORTS_DIR / f"gaps_{page_name}.md"
-        gaps_file.write_text(f"# Coverage Gaps — {page_name}\n\nGenerated: {datetime.now().isoformat()}\n\n{gaps}")
-        print(f"  [GAPS] Saved → {gaps_file}")
+        # ── Phase 4: Build bug tickets ────────────────────────────────────────
+        bugs = []
+        if results["failed"] > 0:
+            print(f"\n  [BUG-ANALYSIS] AI generating bug tickets for {results['failed']} failure(s)...")
+            shot_index = load_screenshot_index()
+            bugs = build_bug_tickets(spec_content, results.get("json_report"), shot_index)
+            print(f"  [BUG-ANALYSIS] {len(bugs)} bug ticket(s) created")
 
-        results["gaps"] = gaps
-        results["spec_name"] = page_name
-        self.all_results[page_name] = results
+        # ── Phase 5: Coverage gaps ────────────────────────────────────────────
+        print("\n  [GAPS] Detecting coverage gaps...")
+        gaps = detect_gaps(spec_content, code, results)
+        (REPORTS_DIR / f"gaps_{name}.md").write_text(
+            f"# Coverage Gaps — {name}\n\nGenerated: {datetime.now().isoformat()}\n\n{gaps}"
+        )
 
-    # ── Helpers ───────────────────────────────────────────────────────────────
+        results.update({"bugs": bugs, "gaps": gaps, "spec_name": name})
+        self.all_results[name] = results
 
-    def _ensure_imports(self, code: str) -> str:
-        """Guarantee essential imports are present at the top."""
-        header_lines = []
-        if "import os" not in code:
-            header_lines.append("import os")
-        if "import time" not in code:
-            header_lines.append("import time")
-        if "import pytest" not in code:
-            header_lines.append("import pytest")
-        if "from playwright.sync_api" not in code:
-            header_lines.append("from playwright.sync_api import Page, expect")
-        if f'BASE_URL = os.getenv("BASE_URL"' not in code and "BASE_URL" not in code:
-            header_lines.append(f'BASE_URL = os.getenv("BASE_URL", "{BASE_URL}")')
+    # ── Final report ──────────────────────────────────────────────────────────
 
-        if header_lines:
-            return "\n".join(header_lines) + "\n\n" + code
-        return code
-
-    def _print_run_summary(self, r: dict):
-        icon = "✅" if r["status"] == "passed" else "❌"
-        print(f"  {icon} Results — Passed: {r['passed']}  Failed: {r['failed']}  Total: {r['total']}")
-
-    def _print_banner(self):
-        print("\n" + "═"*60)
-        print("  🤖 Markopolo Autonomous AI Test Agent")
-        print(f"  Model  : {AI_MODEL}")
-        print(f"  Target : {BASE_URL}")
-        print(f"  Specs  : {len(list(SPECS_DIR.glob('*.md')))} files")
-        print(f"  Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        print("═"*60)
-
-    def _final_summary(self):
+    def _final_report(self):
         total_p = sum(r.get("passed", 0) for r in self.all_results.values())
         total_f = sum(r.get("failed", 0) for r in self.all_results.values())
         total_t = sum(r.get("total",  0) for r in self.all_results.values())
+        all_bugs = [b for r in self.all_results.values() for b in r.get("bugs", [])]
 
-        print("\n" + "═"*60)
+        print("\n" + "═"*62)
         print("  FINAL SUMMARY")
-        print("═"*60)
-        print(f"  {'Page':<25} {'Passed':>8} {'Failed':>8} {'Total':>8}")
-        print(f"  {'-'*49}")
+        print("═"*62)
+        print(f"  {'Page':<26} {'Pass':>6} {'Fail':>6} {'Total':>6} {'Bugs':>6}")
+        print(f"  {'─'*52}")
         for name, r in self.all_results.items():
             icon = "✅" if r.get("failed", 1) == 0 else "❌"
-            print(f"  {icon} {name:<23} {r.get('passed',0):>8} {r.get('failed',0):>8} {r.get('total',0):>8}")
-        print(f"  {'-'*49}")
-        print(f"  {'TOTAL':<25} {total_p:>8} {total_f:>8} {total_t:>8}")
-        print("═"*60)
+            print(f"  {icon} {name:<24} {r.get('passed',0):>6} "
+                  f"{r.get('failed',0):>6} {r.get('total',0):>6} "
+                  f"{len(r.get('bugs',[])):>6}")
+        print(f"  {'─'*52}")
+        print(f"  {'TOTAL':<26} {total_p:>6} {total_f:>6} {total_t:>6} {len(all_bugs):>6}")
+        print("═"*62)
 
-        # Write summary JSON for CI
+        report_path = generate_report(
+            all_results=self.all_results,
+            base_url=BASE_URL,
+            model=AI_MODEL,
+        )
+        print(f"\n  HTML Report → {report_path}")
+        print(f"  Bug Tickets  → {len(all_bugs)} found\n")
+
+        # Write CI summary JSON
         summary = {
             "timestamp": datetime.now().isoformat(),
-            "model": AI_MODEL,
-            "base_url": BASE_URL,
-            "total_passed": total_p,
-            "total_failed": total_f,
-            "total_tests": total_t,
-            "pages": self.all_results,
+            "model": AI_MODEL, "base_url": BASE_URL,
+            "total_passed": total_p, "total_failed": total_f,
+            "total_tests": total_t, "total_bugs": len(all_bugs),
         }
-        summary_file = REPORTS_DIR / "summary.json"
-        # Remove non-serializable items for JSON
-        clean_summary = json.loads(json.dumps(summary, default=str))
-        summary_file.write_text(json.dumps(clean_summary, indent=2))
-        print(f"\n  Report → {REPORTS_DIR}/")
+        (REPORTS_DIR / "summary.json").write_text(json.dumps(summary, indent=2))
 
         if total_f > 0:
             sys.exit(1)
 
+    # ── Helpers ───────────────────────────────────────────────────────────────
 
-# ── Entry Point ───────────────────────────────────────────────────────────────
+    def _show(self, r: dict):
+        icon = "✅" if r["status"] == "passed" else "❌"
+        print(f"  {icon}  Passed: {r['passed']}  Failed: {r['failed']}  Total: {r['total']}")
+
+    def _banner(self):
+        print("\n" + "═"*62)
+        print("  Markopolo Autonomous AI Test Agent")
+        print(f"  Model   : {AI_MODEL}  (local Ollama — no API key)")
+        print(f"  Target  : {BASE_URL}")
+        print(f"  Specs   : {len(list(SPECS_DIR.glob('*.md')))} files")
+        print(f"  Started : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        print("═"*62)
+
+
+# ── Entry point ───────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
     agent = AutonomousTestAgent()

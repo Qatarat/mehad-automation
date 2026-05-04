@@ -82,48 +82,64 @@ jobs:
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
         run: python ai_engine/agent.py
 
-      # ── 11. Upload all reports as artifacts ───────────────────────────────
-      - name: Upload test reports
+      # ── 11. Upload the HTML bug report (main deliverable) ────────────────
+      - name: Upload HTML bug report
         uses: actions/upload-artifact@v4
-        if: always()   # upload even if tests fail
+        if: always()
         with:
-          name: ai-test-reports-${{ github.run_number }}
-          path: |
-            reports/
+          name: bug-report-${{ github.run_number }}
+          path: reports/bug-report.html
           retention-days: 30
 
-      # ── 12. Upload generated test files for review ────────────────────────
+      # ── 12. Upload screenshots / POC evidence ─────────────────────────────
+      - name: Upload screenshots (POC evidence)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: screenshots-${{ github.run_number }}
+          path: reports/screenshots/
+          retention-days: 30
+
+      # ── 13. Upload all other reports ──────────────────────────────────────
+      - name: Upload full report bundle
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full-reports-${{ github.run_number }}
+          path: reports/
+          retention-days: 30
+
+      # ── 14. Upload AI-generated test code ─────────────────────────────────
       - name: Upload generated test code
         uses: actions/upload-artifact@v4
         if: always()
         with:
           name: ai-generated-tests-${{ github.run_number }}
-          path: |
-            tests/
+          path: tests/
           retention-days: 30
 
-      # ── 13. Print summary to GitHub Actions job summary ───────────────────
+      # ── 15. Write GitHub Actions job summary ──────────────────────────────
       - name: Write job summary
         if: always()
         run: |
-          echo "## 🤖 AI Test Report" >> $GITHUB_STEP_SUMMARY
+          echo "## Markopolo AI Bug Report" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
-          echo "| AI Model | qwen2.5-coder:1.5b (local, no API key) |" >> $GITHUB_STEP_SUMMARY
-          echo "| Target URL | https://beta-stg.markopolo.ai |" >> $GITHUB_STEP_SUMMARY
+          echo "| AI Model | qwen2.5-coder:1.5b (local Ollama — no API key) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target | https://beta-stg.markopolo.ai |" >> $GITHUB_STEP_SUMMARY
           echo "| Trigger | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Run # | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Run | #${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ -f reports/summary.json ]; then
-            echo "### Results" >> $GITHUB_STEP_SUMMARY
             python3 -c "
           import json
           d = json.load(open('reports/summary.json'))
-          print(f\"| Passed | {d['total_passed']} |\")
-          print(f\"| Failed | {d['total_failed']} |\")
-          print(f\"| Total  | {d['total_tests']} |\")
+          print('| Passed | ' + str(d['total_passed']) + ' |')
+          print('| Failed | ' + str(d['total_failed']) + ' |')
+          print('| Total Tests | ' + str(d['total_tests']) + ' |')
+          print('| Bug Tickets | ' + str(d.get('total_bugs', '?')) + ' |')
           " >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📥 Download full HTML report from the **Artifacts** section above." >> $GITHUB_STEP_SUMMARY
+          echo "**Download \`bug-report-${{ github.run_number }}\` from Artifacts to see the full HTML report with screenshots.**" >> $GITHUB_STEP_SUMMARY
