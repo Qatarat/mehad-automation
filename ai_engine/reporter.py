@@ -172,6 +172,34 @@ tr:hover td{{background:#1c2333}}
 .gap-block h3{{color:#a371f7;font-size:14px;margin-bottom:12px}}
 .gap-block p,.gap-block li{{color:var(--muted);font-size:13px;margin-bottom:4px}}
 
+/* ── Evidence panels ── */
+.ev-toggle{{width:100%;background:#0a1628;border:1px solid var(--border);border-radius:6px;
+           padding:9px 14px;color:var(--c-low);font-family:monospace;font-size:12px;
+           cursor:pointer;text-align:left;display:flex;justify-content:space-between;
+           align-items:center;margin-top:10px}}
+.ev-toggle:hover{{background:#0e1e38}}
+.ev-body{{display:none;margin-top:1px}}
+.ev-body.open{{display:block}}
+.ev-table{{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}}
+.ev-table th{{background:#0d1117;color:var(--muted);padding:5px 10px;text-align:left;font-weight:600}}
+.ev-table td{{padding:4px 10px;border-top:1px solid #21262d;color:var(--text);
+             word-break:break-all;max-width:400px}}
+.ev-table tr:nth-child(even) td{{background:#0d1117}}
+.perf-grid{{display:flex;gap:16px;flex-wrap:wrap;margin-top:4px}}
+.perf-stat{{background:#0d1117;border:1px solid var(--border);border-radius:6px;
+           padding:10px 16px;min-width:120px;text-align:center}}
+.perf-stat .pval{{font-size:22px;font-weight:700;color:var(--c-low)}}
+.perf-stat .plbl{{font-size:10px;color:var(--muted);text-transform:uppercase;
+                 letter-spacing:.5px;margin-top:4px}}
+.pval.warn{{color:var(--c-medium)}}
+.pval.bad{{color:var(--c-critical)}}
+.console-err{{background:var(--c-critical-bg);border-left:3px solid var(--c-critical);
+             padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;
+             font-family:monospace;color:var(--c-critical)}}
+.console-warn{{background:var(--c-medium-bg);border-left:3px solid var(--c-medium);
+              padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;
+              font-family:monospace;color:var(--c-medium)}}
+
 /* ── Lightbox ── */
 #lb{{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);
     z-index:1000;cursor:zoom-out;justify-content:center;align-items:center}}
@@ -264,6 +292,13 @@ function toggleErr(id){{
   if(el.classList.contains('open')){{el.classList.remove('open');btn.querySelector('span').textContent='▶ Show error details';}}
   else{{el.classList.add('open');btn.querySelector('span').textContent='▼ Hide error details';}}
 }}
+function toggleEv(id){{
+  var el=document.getElementById(id);
+  var btn=el.previousElementSibling;
+  var arrow=btn.querySelectorAll('span')[1];
+  if(el.classList.contains('open')){{el.classList.remove('open');arrow.textContent='▶ Show';}}
+  else{{el.classList.add('open');arrow.textContent='▼ Hide';}}
+}}
 function openShot(src){{document.getElementById('lb-img').src=src;document.getElementById('lb').classList.add('show');}}
 document.addEventListener('keydown',function(e){{if(e.key==='Escape')document.getElementById('lb').classList.remove('show');}});
 </script>
@@ -352,6 +387,76 @@ def _bug_ticket(bug: dict, idx: int) -> str:
     else:
         err_section = ""
 
+    # ── Evidence panels ──────────────────────────────────────────────────────
+    ev_html = ""
+    ev_idx = idx  # reuse the ticket index as panel id
+
+    # Performance panel
+    perf = bug.get("performance", {})
+    if perf:
+        def _perf_class(ms, warn=1500, bad=3000):
+            if ms >= bad:  return "pval bad"
+            if ms >= warn: return "pval warn"
+            return "pval"
+        dom_ms  = perf.get("dom_load_ms",  0)
+        load_ms = perf.get("page_load_ms", 0)
+        ttfb_ms = perf.get("ttfb_ms",      0)
+        ev_html += f"""
+<button class="ev-toggle" onclick="toggleEv('perf-{ev_idx}')">
+  <span>⚡ Performance Timing</span>
+  <span style="font-size:11px;color:var(--muted)">▶ Show</span>
+</button>
+<div class="ev-body" id="perf-{ev_idx}">
+  <div class="perf-grid" style="margin:8px 0">
+    <div class="perf-stat"><div class="{_perf_class(ttfb_ms,300,1000)}">{ttfb_ms}ms</div>
+      <div class="plbl">TTFB</div></div>
+    <div class="perf-stat"><div class="{_perf_class(dom_ms)}">{dom_ms}ms</div>
+      <div class="plbl">DOM Ready</div></div>
+    <div class="perf-stat"><div class="{_perf_class(load_ms,2000,4000)}">{load_ms}ms</div>
+      <div class="plbl">Page Load</div></div>
+  </div>
+</div>"""
+
+    # Console errors panel
+    errs = bug.get("error_log", [])
+    if errs:
+        items = "".join(
+            f'<div class="console-{e.get("type","error")}">'
+            f'<b>{_esc(e.get("type","").upper())}:</b> {_esc(e.get("text","")[:200])}</div>'
+            for e in errs[:10]
+        )
+        ev_html += f"""
+<button class="ev-toggle" onclick="toggleEv('console-{ev_idx}')" style="border-color:var(--c-critical);color:var(--c-critical)">
+  <span>🔴 Console Errors ({len(errs)})</span>
+  <span style="font-size:11px;color:var(--muted)">▶ Show</span>
+</button>
+<div class="ev-body" id="console-{ev_idx}">
+  <div style="margin:8px 0">{items}</div>
+</div>"""
+
+    # Network log panel (show only API calls)
+    net_log = [n for n in bug.get("network_log", []) if "/api/" in n.get("url","")]
+    if net_log:
+        rows = "".join(
+            f'<tr><td>{_esc(n.get("method",""))}</td>'
+            f'<td style="color:{"var(--c-pass)" if 200<=n.get("status",0)<300 else "var(--c-critical)"}"">'
+            f'{n.get("status","")}</td>'
+            f'<td>{_esc(n.get("url","")[-80:])}</td></tr>'
+            for n in net_log[:15] if n.get("type") == "response"
+        )
+        if rows:
+            ev_html += f"""
+<button class="ev-toggle" onclick="toggleEv('net-{ev_idx}')">
+  <span>🌐 Network Log ({len(net_log)} API calls)</span>
+  <span style="font-size:11px;color:var(--muted)">▶ Show</span>
+</button>
+<div class="ev-body" id="net-{ev_idx}">
+  <table class="ev-table" style="margin:8px 0">
+    <thead><tr><th>Method</th><th>Status</th><th>URL</th></tr></thead>
+    <tbody>{rows}</tbody>
+  </table>
+</div>"""
+
     # Root cause + fix
     analysis_fix = ""
     if root:
@@ -398,6 +503,7 @@ def _bug_ticket(bug: dict, idx: int) -> str:
     {exp_act}
     {shot_html}
     {err_section}
+    {ev_html}
     <div style="margin-top:16px">{analysis_fix}</div>
     <div class="env-strip">
       <span><b>Browser:</b> {env_b}</span>

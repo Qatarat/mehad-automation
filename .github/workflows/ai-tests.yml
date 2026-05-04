@@ -11,78 +11,96 @@ on:
 
 jobs:
   autonomous-ai-test:
-    name: AI Test Agent
+    name: AI Test Agent v4
     runs-on: ubuntu-latest
-    timeout-minutes: 90       # 1.5b model needs ~15 min per spec on CPU
+    timeout-minutes: 90
 
     steps:
-      # ── 1. Checkout ──────────────────────────────────────────────────────
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ── 2. Python ────────────────────────────────────────────────────────
+      # ── 2. Python 3.12 ──────────────────────────────────────────────────────
       - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
           cache: "pip"
 
-      # ── 3. Python dependencies ───────────────────────────────────────────
+      # ── 3. Python dependencies ────────────────────────────────────────────
       - name: Install Python dependencies
         run: pip install -r requirements.txt
 
-      # ── 4. Playwright ────────────────────────────────────────────────────
+      # ── 4. Playwright + Chromium ──────────────────────────────────────────
       - name: Install Playwright and Chromium
         run: playwright install chromium --with-deps
 
-      # ── 5. Ollama ────────────────────────────────────────────────────────
+      # ── 5. Ollama ─────────────────────────────────────────────────────────
       - name: Install Ollama
         run: curl -fsSL https://ollama.ai/install.sh | sh
 
-      # ── 6. Cache model (saves 1 GB download on repeat runs) ──────────────
-      - name: Cache Ollama model
+      # ── 6. Cache Ollama models (avoids 1GB re-download per run) ──────────
+      - name: Cache Ollama models
         uses: actions/cache@v4
         with:
           path: ~/.ollama/models
-          key: ollama-qwen2.5-coder-1.5b-v1
+          key: ollama-models-qwen2.5-coder-1.5b-llama3.2-1b-v2
 
-      # ── 7. Start Ollama ───────────────────────────────────────────────────
+      # ── 7. Start Ollama service ────────────────────────────────────────────
       - name: Start Ollama service
         run: |
           ollama serve &
+          echo "Waiting for Ollama..."
           for i in $(seq 1 30); do
-            curl -s http://localhost:11434/api/tags > /dev/null 2>&1 && echo "Ollama ready" && break
+            curl -s http://localhost:11434/api/tags > /dev/null 2>&1 && echo "✅ Ollama ready" && break
             sleep 2
           done
 
-      # ── 8. Pull primary + backup models ──────────────────────────────────
+      # ── 8. Pull AI models ─────────────────────────────────────────────────
       - name: Pull AI models
         run: |
-          echo "=== Primary model ==="
+          echo "=== Primary: qwen2.5-coder:1.5b ==="
           ollama pull qwen2.5-coder:1.5b
-          echo "=== Backup model (llama3.2:1b, 1.3GB) ==="
-          ollama pull llama3.2:1b || echo "Backup unavailable, primary only"
+          echo "=== Backup: llama3.2:1b ==="
+          ollama pull llama3.2:1b || echo "Backup unavailable — primary only"
           echo "=== Available models ==="
           ollama list
 
-      # ── 9. Verify everything is installed ────────────────────────────────
+      # ── 9. Verify all modules ─────────────────────────────────────────────
       - name: Verify setup
-        run: |
-          python --version
-          python -c "import ollama; print('ollama OK')"
-          python -c "import playwright; print('playwright OK')"
-          python -c "import pytest; print('pytest OK')"
-          python -c "from ai_engine.spec_parser import parse; print('spec_parser OK')"
-          python -c "from ai_engine.reporter import generate_report; print('reporter OK')"
-          python -c "from ai_engine.agent import template_tests; print('template_engine OK')"
         env:
           PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python --version
+          python -c "import ollama; print('✅ ollama')"
+          python -c "import playwright; print('✅ playwright')"
+          python -c "import pytest; print('✅ pytest')"
+          python -c "from ai_engine.spec_parser   import parse;          print('✅ spec_parser')"
+          python -c "from ai_engine.spec_compiler import compile_spec;   print('✅ spec_compiler')"
+          python -c "from ai_engine.test_generator import generate_all;  print('✅ test_generator')"
+          python -c "from ai_engine.test_validator import validate_code; print('✅ test_validator')"
+          python -c "from ai_engine.evidence      import enrich_bug;     print('✅ evidence')"
+          python -c "from ai_engine.bug_builder   import build_from_json_report; print('✅ bug_builder')"
+          python -c "from ai_engine.gap_checker   import detect_gaps;    print('✅ gap_checker')"
+          python -c "from ai_engine.memory        import load;           print('✅ memory')"
+          python -c "from ai_engine.reporter      import generate_report; print('✅ reporter')"
+          python -c "from ai_engine.agent         import template_tests;  print('✅ agent')"
+          python -c "from payloads import XSS, SQLI, BOUNDARY; print(f'✅ payloads  XSS:{len(XSS)} SQLi:{len(SQLI)} Boundary:{len(BOUNDARY)}')"
 
       # ── 10. Prepare directories ───────────────────────────────────────────
       - name: Prepare directories
-        run: mkdir -p tests reports reports/screenshots
+        run: mkdir -p tests reports reports/screenshots reports/evidence
 
-      # ── 11. Run the AI agent ──────────────────────────────────────────────
+      # ── 11. Compile specs to JSON ─────────────────────────────────────────
+      - name: Compile Specs → JSON
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          for f in specs/*.md; do
+            python ai_engine/spec_compiler.py "$f" || echo "Warning: compile failed for $f"
+          done
+
+      # ── 12. Run the AI agent ──────────────────────────────────────────────
       - name: Run AI Test Agent
         env:
           BASE_URL: https://beta-stg.markopolo.ai
@@ -92,7 +110,7 @@ jobs:
           PYTHONUNBUFFERED: "1"
         run: python -u ai_engine/agent.py
 
-      # ── 12. Upload HTML bug report ────────────────────────────────────────
+      # ── 13. Upload HTML bug report ────────────────────────────────────────
       - name: Upload HTML bug report
         uses: actions/upload-artifact@v4
         if: always()
@@ -101,7 +119,7 @@ jobs:
           path: reports/bug-report.html
           retention-days: 30
 
-      # ── 13. Upload screenshots ────────────────────────────────────────────
+      # ── 14. Upload screenshots ────────────────────────────────────────────
       - name: Upload screenshots
         uses: actions/upload-artifact@v4
         if: always()
@@ -111,7 +129,7 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      # ── 14. Upload all reports ────────────────────────────────────────────
+      # ── 15. Upload all reports + evidence ────────────────────────────────
       - name: Upload full reports
         uses: actions/upload-artifact@v4
         if: always()
@@ -120,7 +138,7 @@ jobs:
           path: reports/
           retention-days: 30
 
-      # ── 15. Upload generated tests ────────────────────────────────────────
+      # ── 16. Upload generated tests ────────────────────────────────────────
       - name: Upload generated tests
         uses: actions/upload-artifact@v4
         if: always()
@@ -130,11 +148,21 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
-      # ── 16. Job summary ───────────────────────────────────────────────────
+      # ── 17. Upload compiled specs ─────────────────────────────────────────
+      - name: Upload compiled specs
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: compiled-specs-${{ github.run_number }}
+          path: specs/*.spec.json
+          if-no-files-found: warn
+          retention-days: 30
+
+      # ── 18. Job summary ───────────────────────────────────────────────────
       - name: Write job summary
         if: always()
         run: |
-          echo "## Markopolo AI Bug Report" >> $GITHUB_STEP_SUMMARY
+          echo "## 🤖 Markopolo AI Bug Report — Run #${{ github.run_number }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
           echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
@@ -142,16 +170,17 @@ jobs:
           echo "| Target | https://beta-stg.markopolo.ai |" >> $GITHUB_STEP_SUMMARY
           echo "| Trigger | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Run | #${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Architecture | v4 — Spec Compiler + 15 Test Types + Validator + Memory |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ -f reports/summary.json ]; then
             python3 -c "
           import json
           d = json.load(open('reports/summary.json'))
-          print('| Passed | ' + str(d['total_passed']) + ' |')
-          print('| Failed | ' + str(d['total_failed']) + ' |')
-          print('| Total Tests | ' + str(d['total_tests']) + ' |')
-          print('| Bug Tickets | ' + str(d.get('total_bugs', 0)) + ' |')
+          print('| ✅ Passed | ' + str(d['total_passed']) + ' |')
+          print('| ❌ Failed | ' + str(d['total_failed']) + ' |')
+          print('| 📊 Total Tests | ' + str(d['total_tests']) + ' |')
+          print('| 🐛 Bug Tickets | ' + str(d.get('total_bugs', 0)) + ' |')
           " >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Download **bug-report-${{ github.run_number }}** from Artifacts for the full HTML report." >> $GITHUB_STEP_SUMMARY
+          echo "📥 Download **bug-report-${{ github.run_number }}** from Artifacts for the full HTML report." >> $GITHUB_STEP_SUMMARY

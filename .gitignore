@@ -9,3 +9,6 @@ reports/*.md
 .env
 *.log
 node_modules/
+reports/screenshots/
+reports/evidence/
+specs/*.spec.json

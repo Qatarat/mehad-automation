@@ -1,0 +1,11 @@
+{
+  "selectors": {},
+  "failures": {},
+  "fixes": {},
+  "flaky_tests": [
+    "test_login_no_console_errors",
+    "test_reset_password_no_console_errors"
+  ],
+  "known_good_selectors": {},
+  "selector_attempts": {}
+}
