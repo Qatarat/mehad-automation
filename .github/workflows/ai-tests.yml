@@ -1,0 +1,129 @@
+name: 🤖 Markopolo Autonomous AI Testing
+
+on:
+  push:
+    paths:
+      - "specs/**"       # re-test when any spec changes
+      - "ai_engine/**"   # re-test when the AI engine changes
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "0 2 * * *"  # every night at 2 AM UTC
+  workflow_dispatch:      # manual trigger from GitHub UI
+
+jobs:
+  autonomous-ai-test:
+    name: AI Test Agent
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # ── 2. Python setup ──────────────────────────────────────────────────
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # ── 3. Python dependencies ───────────────────────────────────────────
+      - name: Install Python dependencies
+        run: pip install -r requirements.txt
+
+      # ── 4. Playwright browser ─────────────────────────────────────────────
+      - name: Install Playwright + Chromium
+        run: playwright install chromium --with-deps
+
+      # ── 5. Install Ollama (local AI, no API key needed) ──────────────────
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.ai/install.sh | sh
+
+      # ── 6. Cache AI model (avoid re-downloading 1GB every run) ───────────
+      - name: Cache Ollama model
+        id: cache-ollama-model
+        uses: actions/cache@v4
+        with:
+          path: ~/.ollama/models
+          key: ollama-model-qwen2.5-coder-1.5b-v1
+
+      # ── 7. Start Ollama background service ────────────────────────────────
+      - name: Start Ollama service
+        run: |
+          ollama serve &
+          echo "Waiting for Ollama to be ready..."
+          for i in $(seq 1 30); do
+            if curl -s http://localhost:11434/api/tags > /dev/null 2>&1; then
+              echo "Ollama is ready"
+              break
+            fi
+            sleep 2
+          done
+
+      # ── 8. Pull AI model (uses cache if available) ────────────────────────
+      - name: Pull AI model — qwen2.5-coder:1.5b
+        run: |
+          echo "Pulling qwen2.5-coder:1.5b (fast code generation, fits in 7GB RAM)..."
+          ollama pull qwen2.5-coder:1.5b
+          echo "Model ready:"
+          ollama list
+
+      # ── 9. Create output directories ──────────────────────────────────────
+      - name: Prepare directories
+        run: mkdir -p tests reports
+
+      # ── 10. Run the autonomous AI test agent ──────────────────────────────
+      - name: Run AI Test Agent
+        env:
+          BASE_URL: https://beta-stg.markopolo.ai
+          AI_MODEL: qwen2.5-coder:1.5b
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+        run: python ai_engine/agent.py
+
+      # ── 11. Upload all reports as artifacts ───────────────────────────────
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()   # upload even if tests fail
+        with:
+          name: ai-test-reports-${{ github.run_number }}
+          path: |
+            reports/
+          retention-days: 30
+
+      # ── 12. Upload generated test files for review ────────────────────────
+      - name: Upload generated test code
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ai-generated-tests-${{ github.run_number }}
+          path: |
+            tests/
+          retention-days: 30
+
+      # ── 13. Print summary to GitHub Actions job summary ───────────────────
+      - name: Write job summary
+        if: always()
+        run: |
+          echo "## 🤖 AI Test Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|-------|" >> $GITHUB_STEP_SUMMARY
+          echo "| AI Model | qwen2.5-coder:1.5b (local, no API key) |" >> $GITHUB_STEP_SUMMARY
+          echo "| Target URL | https://beta-stg.markopolo.ai |" >> $GITHUB_STEP_SUMMARY
+          echo "| Trigger | ${{ github.event_name }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Run # | ${{ github.run_number }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f reports/summary.json ]; then
+            echo "### Results" >> $GITHUB_STEP_SUMMARY
+            python3 -c "
+          import json
+          d = json.load(open('reports/summary.json'))
+          print(f\"| Passed | {d['total_passed']} |\")
+          print(f\"| Failed | {d['total_failed']} |\")
+          print(f\"| Total  | {d['total_tests']} |\")
+          " >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "📥 Download full HTML report from the **Artifacts** section above." >> $GITHUB_STEP_SUMMARY

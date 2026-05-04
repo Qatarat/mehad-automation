@@ -1,0 +1,11 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+tests/*.py
+reports/*.html
+reports/*.json
+reports/*.md
+.env
+*.log
+node_modules/
