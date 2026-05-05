@@ -12,7 +12,7 @@ on:
       ai_model:
         description: "Ollama model (e.g. qwen2.5-coder:7b)"
         required: false
-        default: "qwen2.5-coder:1.5b"
+        default: "qwen2.5-coder:7b"
       base_url:
         description: "Target URL to test"
         required: false
@@ -30,15 +30,17 @@ jobs:
   autonomous-ai-test:
     name: AI Test Agent v5
     runs-on: ubuntu-latest
-    timeout-minutes: 60   # Reduced from 90 — CI-optimized model set is fast
+    timeout-minutes: 90   # 7b model needs more time
 
     env:
       BASE_URL:              ${{ github.event.inputs.base_url  || 'https://beta-stg.markopolo.ai' }}
-      AI_MODEL:              ${{ github.event.inputs.ai_model  || 'qwen2.5-coder:1.5b' }}
-      AI_TIMEOUT:            "60"       # seconds per ollama.chat() call before giving up
+      AI_MODEL:              ${{ github.event.inputs.ai_model  || 'qwen2.5-coder:7b' }}
+      AI_TIMEOUT:            "120"      # seconds per ollama.chat() call before giving up (7b needs more time)
       MAX_FIX_RETRIES:       "1"        # self-heal rounds in CI (reduce from 3 to save time)
-      BROWSER_USE_ENABLED:   ${{ github.event.inputs.browser_use || 'false' }}
+      BROWSER_USE_ENABLED:   "true"
       BROWSER_USE_MODEL:     "qwen2.5:7b"
+      OPENAI_API_KEY:        "ollama"
+      OPENAI_BASE_URL:       "http://localhost:11434/v1"
 
     steps:
       # ── 1. Checkout ──────────────────────────────────────────────────────────
@@ -59,8 +61,10 @@ jobs:
           # Install core deps directly in case requirements.txt has new entries
           pip install ollama playwright pytest pytest-playwright pytest-json-report \
                       pytest-html pytest-timeout Jinja2
+          # Install langchain backends
+          pip install langchain-openai langchain-ollama
           # Install browser-use (optional — skip if install fails)
-          pip install browser-use langchain-ollama || echo "⚠️ browser-use install skipped"
+          pip install browser-use langchain-openai langchain-ollama || echo "⚠️ browser-use install skipped"
 
       # ── 4. Playwright + Chromium ──────────────────────────────────────────
       - name: Install Playwright and Chromium
@@ -75,7 +79,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.ollama/models
-          key: ollama-models-v5-qwen2.5-coder-1.5b-tinyllama-1.1b
+          key: ollama-models-v6-qwen2.5-coder-7b-1.5b-tinyllama
 
       # ── 7. Start Ollama service ────────────────────────────────────────────
       - name: Start Ollama service
@@ -87,21 +91,25 @@ jobs:
             sleep 2
           done
 
-      # ── 8. Pull AI models (CI-optimized — small + fast) ───────────────────
-      # Only pull models that download quickly in CI.
-      # The 14-model chain in agent.py handles larger models if available locally.
+      # ── 8. Pull AI models (7b primary + fallback chain) ──────────────────
+      # Primary: qwen2.5-coder:7b (4.7 GB — best quality).
+      # The 15-model chain in agent.py handles any subset that is available.
       - name: Pull AI models
-        timeout-minutes: 10
+        timeout-minutes: 20
         run: |
-          echo "=== Primary: $AI_MODEL (CI default: 986 MB) ==="
-          timeout 300 ollama pull "$AI_MODEL" || echo "⚠️ Primary unavailable — template engine will be used"
+          echo "=== Primary: qwen2.5-coder:7b (4.7 GB — best quality) ==="
+          timeout 900 ollama pull qwen2.5-coder:7b || echo "⚠️  qwen2.5-coder:7b unavailable — falling back"
 
           echo ""
-          echo "=== Backup: tinyllama:1.1b (637 MB — ultra-fast) ==="
+          echo "=== Fallback: qwen2.5-coder:1.5b (986 MB) ==="
+          timeout 300 ollama pull qwen2.5-coder:1.5b || echo "⚠️ qwen2.5-coder:1.5b unavailable"
+
+          echo ""
+          echo "=== Fallback: tinyllama:1.1b (637 MB) ==="
           timeout 180 ollama pull tinyllama:1.1b || echo "⚠️ tinyllama unavailable"
 
           echo ""
-          echo "=== Backup: qwen2.5:0.5b (395 MB — smallest) ==="
+          echo "=== Fallback: qwen2.5:0.5b (395 MB) ==="
           timeout 120 ollama pull qwen2.5:0.5b || echo "⚠️ qwen2.5:0.5b unavailable"
 
           echo ""
@@ -163,7 +171,7 @@ jobs:
 
       # ── 12. Run the AI agent ──────────────────────────────────────────────
       - name: Run AI Test Agent
-        timeout-minutes: 45   # hard limit on agent execution
+        timeout-minutes: 60   # hard limit on agent execution (7b is slower)
         env:
           BASE_URL:              ${{ env.BASE_URL }}
           AI_MODEL:              ${{ env.AI_MODEL }}
@@ -172,6 +180,8 @@ jobs:
           TEST_PASSWORD:         ${{ secrets.TEST_PASSWORD }}
           BROWSER_USE_ENABLED:   ${{ env.BROWSER_USE_ENABLED }}
           BROWSER_USE_MODEL:     ${{ env.BROWSER_USE_MODEL }}
+          OPENAI_API_KEY:        ${{ env.OPENAI_API_KEY }}
+          OPENAI_BASE_URL:       ${{ env.OPENAI_BASE_URL }}
           PYTHONPATH:            ${{ github.workspace }}
           PYTHONUNBUFFERED:      "1"
         run: |
@@ -181,7 +191,7 @@ jobs:
           echo "  AI Timeout:   ${AI_TIMEOUT}s per call"
           echo "  Test Types:   22 (smoke → security)"
           echo "  Model Chain:  14 models (all free, auto-fallback)"
-          echo "  Browser-use:  $BROWSER_USE_ENABLED"
+          echo "  Browser-use:  true (langchain-openai → Ollama /v1)"
           echo "  Template:     always-works fallback with compiled selectors"
           echo ""
           python -u ai_engine/agent.py
@@ -264,7 +274,7 @@ jobs:
           echo "| 🚀 Trigger | ${{ github.event_name }} |"                                            >> "$GITHUB_STEP_SUMMARY"
           echo "| 🔢 Run | #${{ github.run_number }} |"                                              >> "$GITHUB_STEP_SUMMARY"
           echo "| 🏗️ Architecture | v5 — 22 Types · 14-Model Chain · Template Fallback |"            >> "$GITHUB_STEP_SUMMARY"
-          echo "| 🌐 Browser-use | ${{ env.BROWSER_USE_ENABLED }} (local Ollama, no API key) |"     >> "$GITHUB_STEP_SUMMARY"
+          echo "| 🌐 Browser-use | true (langchain-openai → Ollama /v1, no API key) |"             >> "$GITHUB_STEP_SUMMARY"
           echo "| 📦 Ref | \`${{ github.ref_name }}\` @ \`${{ github.sha }}\` |"                    >> "$GITHUB_STEP_SUMMARY"
           echo "" >> "$GITHUB_STEP_SUMMARY"
 

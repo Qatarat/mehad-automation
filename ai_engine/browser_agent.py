@@ -10,7 +10,16 @@ Features:
   • Flow validation (validates user flows by actually performing them)
 
 Requirements (optional — graceful fallback if not installed):
+    pip install browser-use langchain-openai
+
+    # OR the legacy approach:
     pip install browser-use langchain-ollama
+
+LLM backend priority:
+  1. langchain-openai  — uses Ollama's OpenAI-compatible /v1 endpoint (recommended)
+                         set OPENAI_BASE_URL=http://localhost:11434/v1
+                         set OPENAI_API_KEY=ollama
+  2. langchain-ollama  — direct Ollama protocol (legacy fallback)
 
 Best local models for browser-use (need tool/function calling support):
     qwen2.5:7b          — best balance of quality + speed
@@ -37,7 +46,13 @@ except ImportError:
     _BU_INSTALLED = False
 
 try:
-    from langchain_ollama import ChatOllama
+    from langchain_openai import ChatOpenAI as _ChatOpenAI
+    _LANGCHAIN_OPENAI_INSTALLED = True
+except ImportError:
+    _LANGCHAIN_OPENAI_INSTALLED = False
+
+try:
+    from langchain_ollama import ChatOllama as _ChatOllama
     _LANGCHAIN_OLLAMA_INSTALLED = True
 except ImportError:
     _LANGCHAIN_OLLAMA_INSTALLED = False
@@ -48,24 +63,33 @@ _BU_TIMEOUT       = int(os.getenv("BROWSER_USE_TIMEOUT", "120"))  # seconds per 
 
 
 def _available() -> bool:
-    """Check if browser-use and langchain-ollama are both installed."""
+    """Check if browser-use and at least one LLM backend are installed."""
     if not _BU_INSTALLED:
         return False
-    if not _LANGCHAIN_OLLAMA_INSTALLED:
-        return False
-    return True
+    return _LANGCHAIN_OPENAI_INSTALLED or _LANGCHAIN_OLLAMA_INSTALLED
 
 
 def _get_llm(model: str | None = None):
-    """Return a ChatOllama instance configured for local inference."""
-    if not _LANGCHAIN_OLLAMA_INSTALLED:
-        raise ImportError("pip install langchain-ollama")
+    """
+    Return an LLM instance configured for local Ollama inference.
+    Prefers langchain-openai via Ollama's OpenAI-compatible /v1 endpoint
+    for better stability; falls back to langchain-ollama if unavailable.
+    """
     m = model or BROWSER_USE_MODEL
-    return ChatOllama(
-        model=m,
-        num_ctx=16000,        # larger context for browser tasks
-        temperature=0.1,      # low temp for deterministic actions
-    )
+    OLLAMA_BASE_URL = os.getenv("OPENAI_BASE_URL", "http://localhost:11434/v1")
+    OLLAMA_API_KEY  = os.getenv("OPENAI_API_KEY",  "ollama")
+    if _LANGCHAIN_OPENAI_INSTALLED:
+        return _ChatOpenAI(
+            model=m,
+            base_url=OLLAMA_BASE_URL,
+            api_key=OLLAMA_API_KEY,
+            temperature=0.1,
+            max_tokens=4096,
+        )
+    elif _LANGCHAIN_OLLAMA_INSTALLED:
+        return _ChatOllama(model=m, num_ctx=16000, temperature=0.1)
+    else:
+        raise ImportError("pip install langchain-openai")
 
 
 async def _run_task(task: str, model: str, timeout: int = _BU_TIMEOUT) -> str:

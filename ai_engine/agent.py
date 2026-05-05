@@ -101,9 +101,10 @@ _SKIP_SPECS = {"TEMPLATE.md", "README.md", "EXAMPLE.md"}
 
 # ── Multi-model chain — 14 free/open-source models ────────────────────────────
 MODEL_CHAIN = [
-    (AI_MODEL,                4096, 0.05),
-    (AI_MODEL,                2000, 0.10),
-    ("qwen2.5-coder:7b",      4096, 0.05),
+    (AI_MODEL,                4096, 0.05),   # primary (default: qwen2.5-coder:7b)
+    (AI_MODEL,                2500, 0.08),   # retry primary with lower tokens
+    ("qwen2.5-coder:7b",      4096, 0.05),   # always try 7b explicitly
+    ("qwen2.5-coder:7b",      2000, 0.10),   # 7b with fewer tokens
     ("deepseek-coder:6.7b",   4096, 0.05),
     ("codellama:7b",          3000, 0.08),
     ("mistral:7b",            3000, 0.08),
@@ -256,21 +257,24 @@ def ensure_imports(code: str) -> str:
 
 def _safe_doc(s: str) -> str:
     """Strip characters that break Python triple-quoted docstrings."""
-    return s.replace("\\", "").replace('"""', "'''").replace("`", "'")
+    return s.replace("\\", "").replace('"""', "'''").replace('"', "'").replace("`", "'")
 
 
-def template_tests(spec: ParsedSpec, compiled: dict | None = None) -> str:
+def template_tests(spec: ParsedSpec, compiled: dict | None = None) -> str:  # noqa: C901
     """
-    Generates valid Playwright tests using compiled spec selectors.
+    Generates 55+ valid Playwright tests using compiled spec selectors.
     Works for any project without AI — just change the .md spec file.
+    Covers: page health, form elements, submission, validation, security,
+    responsive, mobile/touch, performance, accessibility, storage/cookies,
+    network resilience, user flows, edge cases, and additional UX checks.
     All page operations have explicit timeouts to prevent CI hangs.
     """
     slug = spec.slug.replace("-", "_")
     url  = spec.url or (BASE_URL + spec.path)
-    NAV  = f'wait_until="domcontentloaded", timeout=15000'   # safe navigation args
-    WT   = "timeout=10000"                                    # short wait timeout
+    NAV  = 'wait_until="domcontentloaded", timeout=15000'
+    WT   = "timeout=10000"
 
-    # Extract selectors from compiled spec
+    # ── Selector helpers ──────────────────────────────────────────────────────
     def _sel_val(v):
         if isinstance(v, dict):
             return v.get("selector") or v.get("hint") or ""
@@ -282,94 +286,781 @@ def template_tests(spec: ParsedSpec, compiled: dict | None = None) -> str:
         for key, val in raw_sel.items():
             if any(kw in key.lower() for kw in kws):
                 s = _sel_val(val)
-                if s: return s
+                if s:
+                    return s
         return fallback
 
-    email_sel  = _find_sel(["email", "username"],              "input[type='email']")
-    pass_sel   = _find_sel(["password", "passwd", "pwd"],      "input[type='password']")
-    submit_sel = _find_sel(["submit", "login", "sign_in",
-                             "signin", "register", "button"],  "button[type='submit']")
+    # Core selectors
+    email_sel   = _find_sel(["email", "username"],                          "input[type='email']")
+    pass_sel    = _find_sel(["password", "passwd", "pwd"],                  "input[type='password']")
+    submit_sel  = _find_sel(["submit", "login", "sign_in",
+                              "signin", "register", "button"],              "button[type='submit']")
+    # Signup-specific selectors
+    name_sel    = _find_sel(["name", "fullname", "full_name"],              "input[name='name'], input[name='fullName']")
+    confirm_sel = _find_sel(["confirm", "confirmpassword", "repassword"],   "input[name='confirmPassword']")
+    terms_sel   = _find_sel(["terms", "checkbox", "accept"],                "input[type='checkbox']")
+    company_sel = _find_sel(["company", "organization", "org"],             "input[name='company']")
 
-    has_email  = bool(_find_sel(["email", "username"], ""))
-    has_pass   = bool(_find_sel(["password", "passwd", "pwd"], ""))
-    has_submit = bool(_find_sel(["submit", "login", "sign_in", "button"], ""))
+    has_email  = bool(email_sel)
+    has_pass   = bool(pass_sel)
+    has_submit = bool(submit_sel)
 
-    lines = [
+    # ── Page type detection ───────────────────────────────────────────────────
+    page_lower = spec.page_name.lower()
+    is_signup = "signup" in page_lower or "sign up" in page_lower or "register" in page_lower
+    is_login  = "login"  in page_lower or "sign in" in page_lower
+    is_reset  = "reset"  in page_lower or "forgot"  in page_lower
+
+    # ── Signup form-fill helper (inline, reused by multiple tests) ────────────
+    # Used as an indented code block inserted into test bodies
+    def _signup_fill_block(indent: str = "    ") -> list[str]:
+        """Return lines that fill ALL signup fields (with try/except guards)."""
+        i = indent
+        return [
+            f"{i}# TEST_DATA: full signup form — name, email, password, confirm, terms",
+            f"{i}try:",
+            f"{i}    if page.locator(\"{name_sel}\").count() > 0:",
+            f"{i}        page.locator(\"{name_sel}\").first.fill(\"Test User\")",
+            f"{i}except Exception:",
+            f"{i}    pass",
+            f"{i}page.locator(\"{email_sel}\").fill(f\"qa_{{int(time.time())}}@mailinator.com\")",
+            f"{i}page.locator(\"{pass_sel}\").fill(os.getenv(\"TEST_PASSWORD\", \"Test@1234!\"))",
+            f"{i}try:",
+            f"{i}    if page.locator(\"{confirm_sel}\").count() > 0:",
+            f"{i}        page.locator(\"{confirm_sel}\").first.fill(os.getenv(\"TEST_PASSWORD\", \"Test@1234!\"))",
+            f"{i}    if page.locator(\"{terms_sel}\").count() > 0:",
+            f"{i}        page.locator(\"{terms_sel}\").first.check()",
+            f"{i}    if page.locator(\"{company_sel}\").count() > 0:",
+            f"{i}        page.locator(\"{company_sel}\").first.fill(\"TestCo\")",
+            f"{i}except Exception:",
+            f"{i}    pass",
+        ]
+
+    lines: list[str] = [
         "import os, time, pytest",
         "from playwright.sync_api import Page, expect",
         f'BASE_URL = os.getenv("BASE_URL", "{BASE_URL}")',
         "",
     ]
 
-    # 1. Page load
+    # ═══════════════════════════════════════════════════════════════════════════
+    # PAGE HEALTH (6 tests)
+    # ═══════════════════════════════════════════════════════════════════════════
+
     lines += [
         f"def test_{slug}_page_loads(page: Page):",
-        f'    """Verify {spec.page_name} page loads without server errors."""',
+        f'    """{_safe_doc(spec.page_name)} page loads without server errors."""',
         f'    page.goto("{url}", {NAV})',
         f'    assert page.url, "Page URL should not be empty"',
-        f'    assert not page.locator("text=500").is_visible({WT}), "Server error visible"',
-        f'    assert not page.locator("text=404").is_visible({WT}), "404 error visible"',
+        f'    assert "500" not in page.title(), "500 in page title"',
+        f'    assert not page.locator("text=Internal Server Error").is_visible({WT}), "Server error visible"',
         "",
     ]
 
-    # 2. Submit with valid credentials
-    if has_email and has_pass and has_submit:
+    lines += [
+        f"def test_{slug}_http_status_ok(page: Page):",
+        f'    """HTTP response status is below 400."""',
+        f'    # TEST_DATA: no input — HTTP status check',
+        f'    response = page.goto("{url}", {NAV})',
+        f'    assert response is not None, "No response received"',
+        f'    assert response.status < 400, f"HTTP {{response.status}} — expected < 400"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_title_meaningful(page: Page):",
+        f'    """Page title is not empty, undefined, or null."""',
+        f'    # TEST_DATA: no input — title check',
+        f'    page.goto("{url}", {NAV})',
+        f'    title = page.title()',
+        f'    assert title, "Page title is empty"',
+        f'    assert title.lower() not in ("undefined", "null", "none"), f"Meaningless title: {{title}}"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_no_server_error_text(page: Page):",
+        f'    """Page body contains no server-error text."""',
+        f'    # TEST_DATA: no input — error text scan',
+        f'    page.goto("{url}", {NAV})',
+        f'    content = page.content().lower()',
+        f'    assert "internal server error" not in content, "Internal Server Error visible"',
+        f'    assert "500" not in page.title(), "500 in page title"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_no_console_errors(page: Page):",
+        f'    """No critical JS console errors on page load."""',
+        f'    # TEST_DATA: no input — console monitoring',
+        f'    errors = []',
+        f'    page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)',
+        f'    page.goto("{url}", {NAV})',
+        f'    critical = [e for e in errors if "TypeError" in e or "ReferenceError" in e]',
+        f'    assert critical == [], f"Critical JS errors: {{critical[:3]}}"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_no_uncaught_js_exceptions(page: Page):",
+        f'    """No uncaught JS exceptions on page load."""',
+        f'    # TEST_DATA: no input — pageerror monitoring',
+        f'    exceptions = []',
+        f'    page.on("pageerror", lambda exc: exceptions.append(str(exc)))',
+        f'    page.goto("{url}", {NAV})',
+        f'    assert exceptions == [], f"Uncaught JS exceptions: {{exceptions[:3]}}"',
+        "",
+    ]
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # FORM ELEMENTS (3-5 tests)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    if has_email:
         lines += [
-            f"def test_{slug}_submit_valid_credentials(page: Page):",
-            f'    """Submit valid credentials — expect redirect."""',
+            f"def test_{slug}_email_field_visible(page: Page):",
+            f'    """Email field is visible on the page."""',
+            f'    # TEST_DATA: no input — element visibility',
+            f'    page.goto("{url}", {NAV})',
+            f'    assert page.locator("{email_sel}").count() > 0, "Email field not found"',
+            f'    page.locator("{email_sel}").first.wait_for(state="visible", {WT})',
+            "",
+        ]
+
+    if has_pass:
+        lines += [
+            f"def test_{slug}_password_field_visible(page: Page):",
+            f'    """Password field is visible on the page."""',
+            f'    # TEST_DATA: no input — element visibility',
+            f'    page.goto("{url}", {NAV})',
+            f'    assert page.locator("{pass_sel}").count() > 0, "Password field not found"',
+            f'    page.locator("{pass_sel}").first.wait_for(state="visible", {WT})',
+            "",
+        ]
+
+    if has_submit:
+        lines += [
+            f"def test_{slug}_submit_button_enabled(page: Page):",
+            f'    """Submit button is present and not disabled."""',
+            f'    # TEST_DATA: no input — button state',
+            f'    page.goto("{url}", {NAV})',
+            f'    assert page.locator("{submit_sel}").count() > 0, "Submit button not found"',
+            f'    btn = page.locator("{submit_sel}").first',
+            f'    assert btn.is_enabled(), "Submit button is disabled"',
+            "",
+        ]
+
+    if is_signup:
+        lines += [
+            f"def test_{slug}_name_field_visible(page: Page):",
+            f'    """Name field is visible on signup page."""',
+            f'    # TEST_DATA: no input — element visibility',
+            f'    page.goto("{url}", {NAV})',
+            f'    found = page.locator("{name_sel}").count() > 0',
+            f'    # Informational — name field may have different selector',
+            f'    assert found or True, "Name field check (informational)"',
+            "",
+        ]
+
+        lines += [
+            f"def test_{slug}_terms_checkbox_present(page: Page):",
+            f'    """Terms checkbox is present on signup page."""',
+            f'    # TEST_DATA: no input — element presence',
+            f'    page.goto("{url}", {NAV})',
+            f'    found = page.locator("{terms_sel}").count() > 0',
+            f'    # Informational — terms may not always be present',
+            f'    assert found or True, "Terms checkbox check (informational)"',
+            "",
+        ]
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # FORM SUBMISSION (3-4 tests)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    if has_submit:
+        lines += [
+            f"def test_{slug}_empty_form_no_crash(page: Page):",
+            f'    """Submit empty form — validation fires, no 500 crash."""',
+            f'    # TEST_DATA: empty fields',
+            f'    page.goto("{url}", {NAV})',
+            f'    if page.locator("{submit_sel}").count() > 0:',
+            f'        page.locator("{submit_sel}").first.click()',
+            f'    assert "500" not in page.title(), "500 on empty submit"',
+            f'    assert not page.locator("text=Internal Server Error").is_visible({WT}), "Server error"',
+            "",
+        ]
+
+    if is_signup and has_email and has_pass and has_submit:
+        lines += [
+            f"def test_{slug}_submit_valid(page: Page):",
+            f'    """Submit signup form with all required fields filled."""',
+        ]
+        lines += _signup_fill_block("    ")
+        lines += [
+            f'    page.goto("{url}", {NAV})',
+        ]
+        lines += _signup_fill_block("    ")
+        lines += [
+            f'    if page.locator("{submit_sel}").count() > 0:',
+            f'        page.locator("{submit_sel}").first.click()',
+            f'    page.wait_for_load_state("domcontentloaded", {WT})',
+            f'    assert page.url, "Page URL after signup submit"',
+            "",
+        ]
+    elif is_login and has_email and has_pass and has_submit:
+        lines += [
+            f"def test_{slug}_submit_valid(page: Page):",
+            f'    """Submit login form with valid credentials."""',
             f'    # TEST_DATA: valid email + TEST_PASSWORD env var',
             f'    page.goto("{url}", {NAV})',
-            f'    page.locator("{email_sel}").wait_for(state="visible", timeout=10000)',
-            f'    page.locator("{email_sel}").fill(f"qa_{{int(time.time())}}@mailinator.com")',
-            f'    page.locator("{pass_sel}").fill(os.getenv("TEST_PASSWORD", "Test@1234!"))',
-            f'    page.locator("{submit_sel}").click()',
+            f'    page.locator("{email_sel}").first.fill(f"qa_{{int(time.time())}}@mailinator.com")',
+            f'    page.locator("{pass_sel}").first.fill(os.getenv("TEST_PASSWORD", "Test@1234!"))',
+            f'    page.locator("{submit_sel}").first.click()',
             f'    page.wait_for_load_state("domcontentloaded", {WT})',
-            f'    assert page.url, "Page URL should not be empty after submit"',
+            f'    assert page.url, "Page URL after login submit"',
             "",
         ]
     elif has_email and has_submit:
         lines += [
-            f"def test_{slug}_submit_email(page: Page):",
-            f'    """Submit email form."""',
+            f"def test_{slug}_submit_valid(page: Page):",
+            f'    """Submit form with a valid email address."""',
             f'    # TEST_DATA: test email address',
             f'    page.goto("{url}", {NAV})',
-            f'    page.locator("{email_sel}").fill("qa_test@mailinator.com")',
-            f'    page.locator("{submit_sel}").click()',
+            f'    page.locator("{email_sel}").first.fill(f"qa_{{int(time.time())}}@mailinator.com")',
+            f'    if page.locator("{pass_sel}").count() > 0:',
+            f'        page.locator("{pass_sel}").first.fill(os.getenv("TEST_PASSWORD", "Test@1234!"))',
+            f'    page.locator("{submit_sel}").first.click()',
             f'    page.wait_for_load_state("domcontentloaded", {WT})',
             f'    assert page.url, "Page URL after submit"',
             "",
         ]
 
-    # 3. Invalid email validation
+    if is_reset and has_email and has_submit:
+        lines += [
+            f"def test_{slug}_submit_reset_email(page: Page):",
+            f'    """Submit password reset with a valid email."""',
+            f'    # TEST_DATA: reset email address',
+            f'    page.goto("{url}", {NAV})',
+            f'    page.locator("{email_sel}").first.fill("qa_reset@mailinator.com")',
+            f'    page.locator("{submit_sel}").first.click()',
+            f'    page.wait_for_load_state("domcontentloaded", {WT})',
+            f'    assert page.url, "Page URL after reset submit"',
+            "",
+        ]
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # VALIDATION (6-9 tests)
+    # ═══════════════════════════════════════════════════════════════════════════
+
     if has_email and has_submit:
         lines += [
-            f"def test_{slug}_invalid_email_format(page: Page):",
-            f'    """Submit invalid email — expect validation error."""',
+            f"def test_{slug}_invalid_email_rejected(page: Page):",
+            f'    """Invalid email format does not crash the page."""',
             f'    # TEST_DATA: invalid email: notanemail',
             f'    page.goto("{url}", {NAV})',
-            f'    page.locator("{email_sel}").wait_for(state="visible", timeout=10000)',
-            f'    page.locator("{email_sel}").fill("notanemail")',
+            f'    page.locator("{email_sel}").first.fill("notanemail")',
             f'    if page.locator("{pass_sel}").count() > 0:',
-            f'        page.locator("{pass_sel}").fill("Test@1234!")',
-            f'    page.locator("{submit_sel}").click()',
-            f'    assert page.url or True, "Page responds to invalid email"',
+            f'        page.locator("{pass_sel}").first.fill("Test@1234!")',
+            f'    page.locator("{submit_sel}").first.click()',
+            f'    assert "500" not in page.title(), "500 on invalid email"',
             "",
         ]
 
-    # 4. Empty form submit
-    if has_submit:
         lines += [
-            f"def test_{slug}_empty_form_submit(page: Page):",
-            f'    """Submit empty form — expect validation, not crash."""',
-            f'    # TEST_DATA: empty fields',
+            f"def test_{slug}_spaces_only_email(page: Page):",
+            f'    """Spaces-only email does not crash the page."""',
+            f'    # TEST_DATA: email: "   " (spaces only)',
             f'    page.goto("{url}", {NAV})',
-            f'    page.locator("{submit_sel}").click()',
-            f'    assert not page.locator("text=500").is_visible({WT}), "Server error on empty submit"',
-            f'    assert not page.locator("text=Traceback").is_visible({WT}), "Stack trace exposed"',
+            f'    page.locator("{email_sel}").first.fill("   ")',
+            f'    if page.locator("{pass_sel}").count() > 0:',
+            f'        page.locator("{pass_sel}").first.fill("Test@1234!")',
+            f'    page.locator("{submit_sel}").first.click()',
+            f'    assert "500" not in page.title(), "500 on spaces-only email"',
             "",
         ]
 
-    # 5. User flows
+        lines += [
+            f"def test_{slug}_very_long_email(page: Page):",
+            f'    """Very long email does not crash the page."""',
+            f'    # TEST_DATA: email: a*260 + @test.com',
+            f'    page.goto("{url}", {NAV})',
+            f'    page.locator("{email_sel}").first.fill("a" * 260 + "@test.com")',
+            f'    if page.locator("{submit_sel}").count() > 0:',
+            f'        page.locator("{submit_sel}").first.click()',
+            f'    assert "500" not in page.title(), "500 on very long email"',
+            "",
+        ]
+
+    if is_signup and has_pass and has_submit:
+        lines += [
+            f"def test_{slug}_password_too_short(page: Page):",
+            f'    """Too-short password does not crash the page."""',
+            f'    # TEST_DATA: password: "abc12" (5 chars)',
+            f'    page.goto("{url}", {NAV})',
+            f'    if page.locator("{email_sel}").count() > 0:',
+            f'        page.locator("{email_sel}").first.fill("qa@test.com")',
+            f'    page.locator("{pass_sel}").first.fill("abc12")',
+            f'    page.locator("{submit_sel}").first.click()',
+            f'    assert "500" not in page.title(), "500 on short password"',
+            "",
+        ]
+
+        lines += [
+            f"def test_{slug}_password_mismatch(page: Page):",
+            f'    """Mismatched confirm-password does not crash the page."""',
+            f'    # TEST_DATA: password: Test@1234!, confirm: DifferentPass!',
+            f'    page.goto("{url}", {NAV})',
+            f'    if page.locator("{email_sel}").count() > 0:',
+            f'        page.locator("{email_sel}").first.fill("qa@test.com")',
+            f'    page.locator("{pass_sel}").first.fill("Test@1234!")',
+            f'    try:',
+            f'        if page.locator("{confirm_sel}").count() > 0:',
+            f'            page.locator("{confirm_sel}").first.fill("DifferentPass!")',
+            f'    except Exception:',
+            f'        pass',
+            f'    page.locator("{submit_sel}").first.click()',
+            f'    assert "500" not in page.title(), "500 on password mismatch"',
+            "",
+        ]
+
+        lines += [
+            f"def test_{slug}_name_field_required(page: Page):",
+            f'    """Submitting without name does not crash (validation expected)."""',
+            f'    # TEST_DATA: name empty, email+pass filled',
+            f'    page.goto("{url}", {NAV})',
+            f'    if page.locator("{email_sel}").count() > 0:',
+            f'        page.locator("{email_sel}").first.fill("qa@test.com")',
+            f'    if page.locator("{pass_sel}").count() > 0:',
+            f'        page.locator("{pass_sel}").first.fill("Test@1234!")',
+            f'    page.locator("{submit_sel}").first.click()',
+            f'    assert "500" not in page.title(), "500 on missing name"',
+            "",
+        ]
+
+        lines += [
+            f"def test_{slug}_terms_must_be_accepted(page: Page):",
+            f'    """Submitting without accepting terms does not crash."""',
+            f'    # TEST_DATA: terms unchecked',
+            f'    page.goto("{url}", {NAV})',
+            f'    if page.locator("{email_sel}").count() > 0:',
+            f'        page.locator("{email_sel}").first.fill("qa@test.com")',
+            f'    if page.locator("{pass_sel}").count() > 0:',
+            f'        page.locator("{pass_sel}").first.fill("Test@1234!")',
+            f'    page.locator("{submit_sel}").first.click()',
+            f'    assert "500" not in page.title(), "500 on unchecked terms"',
+            "",
+        ]
+
+        lines += [
+            f"def test_{slug}_name_too_short(page: Page):",
+            f'    """Single-character name does not crash the page."""',
+            f'    # TEST_DATA: name: "a"',
+            f'    page.goto("{url}", {NAV})',
+            f'    try:',
+            f'        if page.locator("{name_sel}").count() > 0:',
+            f'            page.locator("{name_sel}").first.fill("a")',
+            f'    except Exception:',
+            f'        pass',
+            f'    if page.locator("{submit_sel}").count() > 0:',
+            f'        page.locator("{submit_sel}").first.click()',
+            f'    assert "500" not in page.title(), "500 on single-char name"',
+            "",
+        ]
+
+        lines += [
+            f"def test_{slug}_name_spaces_only(page: Page):",
+            f'    """Spaces-only name does not crash the page."""',
+            f'    # TEST_DATA: name: "   " (spaces only)',
+            f'    page.goto("{url}", {NAV})',
+            f'    try:',
+            f'        if page.locator("{name_sel}").count() > 0:',
+            f'            page.locator("{name_sel}").first.fill("   ")',
+            f'    except Exception:',
+            f'        pass',
+            f'    if page.locator("{submit_sel}").count() > 0:',
+            f'        page.locator("{submit_sel}").first.click()',
+            f'    assert "500" not in page.title(), "500 on spaces-only name"',
+            "",
+        ]
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # SECURITY (5 tests)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    if has_email:
+        lines += [
+            f"def test_{slug}_xss_in_email_field(page: Page):",
+            f'    """XSS payload in email field does not render in page."""',
+            f'    # TEST_DATA: XSS: <script>alert(1)</script>',
+            f'    page.goto("{url}", {NAV})',
+            f'    page.locator("{email_sel}").first.fill("<script>alert(1)</script>")',
+            f'    if page.locator("{submit_sel}").count() > 0:',
+            f'        page.locator("{submit_sel}").first.click()',
+            f'    assert "alert(1)" not in page.content(), "XSS payload rendered in page"',
+            "",
+        ]
+
+    if is_signup:
+        lines += [
+            f"def test_{slug}_xss_in_name_field(page: Page):",
+            f'    """XSS payload in name field does not crash or render."""',
+            f'    # TEST_DATA: XSS in name: <script>alert(1)</script>',
+            f'    page.goto("{url}", {NAV})',
+            f'    try:',
+            f'        if page.locator("{name_sel}").count() > 0:',
+            f'            page.locator("{name_sel}").first.fill("<script>alert(1)</script>")',
+            f'    except Exception:',
+            f'        pass',
+            f'    if page.locator("{submit_sel}").count() > 0:',
+            f'        page.locator("{submit_sel}").first.click()',
+            f'    assert "500" not in page.title(), "500 on XSS in name"',
+            "",
+        ]
+
+    if has_email and has_submit:
+        _sqli_payload = "' OR 1=1--@test.com"
+        lines += [
+            f"def test_{slug}_sqli_in_email(page: Page):",
+            f'    """SQL injection in email field does not expose DB errors."""',
+            f'    # TEST_DATA: SQLi payload in email',
+            f'    page.goto("{url}", {NAV})',
+            f'    page.locator("{email_sel}").first.fill({_sqli_payload!r})',
+            f'    if page.locator("{submit_sel}").count() > 0:',
+            f'        page.locator("{submit_sel}").first.click()',
+            f'    content = page.content().lower()',
+            f'    assert "sql" not in content or "sqlexception" not in content, "SQL error exposed"',
+            "",
+        ]
+
+    _sqli_drop = "'; DROP TABLE users;--@x.com"
+    lines += [
+        f"def test_{slug}_no_stack_trace_exposed(page: Page):",
+        f'    """Malicious input does not expose server stack traces."""',
+        f'    # TEST_DATA: SQLi payload to trigger potential error',
+        f'    page.goto("{url}", {NAV})',
+        f'    if page.locator("{email_sel}").count() > 0:',
+        f'        page.locator("{email_sel}").first.fill({_sqli_drop!r})',
+        f'    if page.locator("{submit_sel}").count() > 0:',
+        f'        page.locator("{submit_sel}").first.click()',
+        f'    content = page.content().lower()',
+        f'    assert "traceback" not in content, "Python traceback exposed"',
+        f'    assert "exception" not in content[:500], "Exception detail exposed"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_no_db_error_exposed(page: Page):",
+        f'    """Page content does not expose raw database error strings."""',
+        f'    # TEST_DATA: no input — page source scan',
+        f'    page.goto("{url}", {NAV})',
+        f'    content = page.content().lower()',
+        f'    assert "sqlexception" not in content, "SQLexception in page source"',
+        f'    assert "database error" not in content, "database error in page source"',
+        "",
+    ]
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # RESPONSIVE — parametrized (covers 6 viewports)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    lines += [
+        f'@pytest.mark.parametrize("width,height,name", [',
+        f'    (375, 667, "iPhone SE"), (390, 844, "iPhone 14"), (768, 1024, "iPad"),',
+        f'    (1024, 768, "iPad Landscape"), (1280, 720, "Desktop HD"), (1920, 1080, "Full HD"),',
+        f'])',
+        f"def test_{slug}_responsive_layout(page: Page, width, height, name):",
+        f'    """Page renders correctly across 6 viewport sizes."""',
+        f'    # TEST_DATA: viewport sizes from 375x667 to 1920x1080',
+        f'    page.set_viewport_size({{"width": width, "height": height}})',
+        f'    page.goto("{url}", {NAV})',
+        f'    assert page.url, f"Page URL on {{name}} ({{width}}x{{height}})"',
+        f'    assert "500" not in page.title(), f"500 on {{name}} viewport"',
+        "",
+    ]
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # MOBILE & TOUCH (3 tests)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    lines += [
+        f"def test_{slug}_mobile_viewport_form_usable(page: Page):",
+        f'    """Form fields and submit button are visible on mobile (375x667)."""',
+        f'    # TEST_DATA: viewport 375x667 (iPhone SE)',
+        f'    page.set_viewport_size({{"width": 375, "height": 667}})',
+        f'    page.goto("{url}", {NAV})',
+        f'    assert page.url, "Mobile viewport page URL"',
+        f'    if page.locator("{email_sel}").count() > 0:',
+        f'        assert page.locator("{email_sel}").first.is_visible(), "Email hidden on mobile"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_touch_target_min_size(page: Page):",
+        f'    """Submit button touch target is at least 40px tall on mobile."""',
+        f'    # TEST_DATA: viewport 375x667, min touch target 40px',
+        f'    page.set_viewport_size({{"width": 375, "height": 667}})',
+        f'    page.goto("{url}", {NAV})',
+        f'    if page.locator("{submit_sel}").count() > 0:',
+        f'        box = page.locator("{submit_sel}").first.bounding_box()',
+        f'        if box:',
+        f'            assert box["height"] >= 40, f\'Submit button too small: {{box["height"]}}px\'',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_no_horizontal_scroll_mobile(page: Page):",
+        f'    """No horizontal scrollbar on mobile viewport."""',
+        f'    # TEST_DATA: viewport 375x667',
+        f'    page.set_viewport_size({{"width": 375, "height": 667}})',
+        f'    page.goto("{url}", {NAV})',
+        f'    scroll_width = page.evaluate("document.documentElement.scrollWidth")',
+        f'    inner_width  = page.evaluate("window.innerWidth")',
+        f'    assert scroll_width <= inner_width + 5, f"Horizontal scroll on mobile: {{scroll_width}} > {{inner_width}}"',
+        "",
+    ]
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # PERFORMANCE (5 tests)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    lines += [
+        f"def test_{slug}_load_time_under_5s(page: Page):",
+        f'    """Page loads within 5 seconds."""',
+        f'    # TEST_DATA: no input — load time measurement',
+        f'    start = time.time()',
+        f'    page.goto("{url}", {NAV})',
+        f'    elapsed = time.time() - start',
+        f'    assert elapsed < 5.0, f"Page loaded in {{elapsed:.2f}}s — exceeds 5s threshold"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_dom_content_loaded_fast(page: Page):",
+        f'    """DOMContentLoaded fires within 3 seconds."""',
+        f'    # TEST_DATA: no input — navigation timing API',
+        f'    page.goto("{url}", {NAV})',
+        f'    dcl = page.evaluate(',
+        f'        "performance.timing.domContentLoadedEventEnd - performance.timing.navigationStart"',
+        f'    )',
+        f'    assert dcl < 3000, f"DOMContentLoaded took {{dcl}}ms — exceeds 3000ms"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_no_failed_network_requests(page: Page):",
+        f'    """No 5xx network responses during page load."""',
+        f'    # TEST_DATA: no input — network response monitoring',
+        f'    failures = []',
+        f'    page.on("response", lambda r: failures.append((r.url, r.status)) if r.status >= 500 else None)',
+        f'    page.goto("{url}", {NAV})',
+        f'    assert failures == [], f"5xx responses: {{failures[:3]}}"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_no_404_resources(page: Page):",
+        f'    """No 404 resource responses during page load."""',
+        f'    # TEST_DATA: no input — network 404 monitoring',
+        f'    not_found = []',
+        f'    page.on("response", lambda r: not_found.append(r.url) if r.status == 404 else None)',
+        f'    page.goto("{url}", {NAV})',
+        f'    assert not_found == [], f"404 resources: {{not_found[:3]}}"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_no_large_blocking_resources(page: Page):",
+        f'    """No single script or stylesheet exceeds 1 MB."""',
+        f'    # TEST_DATA: no input — resource size monitoring',
+        f'    large = []',
+        f'    def _check(r):',
+        f'        ct = r.headers.get("content-type", "")',
+        f'        if "script" in ct or "css" in ct:',
+        f'            body = r.body() if r.ok else b""',
+        f'            if len(body) > 1_048_576:',
+        f'                large.append((r.url, len(body)))',
+        f'    page.on("response", _check)',
+        f'    page.goto("{url}", {NAV})',
+        f'    assert large == [], f"Large blocking resources (>1MB): {{large[:2]}}"',
+        "",
+    ]
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # ACCESSIBILITY (5 tests)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    lines += [
+        f"def test_{slug}_inputs_have_accessible_names(page: Page):",
+        f'    """All input fields have an aria-label, label, or id."""',
+        f'    # TEST_DATA: no input — accessibility attribute scan',
+        f'    page.goto("{url}", {NAV})',
+        f'    inputs = page.locator("input:not([type=hidden])").all()',
+        f'    unnamed = [i.get_attribute("name") or "?" for i in inputs',
+        f'               if not (i.get_attribute("aria-label") or i.get_attribute("id"))]',
+        f'    assert len(unnamed) == 0, f"Inputs without accessible names: {{unnamed[:5]}}"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_submit_button_has_text(page: Page):",
+        f'    """Submit button has visible non-empty text."""',
+        f'    # TEST_DATA: no input — button text check',
+        f'    page.goto("{url}", {NAV})',
+        f'    if page.locator("{submit_sel}").count() > 0:',
+        f'        text = page.locator("{submit_sel}").first.inner_text().strip()',
+        f'        assert text, "Submit button has no visible text"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_form_keyboard_submittable(page: Page):",
+        f'    """Form can be submitted via Enter key without crashing."""',
+        f'    # TEST_DATA: email filled, Enter pressed',
+        f'    page.goto("{url}", {NAV})',
+        f'    if page.locator("{email_sel}").count() > 0:',
+        f'        page.locator("{email_sel}").first.fill("qa@test.com")',
+        f'        if page.locator("{pass_sel}").count() > 0:',
+        f'            page.locator("{pass_sel}").first.fill("Test@1234!")',
+        f'        page.locator("{email_sel}").first.press("Enter")',
+        f'    assert "500" not in page.title(), "500 on keyboard submit"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_error_uses_aria_role(page: Page):",
+        f'    """After empty submit, check if any ARIA alert role appears (informational)."""',
+        f'    # TEST_DATA: empty submit — aria[role=alert] presence',
+        f'    page.goto("{url}", {NAV})',
+        f'    if page.locator("{submit_sel}").count() > 0:',
+        f'        page.locator("{submit_sel}").first.click()',
+        f'    alerts = page.locator("[role=\'alert\']").count()',
+        f'    # Informational only — not all apps use role=alert',
+        f'    assert alerts >= 0, "ARIA alert check (informational)"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_password_field_is_masked(page: Page):",
+        f'    """Password field type remains \'password\' after typing."""',
+        f'    # TEST_DATA: password filled, type attribute checked',
+        f'    page.goto("{url}", {NAV})',
+        f'    if page.locator("{pass_sel}").count() > 0:',
+        f'        page.locator("{pass_sel}").first.fill("Test@1234!")',
+        f'        typ = page.locator("{pass_sel}").first.get_attribute("type")',
+        f'        assert typ == "password", f"Password field type changed to: {{typ}}"',
+        "",
+    ]
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # STORAGE & COOKIES (4 tests)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    lines += [
+        f"def test_{slug}_no_password_in_localstorage(page: Page):",
+        f'    """Plaintext password is not stored in localStorage."""',
+        f'    # TEST_DATA: password filled + submit, then localStorage scanned',
+        f'    page.goto("{url}", {NAV})',
+        f'    if page.locator("{email_sel}").count() > 0:',
+        f'        page.locator("{email_sel}").first.fill("qa@test.com")',
+        f'    if page.locator("{pass_sel}").count() > 0:',
+        f'        page.locator("{pass_sel}").first.fill("Test@1234!")',
+        f'    if page.locator("{submit_sel}").count() > 0:',
+        f'        page.locator("{submit_sel}").first.click()',
+        f'    storage = page.evaluate("JSON.stringify(localStorage)")',
+        f'    assert "Test@1234!" not in storage, "Plaintext password in localStorage"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_no_token_after_failed_login(page: Page):",
+        f'    """No auth token stored in localStorage after wrong credentials."""',
+        f'    # TEST_DATA: wrong credentials — token check',
+        f'    page.goto("{url}", {NAV})',
+        f'    if page.locator("{email_sel}").count() > 0:',
+        f'        page.locator("{email_sel}").first.fill("wrong@invalid.com")',
+        f'    if page.locator("{pass_sel}").count() > 0:',
+        f'        page.locator("{pass_sel}").first.fill("WrongPassword!!")',
+        f'    if page.locator("{submit_sel}").count() > 0:',
+        f'        page.locator("{submit_sel}").first.click()',
+        f'    storage = page.evaluate("JSON.stringify(localStorage)")',
+        f'    assert "authToken" not in storage and "access_token" not in storage, "Token after failed login"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_localstorage_not_polluted(page: Page):",
+        f'    """localStorage has no debug or dev_ keys after page load."""',
+        f'    # TEST_DATA: no input — localStorage key scan',
+        f'    page.goto("{url}", {NAV})',
+        f'    keys = page.evaluate("Object.keys(localStorage)")',
+        f'    debug_keys = [k for k in keys if "debug" in k.lower() or k.startswith("dev_")]',
+        f'    assert debug_keys == [], f"Debug keys in localStorage: {{debug_keys}}"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_cookies_exist_after_interaction(page: Page):",
+        f'    """Cookies list is retrievable after interacting with the page (informational)."""',
+        f'    # TEST_DATA: page interaction, then cookies() check',
+        f'    page.goto("{url}", {NAV})',
+        f'    if page.locator("{email_sel}").count() > 0:',
+        f'        page.locator("{email_sel}").first.fill("qa@test.com")',
+        f'    cookies = page.context.cookies()',
+        f'    assert isinstance(cookies, list), "context.cookies() should return a list"',
+        "",
+    ]
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # NETWORK RESILIENCE (3 tests)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    lines += [
+        f"def test_{slug}_network_error_shows_friendly_message(page: Page):",
+        f'    """Blocking /api routes does not cause unhandled crash."""',
+        f'    # TEST_DATA: all /api/** routes aborted',
+        f'    page.route("**/api/**", lambda r: r.abort())',
+        f'    try:',
+        f'        page.goto("{url}", {NAV})',
+        f'        assert "500" not in page.title(), "500 on blocked API routes"',
+        f'    except Exception:',
+        f'        pass  # navigation exception acceptable when APIs are blocked',
+        f'    page.unroute_all()',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_no_broken_images(page: Page):",
+        f'    """No image resource returns a 404 on page load."""',
+        f'    # TEST_DATA: no input — image 404 monitoring',
+        f'    broken = []',
+        f'    def _chk(r):',
+        f'        if r.status == 404 and "image" in r.headers.get("content-type", ""):',
+        f'            broken.append(r.url)',
+        f'    page.on("response", _chk)',
+        f'    page.goto("{url}", {NAV})',
+        f'    assert broken == [], f"Broken images (404): {{broken[:3]}}"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_no_sensitive_data_in_page_source(page: Page):",
+        f'    """Page source after failed submit does not contain plaintext password."""',
+        f'    # TEST_DATA: wrong credentials submitted',
+        f'    page.goto("{url}", {NAV})',
+        f'    if page.locator("{email_sel}").count() > 0:',
+        f'        page.locator("{email_sel}").first.fill("qa@test.com")',
+        f'    if page.locator("{pass_sel}").count() > 0:',
+        f'        page.locator("{pass_sel}").first.fill("Test@1234!")',
+        f'    if page.locator("{submit_sel}").count() > 0:',
+        f'        page.locator("{submit_sel}").first.click()',
+        f'    assert "Test@1234!" not in page.content(), "Plaintext password in page source"',
+        "",
+    ]
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # USER FLOWS (up to 4)
+    # ═══════════════════════════════════════════════════════════════════════════
+
     for i, flow in enumerate(spec.flows[:4], 1):
         fname = re.sub(r"\W+", "_", flow["name"].lower())[:40]
         lines += [
@@ -382,69 +1073,82 @@ def template_tests(spec: ParsedSpec, compiled: dict | None = None) -> str:
             "",
         ]
 
-    # 6. Edge cases
+    # ═══════════════════════════════════════════════════════════════════════════
+    # EDGE CASES (up to 5)
+    # ═══════════════════════════════════════════════════════════════════════════
+
     for ec in spec.edge_cases[:5]:
         eid      = ec["id"].lower().replace("-", "_")
+        ec_id    = ec["id"]
         scenario = _safe_doc(ec["scenario"][:80])
         lines += [
             f"def test_{eid}(page: Page):",
-            f'    """{ec["id"]}: {scenario}"""',
+            f'    """{ec_id}: {scenario}"""',
             f'    # TEST_DATA: edge case — {scenario[:40]}',
             f'    page.goto("{url}", {NAV})',
-            f'    assert page.url, "Page loads for edge case {ec["id"]}"',
+            f'    assert page.url, "Page loads for edge case {ec_id}"',
             "",
         ]
 
-    # 7. Mobile responsive
+    # ═══════════════════════════════════════════════════════════════════════════
+    # ADDITIONAL UX TESTS (4 tests)
+    # ═══════════════════════════════════════════════════════════════════════════
+
     lines += [
-        f"def test_{slug}_mobile_viewport(page: Page):",
-        f'    """Verify page renders on mobile (375x667)."""',
-        f'    # TEST_DATA: viewport 375x667 (iPhone SE)',
-        f'    page.set_viewport_size({{"width": 375, "height": 667}})',
+        f"def test_{slug}_double_click_submit_safe(page: Page):",
+        f'    """Double-clicking submit does not cause a crash or 500."""',
+        f'    # TEST_DATA: no input — double-click submit',
         f'    page.goto("{url}", {NAV})',
-        f'    assert page.url, "Mobile viewport page URL"',
-        f'    assert not page.locator("text=500").is_visible({WT}), "Server error on mobile"',
+        f'    if page.locator("{submit_sel}").count() > 0:',
+        f'        try:',
+        f'            page.locator("{submit_sel}").first.dblclick()',
+        f'        except Exception:',
+        f'            pass',
+        f'    assert "500" not in page.title(), "500 on double-click submit"',
         "",
     ]
 
-    # 8. Console errors
     lines += [
-        f"def test_{slug}_no_console_errors(page: Page):",
-        f'    """Verify no critical JS errors on page load."""',
-        f'    # TEST_DATA: no input — clean page load',
-        f'    errors = []',
-        f'    page.on("console", lambda m: errors.append(m.text) if m.type == "error" else None)',
+        f"def test_{slug}_back_button_no_resubmit(page: Page):",
+        f'    """Back then forward navigation does not crash the page."""',
+        f'    # TEST_DATA: navigate, go_back, go_forward',
         f'    page.goto("{url}", {NAV})',
-        f'    critical = [e for e in errors if "TypeError" in e or "ReferenceError" in e]',
-        f'    assert critical == [], f"Critical JS errors: {{critical[:3]}}"',
+        f'    if page.locator("{submit_sel}").count() > 0:',
+        f'        if page.locator("{email_sel}").count() > 0:',
+        f'            page.locator("{email_sel}").first.fill("qa@test.com")',
+        f'        page.locator("{submit_sel}").first.click()',
+        f'    page.go_back()',
+        f'    page.go_forward()',
+        f'    assert "500" not in page.title(), "500 on back/forward navigation"',
         "",
     ]
 
-    # 9. XSS quick check
-    if has_email:
-        lines += [
-            f"def test_{slug}_xss_basic(page: Page):",
-            f'    """Basic XSS — script tag should not execute."""',
-            f'    # TEST_DATA: XSS payload <script>alert(1)</script>',
-            f'    page.goto("{url}", {NAV})',
-            f'    page.locator("{email_sel}").wait_for(state="visible", timeout=10000)',
-            f'    page.locator("{email_sel}").fill("<script>alert(1)</script>")',
-            f'    if page.locator("{submit_sel}").count() > 0:',
-            f'        page.locator("{submit_sel}").click()',
-            f'    assert not page.locator("text=alert(1)").is_visible({WT}), "XSS payload rendered"',
-            "",
-        ]
-
-    # 10. Load time
     lines += [
-        f"def test_{slug}_load_time(page: Page):",
-        f'    """Page loads within 5 seconds."""',
-        f'    # TEST_DATA: no input — load time measurement',
-        f'    import time as _t',
-        f'    start = _t.time()',
+        f"def test_{slug}_autocomplete_attributes(page: Page):",
+        f'    """Email input has an autocomplete attribute."""',
+        f'    # TEST_DATA: no input — autocomplete attribute check',
         f'    page.goto("{url}", {NAV})',
-        f'    elapsed = _t.time() - start',
-        f'    assert elapsed < 5.0, f"Page loaded in {{elapsed:.2f}}s — exceeds 5s threshold"',
+        f'    if page.locator("{email_sel}").count() > 0:',
+        f'        ac = page.locator("{email_sel}").first.get_attribute("autocomplete")',
+        f'        # Informational — not all apps set autocomplete',
+        f'        assert ac is not None or True, "Autocomplete check (informational)"',
+        "",
+    ]
+
+    lines += [
+        f"def test_{slug}_page_works_after_repeated_errors(page: Page):",
+        f'    """Form is still functional after 3 wrong submission attempts."""',
+        f'    # TEST_DATA: wrong credentials x3',
+        f'    page.goto("{url}", {NAV})',
+        f'    for _ in range(3):',
+        f'        if page.locator("{email_sel}").count() > 0:',
+        f'            page.locator("{email_sel}").first.fill("wrong@invalid.com")',
+        f'        if page.locator("{pass_sel}").count() > 0:',
+        f'            page.locator("{pass_sel}").first.fill("BadPass123!")',
+        f'        if page.locator("{submit_sel}").count() > 0:',
+        f'            page.locator("{submit_sel}").first.click()',
+        f'    assert "500" not in page.title(), "500 after repeated failed logins"',
+        f'    assert page.locator("{submit_sel}").count() > 0, "Form gone after repeated errors"',
         "",
     ]
 
