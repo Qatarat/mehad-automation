@@ -93,7 +93,8 @@ SPECS_DIR        = Path("specs")
 TESTS_DIR        = Path("tests")
 REPORTS_DIR      = Path("reports")
 SHOTS_DIR        = Path("reports/screenshots")
-MAX_FIX_RETRIES  = 3
+MAX_FIX_RETRIES  = int(os.getenv("MAX_FIX_RETRIES", "3"))
+_MAX_TIMEOUTS    = 2   # blacklist a model after this many timeouts per session
 
 # Spec files to skip — these are templates/docs, not real test specs
 _SKIP_SPECS = {"TEMPLATE.md", "README.md", "EXAMPLE.md"}
@@ -154,6 +155,7 @@ def _available_models() -> set[str]:
 
 _AVAILABLE: set[str] | None = None
 _CONFIRMED_UNAVAILABLE: set[str] = set()
+_TIMEOUT_COUNTS: dict[str, int] = {}   # per-session timeout counter per model
 
 
 def _chat_with_timeout(model: str, messages: list, options: dict) -> dict | None:
@@ -194,7 +196,11 @@ def ai_call(system: str, user: str, max_tokens: int = 4096) -> str:
                 {"temperature": temp, "num_predict": effective},
             )
             if resp is None:
-                continue  # timeout — try next model but don't permanently blacklist
+                _TIMEOUT_COUNTS[model] = _TIMEOUT_COUNTS.get(model, 0) + 1
+                if _TIMEOUT_COUNTS[model] >= _MAX_TIMEOUTS:
+                    log(f"  [AI] 🚫 {model} timed out {_TIMEOUT_COUNTS[model]}× — blacklisting for this session")
+                    _CONFIRMED_UNAVAILABLE.add(model)
+                continue
             text = resp["message"]["content"].strip()
             if len(text) > 50:
                 log(f"  [AI] ✅ {model} → {len(text)} chars")

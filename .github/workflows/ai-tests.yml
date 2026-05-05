@@ -35,7 +35,8 @@ jobs:
     env:
       BASE_URL:              ${{ github.event.inputs.base_url  || 'https://beta-stg.markopolo.ai' }}
       AI_MODEL:              ${{ github.event.inputs.ai_model  || 'qwen2.5-coder:1.5b' }}
-      AI_TIMEOUT:            "90"       # seconds per ollama.chat() call before giving up
+      AI_TIMEOUT:            "60"       # seconds per ollama.chat() call before giving up
+      MAX_FIX_RETRIES:       "1"        # self-heal rounds in CI (reduce from 3 to save time)
       BROWSER_USE_ENABLED:   ${{ github.event.inputs.browser_use || 'false' }}
       BROWSER_USE_MODEL:     "qwen2.5:7b"
 
@@ -167,6 +168,7 @@ jobs:
           BASE_URL:              ${{ env.BASE_URL }}
           AI_MODEL:              ${{ env.AI_MODEL }}
           AI_TIMEOUT:            ${{ env.AI_TIMEOUT }}
+          MAX_FIX_RETRIES:       ${{ env.MAX_FIX_RETRIES }}
           TEST_PASSWORD:         ${{ secrets.TEST_PASSWORD }}
           BROWSER_USE_ENABLED:   ${{ env.BROWSER_USE_ENABLED }}
           BROWSER_USE_MODEL:     ${{ env.BROWSER_USE_MODEL }}
