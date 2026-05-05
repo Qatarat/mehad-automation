@@ -94,28 +94,30 @@ TESTS_DIR        = Path("tests")
 REPORTS_DIR      = Path("reports")
 SHOTS_DIR        = Path("reports/screenshots")
 MAX_FIX_RETRIES  = int(os.getenv("MAX_FIX_RETRIES", "3"))
-_MAX_TIMEOUTS    = 2   # blacklist a model after this many timeouts per session
+_MAX_TIMEOUTS    = 1   # blacklist a model after this many timeouts per session
 
 # Spec files to skip — these are templates/docs, not real test specs
 _SKIP_SPECS = {"TEMPLATE.md", "README.md", "EXAMPLE.md"}
 
 # ── Multi-model chain — 14 free/open-source models ────────────────────────────
+# Each entry: (model, max_tokens, temperature, per_model_timeout_seconds)
+# Smaller models respond faster — give them shorter timeouts to fail fast.
 MODEL_CHAIN = [
-    (AI_MODEL,                4096, 0.05),   # primary (default: qwen2.5-coder:7b)
-    (AI_MODEL,                2500, 0.08),   # retry primary with lower tokens
-    ("qwen2.5-coder:7b",      4096, 0.05),   # always try 7b explicitly
-    ("qwen2.5-coder:7b",      2000, 0.10),   # 7b with fewer tokens
-    ("deepseek-coder:6.7b",   4096, 0.05),
-    ("codellama:7b",          3000, 0.08),
-    ("mistral:7b",            3000, 0.08),
-    ("phi4:3.8b",             3000, 0.08),
-    ("llama3.2:3b",           3000, 0.10),
-    ("phi3.5",                3000, 0.10),
-    ("gemma2:2b",             2500, 0.10),
-    ("llama3.2:1b",           3000, 0.10),
-    ("qwen2.5-coder:1.5b",    2000, 0.12),
-    ("tinyllama:1.1b",        2000, 0.12),
-    ("qwen2.5:0.5b",          1500, 0.15),
+    (AI_MODEL,                4096, 0.05, 120),   # primary (7b)
+    (AI_MODEL,                2500, 0.08, 120),
+    ("qwen2.5-coder:7b",      4096, 0.05, 120),
+    ("qwen2.5-coder:7b",      2000, 0.10, 120),
+    ("deepseek-coder:6.7b",   4096, 0.05, 120),
+    ("codellama:7b",          3000, 0.08, 120),
+    ("mistral:7b",            3000, 0.08, 120),
+    ("phi4:3.8b",             3000, 0.08,  90),
+    ("llama3.2:3b",           3000, 0.10,  90),
+    ("phi3.5",                3000, 0.10,  90),
+    ("gemma2:2b",             2500, 0.10,  60),
+    ("llama3.2:1b",           3000, 0.10,  60),
+    ("qwen2.5-coder:1.5b",    2000, 0.12,  60),
+    ("tinyllama:1.1b",        2000, 0.12,  45),
+    ("qwen2.5:0.5b",          1500, 0.15,  35),   # 0.5b responds fast or not at all
 ]
 
 SYS_TEST = f"""\
@@ -159,14 +161,15 @@ _CONFIRMED_UNAVAILABLE: set[str] = set()
 _TIMEOUT_COUNTS: dict[str, int] = {}   # per-session timeout counter per model
 
 
-def _chat_with_timeout(model: str, messages: list, options: dict) -> dict | None:
+def _chat_with_timeout(model: str, messages: list, options: dict,
+                       timeout: int = AI_TIMEOUT) -> dict | None:
     """Call ollama.chat with a hard timeout — prevents hanging in CI."""
     with _cf.ThreadPoolExecutor(max_workers=1) as ex:
         fut = ex.submit(ollama.chat, model=model, messages=messages, options=options)
         try:
-            return fut.result(timeout=AI_TIMEOUT)
+            return fut.result(timeout=timeout)
         except _cf.TimeoutError:
-            log(f"  [AI] ⏱  {model} timed out after {AI_TIMEOUT}s")
+            log(f"  [AI] ⏱  {model} timed out after {timeout}s")
             return None
         except Exception as e:
             raise e  # let caller handle other exceptions
@@ -182,24 +185,25 @@ def ai_call(system: str, user: str, max_tokens: int = 4096) -> str:
         else:
             log("  [MODELS] No models — template engine will handle generation")
 
-    for model, tok, temp in MODEL_CHAIN:
+    for model, tok, temp, model_timeout in MODEL_CHAIN:
         if model in _CONFIRMED_UNAVAILABLE:
             continue
         if model not in _AVAILABLE and model != AI_MODEL:
             continue
         effective = min(max_tokens, tok)
-        log(f"  [AI] → {model}  max_tokens={effective}  timeout={AI_TIMEOUT}s")
+        log(f"  [AI] → {model}  max_tokens={effective}  timeout={model_timeout}s")
         try:
             resp = _chat_with_timeout(
                 model,
                 [{"role": "system", "content": system},
                  {"role": "user",   "content": user}],
                 {"temperature": temp, "num_predict": effective},
+                timeout=model_timeout,
             )
             if resp is None:
                 _TIMEOUT_COUNTS[model] = _TIMEOUT_COUNTS.get(model, 0) + 1
                 if _TIMEOUT_COUNTS[model] >= _MAX_TIMEOUTS:
-                    log(f"  [AI] 🚫 {model} timed out {_TIMEOUT_COUNTS[model]}× — blacklisting for this session")
+                    log(f"  [AI] 🚫 {model} timed out — blacklisting for this session")
                     _CONFIRMED_UNAVAILABLE.add(model)
                 continue
             text = resp["message"]["content"].strip()
@@ -1212,6 +1216,9 @@ def generate_all_22_types(spec: ParsedSpec) -> tuple[str, dict]:
         if not code or not code.strip():
             log(f"    [GEN:{type_name}] empty — skipped")
             continue
+        # Strip markdown fences and non-ASCII chars that small models often emit
+        code = clean_code(code)
+        code = re.sub(r"[^\x00-\x7F]+", "", code)
         result = validate_code(_HDR + code)
         if result["valid"]:
             n = code.count("def test_")
@@ -1419,10 +1426,6 @@ class AutonomousTestAgent:
         log("\n  [THINK] Generating tests (22 types)...")
         type_log: dict = {}
         code, type_log = generate_all_22_types(spec)
-
-        if not code:
-            log("  [GEN] Trying section-based fallback...")
-            code = generate_sections_fallback(spec)
 
         if not code:
             log("  [FALLBACK] Using template engine (zero-AI, compiled selectors)...")

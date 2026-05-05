@@ -37,8 +37,8 @@ jobs:
       AI_MODEL:              ${{ github.event.inputs.ai_model  || 'qwen2.5-coder:7b' }}
       AI_TIMEOUT:            "120"      # seconds per ollama.chat() call before giving up (7b needs more time)
       MAX_FIX_RETRIES:       "1"        # self-heal rounds in CI (reduce from 3 to save time)
-      BROWSER_USE_ENABLED:   "true"
-      BROWSER_USE_MODEL:     "qwen2.5:7b"
+      BROWSER_USE_ENABLED:   "false"
+      BROWSER_USE_MODEL:     "qwen2.5-coder:7b"
       OPENAI_API_KEY:        "ollama"
       OPENAI_BASE_URL:       "http://localhost:11434/v1"
 
@@ -171,7 +171,7 @@ jobs:
 
       # ── 12. Run the AI agent ──────────────────────────────────────────────
       - name: Run AI Test Agent
-        timeout-minutes: 60   # hard limit on agent execution (7b is slower)
+        timeout-minutes: 75   # hard limit on agent execution
         env:
           BASE_URL:              ${{ env.BASE_URL }}
           AI_MODEL:              ${{ env.AI_MODEL }}
