@@ -12,7 +12,7 @@ Writes:
   reports/consolidated_summary.json     — Machine-readable merged summary
 """
 from __future__ import annotations
-import json, re, sys
+import base64, json, re, sys
 from pathlib import Path
 from datetime import datetime
 
@@ -20,6 +20,48 @@ ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
 REPORTS_DIR = ROOT / "reports"
+
+# Screenshot index built by conftest.py — nodeid → {path, url, timestamp}
+_SHOT_INDEX: dict = {}
+_SHOT_INDEX_LOADED = False
+
+
+def _load_shot_index() -> None:
+    global _SHOT_INDEX, _SHOT_INDEX_LOADED
+    if _SHOT_INDEX_LOADED:
+        return
+    _SHOT_INDEX_LOADED = True
+    idx_path = REPORTS_DIR / "screenshots" / "_index.json"
+    if idx_path.exists():
+        try:
+            _SHOT_INDEX = json.loads(idx_path.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+
+
+def _screenshot_b64(nodeid: str, fn_name: str) -> str:
+    """Return base64 data-URI for the failure screenshot, or '' if not found."""
+    _load_shot_index()
+    # Try exact nodeid match first, then fn_name substring match
+    entry = _SHOT_INDEX.get(nodeid)
+    if not entry:
+        for key, val in _SHOT_INDEX.items():
+            if fn_name in key:
+                entry = val
+                break
+    if not entry:
+        return ""
+    png_path = Path(entry.get("path", ""))
+    if not png_path.exists():
+        # Path might be relative to project root
+        png_path = ROOT / png_path
+    if not png_path.exists():
+        return ""
+    try:
+        data = base64.b64encode(png_path.read_bytes()).decode()
+        return f"data:image/png;base64,{data}"
+    except Exception:
+        return ""
 
 
 def _load(path: Path) -> dict:
@@ -55,7 +97,7 @@ def _bugs_from_pytest_json(data: dict, prefix: str, base_url: str) -> list:
             "traceback":     longrepr[:2000],
             "timestamp":     datetime.now().isoformat(),
             "steps":         [],
-            "screenshot_b64": "",
+            "screenshot_b64": _screenshot_b64(nodeid, fn_name),
             "browser":       "Chromium",
             "viewport":      "1280x720",
             "env":           "Staging",

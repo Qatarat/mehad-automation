@@ -315,17 +315,13 @@ def template_tests(spec: ParsedSpec, compiled: dict | None = None) -> str:  # no
     terms_sel   = _find_sel(["terms", "checkbox", "accept"],                "input[type='checkbox']")
     company_sel = _find_sel(["company", "organization", "org"],             "input[name='company']")
 
-    has_email  = bool(email_sel)
-    has_pass   = bool(pass_sel)
-    has_submit = bool(submit_sel)
-
     # ── OTP / phone-based login selectors ─────────────────────────────────────
     phone_sel   = _find_sel(["phone", "tel", "whatsapp", "mobile"], "input[type='tel']")
     otp_sel     = _find_sel(["otp", "one_time", "verification"],    "input[autocomplete='one-time-code']")
     sendcode_sel = _find_sel(["send_code", "send"],                 "button:has-text('Send Code')")
     continue_sel = _find_sel(["continue", "verify"],                "button:has-text('Continue')")
     cc_sel       = _find_sel(["country_code", "country"],           "[aria-label='Country code']")
-    login_btn_sel = _find_sel(["login_btn", "log_in"],              "[aria-label='Login']")
+    login_btn_sel = _find_sel(["login_btn", "log_in"],              "[aria-label='Login'], button:has-text('Log In'), button:has-text('Login')")
 
     # ── Page type detection ───────────────────────────────────────────────────
     page_lower = spec.page_name.lower()
@@ -339,6 +335,11 @@ def template_tests(spec: ParsedSpec, compiled: dict | None = None) -> str:  # no
         any(k in raw_sel for k in ["phone_number", "otp_input", "send_code",
                                     "country_code", "verification_code"])
     )
+
+    # Suppress email/password tests for OTP/phone-based pages (no such fields exist)
+    has_email  = bool(email_sel) and not is_otp
+    has_pass   = bool(pass_sel)  and not is_otp
+    has_submit = bool(submit_sel)
 
     # ── Signup form-fill helper (inline, reused by multiple tests) ────────────
     # Used as an indented code block inserted into test bodies
