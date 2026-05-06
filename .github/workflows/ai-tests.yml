@@ -397,6 +397,7 @@ jobs:
             --timeout=60 --timeout-method=thread \
             --tb=short -v -p no:warnings \
             --html=reports/qa01-functional.html --self-contained-html \
+            --json-report --json-report-file=reports/qa01_functional_results.json \
             -p no:cacheprovider 2>&1 | tee reports/qa01-functional.txt
 
       - name: Run QA-02 Edge Case Tests
@@ -407,6 +408,7 @@ jobs:
             --timeout=60 --timeout-method=thread \
             --tb=short -v -p no:warnings \
             --html=reports/qa02-edge.html --self-contained-html \
+            --json-report --json-report-file=reports/qa02_edge_results.json \
             -p no:cacheprovider 2>&1 | tee reports/qa02-edge.txt
 
       - name: Write QA Agent 1 Summary
@@ -428,7 +430,9 @@ jobs:
         if: always()
         with:
           name: qa-agent-1-reports-${{ github.run_number }}
-          path: reports/qa0[12]*
+          path: |
+            reports/qa01*
+            reports/qa02*
           retention-days: 30
           if-no-files-found: warn
 
@@ -472,6 +476,7 @@ jobs:
             --timeout=60 --timeout-method=thread \
             --tb=short -v -p no:warnings \
             --html=reports/qa03-security.html --self-contained-html \
+            --json-report --json-report-file=reports/qa03_security_results.json \
             -p no:cacheprovider 2>&1 | tee reports/qa03-security.txt
 
       - name: Run QA-04 Performance Tests
@@ -482,6 +487,7 @@ jobs:
             --timeout=60 --timeout-method=thread \
             --tb=short -v -p no:warnings \
             --html=reports/qa04-performance.html --self-contained-html \
+            --json-report --json-report-file=reports/qa04_performance_results.json \
             -p no:cacheprovider 2>&1 | tee reports/qa04-performance.txt
 
       - name: Run QA-05 Hallucination & Data Integrity Tests
@@ -492,6 +498,7 @@ jobs:
             --timeout=60 --timeout-method=thread \
             --tb=short -v -p no:warnings \
             --html=reports/qa05-hallucination.html --self-contained-html \
+            --json-report --json-report-file=reports/qa05_hallucination_results.json \
             -p no:cacheprovider 2>&1 | tee reports/qa05-hallucination.txt
 
       - name: Write QA Agent 2 Summary
@@ -514,6 +521,254 @@ jobs:
         if: always()
         with:
           name: qa-agent-2-reports-${{ github.run_number }}
-          path: reports/qa0[345]*
+          path: |
+            reports/qa03*
+            reports/qa04*
+            reports/qa05*
           retention-days: 30
+          if-no-files-found: warn
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # QA AGENT 3 — API & Network + Accessibility (QA-06, QA-07)
+  # ─────────────────────────────────────────────────────────────────────────────
+  qa-agent-3-api-accessibility:
+    name: "QA Agent 3 — API/Network & Accessibility"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BASE_URL: ${{ github.event.inputs.base_url || 'https://dev.mehadedu.com/en' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: "pip" }
+      - name: Install dependencies
+        run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report
+      - name: Install Playwright Chromium
+        run: playwright install chromium --with-deps
+      - name: Prepare reports directory
+        run: mkdir -p reports reports/screenshots reports/evidence
+      - name: Run QA-06 API & Network Tests
+        continue-on-error: true
+        run: |
+          BASE_URL=${{ env.BASE_URL }} python3 -m pytest \
+            tests/test_qa_comprehensive.py::TestQA06APIAndNetwork \
+            --timeout=60 --timeout-method=thread --tb=short -v -p no:warnings \
+            --html=reports/qa06-api.html --self-contained-html \
+            --json-report --json-report-file=reports/qa06_api_results.json \
+            -p no:cacheprovider 2>&1 | tee reports/qa06-api.txt
+      - name: Run QA-07 Accessibility Tests
+        continue-on-error: true
+        run: |
+          BASE_URL=${{ env.BASE_URL }} python3 -m pytest \
+            tests/test_qa_comprehensive.py::TestQA07Accessibility \
+            --timeout=60 --timeout-method=thread --tb=short -v -p no:warnings \
+            --html=reports/qa07-accessibility.html --self-contained-html \
+            --json-report --json-report-file=reports/qa07_accessibility_results.json \
+            -p no:cacheprovider 2>&1 | tee reports/qa07-accessibility.txt
+      - name: Upload QA Agent 3 Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-agent-3-reports-${{ github.run_number }}
+          path: reports/qa0[67]*
+          retention-days: 30
+          if-no-files-found: warn
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # QA AGENT 4 — QA-01 & QA-02 JSON results (for consolidation)
+  # Re-runs agents 1 with JSON output for consolidation pipeline
+  # ─────────────────────────────────────────────────────────────────────────────
+  qa-agent-4-mobile:
+    name: "QA Agent 4 — Mobile & Cross-Viewport"
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      BASE_URL: ${{ github.event.inputs.base_url || 'https://dev.mehadedu.com/en' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: "pip" }
+      - name: Install dependencies
+        run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report
+      - name: Install Playwright Chromium
+        run: playwright install chromium --with-deps
+      - name: Prepare reports directory
+        run: mkdir -p reports reports/screenshots reports/evidence
+      - name: Run QA-08 Mobile & Viewport Tests
+        continue-on-error: true
+        run: |
+          BASE_URL=${{ env.BASE_URL }} python3 -m pytest \
+            tests/test_qa_comprehensive.py::TestQA08MobileAndViewport \
+            --timeout=60 --timeout-method=thread --tb=short -v -p no:warnings \
+            --html=reports/qa08-mobile.html --self-contained-html \
+            --json-report --json-report-file=reports/qa08_mobile_results.json \
+            -p no:cacheprovider 2>&1 | tee reports/qa08-mobile.txt
+      - name: Upload QA Agent 4 Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-agent-4-reports-${{ github.run_number }}
+          path: reports/qa08*
+          retention-days: 30
+          if-no-files-found: warn
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # QA AGENT 5 — LangGraph agent (generates + runs AI tests via graph)
+  # ─────────────────────────────────────────────────────────────────────────────
+  qa-agent-5-langgraph:
+    name: "QA Agent 5 — LangGraph AI Orchestration"
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      BASE_URL:            ${{ github.event.inputs.base_url || 'https://dev.mehadedu.com/en' }}
+      AI_MODEL:            ${{ github.event.inputs.ai_model || 'qwen2.5-coder:7b' }}
+      AI_TIMEOUT:          "90"
+      MAX_FIX_RETRIES:     "1"
+      OPENAI_API_KEY:      "ollama"
+      OPENAI_BASE_URL:     "http://localhost:11434/v1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: "pip" }
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt || true
+          pip install langgraph langchain-core langchain-ollama playwright \
+                      pytest pytest-playwright pytest-json-report pytest-html pytest-timeout Jinja2
+      - name: Install Playwright Chromium
+        run: playwright install chromium --with-deps
+      - name: Install Ollama
+        run: curl -fsSL https://ollama.ai/install.sh | sh
+      - name: Cache Ollama models
+        uses: actions/cache@v4
+        with:
+          path: ~/.ollama/models
+          key: ollama-models-v6-qwen2.5-coder-7b-1.5b-tinyllama
+      - name: Start Ollama + pull models
+        run: |
+          ollama serve &
+          for i in $(seq 1 20); do curl -s http://localhost:11434/api/tags > /dev/null 2>&1 && break; sleep 2; done
+          timeout 600 ollama pull qwen2.5-coder:7b  || echo "7b unavailable"
+          timeout 180 ollama pull qwen2.5-coder:1.5b || echo "1.5b unavailable"
+          timeout 120 ollama pull tinyllama:1.1b     || echo "tinyllama unavailable"
+          ollama list
+      - name: Prepare directories
+        run: mkdir -p tests reports reports/screenshots reports/evidence cache/tests
+      - name: Run LangGraph Agent
+        continue-on-error: true
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          PYTHONUNBUFFERED: "1"
+        run: |
+          echo "=== LangGraph Agent — spec → generate → cache → run ==="
+          python -u -m ai_engine.langgraph_agent || true
+      - name: Upload LangGraph Reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: qa-agent-5-langgraph-${{ github.run_number }}
+          path: |
+            reports/
+            cache/tests/
+          retention-days: 30
+          if-no-files-found: warn
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # CONSOLIDATE — Merges ALL QA agent results into one master bug-report.html
+  # Runs after every other job completes (pass or fail).
+  # ─────────────────────────────────────────────────────────────────────────────
+  consolidate-reports:
+    name: "Consolidate — Master Bug Report"
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    if: always()
+    needs:
+      - autonomous-ai-test
+      - qa-agent-1-functional
+      - qa-agent-2-security-perf
+      - qa-agent-3-api-accessibility
+      - qa-agent-4-mobile
+      - qa-agent-5-langgraph
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: "pip" }
+      - name: Install report dependencies
+        run: pip install Jinja2 pytest-json-report
+      - name: Prepare reports directory
+        run: mkdir -p reports reports/qa_agent_1 reports/qa_agent_2 reports/qa_agent_3 reports/qa_agent_4 reports/qa_agent_5
+
+      # Download artifacts from every QA agent
+      - name: Download AI Agent artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: full-reports-${{ github.run_number }}
+          path: reports/
+      - name: Download QA Agent 1 artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: qa-agent-1-reports-${{ github.run_number }}
+          path: reports/
+      - name: Download QA Agent 2 artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: qa-agent-2-reports-${{ github.run_number }}
+          path: reports/
+      - name: Download QA Agent 3 artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: qa-agent-3-reports-${{ github.run_number }}
+          path: reports/
+      - name: Download QA Agent 4 artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: qa-agent-4-reports-${{ github.run_number }}
+          path: reports/
+      - name: Download QA Agent 5 artifacts
+        uses: actions/download-artifact@v4
+        continue-on-error: true
+        with:
+          name: qa-agent-5-langgraph-${{ github.run_number }}
+          path: reports/
+
+      - name: Run consolidation script
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          echo "=== Consolidating all QA agent results ==="
+          ls -la reports/ | head -30 || true
+          python scripts/consolidate_reports.py
+
+      - name: Write consolidated summary
+        if: always()
+        run: |
+          echo "## 🎯 Consolidated QA Report — All Agents" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          if [ -f reports/consolidated_summary.json ]; then
+            python3 -c "
+          import json
+          d = json.load(open('reports/consolidated_summary.json'))
+          print(f'| ✅ Total Passed | {d.get(\"total_passed\", 0)} |')
+          print(f'| ❌ Total Failed | {d.get(\"total_failed\", 0)} |')
+          print(f'| 📊 Total Tests  | {d.get(\"total_tests\",  0)} |')
+          print(f'| 📈 Pass Rate    | {d.get(\"pass_rate\",    \"N/A\")} |')
+          print(f'| 🐛 Total Bugs   | {d.get(\"total_bugs\",   0)} |')
+          print(f'| 📄 Specs/Groups | {len(d.get(\"sources\", []))} |')
+          " >> "$GITHUB_STEP_SUMMARY" || true
+          fi
+
+      - name: Upload consolidated master report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: master-bug-report-${{ github.run_number }}
+          path: |
+            reports/bug-report.html
+            reports/consolidated_summary.json
+          retention-days: 60
           if-no-files-found: warn
