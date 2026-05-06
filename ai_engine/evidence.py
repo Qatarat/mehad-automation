@@ -6,8 +6,9 @@ from __future__ import annotations
 import json, base64
 from pathlib import Path
 
-EVIDENCE_DIR    = Path("reports/evidence")
-SCREENSHOTS_DIR = Path("reports/screenshots")
+_ROOT           = Path(__file__).parent.parent
+EVIDENCE_DIR    = _ROOT / "reports" / "evidence"
+SCREENSHOTS_DIR = _ROOT / "reports" / "screenshots"
 
 
 def load_screenshot_index() -> dict:
@@ -39,10 +40,20 @@ def load_evidence_for(node_id: str, evidence_index: dict | None = None) -> dict:
 
 
 def screenshot_to_b64(path: str) -> str | None:
-    try:
-        return "data:image/png;base64," + base64.b64encode(Path(path).read_bytes()).decode()
-    except Exception:
+    if not path:
         return None
+    candidates = [
+        Path(path),                          # stored absolute path
+        _ROOT / path,                        # relative to project root
+        SCREENSHOTS_DIR / Path(path).name,   # just the filename in screenshots dir
+    ]
+    for p in candidates:
+        try:
+            data = base64.b64encode(p.read_bytes()).decode()
+            return f"data:image/png;base64,{data}"
+        except Exception:
+            continue
+    return None
 
 
 def enrich_bug(bug: dict, shot_index: dict, evidence_index: dict | None = None) -> dict:

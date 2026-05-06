@@ -248,6 +248,62 @@ jobs:
           path: reports/
           retention-days: 30
 
+      # ── 16b. Publish report to GitHub Pages ──────────────────────────────
+      # After each push to main, the report is live at:
+      #   https://mejbaur-markopolo.github.io/Markopolo-Automation-Testing/
+      - name: Prepare GitHub Pages site
+        if: always() && github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p gh-pages-site/history
+          # Latest report at root
+          cp reports/bug-report.html gh-pages-site/index.html || true
+          # Archive by run number
+          cp reports/bug-report.html gh-pages-site/history/report-${{ github.run_number }}.html || true
+          # Generate a simple history index
+          python3 - <<'PYEOF'
+          import os, json
+          from pathlib import Path
+
+          run_num = os.environ.get("GITHUB_RUN_NUMBER", "?")
+          site    = Path("gh-pages-site")
+          history = site / "history"
+          history.mkdir(parents=True, exist_ok=True)
+
+          reports = sorted(history.glob("report-*.html"), key=lambda p: int(p.stem.split("-")[1]) if p.stem.split("-")[1].isdigit() else 0, reverse=True)
+
+          rows = ""
+          for r in reports:
+              num = r.stem.replace("report-", "")
+              rows += f'<tr><td><a href="history/{r.name}">Run #{num}</a></td><td>{r.name}</td></tr>\n'
+
+          idx = f"""<!DOCTYPE html>
+          <html><head><meta charset="UTF-8"/><title>Fagun QA Reports</title>
+          <style>body{{font-family:system-ui;background:#0d1117;color:#e6edf3;padding:32px}}
+          h1{{color:#58a6ff}}table{{border-collapse:collapse;width:100%}}
+          th,td{{border:1px solid #30363d;padding:10px 16px;text-align:left}}
+          a{{color:#58a6ff}}th{{background:#161b22}}</style></head>
+          <body>
+          <h1>🤖 Fagun Autonomous QA Reports</h1>
+          <p>Latest: <a href="index.html">Run #{run_num}</a></p>
+          <h2>History</h2>
+          <table><tr><th>Run</th><th>File</th></tr>{rows}</table>
+          </body></html>"""
+
+          (site / "history" / "index.html").write_text(idx)
+          print(f"Pages site: {list(site.rglob('*.html'))}")
+          PYEOF
+
+      - name: Deploy to GitHub Pages
+        if: always() && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./gh-pages-site
+          keep_files: true
+          user_name: "github-actions[bot]"
+          user_email: "github-actions[bot]@users.noreply.github.com"
+          commit_message: "ci: update QA report (run #${{ github.run_number }})"
+
       # ── 17. Upload generated tests ────────────────────────────────────────
       - name: Upload generated tests
         uses: actions/upload-artifact@v4

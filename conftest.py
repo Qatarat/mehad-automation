@@ -13,9 +13,10 @@ from datetime import datetime
 _HEADED  = os.getenv("HEADED",   "0").strip() in ("1", "true", "yes")
 _SLOW_MO = int(os.getenv("SLOW_MO", "800" if _HEADED else "0"))
 
-# ── Directories ───────────────────────────────────────────────────────────────
-SCREENSHOTS_DIR = Path("reports/screenshots")
-EVIDENCE_DIR    = Path("reports/evidence")
+# ── Directories (absolute so paths resolve regardless of CWD) ─────────────────
+_ROOT = Path(__file__).parent
+SCREENSHOTS_DIR = _ROOT / "reports" / "screenshots"
+EVIDENCE_DIR    = _ROOT / "reports" / "evidence"
 
 # ── Global index written at session end ───────────────────────────────────────
 _SCREENSHOT_INDEX: dict[str, dict] = {}
@@ -150,17 +151,22 @@ def pytest_runtest_makereport(item, call):
         SCREENSHOTS_DIR.mkdir(parents=True, exist_ok=True)
         safe = re.sub(r"[^\w\-]", "_", item.nodeid)[:120]
         shot_path = SCREENSHOTS_DIR / f"{safe}.png"
-        try:
-            page.screenshot(path=str(shot_path), full_page=True)
+        saved = False
+        for kwargs in ({"full_page": True}, {"full_page": False}, {}):
+            try:
+                page.screenshot(path=str(shot_path), **kwargs)
+                saved = True
+                break
+            except Exception:
+                continue
+        if saved:
             _SCREENSHOT_INDEX[item.nodeid] = {
-                "path":      str(shot_path),
+                "path":      str(shot_path),   # absolute path
                 "url":       page.url,
                 "timestamp": datetime.now().isoformat(),
             }
-        except BaseException as exc:
-            # Catch BaseException so pytest-timeout's Failed (not Exception subclass)
-            # raised inside SIGALRM doesn't re-propagate from this hook.
-            print(f"  [SCREENSHOT] Failed for {item.nodeid}: {exc}", flush=True)
+        else:
+            print(f"  [SCREENSHOT] All attempts failed for {item.nodeid}", flush=True)
 
 
 # ── Diagnostics ───────────────────────────────────────────────────────────────

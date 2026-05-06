@@ -5,7 +5,7 @@ Reads whatever partial data exists in reports/ and always produces a
 bug-report.html, even when the agent step was cancelled or timed out.
 """
 from __future__ import annotations
-import json, sys, re
+import base64, json, sys, re
 from pathlib import Path
 from datetime import datetime
 
@@ -14,6 +14,53 @@ sys.path.insert(0, str(ROOT))
 
 REPORTS_DIR = ROOT / "reports"
 TESTS_DIR   = ROOT / "tests"
+
+# ── Screenshot helpers ────────────────────────────────────────────────────────
+
+_SHOT_IDX: dict = {}
+_SHOT_IDX_LOADED = False
+
+
+def _load_shot_index() -> dict:
+    global _SHOT_IDX, _SHOT_IDX_LOADED
+    if _SHOT_IDX_LOADED:
+        return _SHOT_IDX
+    _SHOT_IDX_LOADED = True
+    for idx_path in [
+        REPORTS_DIR / "screenshots" / "_index.json",
+        ROOT / "reports" / "screenshots" / "_index.json",
+    ]:
+        if idx_path.exists():
+            try:
+                _SHOT_IDX = json.loads(idx_path.read_text(encoding="utf-8"))
+                print(f"[SHOTS] Loaded {len(_SHOT_IDX)} screenshot entries from {idx_path}")
+                return _SHOT_IDX
+            except Exception as e:
+                print(f"[SHOTS] Failed to load index: {e}")
+    print("[SHOTS] No screenshot index found — screenshots will not be embedded")
+    return _SHOT_IDX
+
+
+def _shot_b64(nodeid: str, fn_name: str) -> str:
+    """Return base64 data-URI for a failure screenshot, or '' if not found."""
+    idx = _load_shot_index()
+    entry = idx.get(nodeid)
+    if not entry:
+        # Fuzzy match: find any key containing the function name
+        for key, val in idx.items():
+            if fn_name in key:
+                entry = val
+                break
+    if not entry:
+        return ""
+    raw_path = entry.get("path", "")
+    for candidate in [Path(raw_path), ROOT / raw_path, REPORTS_DIR / "screenshots" / Path(raw_path).name]:
+        try:
+            data = base64.b64encode(candidate.read_bytes()).decode()
+            return f"data:image/png;base64,{data}"
+        except Exception:
+            continue
+    return ""
 
 
 def _load(path: Path) -> dict:
@@ -78,8 +125,8 @@ def build_all_results(summary: dict, data_log: dict) -> dict:
             short    = "\n".join(lines[-5:]) if lines else "No details"
             bugs.append({
                 "id":            f"BUG-{spec_name[:3].upper()}-{len(bugs)+1:03d}",
-                "severity":      "MEDIUM",
-                "priority":      "P2",
+                "severity":      "HIGH" if "security" in nodeid.lower() else "MEDIUM",
+                "priority":      "P1" if "security" in nodeid.lower() else "P2",
                 "title":         f"Test failed: {fn_name}",
                 "test_name":     fn_name,
                 "page_url":      summary.get("base_url", ""),
@@ -90,7 +137,7 @@ def build_all_results(summary: dict, data_log: dict) -> dict:
                 "traceback":     longrepr[:2000],
                 "timestamp":     datetime.now().isoformat(),
                 "steps":         [],
-                "screenshot_b64": "",
+                "screenshot_b64": _shot_b64(nodeid, fn_name),
                 "browser":       "Chromium",
                 "viewport":      "1280x720",
                 "env":           "Staging",
