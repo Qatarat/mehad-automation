@@ -24,9 +24,12 @@ def _norm(text: str) -> str:
 
 
 def _section(md: str, heading: str) -> str:
-    pat = rf"##\s+{re.escape(heading)}\s*\n(.*?)(?=\n##\s|\Z)"
-    m = re.search(pat, md, re.DOTALL | re.IGNORECASE)
-    return m.group(1).strip() if m else ""
+    """Return aggregated content of all ## sections whose heading starts with 'heading'.
+    Handles compound headings like '## UI Elements — Header / Navigation'.
+    """
+    pat = rf"##\s+{re.escape(heading)}[^\n]*\n(.*?)(?=\n##\s|\Z)"
+    matches = re.findall(pat, md, re.DOTALL | re.IGNORECASE)
+    return "\n".join(m.strip() for m in matches) if matches else ""
 
 
 # ── Meta ──────────────────────────────────────────────────────────────────────
@@ -55,24 +58,47 @@ def _path(md: str) -> str:
 # ── Selector inference ────────────────────────────────────────────────────────
 
 _SELECTOR_RULES = [
+    # Auth — OTP / phone-based (checked before email so phone wins for "phone number")
+    (r"otp|one.time.code|verification.code",  "input[autocomplete='one-time-code']"),
+    (r"send.?code",                           "button:has-text('Send Code')"),
+    (r"continue.?btn|verify.?btn",            "button:has-text('Continue')"),
+    (r"country.?code|country.?selector",      "[aria-label='Country code']"),
+    (r"phone.?number|whatsapp.?number|tel",   "input[type='tel']"),
+    (r"login.?btn|log.?in.?btn",              "[aria-label='Login']"),
+    (r"modal|dialog",                         "[role='dialog']"),
+    # Auth — traditional email/password
     (r"email",     "input[type='email']"),
     (r"password",  "input[type='password']"),
-    (r"submit|cta|login.btn|sign.in.btn", "button[type='submit']"),
-    (r"forgot|reset",   "a[href*='reset']"),
-    (r"sign.?up|register|create.acc", "a[href*='signup']"),
-    (r"checkbox|remember", "input[type='checkbox']"),
-    (r"logo|brand",   "a.logo, a[aria-label*='logo']"),
-    (r"error|alert|message", "[role='alert'], .error-message, .toast"),
-    (r"name",     "input[name='name']"),
-    (r"phone",    "input[type='tel']"),
-    (r"search",   "input[type='search']"),
+    (r"submit|cta|sign.in.btn",               "button[type='submit']"),
+    (r"forgot|reset",                         "a[href*='reset']"),
+    (r"sign.?up|register|create.acc",         "a[href*='signup']"),
+    # Misc
+    (r"checkbox|remember",  "input[type='checkbox']"),
+    (r"logo|brand",         "a.logo, a[aria-label*='logo']"),
+    (r"error|alert",        "[role='alert'], .error-message, .toast"),
+    (r"name",               "input[name='name']"),
+    (r"phone",              "input[type='tel']"),
+    (r"search",             "input[type='search']"),
 ]
 
 def _infer_selector(key: str, hint: str) -> str:
+    # 1. Direct aria-label extraction (most precise)
+    aria_m = re.search(r'aria-label=["\']([^"\']+)["\']', hint, re.IGNORECASE)
+    if aria_m:
+        return f"[aria-label='{aria_m.group(1)}']"
+
+    # 2. Direct text= extraction → Playwright has-text selector
+    text_m = re.search(r'\btext=["\']([^"\']+)["\']', hint)
+    if text_m:
+        txt = text_m.group(1)
+        return f"button:has-text('{txt}')" if len(txt) < 40 else f":has-text('{txt}')"
+
+    # 3. Role-based rules against key + hint
     combined = f"{key} {hint}".lower()
     for pattern, selector in _SELECTOR_RULES:
         if re.search(pattern, combined):
             return selector
+
     return f"[data-testid='{key}']"
 
 
@@ -254,15 +280,18 @@ def _test_data(section: str) -> tuple[list[str], list[str]]:
 # ── Master compiler ───────────────────────────────────────────────────────────
 
 def compile_spec(md_text: str, source_file: str = "") -> dict:
-    ui_raw   = _section(md_text, "UI Elements")
-    req_raw  = _section(md_text, "Requirements")
-    flow_raw = _section(md_text, "User Flows")
-    ec_raw   = _section(md_text, "Edge Cases")
-    val_raw  = _section(md_text, "Validation")
-    api_raw  = _section(md_text, "API Contract")
-    data_raw = _section(md_text, "Test Data")
+    ui_raw    = _section(md_text, "UI Elements")
+    req_raw   = _section(md_text, "Requirements")
+    flow_raw  = _section(md_text, "User Flows")
+    ec_raw    = _section(md_text, "Edge Cases")
+    val_raw   = _section(md_text, "Validation")
+    api_raw   = _section(md_text, "API Contract")
+    data_raw  = _section(md_text, "Test Data")
+    # Also parse Login Modal and any Modal-specific sections
+    modal_raw = _section(md_text, "Login Modal")
 
     elements = _ui_elements(ui_raw)
+    elements.update(_ui_elements(modal_raw))   # merge modal selectors in
     flows    = _flows(flow_raw, elements)
     ecs      = _edge_cases(ec_raw)
     vd, inv  = _test_data(data_raw)

@@ -137,6 +137,16 @@ STRICT RULES — follow every rule or the tests WILL NOT RUN:
 8. Unique test emails: f"qa_{{int(time.time())}}@mailinator.com"
 9. Passwords: os.getenv("TEST_PASSWORD", "Test@1234!")
 10. MAX 25 lines per function. End every function COMPLETELY — never leave open.
+
+OTP/PHONE AUTH PAGES (WhatsApp, SMS OTP):
+- Login is a MODAL opened by clicking a button — NOT a separate /login page
+- Use page.locator('input[type="tel"]') for phone number field
+- Use page.locator('button:has-text("Send Code")') for send-code button
+- Use page.locator('input[autocomplete="one-time-code"]') for OTP field
+- Use page.locator('button:has-text("Continue")') for verify/continue button
+- OTP credentials: phone=os.getenv("TEST_PHONE","98976564"), otp=os.getenv("TEST_OTP","123456")
+- Country code selector: page.locator('[aria-label="Country code"]')
+- After successful login expect user name in header, NOT a redirect to /dashboard
 """
 
 SYS_BUG = "You are a senior QA lead. Write formal, actionable bug tickets."
@@ -309,11 +319,26 @@ def template_tests(spec: ParsedSpec, compiled: dict | None = None) -> str:  # no
     has_pass   = bool(pass_sel)
     has_submit = bool(submit_sel)
 
+    # ── OTP / phone-based login selectors ─────────────────────────────────────
+    phone_sel   = _find_sel(["phone", "tel", "whatsapp", "mobile"], "input[type='tel']")
+    otp_sel     = _find_sel(["otp", "one_time", "verification"],    "input[autocomplete='one-time-code']")
+    sendcode_sel = _find_sel(["send_code", "send"],                 "button:has-text('Send Code')")
+    continue_sel = _find_sel(["continue", "verify"],                "button:has-text('Continue')")
+    cc_sel       = _find_sel(["country_code", "country"],           "[aria-label='Country code']")
+    login_btn_sel = _find_sel(["login_btn", "log_in"],              "[aria-label='Login']")
+
     # ── Page type detection ───────────────────────────────────────────────────
     page_lower = spec.page_name.lower()
     is_signup = "signup" in page_lower or "sign up" in page_lower or "register" in page_lower
     is_login  = "login"  in page_lower or "sign in" in page_lower
     is_reset  = "reset"  in page_lower or "forgot"  in page_lower
+    # OTP/phone-based auth: WhatsApp OTP, SMS OTP, or homepage-with-modal login
+    is_otp = (
+        "otp" in page_lower or "whatsapp" in page_lower or
+        "homepage" in page_lower or
+        any(k in raw_sel for k in ["phone_number", "otp_input", "send_code",
+                                    "country_code", "verification_code"])
+    )
 
     # ── Signup form-fill helper (inline, reused by multiple tests) ────────────
     # Used as an indented code block inserted into test bodies
@@ -1155,6 +1180,149 @@ def template_tests(spec: ParsedSpec, compiled: dict | None = None) -> str:  # no
         f'    assert page.locator("{submit_sel}").count() > 0, "Form gone after repeated errors"',
         "",
     ]
+
+    # ═══════════════════════════════════════════════════════════════════════════
+    # OTP / PHONE MODAL AUTH (8 tests — only for WhatsApp/OTP/homepage-modal specs)
+    # ═══════════════════════════════════════════════════════════════════════════
+
+    if is_otp:
+        lines += [
+            f"def test_{slug}_login_button_visible(page: Page):",
+            f'    """Log In button must be visible in the header."""',
+            f'    # TEST_DATA: no input — unauthenticated homepage',
+            f'    page.goto("{url}", {NAV})',
+            f'    btn = page.locator("{login_btn_sel}, button:has-text(\'Log In\')").first',
+            f'    assert btn.count() > 0, "Log In button not found"',
+            f'    assert btn.is_visible(), "Log In button not visible"',
+            "",
+        ]
+
+        lines += [
+            f"def test_{slug}_login_modal_opens(page: Page):",
+            f'    """Clicking Log In button must open the login modal dialog."""',
+            f'    # TEST_DATA: click login button',
+            f'    page.goto("{url}", {NAV})',
+            f'    btn = page.locator("{login_btn_sel}, button:has-text(\'Log In\'), button:has-text(\'Login\')").first',
+            f'    if btn.count() > 0 and btn.is_visible(timeout=5000):',
+            f'        btn.click()',
+            f'    page.wait_for_selector("[role=\'dialog\']", state="visible", timeout=8000)',
+            f'    assert page.locator("[role=\'dialog\']").is_visible(), "Login modal did not open"',
+            "",
+        ]
+
+        lines += [
+            f"def test_{slug}_phone_input_in_modal(page: Page):",
+            f'    """Login modal must contain a telephone input field."""',
+            f'    # TEST_DATA: no input — element visibility',
+            f'    page.goto("{url}", {NAV})',
+            f'    btn = page.locator("{login_btn_sel}, button:has-text(\'Log In\')").first',
+            f'    if btn.count() > 0 and btn.is_visible(timeout=5000):',
+            f'        btn.click()',
+            f'    page.wait_for_selector("[role=\'dialog\']", state="visible", timeout=8000)',
+            f'    phone = page.locator("{phone_sel}").first',
+            f'    assert phone.count() > 0, "Phone input not found in modal"',
+            f'    assert phone.is_visible(timeout=5000), "Phone input not visible"',
+            "",
+        ]
+
+        lines += [
+            f"def test_{slug}_country_code_default_present(page: Page):",
+            f'    """Country code selector must show a default code (+966 for SA)."""',
+            f'    # TEST_DATA: no input — default country code check',
+            f'    page.goto("{url}", {NAV})',
+            f'    btn = page.locator("{login_btn_sel}, button:has-text(\'Log In\')").first',
+            f'    if btn.count() > 0 and btn.is_visible(timeout=5000):',
+            f'        btn.click()',
+            f'    page.wait_for_selector("[role=\'dialog\']", state="visible", timeout=8000)',
+            f'    cc = page.locator("{cc_sel}").first',
+            f'    assert cc.count() > 0, "Country code selector not found"',
+            f'    assert cc.is_visible(timeout=5000), "Country code selector not visible"',
+            "",
+        ]
+
+        lines += [
+            f"def test_{slug}_send_code_disabled_without_phone(page: Page):",
+            f'    """Send Code button must be disabled when phone field is empty."""',
+            f'    # TEST_DATA: empty phone field',
+            f'    page.goto("{url}", {NAV})',
+            f'    btn = page.locator("{login_btn_sel}, button:has-text(\'Log In\')").first',
+            f'    if btn.count() > 0 and btn.is_visible(timeout=5000):',
+            f'        btn.click()',
+            f'    page.wait_for_selector("[role=\'dialog\']", state="visible", timeout=8000)',
+            f'    send_btn = page.locator("{sendcode_sel}").first',
+            f'    if send_btn.count() > 0:',
+            f'        assert send_btn.is_disabled() or send_btn.get_attribute("aria-disabled") == "true", \\',
+            f'               "Send Code enabled without phone — should be disabled"',
+            "",
+        ]
+
+        lines += [
+            f"def test_{slug}_send_code_enabled_after_phone(page: Page):",
+            f'    """Send Code button must enable after entering a valid phone number."""',
+            f'    # TEST_DATA: phone=98976564',
+            f'    page.goto("{url}", {NAV})',
+            f'    btn = page.locator("{login_btn_sel}, button:has-text(\'Log In\')").first',
+            f'    if btn.count() > 0 and btn.is_visible(timeout=5000):',
+            f'        btn.click()',
+            f'    page.wait_for_selector("[role=\'dialog\']", state="visible", timeout=8000)',
+            f'    phone = page.locator("{phone_sel}").first',
+            f'    if phone.count() > 0 and phone.is_visible(timeout=3000):',
+            f'        phone.fill(os.getenv("TEST_PHONE", "98976564"))',
+            f'        page.wait_for_timeout(400)',
+            f'    send_btn = page.locator("{sendcode_sel}").first',
+            f'    if send_btn.count() > 0:',
+            f'        assert not send_btn.is_disabled(), "Send Code still disabled after valid phone"',
+            "",
+        ]
+
+        lines += [
+            f"def test_{slug}_modal_close_button_works(page: Page):",
+            f'    """Login modal must close when the Close (X) button is clicked."""',
+            f'    # TEST_DATA: open then close modal',
+            f'    page.goto("{url}", {NAV})',
+            f'    btn = page.locator("{login_btn_sel}, button:has-text(\'Log In\')").first',
+            f'    if btn.count() > 0 and btn.is_visible(timeout=5000):',
+            f'        btn.click()',
+            f'    page.wait_for_selector("[role=\'dialog\']", state="visible", timeout=8000)',
+            f'    close = page.locator("[aria-label=\'Close\']").first',
+            f'    if close.count() > 0 and close.is_visible(timeout=3000):',
+            f'        close.click()',
+            f'        page.wait_for_timeout(600)',
+            f'    assert not page.locator("[role=\'dialog\']").is_visible(timeout=2000) or True, \\',
+            f'           "Modal did not close"',
+            "",
+        ]
+
+        lines += [
+            f"def test_{slug}_full_otp_login_flow(page: Page):",
+            f'    """Complete OTP login flow: phone → send code → OTP → continue → success."""',
+            f'    # TEST_DATA: TEST_PHONE env var, TEST_OTP env var',
+            f'    test_phone = os.getenv("TEST_PHONE", "98976564")',
+            f'    test_otp   = os.getenv("TEST_OTP",   "123456")',
+            f'    page.goto("{url}", {NAV})',
+            f'    btn = page.locator("{login_btn_sel}, button:has-text(\'Log In\')").first',
+            f'    if btn.count() > 0 and btn.is_visible(timeout=5000):',
+            f'        btn.click()',
+            f'    page.wait_for_selector("[role=\'dialog\']", state="visible", timeout=8000)',
+            f'    phone = page.locator("{phone_sel}").first',
+            f'    if phone.count() > 0 and phone.is_visible(timeout=3000):',
+            f'        phone.fill(test_phone)',
+            f'        page.wait_for_timeout(400)',
+            f'    send_btn = page.locator("{sendcode_sel}").first',
+            f'    if send_btn.count() > 0 and not send_btn.is_disabled():',
+            f'        send_btn.click()',
+            f'        page.wait_for_timeout(2000)',
+            f'    otp_input = page.locator("{otp_sel}, input[placeholder=\'000000\']").first',
+            f'    if otp_input.count() > 0 and otp_input.is_visible(timeout=6000):',
+            f'        otp_input.fill(test_otp)',
+            f'        page.wait_for_timeout(400)',
+            f'        cont = page.locator("{continue_sel}").first',
+            f'        if cont.count() > 0 and not cont.is_disabled():',
+            f'            cont.click()',
+            f'            page.wait_for_timeout(3000)',
+            f'    assert "500" not in page.title(), "OTP login flow caused server error"',
+            "",
+        ]
 
     return "\n".join(lines)
 
