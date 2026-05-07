@@ -59,6 +59,7 @@ AGENT_REPORTS = [
     ("agent-qa18_network.html",         "qa18-network.html",         "QA-18 Network Resilience",  "📡"),
     ("agent-qa19_exploratory.html",     "qa19-exploratory.html",     "QA-19 Autonomous Explorer", "🤖"),
     ("agent-qa20_fuzzing.html",         "qa20-fuzzing.html",         "QA-20 Property-Based Fuzz", "🎲"),
+    ("agent-qa22_vision.html",          "qa22-vision.html",          "QA-22 Vision-LLM UI Review","👁️"),
     ("agent-login.html",                "ai-test-agent.html",        "AI Test Agent (auto-gen)",  "🛠️"),
 ]
 

@@ -3496,3 +3496,120 @@ class TestPhase46SpecInconsistencyVerification:
         assert "Spec Inconsistencies" in html
         assert "spec_a" in html and "spec_b" in html
         assert "10" in html and "12" in html
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# QA-22  VISION-LLM UI VALIDATION  (Phase 4.5)
+# ─────────────────────────────────────────────────────────────────────────────
+# Captures a screenshot of each key page and asks a local Ollama vision
+# model (qwen2-vl:7b / llava:7b) to identify visual quality issues —
+# cropped text, contrast problems, broken images, layout asymmetry, etc.
+#
+# Bugs caught by vision (NOT caught by DOM tests):
+#   • Text fits in a div but is visually cut by parent overflow
+#   • Button has white text on yellow background (contrast 1.8:1)
+#   • Image src is valid but image loaded blank
+#   • Two cards visually overlap on certain widths
+#   • Lorem-ipsum content shipped to production
+#
+# Skips cleanly when:
+#   • Ollama isn't reachable (CI without local model)
+#   • Vision model isn't pulled (env VISION_MODEL doesn't exist)
+#
+# Opt-in: set ENABLE_VISION_QA=true in CI to run this against staging.
+
+class TestQA22VisionUIValidation:
+    """Vision-LLM-driven UI quality review on key pages."""
+
+    PAGES = [
+        ("homepage_en",  BASE_URL,
+         "Mehad homepage — Saudi tutoring marketplace; hero, search form, top tutors"),
+        ("find_tutors",  f"{BASE_URL}/find-tutors",
+         "Find Tutors listing — search filters + tutor cards + pagination"),
+        ("become_tutor", f"{BASE_URL.rstrip('/en')}/en/become-tutor",
+         "Become a Tutor landing — value prop + signup CTA"),
+    ]
+
+    @pytest.mark.parametrize("page_id,url,summary", PAGES)
+    def test_qa22_vision_review(self, page: Page, page_id: str,
+                                  url: str, summary: str):
+        """Visual QA review by the vision model. Each finding becomes a bug."""
+        if os.getenv("ENABLE_VISION_QA", "false").lower() != "true":
+            pytest.skip("ENABLE_VISION_QA not set — vision review off by default")
+
+        from ai_engine.vision_validator import VisionValidator
+        validator = VisionValidator()
+        if not validator.is_available():
+            pytest.skip(
+                f"Vision model {validator.model} not available locally — "
+                f"skipping. Pull with: ollama pull {validator.model}"
+            )
+
+        # Capture a fresh full-page screenshot for the model to inspect
+        page.set_viewport_size({"width": 1280, "height": 720})
+        page.goto(url, wait_until="domcontentloaded", timeout=15000)
+        page.wait_for_timeout(2500)
+        try:
+            page.evaluate("() => document.fonts && document.fonts.ready")
+            page.wait_for_timeout(400)
+        except Exception:
+            pass
+
+        shot_dir = Path(__file__).parent.parent / "reports" / "vision-shots"
+        shot_dir.mkdir(parents=True, exist_ok=True)
+        shot_path = shot_dir / f"qa22_{page_id}.png"
+        page.screenshot(path=str(shot_path), full_page=False)
+
+        issues = validator.inspect(shot_path, page_id, summary)
+
+        if not issues:
+            print(f"\n  [QA-22] {page_id}: clean (vision model found no issues)",
+                  flush=True)
+            return  # passes
+
+        # Log every finding so CI shows them even when test soft-passes
+        print(f"\n  [QA-22] {page_id}: {len(issues)} visual issue(s):", flush=True)
+        for i in issues:
+            print(f"    [{i.severity}] {i.category}: {i.description[:200]}",
+                  flush=True)
+
+        # Hard fail only on HIGH-severity issues; MEDIUM/LOW surface as bug
+        # tickets via the consolidator but don't break the build.
+        high = [i for i in issues if i.severity in ("HIGH", "CRITICAL")]
+        if high:
+            details = "\n  ".join(f"[{i.category}] {i.description}" for i in high)
+            pytest.fail(
+                f"Vision QA found {len(high)} HIGH-severity visual issue(s) "
+                f"on {page_id}:\n  {details}"
+            )
+
+    # ── Phase-4.5 verification tests (system_selftest) ───────────────────
+    @pytest.mark.system_selftest
+    def test_phase45_verification_parser_handles_clean_response(self):
+        """Vision returns '[]' for a clean page → parser yields zero issues."""
+        from ai_engine.vision_validator import VisionValidator
+        v = VisionValidator()
+        assert v._parse_issues("[]", "test_page") == []
+        # Also tolerate markdown fence wrapping
+        assert v._parse_issues("```json\n[]\n```", "test_page") == []
+
+    @pytest.mark.system_selftest
+    def test_phase45_verification_parser_categorises_severity(self):
+        """Each issue category gets the right severity tier."""
+        from ai_engine.vision_validator import VisionValidator
+        v = VisionValidator()
+        items = [
+            {"category": "CONTRAST_ISSUE",  "description": "low contrast"},
+            {"category": "CROPPED_TEXT",    "description": "cropped"},
+            {"category": "ALIGNMENT",       "description": "misaligned"},
+            {"category": "OVERLAP",         "description": "overlap"},
+            {"category": "BROKEN_IMAGE",    "description": "broken img"},
+        ]
+        import json as _json
+        issues = v._parse_issues(_json.dumps(items), "test_page")
+        sev_by_cat = {i.category: i.severity for i in issues}
+        assert sev_by_cat["CONTRAST_ISSUE"] == "HIGH"
+        assert sev_by_cat["OVERLAP"]        == "HIGH"
+        assert sev_by_cat["BROKEN_IMAGE"]   == "HIGH"
+        assert sev_by_cat["CROPPED_TEXT"]   == "MEDIUM"
+        assert sev_by_cat["ALIGNMENT"]      == "LOW"

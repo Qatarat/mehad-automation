@@ -362,6 +362,9 @@ SYSTEM_SELFTEST_NAMES = {
     # Phase 4.6 — spec consistency verifications
     "test_phase46_verification_detects_synthetic_contradiction",
     "test_phase46_verification_html_renders",
+    # Phase 4.5 — vision-LLM verifications
+    "test_phase45_verification_parser_handles_clean_response",
+    "test_phase45_verification_parser_categorises_severity",
 }
 
 
@@ -599,6 +602,7 @@ def build_consolidated_results(base_url: str) -> dict:
         "qa18_network":          ("QA-18 Network Resilience",  "QA18"),
         "qa19_exploratory":      ("QA-19 Autonomous Exploratory","QA19"),
         "qa20_fuzzing":          ("QA-20 Property-Based Fuzz", "QA20"),
+        "qa22_vision":           ("QA-22 Vision-LLM UI Review","QA22"),
     }
 
     for file_stem, (group_name, prefix) in qa_groups.items():
