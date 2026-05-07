@@ -2224,3 +2224,174 @@ class TestQA10I18nAndRTL:
         text = h1.inner_text().strip()
         assert text, "H1 on /ar is empty"
         assert len(text) > 3, f"H1 on /ar too short: {text!r}"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PHASE 1 — DETECTION POWER-UPS
+# ─────────────────────────────────────────────────────────────────────────────
+
+# QA-11  VISUAL REGRESSION  — pixel-diff each page against a saved baseline.
+# Bugs caught: a button moves 200px, an image disappears, layout breaks on
+# mobile — none of these fail functional tests but all fail visual diff.
+
+class TestQA11VisualRegression:
+    """Pixel-diff each key page vs baseline. Fails on >3% pixel difference."""
+
+    PAGES = [
+        ("homepage_en",            BASE_URL,                                "EN homepage"),
+        ("homepage_ar",            AR_URL,                                  "AR homepage"),
+        ("find_tutors",            f"{BASE_URL}/find-tutors",               "find tutors page"),
+        ("become_tutor",           f"{BASE_URL.rstrip('/en')}/en/become-tutor",  "become tutor page"),
+        ("how_it_works",           f"{BASE_URL.rstrip('/en')}/en/how-mehad-works", "how it works page"),
+    ]
+
+    @pytest.mark.parametrize("page_id,url,label", PAGES)
+    def test_qa11_visual_regression_desktop(self, page: Page, page_id: str,
+                                              url: str, label: str):
+        """Desktop 1280×720 — page must match its visual baseline."""
+        from tests._visual_diff import assert_visual_match
+        page.set_viewport_size({"width": 1280, "height": 720})
+        page.goto(url, wait_until="domcontentloaded", timeout=15000)
+        # Wait for SPA hydration so the screenshot is stable
+        page.wait_for_timeout(2500)
+        try:
+            page.evaluate("() => document.fonts && document.fonts.ready")
+            page.wait_for_timeout(400)
+        except Exception:
+            pass
+
+        shot_dir = Path(__file__).parent.parent / "reports" / "visual-actuals"
+        shot_dir.mkdir(parents=True, exist_ok=True)
+        actual = shot_dir / f"qa11_{page_id}_desktop.png"
+        page.screenshot(path=str(actual), full_page=False)  # viewport only
+        ok, msg = assert_visual_match(actual, f"qa11_{page_id}_desktop",
+                                       threshold_pct=3.0)
+        assert ok, msg
+
+    @pytest.mark.parametrize("page_id,url,label", PAGES[:3])  # mobile=expensive, top 3 pages
+    def test_qa11_visual_regression_mobile(self, page: Page, page_id: str,
+                                             url: str, label: str):
+        """Mobile 375×812 — page must match its mobile baseline."""
+        from tests._visual_diff import assert_visual_match
+        page.set_viewport_size({"width": 375, "height": 812})
+        page.goto(url, wait_until="domcontentloaded", timeout=15000)
+        page.wait_for_timeout(2500)
+        shot_dir = Path(__file__).parent.parent / "reports" / "visual-actuals"
+        shot_dir.mkdir(parents=True, exist_ok=True)
+        actual = shot_dir / f"qa11_{page_id}_mobile.png"
+        page.screenshot(path=str(actual), full_page=False)
+        ok, msg = assert_visual_match(actual, f"qa11_{page_id}_mobile",
+                                       threshold_pct=3.5)
+        assert ok, msg
+
+    # ── Phase-1 verification test #1: visual diff math is sane ────────────
+    def test_qa11_phase1_verification_self_diff_is_zero(self, tmp_path: Path):
+        """Diffing an image against itself must be exactly 0%.
+        Verifies our pixel-diff math (no false positives on identical input)."""
+        from tests._visual_diff import synthetic_self_consistency
+        # Find any png we have available to test against
+        candidate_dirs = [
+            Path(__file__).parent / "visual_baselines",
+            Path(__file__).parent.parent / "reports" / "screenshots",
+        ]
+        sample = None
+        for d in candidate_dirs:
+            if d.exists():
+                pngs = list(d.glob("*.png"))
+                if pngs:
+                    sample = pngs[0]; break
+        # If no png exists yet, generate a tiny one with PIL
+        if sample is None:
+            from PIL import Image
+            sample = tmp_path / "synthetic.png"
+            Image.new("RGB", (200, 200), (50, 100, 200)).save(sample)
+        pct = synthetic_self_consistency(sample)
+        assert pct == 0.0, (
+            f"diff math broken: image diffed against itself returned "
+            f"{pct:.4f}% — expected 0.0")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# QA-12  JS ERROR SWEEPER  — visit every flow, fail on any uncaught error.
+# Bugs caught: silent JS exceptions that don't break tests but indicate
+# real problems. We filter known noise (browser-extensions, favicon 404s,
+# dev-mode component-library warnings).
+
+class TestQA12JSErrorSweeper:
+    """Visit every key page; fail if any uncaught pageerror or
+    runtime console.error fires (excluding known noise)."""
+
+    PAGES = [
+        ("homepage_en",   BASE_URL),
+        ("homepage_ar",   AR_URL),
+        ("find_tutors",   f"{BASE_URL}/find-tutors"),
+        ("become_tutor",  f"{BASE_URL.rstrip('/en')}/en/become-tutor"),
+        ("how_it_works",  f"{BASE_URL.rstrip('/en')}/en/how-mehad-works"),
+        ("about_us",      f"{BASE_URL.rstrip('/en')}/en/about-us"),
+    ]
+
+    # Substrings in error text that indicate dev-mode noise we DO NOT
+    # want to flag as a real bug. Tightening this list = catching more bugs.
+    KNOWN_NOISE = (
+        "extension",                    # browser extensions
+        "favicon",                      # missing favicon 404
+        "DialogTitle",                  # Radix dev-mode a11y warning
+        "DialogContent",
+        "aria-describedby",
+        "Missing `Description`",
+        "Failed to load resource: the server responded with a status of 401",
+    )
+
+    @pytest.mark.parametrize("page_id,url", PAGES)
+    def test_qa12_no_uncaught_js_errors(self, page: Page, page_id: str, url: str):
+        """Page must not throw any uncaught JS error after full hydration."""
+        errors: list = []
+        page.on("pageerror", lambda exc: errors.append(("pageerror", str(exc))))
+        page.on("console",
+                lambda m: errors.append(("console.error", m.text))
+                if m.type == "error" else None)
+
+        page.goto(url, wait_until="domcontentloaded", timeout=15000)
+        page.wait_for_timeout(2500)
+        # Trigger interactions that often surface late errors
+        try:
+            page.mouse.move(640, 360)
+            page.mouse.wheel(0, 600)
+            page.wait_for_timeout(800)
+            page.mouse.wheel(0, -600)
+        except Exception:
+            pass
+
+        real = [
+            (kind, text) for kind, text in errors
+            if not any(noise.lower() in (text or "").lower()
+                       for noise in self.KNOWN_NOISE)
+        ]
+        if real:
+            details = "\n".join(f"  [{k}] {t[:240]}" for k, t in real[:6])
+            pytest.fail(
+                f"QA-12 sweeper caught {len(real)} uncaught JS error(s) on "
+                f"{page_id}:\n{details}"
+            )
+
+    # ── Phase-1 verification test #2: sweeper actually catches errors ────
+    def test_qa12_phase1_verification_synthetic_error_caught(self, page: Page):
+        """Inject a runtime JS error via page.evaluate. The sweeper logic
+        must surface it. This proves the listener wiring works."""
+        captured: list = []
+        page.on("pageerror", lambda exc: captured.append(str(exc)))
+        page.goto(BASE_URL, wait_until="domcontentloaded", timeout=15000)
+        # Schedule an asynchronous throw — synchronous throws inside
+        # page.evaluate would propagate as a Python exception, not as a
+        # page error event. Use setTimeout to make it a real runtime error.
+        page.evaluate("""
+            setTimeout(() => {
+                throw new Error('QA-12-SYNTHETIC-VERIFY: phase1 plumbing OK');
+            }, 100);
+        """)
+        # Give the event loop a moment to fire and propagate
+        page.wait_for_timeout(800)
+        assert any("QA-12-SYNTHETIC-VERIFY" in e for e in captured), (
+            f"verification failed — synthetic JS error was NOT caught by the "
+            f"pageerror listener. Captured: {captured[:3]}"
+        )
