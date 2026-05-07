@@ -60,7 +60,16 @@ pre{{background:#0d1117;border:1px solid var(--border);border-radius:6px;
 .stats{{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;
        margin-bottom:36px}}
 .stat{{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-      padding:18px 16px}}
+      padding:18px 16px;
+      /* clickable stat cards */
+      text-decoration:none;color:inherit;display:block;cursor:pointer;
+      transition:transform .12s,border-color .12s,background .12s,box-shadow .12s}}
+.stat:hover{{border-color:#58a6ff;background:#1c2333;
+            transform:translateY(-2px);box-shadow:0 4px 16px rgba(88,166,255,.12)}}
+.stat::after{{content:"→";position:absolute;opacity:0;transition:opacity .15s,transform .15s;
+             right:14px;top:14px;color:#58a6ff;font-size:14px;font-weight:700}}
+.stat{{position:relative}}
+.stat:hover::after{{opacity:1;transform:translateX(2px)}}
 .stat .label{{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}}
 .stat .val{{font-size:34px;font-weight:700;line-height:1}}
 .stat.critical .val{{color:var(--c-critical)}}
@@ -70,6 +79,37 @@ pre{{background:#0d1117;border:1px solid var(--border);border-radius:6px;
 .stat.pass     .val{{color:var(--c-pass)}}
 .stat.fail     .val{{color:var(--c-critical)}}
 .stat.total    .val{{color:#a371f7}}
+
+/* ── Filter bar (used above bug list and test list) ── */
+.filter-bar{{display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+            background:var(--surface);border:1px solid var(--border);
+            border-radius:var(--radius);padding:10px 14px;margin-bottom:14px}}
+.filter-lbl{{font-size:11px;text-transform:uppercase;letter-spacing:.6px;
+            color:var(--muted);font-weight:600;margin-right:6px}}
+.fbtn{{background:#0d1117;color:var(--muted);border:1px solid var(--border);
+      border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;
+      cursor:pointer;transition:background .12s,border-color .12s,color .12s}}
+.fbtn:hover{{background:#1c2333;color:var(--text);border-color:#58a6ff}}
+.fbtn.active{{background:#1f6feb;color:#fff;border-color:#1f6feb}}
+.fbtn-pass.active{{background:var(--c-pass);border-color:var(--c-pass)}}
+.fbtn-fail.active{{background:var(--c-critical);border-color:var(--c-critical)}}
+.fbtn-critical.active{{background:var(--c-critical);border-color:var(--c-critical)}}
+.fbtn-high.active{{background:var(--c-high);border-color:var(--c-high)}}
+.fbtn-medium.active{{background:var(--c-medium);border-color:var(--c-medium);color:#000}}
+.fbtn-low.active{{background:var(--c-low);border-color:var(--c-low);color:#000}}
+.fbtn-search{{flex:1;min-width:180px;background:#0d1117;color:var(--text);
+             border:1px solid var(--border);border-radius:6px;padding:6px 12px;
+             font-size:12px;font-family:inherit;outline:none}}
+.fbtn-search:focus{{border-color:#58a6ff}}
+.fbtn-action{{background:#0d1117;color:var(--c-low);border:1px solid var(--border);
+             border-radius:6px;padding:6px 10px;font-size:11px;font-weight:600;
+             cursor:pointer;transition:background .12s,color .12s}}
+.fbtn-action:hover{{background:#1c2333;color:var(--text)}}
+
+/* When filter is active, hide non-matching items via attribute selectors */
+.bug-card[data-hidden="1"]{{display:none}}
+.spec-blk[data-hidden="1"]{{display:none}}
+.trow[data-hidden="1"]{{display:none}}
 
 /* ── Section titles ── */
 .sec-title{{font-size:16px;font-weight:600;border-bottom:1px solid var(--border);
@@ -319,26 +359,38 @@ tr:hover td{{background:#1c2333}}
 
 <div class="wrap">
 
-<!-- Stats -->
+<!-- Stats — every card is clickable; jumps to a filtered section -->
 <div class="stats">
-  <div class="stat critical"><div class="label">Critical</div><div class="val">{cnt_critical}</div></div>
-  <div class="stat high">    <div class="label">High</div>    <div class="val">{cnt_high}</div></div>
-  <div class="stat medium">  <div class="label">Medium</div>  <div class="val">{cnt_medium}</div></div>
-  <div class="stat low">     <div class="label">Low</div>     <div class="val">{cnt_low}</div></div>
-  <div class="stat pass">    <div class="label">Passed</div>  <div class="val">{total_passed}</div></div>
-  <div class="stat fail">    <div class="label">Failed</div>  <div class="val">{total_failed}</div></div>
-  <div class="stat total">   <div class="label">Total Tests</div><div class="val">{total_tests}</div></div>
+  <a href="#bugs"        class="stat critical" data-filter="bugs"     title="Show CRITICAL bug tickets"><div class="label">Critical</div><div class="val">{cnt_critical}</div></a>
+  <a href="#bugs"        class="stat high"     data-filter="bugs"     title="Show HIGH bug tickets"><div class="label">High</div>    <div class="val">{cnt_high}</div></a>
+  <a href="#bugs"        class="stat medium"   data-filter="bugs"     title="Show MEDIUM bug tickets"><div class="label">Medium</div>  <div class="val">{cnt_medium}</div></a>
+  <a href="#bugs"        class="stat low"      data-filter="bugs"     title="Show LOW bug tickets"><div class="label">Low</div>     <div class="val">{cnt_low}</div></a>
+  <a href="#tests"       class="stat pass"     data-filter="passed"   title="Show only PASSED tests"><div class="label">Passed</div>  <div class="val">{total_passed}</div></a>
+  <a href="#tests"       class="stat fail"     data-filter="failed"   title="Show only FAILED tests"><div class="label">Failed</div>  <div class="val">{total_failed}</div></a>
+  <a href="#tests"       class="stat total"    data-filter="all"      title="Show all tests"><div class="label">Total Tests</div><div class="val">{total_tests}</div></a>
 </div>
 
 <!-- Bug Tickets -->
-<div class="sec-title">
+<div class="sec-title" id="bugs">
   Bug Tickets <span class="count">{total_bugs}</span>
 </div>
 
+<!-- Bug-tickets severity filter (visible only when at least one bug exists) -->
+<div class="filter-bar bug-filter-bar" id="bug-filter-bar">
+  <span class="filter-lbl">Filter:</span>
+  <button class="fbtn active" data-bug-filter="all">All ({total_bugs})</button>
+  <button class="fbtn fbtn-critical" data-bug-filter="CRITICAL">Critical ({cnt_critical})</button>
+  <button class="fbtn fbtn-high"     data-bug-filter="HIGH">High ({cnt_high})</button>
+  <button class="fbtn fbtn-medium"   data-bug-filter="MEDIUM">Medium ({cnt_medium})</button>
+  <button class="fbtn fbtn-low"      data-bug-filter="LOW">Low ({cnt_low})</button>
+</div>
+
+<div id="bug-list">
 {bug_tickets_html}
+</div>
 
 <!-- Summary Table -->
-<div class="sec-title">All Test Results</div>
+<div class="sec-title" id="summary-table">All Test Results</div>
 <table>
   <thead>
     <tr>
@@ -350,12 +402,23 @@ tr:hover td{{background:#1c2333}}
   </tbody>
 </table>
 
-<!-- Per-Spec Test Details -->
-<div class="sec-title" style="margin-top:40px">
+<!-- Per-Spec Test Details — pass/fail filter -->
+<div class="sec-title" id="tests" style="margin-top:40px">
   Per-Test Breakdown
-  <span class="count">title · what was tested · test data used</span>
+  <span class="count">click any row to expand · test data + duration shown</span>
 </div>
+<div class="filter-bar test-filter-bar">
+  <span class="filter-lbl">Show:</span>
+  <button class="fbtn active" data-test-filter="all">All ({total_tests})</button>
+  <button class="fbtn fbtn-pass" data-test-filter="passed">✅ Passed ({total_passed})</button>
+  <button class="fbtn fbtn-fail" data-test-filter="failed">❌ Failed ({total_failed})</button>
+  <input type="text" class="fbtn-search" placeholder="🔍 Search by test name..." data-search="">
+  <button class="fbtn-action" data-action="expand-all">⬇ Expand all</button>
+  <button class="fbtn-action" data-action="collapse-all">⬆ Collapse all</button>
+</div>
+<div id="spec-details">
 {spec_details_html}
+</div>
 
 <!-- Coverage Gaps -->
 <div class="sec-title" style="margin-top:40px">Coverage Gaps <span class="count">AI Analysis</span></div>
@@ -394,6 +457,121 @@ function toggleEv(id){{
 }}
 function openShot(src){{document.getElementById('lb-img').src=src;document.getElementById('lb').classList.add('show');}}
 document.addEventListener('keydown',function(e){{if(e.key==='Escape')document.getElementById('lb').classList.remove('show');}});
+
+// ── Filter state & DOM wiring ─────────────────────────────────────────────
+function applyTestFilter(mode){{
+  // mode = "all" | "passed" | "failed"
+  var rows = document.querySelectorAll('#spec-details .trow');
+  rows.forEach(function(r){{
+    var isPass = r.classList.contains('pass');
+    var isFail = r.classList.contains('fail');
+    var match  = (mode === 'all') ||
+                 (mode === 'passed' && isPass) ||
+                 (mode === 'failed' && isFail);
+    r.dataset.hidden = match ? '0' : '1';
+  }});
+  // Also hide spec-blk wrappers that have no visible rows
+  document.querySelectorAll('.spec-blk').forEach(function(blk){{
+    var visible = blk.querySelectorAll('.trow:not([data-hidden="1"])').length;
+    blk.dataset.hidden = visible === 0 ? '1' : '0';
+    if(visible > 0 && blk.querySelector('.spec-blk-body')){{
+      blk.querySelector('.spec-blk-body').classList.add('open');
+      var t = blk.querySelector('.spec-blk-toggle');
+      if(t) t.textContent = '▼ Hide tests';
+    }}
+  }});
+  // Update active button
+  document.querySelectorAll('[data-test-filter]').forEach(function(b){{
+    b.classList.toggle('active', b.dataset.testFilter === mode);
+  }});
+}}
+
+function applyTestSearch(q){{
+  q = (q || '').toLowerCase().trim();
+  document.querySelectorAll('#spec-details .trow').forEach(function(r){{
+    if(!q){{ r.dataset.hidden = '0'; return; }}
+    var nm = (r.querySelector('.trow-name') || {{}}).textContent || '';
+    var match = nm.toLowerCase().indexOf(q) !== -1;
+    r.dataset.hidden = match ? '0' : '1';
+  }});
+  document.querySelectorAll('.spec-blk').forEach(function(blk){{
+    var visible = blk.querySelectorAll('.trow:not([data-hidden="1"])').length;
+    blk.dataset.hidden = visible === 0 ? '1' : '0';
+    if(q && visible > 0 && blk.querySelector('.spec-blk-body')){{
+      blk.querySelector('.spec-blk-body').classList.add('open');
+    }}
+  }});
+}}
+
+function applyBugFilter(sev){{
+  // sev = "all" | "CRITICAL" | "HIGH" | "MEDIUM" | "LOW"
+  document.querySelectorAll('#bug-list .bug-card').forEach(function(c){{
+    if(sev === 'all'){{ c.dataset.hidden = '0'; return; }}
+    var match = c.querySelector('.badge.' + sev) !== null;
+    c.dataset.hidden = match ? '0' : '1';
+  }});
+  document.querySelectorAll('[data-bug-filter]').forEach(function(b){{
+    b.classList.toggle('active', b.dataset.bugFilter === sev);
+  }});
+}}
+
+function expandAllTests(open){{
+  document.querySelectorAll('#spec-details .trow').forEach(function(d){{
+    if(open) d.setAttribute('open',''); else d.removeAttribute('open');
+  }});
+  document.querySelectorAll('#spec-details .spec-blk-body').forEach(function(b){{
+    b.classList.toggle('open', !!open);
+    var arrow = b.previousElementSibling && b.previousElementSibling.querySelector('.spec-blk-toggle');
+    if(arrow) arrow.textContent = open ? '▼ Hide tests' : '▶ Show tests';
+  }});
+}}
+
+function handleHash(){{
+  var h = (location.hash || '').toLowerCase();
+  if(h === '#passed') applyTestFilter('passed');
+  else if(h === '#failed') applyTestFilter('failed');
+  else if(h === '#all-tests' || h === '#tests') applyTestFilter('all');
+  else if(h === '#bugs') applyBugFilter('all');
+  else if(h.startsWith('#bug-')){{
+    var sev = h.replace('#bug-','').toUpperCase();
+    applyBugFilter(sev);
+  }}
+}}
+
+// Wire up clicks on any `.stat[data-filter]` card to set the appropriate filter
+document.addEventListener('click', function(e){{
+  var stat = e.target.closest('.stat[data-filter]');
+  if(stat){{
+    var f = stat.dataset.filter;
+    if(f === 'passed' || f === 'failed' || f === 'all'){{
+      applyTestFilter(f);
+      // Open spec blocks so the filtered tests are visible
+      document.querySelectorAll('.spec-blk-body').forEach(function(b){{
+        b.classList.add('open');
+        var ar=b.previousElementSibling && b.previousElementSibling.querySelector('.spec-blk-toggle');
+        if(ar) ar.textContent='▼ Hide tests';
+      }});
+    }}
+    if(f === 'bugs') applyBugFilter('all');
+  }}
+  var fbtn = e.target.closest('[data-test-filter]');
+  if(fbtn){{ applyTestFilter(fbtn.dataset.testFilter); }}
+  var bbtn = e.target.closest('[data-bug-filter]');
+  if(bbtn){{ applyBugFilter(bbtn.dataset.bugFilter); }}
+  var act = e.target.closest('[data-action]');
+  if(act){{
+    if(act.dataset.action === 'expand-all')   expandAllTests(true);
+    if(act.dataset.action === 'collapse-all') expandAllTests(false);
+  }}
+}});
+
+document.addEventListener('input', function(e){{
+  var s = e.target.closest('[data-search]');
+  if(s){{ applyTestSearch(s.value); }}
+}});
+
+window.addEventListener('hashchange', handleHash);
+window.addEventListener('DOMContentLoaded', handleHash);
 </script>
 </body>
 </html>"""
@@ -896,7 +1074,8 @@ def _spec_detail_block(spec_name: str, result: dict, block_idx: int) -> str:
 # Public entry point
 # ─────────────────────────────────────────────────────────────────────────────
 
-def generate_report(all_results: dict, base_url: str, model: str) -> Path:
+def generate_report(all_results: dict, base_url: str, model: str,
+                    output_filename: str = "bug-report.html") -> Path:
     all_bugs = [b for r in all_results.values() for b in r.get("bugs", [])]
 
     total_passed = sum(r.get("passed", 0) for r in all_results.values())
@@ -943,6 +1122,6 @@ def generate_report(all_results: dict, base_url: str, model: str) -> Path:
     )
 
     REPORTS_DIR.mkdir(exist_ok=True)
-    out = REPORTS_DIR / "bug-report.html"
+    out = REPORTS_DIR / output_filename
     out.write_text(html, encoding="utf-8")
     return out

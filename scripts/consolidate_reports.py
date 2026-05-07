@@ -327,11 +327,25 @@ def main():
     (REPORTS_DIR / "summary.json").write_text(
         json.dumps(merged_summary, indent=2), encoding="utf-8")
 
-    # Generate the consolidated HTML bug report
+    # Generate the consolidated HTML bug report (full master report)
     from ai_engine.reporter import generate_report
     out = generate_report(all_results, base_url, model)
     print(f"[CONSOLIDATE] ✅ Master report → {out}")
     print(f"[CONSOLIDATE] ✅ Summary       → {cons_path}")
+
+    # Generate ONE custom-styled per-agent report per source. Each renders
+    # with the same Fagun UI but contains only that agent's data — replaces
+    # the default pytest-html reports that don't match our design.
+    print("[CONSOLIDATE] Generating per-agent reports …")
+    for src_name in list(all_results.keys()):
+        single_dict = {src_name: all_results[src_name]}
+        agent_filename = f"agent-{src_name}.html"
+        try:
+            generate_report(single_dict, base_url, model, agent_filename)
+            r = all_results[src_name]
+            print(f"  ✅ agent-{src_name}.html ({r.get('passed',0)}P/{r.get('failed',0)}F)")
+        except Exception as e:
+            print(f"  ❌ agent-{src_name}.html: {e}")
 
 
 if __name__ == "__main__":
