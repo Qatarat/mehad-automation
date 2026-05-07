@@ -793,12 +793,16 @@ def main():
     # Generate ONE custom-styled per-agent report per source. Each renders
     # with the same Fagun UI but contains only that agent's data — replaces
     # the default pytest-html reports that don't match our design.
+    # NOTE: per-agent reports get deployed to /agents/<name>.html on gh-pages,
+    # so their 'Back to Dashboard' link must use '../index.html' (not just
+    # 'index.html' which would 404 from /agents/).
     print("[CONSOLIDATE] Generating per-agent reports …")
     for src_name in list(all_results.keys()):
         single_dict = {src_name: all_results[src_name]}
         agent_filename = f"agent-{src_name}.html"
         try:
-            generate_report(single_dict, base_url, model, agent_filename)
+            generate_report(single_dict, base_url, model, agent_filename,
+                            base_path_prefix="../")
             r = all_results[src_name]
             print(f"  ✅ agent-{src_name}.html ({r.get('passed',0)}P/{r.get('failed',0)}F)")
         except Exception as e:

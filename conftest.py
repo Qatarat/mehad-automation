@@ -310,6 +310,42 @@ def pytest_runtest_makereport(item, call):
         except Exception:
             err_text = "test failed"
 
+        # ─── Wait briefly for SPA hydration BEFORE snapping ─────────────
+        # Many tests fail right after page.goto() returns from
+        # 'domcontentloaded' but BEFORE the SPA has rendered any visible
+        # content. A screenshot taken at that exact moment is just a blank
+        # white frame — useless as a PoC. Give the page up to 3s to render
+        # something into <body> before capture. We also wait for fonts to
+        # load so text isn't mid-FOUT.
+        try:
+            page.wait_for_function(
+                "() => document.body && "
+                "(document.body.innerText.trim().length > 0 || "
+                " document.querySelectorAll('img, svg, canvas').length > 0)",
+                timeout=3000,
+            )
+        except Exception:
+            pass  # if even 3s wasn't enough, capture whatever we have
+        try:
+            page.evaluate("() => document.fonts && document.fonts.ready")
+        except Exception:
+            pass
+        # Brief settle so any animation/transition has finished a frame
+        try:
+            page.wait_for_timeout(250)
+        except Exception:
+            pass
+        # Try to scroll the failing element (if any) into view so the
+        # screenshot shows the actual problem area, not the top of the page.
+        try:
+            # Walk the test's locals for a Locator the assertion was using
+            for v in (item.funcargs or {}).values():
+                if hasattr(v, "scroll_into_view_if_needed"):
+                    v.scroll_into_view_if_needed(timeout=1000)
+                    break
+        except Exception:
+            pass
+
         # Take screenshot — try several strategies for resilience
         saved = False
         for kwargs in ({"full_page": True}, {"full_page": False}, {}):
@@ -319,6 +355,28 @@ def pytest_runtest_makereport(item, call):
                 break
             except Exception:
                 continue
+
+        # Validate the screenshot has actual content. If >97% of pixels are
+        # white-ish, the SPA never rendered — re-shoot after another 1.5s
+        # of waiting. Avoids "white screenshot" PoCs in the report.
+        if saved and _PIL_OK:
+            try:
+                from PIL import Image
+                im = Image.open(shot_path).convert("RGB").resize((200, 200))
+                pixels = list(im.getdata())
+                white_pixels = sum(1 for r, g, b in pixels
+                                    if r > 240 and g > 240 and b > 240)
+                white_ratio = white_pixels / max(1, len(pixels))
+                if white_ratio > 0.97:
+                    print(f"  [SCREENSHOT] Mostly-white capture ({white_ratio:.0%}) "
+                          f"— retrying after extra hydration wait", flush=True)
+                    try:
+                        page.wait_for_timeout(1500)
+                        page.screenshot(path=str(shot_path), full_page=False)
+                    except Exception:
+                        pass
+            except Exception:
+                pass
 
         if saved:
             _annotate_screenshot(shot_path, err_text)

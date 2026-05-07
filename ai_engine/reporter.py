@@ -429,12 +429,61 @@ tr:hover td{{background:#1c2333}}
 #lb.show{{display:flex}}
 #lb img{{max-width:95vw;max-height:92vh;border-radius:8px;border:2px solid var(--border)}}
 
+/* ── Responsive — tablet + mobile breakpoints ─────────────────────────── */
+@media (max-width:1024px) {{
+  .wrap{{padding:16px 14px}}
+  .hdr-inner{{flex-direction:column;align-items:flex-start;gap:12px}}
+  .hdr-meta{{flex-direction:row;flex-wrap:wrap;gap:10px}}
+  .stats{{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}}
+  .stat .val{{font-size:26px}}
+  .two-col{{grid-template-columns:1fr}}
+}}
+@media (max-width:768px) {{
+  .wrap{{padding:12px 10px}}
+  .hdr h1{{font-size:22px}}
+  .hdr-meta{{font-size:12px}}
+  .stats{{grid-template-columns:repeat(2,1fr);gap:8px}}
+  .stat{{padding:14px 12px}}
+  .stat .val{{font-size:22px}}
+  .stat .label{{font-size:10px}}
+  .filter-bar{{flex-direction:column;align-items:stretch}}
+  .filter-bar .fbtn,.filter-bar .fbtn-action,.filter-bar .fbtn-search{{width:100%}}
+  .trow > summary{{flex-wrap:wrap;gap:8px}}
+  .trow-name{{font-size:11px}}
+  .trow-params{{max-width:100%;font-size:10px}}
+  .trow-details{{padding:12px 12px 14px 28px}}
+  .td-row{{flex-direction:column;gap:2px}}
+  .td-lbl{{min-width:auto}}
+  table,.test-table{{font-size:11px;display:block;overflow-x:auto}}
+  .bug-card-hdr{{padding:14px}}
+  .bug-title{{font-size:14px}}
+  .bug-body{{padding:14px}}
+  .cluster-row{{grid-template-columns:1fr;gap:8px}}
+  .cluster-tickets{{justify-content:flex-start;max-width:100%}}
+  .ci-table{{font-size:10px}}
+  .tq-table{{font-size:10px}}
+  .ev-table{{display:block;overflow-x:auto}}
+  .perf-grid{{flex-wrap:wrap}}
+  .perf-stat{{min-width:90px;flex:1}}
+  .back-bar-inner{{flex-direction:column;align-items:flex-start;gap:6px;padding:0 12px}}
+  .back-bar-quick{{font-size:10px}}
+}}
+@media (max-width:480px) {{
+  .stats{{grid-template-columns:1fr 1fr;gap:6px}}
+  .hdr h1{{font-size:18px}}
+  .sec-title{{font-size:14px}}
+  .footer-wrap{{padding:18px 12px}}
+  .contact-card{{padding:14px 18px}}
+  .contact-card .links{{flex-direction:column;gap:6px}}
+}}
+
 /* ── Print ── */
 @media print{{
   .hdr-meta .print-btn,.err-toggle{{display:none}}
   .err-body{{display:block!important}}
   body{{background:#fff;color:#000}}
   .bug-card{{border:1px solid #ccc;break-inside:avoid}}
+  .back-bar{{display:none}}
 }}
 </style>
 </head>
@@ -444,7 +493,7 @@ tr:hover td{{background:#1c2333}}
      to the dashboard regardless of which #anchor they opened. -->
 <div class="back-bar">
   <div class="back-bar-inner">
-    <a href="index.html" class="back-link">← Back to Dashboard</a>
+    <a href="{back_link_path}" class="back-link">← Back to Dashboard</a>
     <span class="back-bar-spacer"></span>
     <span class="back-bar-quick">
       Jump:
@@ -1334,7 +1383,16 @@ def _build_cluster_summary(all_bugs: list[dict]) -> str:
 
 def generate_report(all_results: dict, base_url: str, model: str,
                     output_filename: str = "bug-report.html",
-                    extra_section_html: str = "") -> Path:
+                    extra_section_html: str = "",
+                    base_path_prefix: str = "") -> Path:
+    """Render the master or per-agent report.
+
+    base_path_prefix:
+      ""    — report lives at site root (e.g. /report.html).
+              `index.html` is correct.
+      "../" — report lives in /agents/ subdir. `../index.html` needed
+              so 'Back to Dashboard' navigates correctly.
+    """
     all_bugs = [b for r in all_results.values() for b in r.get("bugs", [])]
 
     total_passed = sum(r.get("passed", 0) for r in all_results.values())
@@ -1386,6 +1444,7 @@ def generate_report(all_results: dict, base_url: str, model: str,
         results_rows     = results_rows,
         spec_details_html= spec_details_html,
         gaps_html        = gaps_html,
+        back_link_path   = f"{base_path_prefix}index.html",
     )
 
     REPORTS_DIR.mkdir(exist_ok=True)

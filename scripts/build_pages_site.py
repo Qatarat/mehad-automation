@@ -410,8 +410,47 @@ def _build_index_html(summary: dict, history: list[tuple[int, Path]]) -> str:
   .history-table tr:hover td {{ background:#1c2333 }}
   .history-table a {{ color:#58a6ff; text-decoration:none }}
   .history-table a:hover {{ text-decoration:underline }}
-  .footer {{ margin-top:44px; padding:20px; text-align:center;
+  .footer {{ margin-top:44px; padding:24px 20px; text-align:center;
              color:#8b949e; font-size:12px; border-top:1px solid #30363d }}
+  .footer .contact-card {{
+    display:inline-flex; flex-direction:column; align-items:center;
+    gap:6px; padding:18px 28px; margin:14px auto 0;
+    background:#161b22; border:1px solid #30363d; border-radius:10px;
+  }}
+  .footer .contact-card .name  {{ font-weight:700; font-size:15px; color:#e6edf3 }}
+  .footer .contact-card .title {{ font-size:12px; color:#8b949e }}
+  .footer .contact-card .links a {{
+    display:inline-block; color:#58a6ff; text-decoration:none;
+    font-size:12px; padding:5px 14px; margin-top:8px;
+    border:1px solid #30363d; border-radius:6px; background:#0d1117;
+    transition:background .15s, border-color .15s;
+  }}
+  .footer .contact-card .links a:hover {{
+    background:#1c2333; border-color:#58a6ff;
+  }}
+
+  /* Responsive — tablet + mobile breakpoints */
+  @media (max-width:768px) {{
+    .hero {{ padding:30px 18px }}
+    .hero h1 {{ font-size:24px }}
+    .hero .meta {{ flex-direction:column; gap:8px; font-size:12px }}
+    .wrap {{ padding:18px 14px }}
+    .stats {{ grid-template-columns:repeat(2,1fr); gap:8px }}
+    .stat {{ padding:14px }}
+    .stat .val {{ font-size:22px }}
+    h2 {{ font-size:16px }}
+    .agent-grid {{ grid-template-columns:1fr; gap:10px }}
+    .agent-card {{ padding:14px }}
+    .primary-cta {{ padding:16px 18px; font-size:14px }}
+    .trend-summary {{ grid-template-columns:repeat(2,1fr); gap:10px }}
+    .trend-value {{ font-size:18px }}
+    .history-table th, .history-table td {{ padding:8px 12px; font-size:11px }}
+  }}
+  @media (max-width:480px) {{
+    .stats {{ grid-template-columns:1fr; gap:6px }}
+    .hero h1 {{ font-size:20px }}
+    .footer .contact-card {{ padding:14px 18px }}
+  }}
   /* Trend chart */
   .trend-card {{ background:#161b22; border:1px solid #30363d; border-radius:8px;
                 padding:18px 22px; margin:24px 0 }}
@@ -472,7 +511,12 @@ def _build_index_html(summary: dict, history: list[tuple[int, Path]]) -> str:
   {history_html}
 
   <div class="footer">
-    Built by Fagun Autonomous AI Test Agent · 100% local AI · no third-party API keys
+    <div style="margin-bottom:6px">Built by Fagun Autonomous AI Test Agent · 100% local AI · no third-party API keys</div>
+    <div class="contact-card">
+      <div class="name">Mejbaur Bahar Fagun</div>
+      <div class="title">Senior Software Engineer QA (IV) · Markopolo.ai</div>
+      <div class="links"><a href="https://www.linkedin.com/in/mejbaur/" target="_blank" rel="noopener">💼 LinkedIn</a></div>
+    </div>
   </div>
 
 </div>
@@ -553,18 +597,53 @@ def main() -> None:
         _build_index_html(summary, history), encoding="utf-8")
     print(f"  ✅ index.html built ({len(history)} runs in history)")
 
-    # 4. History index page
+    # 4. History index page (with unified footer)
     rows = []
     for run_num, _ in history[:50]:
         rows.append(f'<li><a href="run-{run_num}.html">Run #{run_num}</a></li>')
     (SITE_DIR / "history" / "index.html").write_text(f"""<!DOCTYPE html>
-<html><head><meta charset="UTF-8"/><title>Fagun QA — History</title>
-<style>body{{font-family:system-ui;background:#0d1117;color:#e6edf3;padding:32px;max-width:600px;margin:0 auto}}
-h1{{color:#58a6ff}}a{{color:#58a6ff;text-decoration:none}}a:hover{{text-decoration:underline}}
-li{{padding:8px 0;border-bottom:1px solid #30363d}}</style></head>
-<body><h1>QA Report History</h1>
+<html><head><meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Fagun QA — History</title>
+<style>
+* {{ box-sizing:border-box }}
+body{{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+     background:#0d1117;color:#e6edf3;padding:32px;max-width:720px;margin:0 auto;
+     line-height:1.5}}
+h1{{color:#58a6ff;margin-top:0}}
+a{{color:#58a6ff;text-decoration:none}}
+a:hover{{text-decoration:underline}}
+ul{{list-style:none;padding:0}}
+li{{padding:10px 12px;border-bottom:1px solid #30363d;border-radius:4px;
+   transition:background .12s}}
+li:hover{{background:#161b22}}
+.footer{{margin-top:44px;padding:24px 12px;text-align:center;
+        color:#8b949e;font-size:12px;border-top:1px solid #30363d}}
+.footer .contact-card{{display:inline-flex;flex-direction:column;align-items:center;
+                      gap:6px;padding:18px 28px;margin:14px auto 0;
+                      background:#161b22;border:1px solid #30363d;border-radius:10px}}
+.footer .contact-card .name {{font-weight:700;font-size:15px;color:#e6edf3}}
+.footer .contact-card .title{{font-size:12px;color:#8b949e}}
+.footer .contact-card .links a{{display:inline-block;color:#58a6ff;
+                               font-size:12px;padding:5px 14px;margin-top:8px;
+                               border:1px solid #30363d;border-radius:6px;
+                               background:#0d1117}}
+.footer .contact-card .links a:hover{{background:#1c2333;border-color:#58a6ff}}
+@media (max-width:480px) {{ body{{padding:16px}} h1{{font-size:22px}} }}
+</style></head>
+<body>
+<h1>QA Report History</h1>
 <p><a href="../index.html">← Back to latest</a></p>
-<ul style="list-style:none;padding:0">{"".join(rows)}</ul></body></html>""", encoding="utf-8")
+<ul>{"".join(rows)}</ul>
+<div class="footer">
+  <div style="margin-bottom:6px">Built by Fagun Autonomous AI Test Agent · 100% local AI · no third-party API keys</div>
+  <div class="contact-card">
+    <div class="name">Mejbaur Bahar Fagun</div>
+    <div class="title">Senior Software Engineer QA (IV) · Markopolo.ai</div>
+    <div class="links"><a href="https://www.linkedin.com/in/mejbaur/" target="_blank" rel="noopener">💼 LinkedIn</a></div>
+  </div>
+</div>
+</body></html>""", encoding="utf-8")
     print(f"  ✅ history/index.html with {len(history)} entries")
 
     print(f"\nSite ready at: {SITE_DIR}")
