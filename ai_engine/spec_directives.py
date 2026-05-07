@@ -161,8 +161,28 @@ def _phrase_to_canonical_types(phrase: str) -> set[str]:
     return found
 
 
+def _strip_html_comments(md_text: str) -> str:
+    """Remove <!-- ... --> blocks. Used so the spec author can include
+    EXAMPLES of skip directives inside HTML comments without those
+    examples accidentally activating."""
+    # Multiline non-greedy match
+    return re.sub(r"<!--.*?-->", "", md_text, flags=re.DOTALL)
+
+
+def _strip_fenced_code(md_text: str) -> str:
+    """Remove ```fenced``` and ~~~fenced~~~ code blocks so example skip-
+    directives in code samples don't get parsed as real ones."""
+    text = re.sub(r"```.*?```", "", md_text, flags=re.DOTALL)
+    text = re.sub(r"~~~.*?~~~", "", text,    flags=re.DOTALL)
+    return text
+
+
 def parse_directives_for_spec(spec_path: str | Path) -> SpecDirectives:
     """Parse one .md spec for skip directives. Returns SpecDirectives.
+
+    HTML-comment blocks (<!-- ... -->) and fenced code blocks (```...```)
+    are stripped before parsing so authors can include example directives
+    inside those without accidentally activating them.
 
     Empty / non-existent file returns an empty SpecDirectives — never raises."""
     p = Path(spec_path)
@@ -173,6 +193,10 @@ def parse_directives_for_spec(spec_path: str | Path) -> SpecDirectives:
         text = p.read_text(encoding="utf-8", errors="ignore")
     except Exception:
         return out
+
+    # Strip example/documentation blocks BEFORE parsing
+    text = _strip_html_comments(text)
+    text = _strip_fenced_code(text)
 
     for verb, target in _extract_directives(text):
         out.raw_directives.append(f"{verb}: {target}")

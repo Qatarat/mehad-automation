@@ -206,6 +206,9 @@ def _build_minimal_ticket(test_name: str, error_msg: str,
     if not err_line:
         err_line = (error_msg or "test failed").splitlines()[0][:200]
 
+    # Build minimal ticket from VERIFIABLE inputs only — no fabricated
+    # text. Empty fields are EMPTY (not "no AI suggestion" placeholders);
+    # the report renderer skips empty sections cleanly.
     return {
         "severity":      sev,
         "priority":      pri,
@@ -214,13 +217,15 @@ def _build_minimal_ticket(test_name: str, error_msg: str,
                          f"Error: {err_line[:280]}",
         "steps": [
             f"Navigate to {page_url or 'the page under test'}",
-            "Run the test scenario described by the test name",
-            "Observe the failing assertion or error",
+            f"Run the test {test_name}",
+            "Observe the failing assertion (see traceback below)",
         ],
         "expected":      "Test passes per the spec — no assertion failures.",
         "actual":        err_line[:300],
-        "root_cause":    "(no AI analysis — see traceback for details)",
-        "suggested_fix": "(no AI suggestion — review the traceback and spec)",
+        # NO placeholder text — empty means "we don't have this info".
+        # The reporter hides empty sections so users don't see fake text.
+        "root_cause":    "",
+        "suggested_fix": "",
     }
 
 

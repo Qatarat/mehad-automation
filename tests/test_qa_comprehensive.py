@@ -2285,6 +2285,7 @@ class TestQA11VisualRegression:
         assert ok, msg
 
     # ── Phase-1 verification test #1: visual diff math is sane ────────────
+    @pytest.mark.system_selftest  # tests OUR detector logic, not the app under test
     def test_qa11_phase1_verification_self_diff_is_zero(self, tmp_path: Path):
         """Diffing an image against itself must be exactly 0%.
         Verifies our pixel-diff math (no false positives on identical input)."""
@@ -2375,6 +2376,7 @@ class TestQA12JSErrorSweeper:
             )
 
     # ── Phase-1 verification test #2: sweeper actually catches errors ────
+    @pytest.mark.system_selftest  # tests OUR detector logic, not the app under test
     def test_qa12_phase1_verification_synthetic_error_caught(self, page: Page):
         """Inject a runtime JS error via page.evaluate. The sweeper logic
         must surface it. This proves the listener wiring works."""
@@ -2691,6 +2693,7 @@ class TestQA15OWASPSurface:
             pytest.fail(f"OPTIONS exposes TRACE method (XST attack vector): {allow}")
 
     # ── Phase-2 verification test #1: detect missing CSP ─────────────────
+    @pytest.mark.system_selftest  # tests OUR detector logic, not the app under test
     def test_qa15_phase2_verification_detects_missing_csp(self):
         """Synthetic check — assert our CSP detection logic correctly flags
         a header dict that lacks CSP."""
@@ -2707,6 +2710,7 @@ class TestQA15OWASPSurface:
         # If we got here, our 'is CSP missing?' boolean works correctly.
 
     # ── Phase-2 verification test #2: detect path-probe leak ─────────────
+    @pytest.mark.system_selftest  # tests OUR detector logic, not the app under test
     def test_qa15_phase2_verification_detects_synthetic_leak(self):
         """Synthetic check — feed a fake response body containing 'aws_secret'
         through the leak detector and confirm it fires."""
@@ -2991,6 +2995,7 @@ class TestQA18NetworkResilience:
         )
 
     # ── Phase-3 verification test #1: budget-violation detection works ────
+    @pytest.mark.system_selftest  # tests OUR detector logic, not the app under test
     def test_qa18_phase3_verification_synthetic_budget_violation(self):
         """Synthetic check — feed fake metrics into the budget logic and
         confirm the violation list is built correctly. Catches false
@@ -3014,6 +3019,7 @@ class TestQA18NetworkResilience:
         )
 
     # ── Phase-3 verification test #2: heap-growth detector catches it ────
+    @pytest.mark.system_selftest  # tests OUR detector logic, not the app under test
     def test_qa18_phase3_verification_synthetic_heap_growth_caught(self):
         """Synthetic check — feed fake before/after heap sizes into the
         growth-comparison logic and confirm it correctly flags a leak."""

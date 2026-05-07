@@ -219,9 +219,45 @@ def _resolve_artifact_path(rel: str, near_dir: Path) -> Path | None:
     return None
 
 
+# PNG header — first 8 bytes of every valid PNG file.
+_PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
+# Minimum size of a real Playwright screenshot. Below this it's a placeholder /
+# corrupted file we should NOT embed in the report.
+_MIN_PNG_BYTES = 1024     # 1 KB — even an all-white viewport is bigger than this
+_MIN_VIDEO_BYTES = 2048   # 2 KB — even a 1-frame webm has a real header
+
+
+def _is_valid_png(path: Path) -> bool:
+    """Validate the file is a real PNG, not an empty or corrupted placeholder."""
+    try:
+        if path.stat().st_size < _MIN_PNG_BYTES:
+            return False
+        with open(path, "rb") as f:
+            head = f.read(8)
+        return head == _PNG_MAGIC
+    except Exception:
+        return False
+
+
+def _is_valid_video(path: Path) -> bool:
+    """Validate the file is a non-trivially-sized video file."""
+    try:
+        if path.stat().st_size < _MIN_VIDEO_BYTES:
+            return False
+        # webm magic: bytes 0-3 = 0x1A 0x45 0xDF 0xA3 (EBML)
+        with open(path, "rb") as f:
+            head = f.read(4)
+        return head == b"\x1a\x45\xdf\xa3"
+    except Exception:
+        return False
+
+
 def _screenshot_b64(nodeid: str, fn_name: str) -> tuple[str, str]:
     """Return (base64 data-URI, error_text) for the failure screenshot,
-    or ('','') if not found. Error text comes from conftest annotation."""
+    or ('','') if not found OR the file is not a valid PNG.
+
+    Files that fail validation never reach the report — users see no
+    placeholder/fake screenshot, only real captured ones."""
     _load_indexes()
     entry = _SHOT_INDEX.get(nodeid)
     if not entry:
@@ -236,6 +272,10 @@ def _screenshot_b64(nodeid: str, fn_name: str) -> tuple[str, str]:
         png_path = _resolve_artifact_path(entry.get("path", ""), REPORTS_DIR)
     if not png_path or not png_path.exists():
         return "", entry.get("error", "")
+    if not _is_valid_png(png_path):
+        # Don't embed an invalid/empty PNG — falls through to "no screenshot
+        # captured" placeholder which is honest about the missing PoC.
+        return "", entry.get("error", "")
     try:
         data = base64.b64encode(png_path.read_bytes()).decode()
         return f"data:image/png;base64,{data}", entry.get("error", "")
@@ -246,7 +286,8 @@ def _screenshot_b64(nodeid: str, fn_name: str) -> tuple[str, str]:
 def _video_path(nodeid: str, fn_name: str) -> str:
     """Return a RELATIVE path to the failure video usable in the HTML
     report (the video file gets copied into the report's directory by the
-    site builder). Returns '' if no video was captured."""
+    site builder). Returns '' if no video was captured OR the file fails
+    validation (empty/corrupt). The report never embeds invalid video PoC."""
     _load_indexes()
     target = _VIDEO_INDEX.get(nodeid)
     if not target:
@@ -256,9 +297,8 @@ def _video_path(nodeid: str, fn_name: str) -> str:
     if not target:
         return ""
     p = Path(target)
-    if not p.exists():
-        return ""
-    # Copy the video into reports/videos-embed/ so the report can reference it
+    if not p.exists() or not _is_valid_video(p):
+        return ""  # never embed a placeholder / empty / corrupt video
     embed_dir = REPORTS_DIR / "videos-embed"
     embed_dir.mkdir(exist_ok=True)
     dest_name = f"{re.sub(r'[^A-Za-z0-9_.-]', '_', fn_name)[:80]}.webm"
@@ -269,7 +309,8 @@ def _video_path(nodeid: str, fn_name: str) -> str:
             _sh.copy(p, dest)
     except Exception:
         return ""
-    # Return path relative to reports/ which is where the HTML lives
+    if not _is_valid_video(dest):
+        return ""  # belt-and-braces — verify after copy too
     return f"videos-embed/{dest_name}"
 
 
@@ -295,11 +336,43 @@ def _infer_severity(nodeid: str) -> tuple[str, str]:
     return "MEDIUM", "P2"
 
 
+# Tests that validate OUR detection logic, not the app under test.
+# These should NEVER appear as bug tickets in the user-facing report.
+SYSTEM_SELFTEST_NAMES = {
+    "test_qa11_phase1_verification_self_diff_is_zero",
+    "test_qa12_phase1_verification_synthetic_error_caught",
+    "test_qa15_phase2_verification_detects_missing_csp",
+    "test_qa15_phase2_verification_detects_synthetic_leak",
+    "test_qa18_phase3_verification_synthetic_budget_violation",
+    "test_qa18_phase3_verification_synthetic_heap_growth_caught",
+}
+
+
+def _is_system_selftest(nodeid: str, fn_name: str) -> bool:
+    """Tests in SYSTEM_SELFTEST_NAMES verify our own logic, not the user's app.
+    Also any test with `@pytest.mark.system_selftest` reports keywords in pytest
+    JSON — but the simplest discriminator is the function name match."""
+    if fn_name in SYSTEM_SELFTEST_NAMES:
+        return True
+    return "_phase" in fn_name and "_verification_" in fn_name
+
+
+def _is_fallback_test(fn_name: str) -> bool:
+    """Tests ending in '_fb' are deterministic fallback baselines fired when
+    AI test generation produced empty output. They DO test the real app but
+    with generic checks — the report should label them so users understand
+    the difference."""
+    return fn_name.endswith("_fb")
+
+
 def _bugs_from_pytest_json(data: dict, prefix: str, base_url: str) -> list:
     """Convert pytest-json-report failures into bug-ticket dicts.
 
     Uses friendly.py to translate cryptic Playwright errors into plain English
-    and to build a step-by-step reproduction guide for non-engineers."""
+    and to build a step-by-step reproduction guide for non-engineers.
+
+    System-self-test failures are EXCLUDED — they would mislead users that
+    we found a bug in their app when actually our detector logic broke."""
     bugs = []
     docstrings = _docstrings()
     testdata   = _testdata()
@@ -308,6 +381,9 @@ def _bugs_from_pytest_json(data: dict, prefix: str, base_url: str) -> list:
             continue
         nodeid  = t.get("nodeid", "")
         fn_name = nodeid.split("::")[-1].split("[")[0]
+        # Skip system self-tests — they validate our detection code, not the app
+        if _is_system_selftest(nodeid, fn_name):
+            continue
         call    = t.get("call") or t.get("setup") or {}
         longrepr = call.get("longrepr", "") if isinstance(call, dict) else ""
         crash_msg = (call.get("crash") or {}).get("message", "") if isinstance(call, dict) else ""
@@ -339,12 +415,19 @@ def _bugs_from_pytest_json(data: dict, prefix: str, base_url: str) -> list:
         shot_b64, captured_err = _screenshot_b64(nodeid, fn_name)
         video_rel = _video_path(nodeid, fn_name)
 
+        is_fb = _is_fallback_test(fn_name)
+        if is_fb:
+            # Be honest: this is a generic baseline check, not a deep test.
+            f_desc = ("[Generic baseline check that fired because AI was "
+                      "unavailable for this test type] " + (f_desc or ""))
         bugs.append({
             "id":            f"{prefix}-{len(bugs)+1:03d}",
             "severity":      sev,
             "priority":      pri,
-            "title":         f"Failed: {fn_name.replace('_', ' ').strip().capitalize()}",
+            "title":         (f"Failed: {fn_name.replace('_', ' ').strip().capitalize()}"
+                              + (" (generic baseline)" if is_fb else "")),
             "test_name":     fn_name,
+            "is_fallback":   is_fb,
             "page_url":      base_url,
             "description":   f_desc,
             "expected":      f_exp,
@@ -357,7 +440,7 @@ def _bugs_from_pytest_json(data: dict, prefix: str, base_url: str) -> list:
             "traceback":     longrepr[:2000],
             "timestamp":     datetime.now().isoformat(),
             "screenshot_b64": shot_b64,
-            "video_path":    video_rel,    # relative path under reports/
+            "video_path":    video_rel,
             "browser":       "Chromium",
             "viewport":      "1280x720",
             "env":           "Staging",
@@ -370,7 +453,8 @@ def _passed_from_pytest_json(data: dict) -> list:
 
     Used by the reporter to render an expandable 'Passed Tests' panel per
     group so users can see exactly which test cases ran and what data
-    each one used."""
+    each one used. System-self-tests are EXCLUDED — they validate our
+    detector logic, not the app, so they shouldn't pad pass counts."""
     docstrings = _docstrings()
     testdata   = _testdata()
     out = []
@@ -379,12 +463,25 @@ def _passed_from_pytest_json(data: dict) -> list:
         if outcome != "passed":
             continue
         nodeid = t.get("nodeid", "")
+        fn_name = nodeid.split("::")[-1].split("[")[0]
+        if _is_system_selftest(nodeid, fn_name):
+            continue
         call   = t.get("call") or {}
         dur    = call.get("duration", 0.0) if isinstance(call, dict) else 0.0
         rec = build_passed_test_entry(nodeid, dur, docstrings)
+        # Tag fallback (_fb) tests so the report can render a "[generic
+        # baseline]" label — users can see at a glance whether a passing
+        # test was a strong AI-generated check or a generic fallback.
+        if _is_fallback_test(fn_name):
+            rec["is_fallback"] = True
+            existing_doc = rec.get("docstring", "") or ""
+            if existing_doc and not existing_doc.startswith("[Generic baseline"):
+                rec["docstring"] = (
+                    "[Generic baseline check — fired because AI generation "
+                    "was unavailable for this test type] " + existing_doc
+                )
         # Augment params with source-extracted test data so the report
         # shows real values used (TEST_PHONE, fill("..."), etc.)
-        fn_name = nodeid.split("::")[-1].split("[")[0]
         td_src  = testdata.get(fn_name, "")
         if td_src and not rec.get("params"):
             rec["params"] = td_src
@@ -394,13 +491,27 @@ def _passed_from_pytest_json(data: dict) -> list:
     return out
 
 
+def _count_outcomes_excluding_selftests(data: dict) -> tuple[int, int, int]:
+    """Recompute pass/fail/total from the per-test list, excluding system
+    self-tests so user-facing counts only reflect tests against their app."""
+    p = f = 0
+    for t in data.get("tests", []):
+        nodeid  = t.get("nodeid", "")
+        fn_name = nodeid.split("::")[-1].split("[")[0]
+        if _is_system_selftest(nodeid, fn_name):
+            continue
+        outcome = t.get("outcome", "")
+        if outcome == "passed":
+            p += 1
+        elif outcome in ("failed", "error"):
+            f += 1
+    return p, f, p + f
+
+
 def _load_qa_group(json_path: Path, group_name: str, base_url: str) -> dict:
     """Load a qa{N}_results.json and return an all_results entry."""
     data = _load(json_path)
-    s    = data.get("summary", {})
-    p    = s.get("passed", 0)
-    f    = s.get("failed", 0) + s.get("error", 0)
-    t    = s.get("total",  p + f)
+    p, f, t = _count_outcomes_excluding_selftests(data)
     return {
         "status":       "passed" if f == 0 and t > 0 else ("failed" if f > 0 else "no_data"),
         "passed":       p,
