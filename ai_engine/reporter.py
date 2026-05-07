@@ -218,6 +218,57 @@ tr:hover td{{background:#1c2333}}
 .tdata{{font-family:monospace;color:#a371f7;font-size:11px}}
 .tdata-empty{{color:var(--muted);font-size:11px;font-style:italic}}
 
+/* ── Expandable per-test rows (uses native <details>) ───────────────────── */
+.trow-help{{padding:10px 16px;font-size:11px;color:var(--muted);
+           border-bottom:1px solid var(--border);background:#0d1117}}
+.trow{{border-bottom:1px solid var(--border)}}
+.trow:last-child{{border-bottom:none}}
+.trow > summary{{
+  list-style:none;cursor:pointer;padding:11px 16px;display:flex;
+  align-items:center;gap:14px;font-size:13px;user-select:none;
+  transition:background .12s
+}}
+.trow > summary::-webkit-details-marker{{display:none}}
+.trow > summary::before{{
+  content:"▶";color:var(--muted);font-size:9px;width:12px;flex-shrink:0
+}}
+.trow[open] > summary::before{{content:"▼"}}
+.trow > summary:hover{{background:#1c2333}}
+.trow.pass{{border-left:3px solid var(--c-pass)}}
+.trow.fail{{border-left:3px solid var(--c-critical);background:#1f1414}}
+.trow.skip{{border-left:3px solid var(--muted)}}
+.trow.fail > summary{{background:#1f1414}}
+.trow.fail > summary:hover{{background:#2a1a1a}}
+
+.t-chip{{font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 8px;
+        border-radius:4px;font-family:'SF Mono',monospace;flex-shrink:0;
+        min-width:88px;text-align:center}}
+.t-chip.pass{{background:rgba(63,185,80,.16);color:var(--c-pass);border:1px solid var(--c-pass)}}
+.t-chip.fail{{background:rgba(248,81,73,.16);color:var(--c-critical);border:1px solid var(--c-critical)}}
+.t-chip.skip{{background:rgba(139,148,158,.16);color:var(--muted);border:1px solid var(--muted)}}
+.t-chip.unknown{{background:#1c2333;color:var(--muted);border:1px solid var(--border)}}
+.trow-name{{font-family:'SF Mono',monospace;color:var(--text);font-size:12px;
+           overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}}
+.trow-params{{font-family:'SF Mono',monospace;color:#a371f7;font-size:11px;
+             padding:2px 8px;background:rgba(163,113,247,.10);
+             border-radius:4px;flex-shrink:0;max-width:240px;
+             overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+.trow-dur{{color:var(--muted);font-size:11px;flex-shrink:0;min-width:48px;text-align:right}}
+
+.trow-details{{padding:14px 18px 18px 42px;background:#0d1117;
+              border-top:1px solid var(--border)}}
+.td-row{{display:flex;gap:12px;align-items:flex-start;padding:5px 0;
+        font-size:13px;line-height:1.6}}
+.td-lbl{{font-weight:600;color:var(--muted);min-width:160px;flex-shrink:0;
+       font-size:11px;text-transform:uppercase;letter-spacing:.5px}}
+.td-lbl.exp{{color:var(--c-pass)}}
+.td-lbl.act{{color:var(--c-critical)}}
+.td-val{{color:var(--text);flex:1}}
+.td-val.td-data{{font-family:'SF Mono',monospace;color:#a371f7;font-size:12px}}
+.td-val.td-empty{{color:var(--muted);font-style:italic}}
+.td-val a{{color:#58a6ff;text-decoration:none}}
+.td-val a:hover{{text-decoration:underline}}
+
 .console-err{{background:var(--c-critical-bg);border-left:3px solid var(--c-critical);
              padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;
              font-family:monospace;color:var(--c-critical)}}
@@ -385,15 +436,15 @@ def _bug_ticket(bug: dict, idx: int) -> str:
   <ol class="steps">{items}</ol>
 </div>"""
 
-    # Expected / Actual
+    # Expected / Actual — labels worded for non-engineers
     exp_act = f"""
 <div class="two-col">
   <div class="info-block expected">
-    <div class="ib-label">Expected Behavior</div>
+    <div class="ib-label">✓ What should happen</div>
     <div>{_esc(exp) or "<em style='color:var(--muted)'>Not specified</em>"}</div>
   </div>
   <div class="info-block actual">
-    <div class="ib-label">Actual Behavior (Bug)</div>
+    <div class="ib-label">✗ What actually happened</div>
     <div>{_esc(act) or "<em style='color:var(--muted)'>See error below</em>"}</div>
   </div>
 </div>"""
@@ -514,10 +565,10 @@ def _bug_ticket(bug: dict, idx: int) -> str:
   <div>{_esc(fix)}</div>
 </div>"""
 
-    # Description
+    # Description — labeled for non-engineers
     desc_html = f"""
 <div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">Description</div>
+  <div class="ib-label">📋 What this test was checking</div>
   <div>{_esc(desc) or "<em style='color:var(--muted)'>See error details below</em>"}</div>
 </div>""" if desc else ""
 
@@ -675,57 +726,155 @@ def _outcome_badge(outcome: str) -> str:
 
 
 def _spec_detail_block(spec_name: str, result: dict, block_idx: int) -> str:
-    """Build a collapsible per-spec table showing every test with title, description, data."""
+    """Build a collapsible per-spec block listing every test (passed AND failed)
+    with click-to-expand details: docstring, parametrize values, duration."""
     json_report = result.get("json_report")
-    outcomes    = _load_pytest_outcomes(json_report)
+    outcomes    = _load_pytest_outcomes(json_report) if json_report else {}
 
     tests_dir  = Path("tests")
     test_file  = tests_dir / f"test_{spec_name.replace('-', '_')}.py"
-    test_info  = _parse_test_file(test_file)
+    test_info  = _parse_test_file(test_file) if test_file.exists() else {}
 
-    # Merge: all known test names from either source
-    all_names = list(dict.fromkeys(list(test_info.keys()) + list(outcomes.keys())))
+    # Pull pre-built passed/failed records from the consolidator if present.
+    passed_recs: list[dict] = result.get("passed_tests", []) or []
+    bug_recs:    list[dict] = result.get("bugs", []) or []
 
-    if not all_names:
+    # Build a unified list of {name, outcome, docstring, params, duration, friendly_*}
+    rows: list[dict] = []
+
+    # PASSED tests — from consolidator's passed_tests array (preferred)
+    for rec in passed_recs:
+        rows.append({
+            "name":      rec.get("name", "unknown"),
+            "outcome":   "passed",
+            "docstring": rec.get("docstring") or test_info.get(rec.get("name", ""), {}).get("docstring", ""),
+            "params":    rec.get("params", ""),
+            "duration":  rec.get("duration", 0.0),
+            "friendly_actual":   "",
+            "friendly_expected": "",
+        })
+
+    # FAILED tests — from bug list
+    for bug in bug_recs:
+        rows.append({
+            "name":      bug.get("test_name", "unknown"),
+            "outcome":   "failed",
+            "docstring": bug.get("docstring", "") or test_info.get(bug.get("test_name", ""), {}).get("docstring", ""),
+            "params":    bug.get("test_data", ""),
+            "duration":  0.0,
+            "friendly_actual":   bug.get("actual", ""),
+            "friendly_expected": bug.get("expected", ""),
+            "bug_id":            bug.get("id", ""),
+        })
+
+    # Legacy path — if no consolidator data, fall back to raw outcomes + AST info
+    if not rows and (outcomes or test_info):
+        for fn in dict.fromkeys(list(test_info.keys()) + list(outcomes.keys())):
+            info = test_info.get(fn, {})
+            rows.append({
+                "name":      fn,
+                "outcome":   outcomes.get(fn, "unknown"),
+                "docstring": info.get("docstring", ""),
+                "params":    info.get("test_data", ""),
+                "duration":  0.0,
+                "friendly_actual":   "",
+                "friendly_expected": "",
+            })
+
+    if not rows:
         return ""
 
-    total   = len(all_names)
-    passed  = sum(1 for n in all_names if outcomes.get(n) == "passed")
-    failed  = total - passed
-    icon    = "✅" if failed == 0 else "❌"
+    total   = len(rows)
+    n_pass  = sum(1 for r in rows if r["outcome"] == "passed")
+    n_fail  = total - n_pass
+    icon    = "✅" if n_fail == 0 else "❌"
     body_id = f"spec-detail-{block_idx}"
 
-    rows = []
-    for fn in all_names:
-        outcome  = outcomes.get(fn, "unknown")
-        badge, row_cls = _outcome_badge(outcome)
-        info     = test_info.get(fn, {})
-        title    = _esc(info.get("title", fn.replace("_", " ").title()))
-        raw_fn   = _esc(fn)
-        docstring= _esc(info.get("docstring", ""))
-        tdata    = info.get("test_data", "")
+    # Render each test as an expandable row. The `details` element gives us
+    # click-to-expand for free with no JS, and the styled <summary> looks
+    # like a clickable list item.
+    test_rows = []
+    for i, r in enumerate(rows):
+        nm     = _esc(r["name"])
+        out    = r["outcome"]
+        ds     = _esc((r.get("docstring") or "").strip())
+        params = _esc(r.get("params") or "")
+        dur    = r.get("duration", 0.0)
+        dur_s  = f"{dur:.2f}s" if dur else "—"
 
-        what_cell = (
-            f'<div class="tname-title">{title}</div>'
-            f'<div class="twhat">{docstring}</div>'
-            if docstring else
-            f'<div class="tname-title">{title}</div>'
-        )
-        data_cell = (
-            f'<span class="tdata">{_esc(tdata)}</span>'
-            if tdata else
-            '<span class="tdata-empty">—</span>'
-        )
+        if out == "passed":
+            status_chip = '<span class="t-chip pass">✅ PASSED</span>'
+            row_cls     = "trow pass"
+        elif out in ("failed", "error"):
+            status_chip = f'<span class="t-chip fail">❌ FAILED</span>'
+            row_cls     = "trow fail"
+        elif out == "skipped":
+            status_chip = '<span class="t-chip skip">⏭ SKIPPED</span>'
+            row_cls     = "trow skip"
+        else:
+            status_chip = f'<span class="t-chip unknown">— {_esc(out)}</span>'
+            row_cls     = "trow unknown"
 
-        rows.append(f"""<tr class="{row_cls}">
-          <td>{badge}</td>
-          <td><span class="tname">{raw_fn}</span></td>
-          <td>{what_cell}</td>
-          <td>{data_cell}</td>
-        </tr>""")
+        # Build the expanded body: docstring (what the test verifies), params
+        # (test data), duration, and for failed tests the friendly explanation.
+        details_html_parts = []
+        if ds:
+            details_html_parts.append(
+                f'<div class="td-row"><span class="td-lbl">What this test checks:</span>'
+                f'<span class="td-val">{ds}</span></div>')
+        else:
+            details_html_parts.append(
+                f'<div class="td-row"><span class="td-lbl">What this test checks:</span>'
+                f'<span class="td-val td-empty">(no docstring — see test source)</span></div>')
+        if params:
+            details_html_parts.append(
+                f'<div class="td-row"><span class="td-lbl">Test data used:</span>'
+                f'<span class="td-val td-data">{params}</span></div>')
+        details_html_parts.append(
+            f'<div class="td-row"><span class="td-lbl">Duration:</span>'
+            f'<span class="td-val">{dur_s}</span></div>')
+        details_html_parts.append(
+            f'<div class="td-row"><span class="td-lbl">Test function:</span>'
+            f'<span class="td-val"><code>{nm}</code></span></div>')
 
-    rows_html = "\n".join(rows)
-    label = f"{icon} <code>{_esc(spec_name)}</code> — {passed} passed / {failed} failed / {total} total"
+        if out in ("failed", "error"):
+            fa = _esc(r.get("friendly_actual", "") or "")
+            fe = _esc(r.get("friendly_expected", "") or "")
+            bug_id = r.get("bug_id", "")
+            if fe:
+                details_html_parts.append(
+                    f'<div class="td-row"><span class="td-lbl exp">Expected:</span>'
+                    f'<span class="td-val">{fe}</span></div>')
+            if fa:
+                details_html_parts.append(
+                    f'<div class="td-row"><span class="td-lbl act">What happened:</span>'
+                    f'<span class="td-val">{fa}</span></div>')
+            if bug_id:
+                details_html_parts.append(
+                    f'<div class="td-row"><span class="td-lbl">Bug ticket:</span>'
+                    f'<span class="td-val"><a href="#{bug_id}">{bug_id}</a> — '
+                    f'see full details below</span></div>')
+
+        details_html = "".join(details_html_parts)
+        # Use <details>/<summary> for native click-to-expand, no JS needed
+        test_rows.append(f"""
+<details class="{row_cls}">
+  <summary>
+    {status_chip}
+    <span class="trow-name">{nm}</span>
+    {f'<span class="trow-params">{params}</span>' if params else ''}
+    <span class="trow-dur">{dur_s}</span>
+  </summary>
+  <div class="trow-details">
+    {details_html}
+  </div>
+</details>""")
+
+    rows_html = "\n".join(test_rows)
+    label = (f"{icon} <code>{_esc(spec_name)}</code> — "
+             f"<span style='color:var(--c-pass)'>{n_pass} passed</span> · "
+             f"<span style='color:var(--c-critical)'>{n_fail} failed</span> · "
+             f"{total} total")
 
     return f"""
 <div class="spec-blk">
@@ -734,19 +883,11 @@ def _spec_detail_block(spec_name: str, result: dict, block_idx: int) -> str:
     <span class="spec-blk-toggle">▶ Show tests</span>
   </div>
   <div class="spec-blk-body" id="{body_id}">
-    <table class="test-table">
-      <thead>
-        <tr>
-          <th style="width:80px">Status</th>
-          <th style="width:260px">Test Function</th>
-          <th>What It Tested</th>
-          <th style="width:280px">Test Data Used</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows_html}
-      </tbody>
-    </table>
+    <div class="trow-help">
+      Click any test row below to expand and see what was verified, the test
+      data used, and (for failures) what went wrong in plain English.
+    </div>
+    {rows_html}
   </div>
 </div>"""
 

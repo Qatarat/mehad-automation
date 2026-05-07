@@ -18,12 +18,31 @@ from datetime import datetime
 
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(Path(__file__).parent))
+
+from friendly import (
+    friendly_actual, friendly_expected, friendly_description, friendly_steps,
+    extract_docstrings, parse_parametrize_id, build_passed_test_entry,
+)
 
 REPORTS_DIR = ROOT / "reports"
 
 # Screenshot index built by conftest.py — nodeid → {path, url, timestamp}
 _SHOT_INDEX: dict = {}
 _SHOT_INDEX_LOADED = False
+
+# Cache for {test_function_name → docstring} — built lazily on first lookup
+_DOCSTRING_CACHE: dict[str, str] | None = None
+
+
+def _docstrings() -> dict[str, str]:
+    """Lazy: parse all test files in the project to extract test docstrings."""
+    global _DOCSTRING_CACHE
+    if _DOCSTRING_CACHE is not None:
+        return _DOCSTRING_CACHE
+    test_files = list((ROOT / "tests").glob("test_*.py"))
+    _DOCSTRING_CACHE = extract_docstrings(test_files)
+    return _DOCSTRING_CACHE
 
 
 def _load_shot_index() -> None:
@@ -71,9 +90,28 @@ def _load(path: Path) -> dict:
         return {}
 
 
+def _infer_severity(nodeid: str) -> tuple[str, str]:
+    """Map test nodeid to (severity, priority). Heuristic mirrors bug_builder."""
+    nl = nodeid.lower()
+    if any(k in nl for k in ("security", "xss", "sqli", "injection", "csrf")):
+        return "CRITICAL", "P0"
+    if any(k in nl for k in ("hallucination", "auth", "login", "otp",
+                              "session", "smoke", "checkout", "payment")):
+        return "HIGH", "P1"
+    if any(k in nl for k in ("seo", "meta", "i18n", "rtl", "arabic", "locale",
+                              "visual", "cross_browser", "touch_target",
+                              "responsive", "cookie", "storage")):
+        return "LOW", "P3"
+    return "MEDIUM", "P2"
+
+
 def _bugs_from_pytest_json(data: dict, prefix: str, base_url: str) -> list:
-    """Convert pytest-json-report failures into bug-ticket dicts."""
+    """Convert pytest-json-report failures into bug-ticket dicts.
+
+    Uses friendly.py to translate cryptic Playwright errors into plain English
+    and to build a step-by-step reproduction guide for non-engineers."""
     bugs = []
+    docstrings = _docstrings()
     for t in data.get("tests", []):
         if t.get("outcome") not in ("failed", "error"):
             continue
@@ -81,28 +119,65 @@ def _bugs_from_pytest_json(data: dict, prefix: str, base_url: str) -> list:
         fn_name = nodeid.split("::")[-1].split("[")[0]
         call    = t.get("call") or t.get("setup") or {}
         longrepr = call.get("longrepr", "") if isinstance(call, dict) else ""
+        crash_msg = (call.get("crash") or {}).get("message", "") if isinstance(call, dict) else ""
+        duration = call.get("duration", 0.0) if isinstance(call, dict) else 0.0
         lines    = [l for l in longrepr.splitlines() if l.strip()]
         short    = "\n".join(lines[-4:]) if lines else "Assertion failed"
+
+        ds       = docstrings.get(fn_name, "")
+        param    = parse_parametrize_id(nodeid)
+        sev, pri = _infer_severity(nodeid)
+
+        # Friendly fields — these are what non-engineers actually read
+        f_desc = friendly_description(fn_name, ds, base_url)
+        if param:
+            f_desc += f" Test parameters: {param}."
+        f_exp  = friendly_expected(fn_name, ds)
+        f_act  = friendly_actual(crash_msg or short, longrepr)
+        f_steps = friendly_steps(fn_name, ds, base_url, param)
+
         bugs.append({
             "id":            f"{prefix}-{len(bugs)+1:03d}",
-            "severity":      "HIGH" if "security" in nodeid.lower() else "MEDIUM",
-            "priority":      "P1"   if "security" in nodeid.lower() else "P2",
-            "title":         f"Failed: {fn_name}",
+            "severity":      sev,
+            "priority":      pri,
+            "title":         f"Failed: {fn_name.replace('_', ' ').strip().capitalize()}",
             "test_name":     fn_name,
             "page_url":      base_url,
-            "description":   f"Playwright test `{fn_name}` failed in CI.",
-            "expected":      "Test should pass",
-            "actual":        lines[-1][:300] if lines else "Assertion failed",
+            "description":   f_desc,
+            "expected":      f_exp,
+            "actual":        f_act,
+            "steps":         f_steps,
+            "test_data":     param,
+            "docstring":     ds,
+            "duration":      f"{duration:.2f}s" if duration else "",
             "error_message": short[:500],
             "traceback":     longrepr[:2000],
             "timestamp":     datetime.now().isoformat(),
-            "steps":         [],
             "screenshot_b64": _screenshot_b64(nodeid, fn_name),
             "browser":       "Chromium",
             "viewport":      "1280x720",
             "env":           "Staging",
         })
     return bugs
+
+
+def _passed_from_pytest_json(data: dict) -> list:
+    """Extract passed-test summary records (with docstring + parametrize ID).
+
+    Used by the reporter to render an expandable 'Passed Tests' panel per
+    group so users can see exactly which test cases ran and what data
+    each one used."""
+    docstrings = _docstrings()
+    out = []
+    for t in data.get("tests", []):
+        outcome = t.get("outcome", "")
+        if outcome != "passed":
+            continue
+        nodeid = t.get("nodeid", "")
+        call   = t.get("call") or {}
+        dur    = call.get("duration", 0.0) if isinstance(call, dict) else 0.0
+        out.append(build_passed_test_entry(nodeid, dur, docstrings))
+    return out
 
 
 def _load_qa_group(json_path: Path, group_name: str, base_url: str) -> dict:
@@ -113,14 +188,15 @@ def _load_qa_group(json_path: Path, group_name: str, base_url: str) -> dict:
     f    = s.get("failed", 0) + s.get("error", 0)
     t    = s.get("total",  p + f)
     return {
-        "status":    "passed" if f == 0 and t > 0 else ("failed" if f > 0 else "no_data"),
-        "passed":    p,
-        "failed":    f,
-        "total":     t,
-        "bugs":      _bugs_from_pytest_json(data, group_name[:6].upper(), base_url),
-        "gaps":      "",
-        "group":     group_name,
-        "source":    str(json_path.name),
+        "status":       "passed" if f == 0 and t > 0 else ("failed" if f > 0 else "no_data"),
+        "passed":       p,
+        "failed":       f,
+        "total":        t,
+        "bugs":         _bugs_from_pytest_json(data, group_name[:6].upper(), base_url),
+        "passed_tests": _passed_from_pytest_json(data),
+        "gaps":         "",
+        "group":        group_name,
+        "source":       str(json_path.name),
     }
 
 
@@ -146,14 +222,15 @@ def build_consolidated_results(base_url: str) -> dict:
                 total  = s.get("total",  passed + failed)
                 prefix = f"BUG-{spec_name[:4].upper()}"
                 all_results[spec_name] = {
-                    "status":  "passed" if failed == 0 and total > 0 else "failed",
-                    "passed":  passed,
-                    "failed":  failed,
-                    "total":   total,
-                    "bugs":    _bugs_from_pytest_json(data, prefix, base_url),
-                    "gaps":    "",
-                    "group":   "AI Agent",
-                    "source":  stem + ".json",
+                    "status":       "passed" if failed == 0 and total > 0 else "failed",
+                    "passed":       passed,
+                    "failed":       failed,
+                    "total":        total,
+                    "bugs":         _bugs_from_pytest_json(data, prefix, base_url),
+                    "passed_tests": _passed_from_pytest_json(data),
+                    "gaps":         "",
+                    "group":        "AI Agent",
+                    "source":       stem + ".json",
                 }
                 break
 
