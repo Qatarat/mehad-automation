@@ -49,9 +49,12 @@ AGENT_REPORTS = [
     ("agent-qa08_mobile.html",        "qa08-mobile.html",       "QA-08 Mobile / Viewport",   "📱"),
     ("agent-qa09_seo.html",           "qa09-seo.html",          "QA-09 SEO & Meta",          "🔎"),
     ("agent-qa10_i18n.html",          "qa10-i18n.html",         "QA-10 i18n & RTL",          "🌏"),
-    ("agent-qa11_visual.html",        "qa11-visual.html",       "QA-11 Visual Regression",   "🎨"),
-    ("agent-qa12_js_errors.html",     "qa12-js-errors.html",    "QA-12 JS Error Sweeper",    "🐞"),
-    ("agent-mehadedu_homepage.html",  "ai-test-agent.html",     "AI Test Agent (auto-gen)",  "🤖"),
+    ("agent-qa11_visual.html",          "qa11-visual.html",          "QA-11 Visual Regression",   "🎨"),
+    ("agent-qa12_js_errors.html",       "qa12-js-errors.html",       "QA-12 JS Error Sweeper",    "🐞"),
+    ("agent-qa13_security_headers.html","qa13-security-headers.html","QA-13 Security Headers",    "🛡️"),
+    ("agent-qa14_cookies.html",         "qa14-cookies.html",         "QA-14 Cookie Security",     "🍪"),
+    ("agent-qa15_owasp.html",           "qa15-owasp.html",           "QA-15 OWASP Surface",       "🎯"),
+    ("agent-mehadedu_homepage.html",    "ai-test-agent.html",        "AI Test Agent (auto-gen)",  "🤖"),
 ]
 
 

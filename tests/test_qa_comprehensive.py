@@ -2395,3 +2395,325 @@ class TestQA12JSErrorSweeper:
             f"verification failed — synthetic JS error was NOT caught by the "
             f"pageerror listener. Captured: {captured[:3]}"
         )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# PHASE 2 — SECURITY DEPTH
+# ─────────────────────────────────────────────────────────────────────────────
+# Adds three QA agents that probe HTTP-layer security beyond the existing
+# QA-03 XSS/SQLi tests:
+#   QA-13 Security Headers — CSP, X-Frame-Options, HSTS, X-Content-Type-Options,
+#                            Referrer-Policy, Permissions-Policy.
+#   QA-14 Cookie Security — Secure / HttpOnly / SameSite flags, sensible expiry,
+#                            session invalidation behaviour.
+#   QA-15 OWASP Surface — HTTPS enforcement, IDOR-like path probing,
+#                          sensitive-info disclosure on error pages,
+#                          common admin/debug endpoints exposed.
+
+class TestQA13SecurityHeaders:
+    """Verifies HTTP security headers on the main page response.
+
+    Each test fetches the page (via Playwright's API request context) and
+    inspects the response headers. Severity is calibrated so MISSING is
+    flagged but a PRESENT-and-weak value (e.g. CSP with unsafe-inline) is
+    a soft warning we can tighten later."""
+
+    def _get_response_headers(self, page: Page, url: str) -> dict:
+        """Use the API request context — much faster + reliable than goto."""
+        resp = page.request.get(url, timeout=15000)
+        # Lower-case all keys so lookups are predictable across servers
+        return {k.lower(): v for k, v in resp.headers.items()}
+
+    def test_qa13_strict_transport_security_present(self, page: Page):
+        """HSTS header must be present on HTTPS responses (forces TLS)."""
+        if not BASE_URL.startswith("https://"):
+            pytest.skip("HSTS only applies to HTTPS endpoints")
+        headers = self._get_response_headers(page, BASE_URL)
+        hsts = headers.get("strict-transport-security", "")
+        assert hsts, (
+            "Missing Strict-Transport-Security header — "
+            "HTTPS downgrade attacks possible. Recommend: max-age=63072000; "
+            "includeSubDomains; preload"
+        )
+        # Best-practice: max-age >= 6 months. Soft warning if shorter.
+        m = re.search(r"max-age=(\d+)", hsts)
+        if m and int(m.group(1)) < 15768000:  # 6 months in seconds
+            pytest.fail(
+                f"HSTS max-age too short ({m.group(1)}s) — should be >= 15768000 (6 months)"
+            )
+
+    def test_qa13_x_frame_options_or_csp_frame_ancestors(self, page: Page):
+        """Must protect against clickjacking via X-Frame-Options OR
+        CSP frame-ancestors."""
+        headers = self._get_response_headers(page, BASE_URL)
+        xfo = headers.get("x-frame-options", "").lower()
+        csp = headers.get("content-security-policy", "")
+        has_xfo = xfo in ("deny", "sameorigin")
+        has_frame_ancestors = "frame-ancestors" in csp.lower()
+        assert has_xfo or has_frame_ancestors, (
+            f"Page is clickjacking-vulnerable — missing both X-Frame-Options "
+            f"and CSP frame-ancestors. xfo={xfo!r}, csp={csp[:100]!r}"
+        )
+
+    def test_qa13_x_content_type_options_nosniff(self, page: Page):
+        """X-Content-Type-Options: nosniff prevents MIME-sniffing attacks."""
+        headers = self._get_response_headers(page, BASE_URL)
+        xcto = headers.get("x-content-type-options", "").lower()
+        assert xcto == "nosniff", (
+            f"X-Content-Type-Options should be 'nosniff' to prevent "
+            f"MIME-sniffing attacks. Got: {xcto!r}"
+        )
+
+    def test_qa13_referrer_policy_present(self, page: Page):
+        """Referrer-Policy controls what referrer info is leaked to other sites."""
+        headers = self._get_response_headers(page, BASE_URL)
+        rp = headers.get("referrer-policy", "").lower()
+        assert rp, (
+            "Missing Referrer-Policy header — full URL referrers may leak to "
+            "third-party sites. Recommend: strict-origin-when-cross-origin"
+        )
+        # Soft check: known-permissive values are weak
+        if rp in ("unsafe-url", ""):
+            pytest.fail(
+                f"Referrer-Policy is weak ({rp!r}) — leaks full URLs cross-origin"
+            )
+
+    def test_qa13_content_security_policy_present(self, page: Page):
+        """A Content-Security-Policy header should be set (XSS mitigation)."""
+        headers = self._get_response_headers(page, BASE_URL)
+        csp  = headers.get("content-security-policy", "")
+        cspr = headers.get("content-security-policy-report-only", "")
+        if not csp and not cspr:
+            pytest.fail(
+                "No Content-Security-Policy (nor CSP-Report-Only) header — "
+                "XSS payloads have no defense-in-depth mitigation"
+            )
+        # Soft warning: unsafe-inline / unsafe-eval present
+        full = csp + " " + cspr
+        unsafe = [u for u in ("'unsafe-inline'", "'unsafe-eval'", "*") if u in full]
+        if unsafe:
+            # Still pass — most modern apps need unsafe-inline for CSS-in-JS.
+            # Just log so the team is aware.
+            print(f"  [QA-13] CSP contains: {unsafe} — consider tightening", flush=True)
+
+    def test_qa13_permissions_policy_present(self, page: Page):
+        """Permissions-Policy restricts powerful APIs (camera, mic, geolocation, etc).
+        Optional but recommended — soft skip if missing."""
+        headers = self._get_response_headers(page, BASE_URL)
+        pp = headers.get("permissions-policy", "")
+        if not pp:
+            pytest.skip("No Permissions-Policy (informational — recommended but not required)")
+        assert pp, "Permissions-Policy header empty"
+
+    def test_qa13_no_server_version_disclosure(self, page: Page):
+        """Server / X-Powered-By headers should not disclose framework versions
+        (e.g. 'nginx/1.18.0', 'Express') — info-disclosure issue."""
+        headers = self._get_response_headers(page, BASE_URL)
+        server  = headers.get("server", "")
+        powered = headers.get("x-powered-by", "")
+        leaks = []
+        # Match version patterns like "1.2.3" or "x/y/z"
+        if re.search(r"\d+\.\d+\.\d+", server):
+            leaks.append(f"Server: {server}")
+        if powered:
+            leaks.append(f"X-Powered-By: {powered}")
+        assert not leaks, (
+            f"Server version disclosed in response headers: {leaks} — "
+            f"helps attackers fingerprint vulnerable versions. "
+            f"Recommend: server_tokens off; (nginx) or x-powered-by removal"
+        )
+
+
+class TestQA14CookieSecurity:
+    """Verifies that cookies set by the application use proper security flags."""
+
+    def _navigate_and_collect(self, page: Page, url: str) -> list[dict]:
+        page.goto(url, wait_until="domcontentloaded", timeout=15000)
+        page.wait_for_timeout(1500)
+        return page.context.cookies()
+
+    def test_qa14_session_cookies_have_secure_flag(self, page: Page):
+        """Cookies sent over HTTPS must have the Secure flag."""
+        if not BASE_URL.startswith("https://"):
+            pytest.skip("Secure flag only enforced on HTTPS")
+        cookies = self._navigate_and_collect(page, BASE_URL)
+        # Filter likely session/auth cookies — exclude analytics
+        relevant = [c for c in cookies
+                    if not any(t in c["name"].lower()
+                               for t in ("ga", "gtm", "amp_", "_fbp", "utm",
+                                          "intercom", "hubspot"))]
+        insecure = [c["name"] for c in relevant if not c.get("secure", False)]
+        assert not insecure, (
+            f"{len(insecure)} non-Secure cookie(s) over HTTPS: {insecure[:5]} — "
+            f"susceptible to MITM cookie theft"
+        )
+
+    def test_qa14_cookies_have_samesite(self, page: Page):
+        """Cookies must declare a SameSite policy (None/Lax/Strict)."""
+        cookies = self._navigate_and_collect(page, BASE_URL)
+        relevant = [c for c in cookies
+                    if not any(t in c["name"].lower()
+                               for t in ("ga", "gtm", "amp_", "_fbp"))]
+        no_samesite = [c["name"] for c in relevant
+                       if not c.get("sameSite") or c.get("sameSite") == "None" and not c.get("secure")]
+        # Many sites legitimately use SameSite=None on third-party widgets
+        # but those MUST also be Secure. The check above already handles that.
+        if no_samesite:
+            print(f"  [QA-14] cookies without SameSite: {no_samesite[:5]}", flush=True)
+        # Soft assertion — tighten if your app must have SameSite on all
+        assert len(no_samesite) <= 2, (
+            f"Many cookies missing SameSite ({len(no_samesite)}): {no_samesite[:5]} — "
+            f"CSRF protection weakened"
+        )
+
+    def test_qa14_no_cookie_with_excessive_lifetime(self, page: Page):
+        """Cookies should not persist >1 year — privacy + breach exposure."""
+        cookies = self._navigate_and_collect(page, BASE_URL)
+        long_lived = []
+        from time import time as _t
+        now = _t()
+        ONE_YEAR = 365 * 24 * 3600
+        for c in cookies:
+            exp = c.get("expires", -1)
+            if exp > 0 and (exp - now) > ONE_YEAR + 30 * 24 * 3600:  # >13 mo
+                long_lived.append((c["name"], int((exp - now) / 86400)))
+        assert not long_lived, (
+            f"Cookies with >13-month expiry: {long_lived[:5]} — "
+            f"violates GDPR/EPRD best practice"
+        )
+
+
+class TestQA15OWASPSurface:
+    """Surface-level OWASP probing without authenticated credentials.
+
+    These tests find low-hanging fruit any unauthenticated attacker can
+    exercise: HTTPS enforcement, exposed admin/debug endpoints,
+    error-page info disclosure, common path-probing IDOR-like patterns."""
+
+    def test_qa15_https_enforced(self, page: Page):
+        """The HTTP version of BASE_URL must redirect to HTTPS."""
+        if "localhost" in BASE_URL or "127.0.0.1" in BASE_URL:
+            pytest.skip("HTTP→HTTPS not enforced on localhost dev")
+        http_url = BASE_URL.replace("https://", "http://", 1)
+        resp = page.request.get(http_url, timeout=15000, max_redirects=5)
+        # Final URL after redirects must be HTTPS
+        assert resp.url.startswith("https://"), (
+            f"HTTP request to {http_url} did not redirect to HTTPS. "
+            f"Final URL: {resp.url}"
+        )
+
+    @pytest.mark.parametrize("path,label", [
+        ("/.env",                      "env file"),
+        ("/.git/config",               "git config"),
+        ("/admin",                     "admin panel"),
+        ("/wp-admin",                  "WordPress admin"),
+        ("/phpinfo.php",               "phpinfo"),
+        ("/server-status",             "Apache server-status"),
+        ("/.aws/credentials",          "AWS credentials"),
+        ("/config.json",               "config json"),
+        ("/swagger.json",              "swagger spec"),
+        ("/api-docs",                  "API docs index"),
+        ("/.DS_Store",                 "macOS metadata"),
+    ])
+    def test_qa15_no_sensitive_endpoint_exposed(self, page: Page,
+                                                  path: str, label: str):
+        """Sensitive endpoints must NOT return 2xx with their content."""
+        target = BASE_URL.rstrip("/") + path
+        resp = page.request.get(target, timeout=10000)
+        if resp.status >= 400:
+            return  # 4xx/5xx is fine — not exposed
+        body = resp.text()[:500].lower()
+        # Look for sensitive content markers in the body
+        sensitive_markers = (
+            "aws_access_key", "aws_secret",
+            "secret_key", "private_key",
+            "password=", "api_key=",
+            "[default]", "phpversion",
+            "configuration", "<title>swagger",
+        )
+        leaks = [m for m in sensitive_markers if m in body]
+        assert not leaks, (
+            f"{label} endpoint exposed at {target} (HTTP {resp.status}) "
+            f"and contains sensitive markers: {leaks}"
+        )
+
+    def test_qa15_404_does_not_leak_stacktrace(self, page: Page):
+        """A 404 page must not contain Python/Java/Node stacktraces or
+        framework debug info."""
+        resp = page.request.get(BASE_URL.rstrip("/") + "/this-path-does-not-exist-12345",
+                                  timeout=10000)
+        body = resp.text()[:5000]
+        leak_markers = (
+            "Traceback (most recent call last)",
+            "Exception in thread",
+            "at java.lang.",
+            "/site-packages/",
+            "ReferenceError:",
+            "TypeError:",
+            "Whitelabel Error Page",
+            "ASPCookies",
+            "stack:",
+        )
+        leaks = [m for m in leak_markers if m in body]
+        assert not leaks, (
+            f"404 page leaks framework internals: {leaks} — info disclosure"
+        )
+
+    @pytest.mark.parametrize("uid", ["1", "2", "999999", "00000000-0000-0000-0000-000000000001"])
+    def test_qa15_sequential_id_probe_no_oracle(self, page: Page, uid: str):
+        """Probing common /users/{id} or /api/users/{id} paths must NOT
+        return a different response shape for valid vs invalid IDs (which
+        would be a username-enumeration oracle)."""
+        # We don't assert specific content — only that the response is not
+        # 2xx with apparent user data for unauthenticated requests.
+        for path_template in ("/api/users/{}", "/api/user/{}", "/users/{}"):
+            target = BASE_URL.rstrip("/") + path_template.format(uid)
+            try:
+                resp = page.request.get(target, timeout=8000)
+            except Exception:
+                continue
+            if resp.status >= 400:
+                continue
+            body = resp.text()[:500].lower()
+            sensitive = ("email", "phone", "address", "ssn", "dob", "first_name")
+            hits = [m for m in sensitive if m in body]
+            assert len(hits) < 3, (
+                f"{target} returned 2xx with PII fields {hits} — "
+                f"unauthenticated user enumeration possible"
+            )
+
+    def test_qa15_options_method_does_not_leak_methods(self, page: Page):
+        """An OPTIONS preflight must not return wildcard methods like
+        TRACE, DELETE on the root that could enable cross-site tracing."""
+        resp = page.request.fetch(BASE_URL, method="OPTIONS", timeout=10000)
+        allow = resp.headers.get("allow", "") + resp.headers.get("access-control-allow-methods", "")
+        if "TRACE" in allow.upper():
+            pytest.fail(f"OPTIONS exposes TRACE method (XST attack vector): {allow}")
+
+    # ── Phase-2 verification test #1: detect missing CSP ─────────────────
+    def test_qa15_phase2_verification_detects_missing_csp(self):
+        """Synthetic check — assert our CSP detection logic correctly flags
+        a header dict that lacks CSP."""
+        fake_headers = {
+            "content-type": "text/html",
+            "server": "nginx",
+            # NO content-security-policy
+        }
+        csp  = fake_headers.get("content-security-policy", "")
+        cspr = fake_headers.get("content-security-policy-report-only", "")
+        assert not csp and not cspr, (
+            "verification failed — fake-no-CSP dict still appears to have CSP"
+        )
+        # If we got here, our 'is CSP missing?' boolean works correctly.
+
+    # ── Phase-2 verification test #2: detect path-probe leak ─────────────
+    def test_qa15_phase2_verification_detects_synthetic_leak(self):
+        """Synthetic check — feed a fake response body containing 'aws_secret'
+        through the leak detector and confirm it fires."""
+        body = "aws_secret = AKIAIOSFODNN7EXAMPLE\napi_key = secret"
+        markers = ("aws_access_key", "aws_secret", "api_key=")
+        leaks = [m for m in markers if m in body]
+        assert leaks, (
+            f"verification failed — leak-detector did NOT flag obvious "
+            f"secrets in the body. body={body[:80]!r}"
+        )

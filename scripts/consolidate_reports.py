@@ -460,8 +460,11 @@ def build_consolidated_results(base_url: str) -> dict:
         "qa08_mobile":        ("QA-08 Mobile/Viewport",  "QA08"),
         "qa09_seo":           ("QA-09 SEO & Meta",       "QA09"),
         "qa10_i18n":          ("QA-10 i18n & RTL",       "QA10"),
-        "qa11_visual":        ("QA-11 Visual Regression","QA11"),
-        "qa12_js_errors":     ("QA-12 JS Error Sweeper", "QA12"),
+        "qa11_visual":           ("QA-11 Visual Regression",   "QA11"),
+        "qa12_js_errors":        ("QA-12 JS Error Sweeper",    "QA12"),
+        "qa13_security_headers": ("QA-13 Security Headers",    "QA13"),
+        "qa14_cookies":          ("QA-14 Cookie Security",     "QA14"),
+        "qa15_owasp":            ("QA-15 OWASP Surface",       "QA15"),
     }
 
     for file_stem, (group_name, prefix) in qa_groups.items():
