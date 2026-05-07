@@ -99,54 +99,120 @@ _MAX_TIMEOUTS    = 1   # blacklist a model after this many timeouts per session
 # Spec files to skip — these are templates/docs, not real test specs
 _SKIP_SPECS = {"TEMPLATE.md", "README.md", "EXAMPLE.md"}
 
-# ── Multi-model chain — 14 free/open-source models ────────────────────────────
+# ── Multi-model chain — code-quality-ranked Ollama fallback ──────────────────
 # Each entry: (model, max_tokens, temperature, per_model_timeout_seconds)
-# Smaller models respond faster — give them shorter timeouts to fail fast.
+#
+# Ranked by HumanEval / MBPP code-generation accuracy. Smaller-than-1B models
+# are EXCLUDED — they consistently produce malformed Python and waste a slot.
+# Smaller models get shorter timeouts so they fail fast and free the chain.
 MODEL_CHAIN = [
-    (AI_MODEL,                4096, 0.05, 120),   # primary (7b)
-    (AI_MODEL,                2500, 0.08, 120),
+    # Tier 1 — large code-specialist models (best quality)
     ("qwen2.5-coder:7b",      4096, 0.05, 120),
-    ("qwen2.5-coder:7b",      2000, 0.10, 120),
+    (AI_MODEL,                4096, 0.05, 120),   # whatever AI_MODEL is set to
     ("deepseek-coder:6.7b",   4096, 0.05, 120),
-    ("codellama:7b",          3000, 0.08, 120),
+    ("codellama:7b",          3500, 0.08, 120),
+    # Tier 2 — large general models (good fallback for non-code tasks)
+    ("qwen2.5:7b",            3500, 0.08, 120),
     ("mistral:7b",            3000, 0.08, 120),
     ("phi4:3.8b",             3000, 0.08,  90),
-    ("llama3.2:3b",           3000, 0.10,  90),
-    ("phi3.5",                3000, 0.10,  90),
+    # Tier 3 — small code models (fast + decent code quality)
+    ("qwen2.5-coder:3b",      3000, 0.10,  75),
+    ("deepseek-coder:1.3b",   2500, 0.10,  60),
+    ("qwen2.5-coder:1.5b",    2500, 0.12,  60),
+    # Tier 4 — small general models (only used if all coders unavailable)
+    ("llama3.2:3b",           3000, 0.10,  75),
+    ("phi3.5",                3000, 0.10,  75),
     ("gemma2:2b",             2500, 0.10,  60),
-    ("llama3.2:1b",           3000, 0.10,  60),
-    ("qwen2.5-coder:1.5b",    2000, 0.12,  60),
-    ("tinyllama:1.1b",        2000, 0.12,  45),
-    ("qwen2.5:0.5b",          1500, 0.15,  35),   # 0.5b responds fast or not at all
+    # NOTE: removed tinyllama:1.1b, qwen2.5:0.5b, llama3.2:1b — these
+    # produce broken Python ~95% of the time, wasting model-chain slots.
 ]
 
-SYS_TEST = f"""\
-You are an expert QA automation engineer. Write Playwright (Python/pytest) tests.
+# Few-shot examples seed the model with the EXACT format we want.
+# Two short, complete tests demonstrate: imports, fixture signature,
+# selectors, assertions, completion. Models below 7B copy this format.
+_FEW_SHOT_EXAMPLES = f'''\
+EXAMPLE OUTPUT (copy this format exactly — your output must look like this):
+```
+import os, time, pytest
+from playwright.sync_api import Page, expect
+BASE_URL = os.getenv("BASE_URL", "{BASE_URL}")
 
-STRICT RULES — follow every rule or the tests WILL NOT RUN:
-1. Output ONLY valid Python. No markdown fences. No prose. No explanations.
-2. Start output with `import` statements — never with text.
-3. Every test function MUST start with `def test_` and have `page: Page` as ONLY parameter.
-4. Use EXACTLY these imports at the top:
+def test_homepage_loads(page: Page):
+    """Homepage must respond and show a non-empty title."""
+    page.goto(BASE_URL, wait_until="domcontentloaded", timeout=15000)
+    expect(page).to_have_title(lambda t: bool(t and len(t) > 3))
+
+def test_email_input_visible(page: Page):
+    """Email field must be visible on the login page."""
+    page.goto(f"{{BASE_URL}}/login", wait_until="domcontentloaded", timeout=15000)
+    email = page.locator('input[type="email"], [name="email"]').first
+    expect(email).to_be_visible(timeout=5000)
+```'''
+
+SYS_TEST = f"""\
+You are a senior QA automation engineer. You write Playwright (Python/pytest)
+tests that ALWAYS run on first try with zero syntax errors.
+
+OUTPUT FORMAT — these rules are non-negotiable:
+1. Output ONLY valid Python source code. NO markdown fences (```), NO prose,
+   NO "Here is the code:" preamble.
+2. Begin with EXACTLY these three lines:
    import os, time, pytest
    from playwright.sync_api import Page, expect
    BASE_URL = os.getenv("BASE_URL", "{BASE_URL}")
-5. Navigation: page.goto(url, wait_until="domcontentloaded", timeout=15000)
-6. Selector priority: get_by_role > get_by_label > get_by_placeholder > locator(css)
-7. Assertions: expect(locator).to_be_visible() / expect(page).to_have_url()
-8. Unique test emails: f"qa_{{int(time.time())}}@mailinator.com"
-9. Passwords: os.getenv("TEST_PASSWORD", "Test@1234!")
-10. MAX 25 lines per function. End every function COMPLETELY — never leave open.
+3. Every test starts `def test_<descriptive_name>(page: Page):` and has a
+   one-line docstring.
+4. Every function MUST end with a complete statement — no truncated bodies.
+5. Maximum 25 lines per test function (assertions count, comments do not).
 
-OTP/PHONE AUTH PAGES (WhatsApp, SMS OTP):
-- Login is a MODAL opened by clicking a button — NOT a separate /login page
-- Use page.locator('input[type="tel"]') for phone number field
-- Use page.locator('button:has-text("Send Code")') for send-code button
-- Use page.locator('input[autocomplete="one-time-code"]') for OTP field
-- Use page.locator('button:has-text("Continue")') for verify/continue button
-- OTP credentials: phone=os.getenv("TEST_PHONE","512345678"), otp=os.getenv("TEST_OTP","123456")
-- Country code selector: page.locator('[aria-label="Country code"]')
-- After successful login expect user name in header, NOT a redirect to /dashboard
+NAVIGATION:
+- Always: page.goto(url, wait_until="domcontentloaded", timeout=15000)
+- Never: page.goto without timeout (CI hangs forever on slow staging).
+
+SELECTOR PRIORITY (use the FIRST that fits, fall back only if needed):
+1. page.get_by_role("button", name="Submit")
+2. page.get_by_label("Email")
+3. page.get_by_placeholder("Enter your email")
+4. page.locator('[data-testid="..."]')
+5. page.locator('input[type="email"]')        # CSS attribute selector
+6. page.locator('button:has-text("Submit")')   # text fallback
+- For elements with multiple matches, ALWAYS append .filter(visible=True).first
+  so hidden mobile/desktop duplicates do not break the test.
+
+ASSERTIONS — prefer `expect()` over raw asserts:
+- expect(locator).to_be_visible(timeout=5000)
+- expect(locator).to_have_text("...")
+- expect(page).to_have_url(re.compile(r"...")) — import re first
+- expect(locator).to_be_enabled() / .to_be_disabled()
+
+TEST DATA:
+- Unique emails:  f"qa_{{int(time.time())}}@mailinator.com"
+- Passwords:      os.getenv("TEST_PASSWORD", "Test@1234!")
+- Test phone:     os.getenv("TEST_PHONE", "512345678")  # 9-digit Saudi default
+- Test OTP:       os.getenv("TEST_OTP", "123456")
+
+OTP / WHATSAPP / SMS LOGIN PAGES (when spec mentions OTP, WhatsApp, modal):
+- Login opens a MODAL after clicking the header "Log In" button. There is
+  NO separate /login route.
+- The page often has TWO Login buttons (mobile-menu hidden + desktop visible).
+  ALWAYS use:  page.locator('button:has-text("Log In")').filter(visible=True).first
+- Phone field:        page.locator('input[type="tel"]').first
+- Send Code button:   page.locator('button:has-text("Send Code")').first
+- OTP input:          page.locator('input[autocomplete="one-time-code"], input[placeholder="000000"]').first
+- Continue button:    page.locator('button:has-text("Continue")').first
+- Country code:       page.locator('[aria-label="Country code"]').first
+- Default country is +966 (Saudi). The 9-digit phone "512345678" is valid.
+- After success: user name appears in header — there is NO redirect.
+
+ANTI-PATTERNS (these break in CI):
+- DO NOT use time.sleep() — use page.wait_for_timeout() or expect(...).to_be_visible(timeout=...)
+- DO NOT use page.wait_for_load_state("networkidle") — SPAs never reach networkidle
+- DO NOT use Playwright's async API (this codebase is sync_api)
+- DO NOT include "if __name__ == ...": pytest discovers tests automatically
+- DO NOT call .first on a locator that may match invisible duplicates without
+  .filter(visible=True) first — picks the wrong (hidden) element.
+
+{_FEW_SHOT_EXAMPLES}
 """
 
 SYS_BUG = "You are a senior QA lead. Write formal, actionable bug tickets."
@@ -172,21 +238,42 @@ _TIMEOUT_COUNTS: dict[str, int] = {}   # per-session timeout counter per model
 
 
 def _chat_with_timeout(model: str, messages: list, options: dict,
-                       timeout: int = AI_TIMEOUT) -> dict | None:
-    """Call ollama.chat with a hard timeout — prevents hanging in CI."""
+                       timeout: int = AI_TIMEOUT,
+                       fmt: str | None = None) -> dict | None:
+    """Call ollama.chat with a hard timeout. `fmt='json'` requests JSON output.
+    Returns None on timeout (caller decides whether to retry/blacklist)."""
+    kwargs = dict(model=model, messages=messages, options=options)
+    if fmt:
+        kwargs["format"] = fmt
     with _cf.ThreadPoolExecutor(max_workers=1) as ex:
-        fut = ex.submit(ollama.chat, model=model, messages=messages, options=options)
+        fut = ex.submit(ollama.chat, **kwargs)
         try:
             return fut.result(timeout=timeout)
         except _cf.TimeoutError:
             log(f"  [AI] ⏱  {model} timed out after {timeout}s")
             return None
         except Exception as e:
-            raise e  # let caller handle other exceptions
+            raise e
 
 
-def ai_call(system: str, user: str, max_tokens: int = 4096) -> str:
-    """Try every model in MODEL_CHAIN until one responds. Never raises."""
+def ai_call(system: str, user: str, max_tokens: int = 4096,
+            json_mode: bool = False, validator=None,
+            min_chars: int = 50) -> str:
+    """Try every model in MODEL_CHAIN until one returns a valid response.
+
+    Args:
+        system: system prompt
+        user:   user prompt
+        max_tokens: ceiling per-call (capped by per-model tier)
+        json_mode: request Ollama format='json' (use for structured output)
+        validator: optional callable(text) → (ok: bool, error: str). When set,
+            invalid responses are retried with the SAME model up to once with
+            the error message appended to the prompt — gives the model a
+            chance to self-correct without burning the whole chain.
+        min_chars: minimum length of accepted response (rejects short noise)
+
+    Returns "" if every model fails. Never raises.
+    """
     global _AVAILABLE
     if _AVAILABLE is None:
         _AVAILABLE = _available_models()
@@ -195,46 +282,88 @@ def ai_call(system: str, user: str, max_tokens: int = 4096) -> str:
         else:
             log("  [MODELS] No models — template engine will handle generation")
 
+    seen_models: set[str] = set()
     for model, tok, temp, model_timeout in MODEL_CHAIN:
         if model in _CONFIRMED_UNAVAILABLE:
             continue
+        if model in seen_models:
+            continue  # don't try the same model twice if AI_MODEL == chain entry
+        seen_models.add(model)
         if model not in _AVAILABLE and model != AI_MODEL:
             continue
         effective = min(max_tokens, tok)
-        log(f"  [AI] → {model}  max_tokens={effective}  timeout={model_timeout}s")
+        log(f"  [AI] → {model}  max_tokens={effective}  timeout={model_timeout}s"
+            f"{'  (json)' if json_mode else ''}")
         try:
+            messages = [{"role": "system", "content": system},
+                        {"role": "user",   "content": user}]
             resp = _chat_with_timeout(
-                model,
-                [{"role": "system", "content": system},
-                 {"role": "user",   "content": user}],
+                model, messages,
                 {"temperature": temp, "num_predict": effective},
                 timeout=model_timeout,
+                fmt="json" if json_mode else None,
             )
             if resp is None:
                 _TIMEOUT_COUNTS[model] = _TIMEOUT_COUNTS.get(model, 0) + 1
                 if _TIMEOUT_COUNTS[model] >= _MAX_TIMEOUTS:
-                    log(f"  [AI] 🚫 {model} timed out — blacklisting for this session")
+                    log(f"  [AI] 🚫 {model} blacklisted (timeout)")
                     _CONFIRMED_UNAVAILABLE.add(model)
                 continue
-            text = resp["message"]["content"].strip()
-            if len(text) > 50:
-                log(f"  [AI] ✅ {model} → {len(text)} chars")
-                return text
-            log(f"  [AI] ⚠️  {model} short response, trying next...")
+            text = (resp.get("message", {}).get("content") or "").strip()
+            if len(text) < min_chars:
+                log(f"  [AI] ⚠️  {model} short response ({len(text)} chars), next...")
+                continue
+
+            # Validation feedback loop — give this model ONE more chance with
+            # the validator's error message in the prompt before giving up.
+            if validator is not None:
+                ok, err = validator(text)
+                if not ok:
+                    log(f"  [AI] 🔁 {model} invalid output: {err[:80]} — retry with feedback")
+                    fix_user = (
+                        f"{user}\n\nYour previous output failed validation:\n"
+                        f"  {err}\n\nThe broken output was:\n{text[:1500]}\n\n"
+                        "Return CORRECTED output only — same format as required, "
+                        "no explanation."
+                    )
+                    resp2 = _chat_with_timeout(
+                        model,
+                        [{"role": "system", "content": system},
+                         {"role": "user",   "content": fix_user}],
+                        {"temperature": min(0.05, temp), "num_predict": effective},
+                        timeout=model_timeout,
+                        fmt="json" if json_mode else None,
+                    )
+                    if resp2 is not None:
+                        text2 = (resp2.get("message", {}).get("content") or "").strip()
+                        ok2, _ = validator(text2)
+                        if ok2 and len(text2) >= min_chars:
+                            log(f"  [AI] ✅ {model} self-corrected → {len(text2)} chars")
+                            return text2
+                    continue  # validator still failed — try next model
+
+            log(f"  [AI] ✅ {model} → {len(text)} chars")
+            return text
         except Exception as e:
-            log(f"  [AI] ❌ {model}: {e}")
-            if "not found" in str(e).lower() or "404" in str(e):
+            msg = str(e)
+            log(f"  [AI] ❌ {model}: {msg[:120]}")
+            if "not found" in msg.lower() or "404" in msg or "no such model" in msg.lower():
                 _CONFIRMED_UNAVAILABLE.add(model)
-                if len(_CONFIRMED_UNAVAILABLE) >= 2:
-                    log("  [AI] ⚠️  Multiple models unavailable — template engine")
-                    return ""
 
     log("  [AI] ⚠️  All models exhausted — template fallback")
     return ""
 
 
 def _wire_ai_callers():
-    tg_set_caller(lambda prompt, max_tokens=2500: ai_call(SYS_TEST, prompt, max_tokens))
+    """Wire ai_call into the four downstream consumers. Each gets a closure
+    with the right system prompt + a Python AST validator for code outputs."""
+    def _python_validator(text: str) -> tuple[bool, str]:
+        cleaned = clean_code(text)
+        return is_valid_python(cleaned)
+
+    tg_set_caller(lambda prompt, max_tokens=2500: ai_call(
+        SYS_TEST, prompt, max_tokens=max_tokens, validator=_python_validator
+    ))
     bb_set_caller(ai_call)
     gap_set_caller(ai_call)
 

@@ -10,16 +10,17 @@ Features:
   • Flow validation (validates user flows by actually performing them)
 
 Requirements (optional — graceful fallback if not installed):
-    pip install browser-use langchain-openai
+    pip install browser-use
 
-    # OR the legacy approach:
-    pip install browser-use langchain-ollama
+LLM backend priority (MUST inherit browser_use.llm.base.BaseChatModel):
+  1. browser_use.llm.ChatOllama — native Ollama support, exposes provider='ollama'
+  2. browser_use.llm.ChatOpenAI  — OpenAI-API client pointed at Ollama /v1 endpoint
+                                    set OPENAI_BASE_URL=http://localhost:11434/v1
 
-LLM backend priority:
-  1. langchain-openai  — uses Ollama's OpenAI-compatible /v1 endpoint (recommended)
-                         set OPENAI_BASE_URL=http://localhost:11434/v1
-                         set OPENAI_API_KEY=ollama
-  2. langchain-ollama  — direct Ollama protocol (legacy fallback)
+Why we cannot use langchain_openai/langchain_ollama directly:
+    browser-use 0.12.x requires its own BaseChatModel interface (has .provider attr).
+    LangChain's ChatOpenAI does NOT inherit from it and lacks .provider, which causes
+    the documented "AttributeError: 'ChatOpenAI' object has no attribute 'provider'".
 
 Best local models for browser-use (need tool/function calling support):
     qwen2.5:7b          — best balance of quality + speed
@@ -45,51 +46,58 @@ try:
 except ImportError:
     _BU_INSTALLED = False
 
+# Native browser-use Ollama (preferred — directly inherits BaseChatModel)
 try:
-    from langchain_openai import ChatOpenAI as _ChatOpenAI
-    _LANGCHAIN_OPENAI_INSTALLED = True
+    from browser_use.llm.ollama.chat import ChatOllama as _BUChatOllama
+    _BU_OLLAMA = True
 except ImportError:
-    _LANGCHAIN_OPENAI_INSTALLED = False
+    _BU_OLLAMA = False
 
+# Native browser-use OpenAI-compatible (works with Ollama /v1 endpoint)
 try:
-    from langchain_ollama import ChatOllama as _ChatOllama
-    _LANGCHAIN_OLLAMA_INSTALLED = True
+    from browser_use.llm.openai.chat import ChatOpenAI as _BUChatOpenAI
+    _BU_OPENAI = True
 except ImportError:
-    _LANGCHAIN_OLLAMA_INSTALLED = False
+    _BU_OPENAI = False
 
 BASE_URL          = os.getenv("BASE_URL",           "https://beta-stg.fagun.ai")
 BROWSER_USE_MODEL = os.getenv("BROWSER_USE_MODEL",  "qwen2.5:7b")
 _BU_TIMEOUT       = int(os.getenv("BROWSER_USE_TIMEOUT", "120"))  # seconds per task
+_OLLAMA_HOST      = os.getenv("OLLAMA_HOST",        "http://localhost:11434")
+_OLLAMA_OPENAI    = os.getenv("OPENAI_BASE_URL",    "http://localhost:11434/v1")
 
 
 def _available() -> bool:
-    """Check if browser-use and at least one LLM backend are installed."""
+    """Check if browser-use and at least one compatible LLM backend are installed."""
     if not _BU_INSTALLED:
         return False
-    return _LANGCHAIN_OPENAI_INSTALLED or _LANGCHAIN_OLLAMA_INSTALLED
+    return _BU_OLLAMA or _BU_OPENAI
 
 
 def _get_llm(model: str | None = None):
     """
-    Return an LLM instance configured for local Ollama inference.
-    Prefers langchain-openai via Ollama's OpenAI-compatible /v1 endpoint
-    for better stability; falls back to langchain-ollama if unavailable.
+    Return a browser-use BaseChatModel pointed at local Ollama.
+
+    Tries native ChatOllama first (best — explicit provider='ollama'); falls
+    back to browser-use's ChatOpenAI against Ollama's OpenAI-compatible /v1
+    endpoint. NEVER returns a LangChain instance — those crash browser-use
+    Agent with AttributeError on `.provider`.
     """
     m = model or BROWSER_USE_MODEL
-    OLLAMA_BASE_URL = os.getenv("OPENAI_BASE_URL", "http://localhost:11434/v1")
-    OLLAMA_API_KEY  = os.getenv("OPENAI_API_KEY",  "ollama")
-    if _LANGCHAIN_OPENAI_INSTALLED:
-        return _ChatOpenAI(
+    if _BU_OLLAMA:
+        return _BUChatOllama(model=m, host=_OLLAMA_HOST, timeout=120.0)
+    if _BU_OPENAI:
+        return _BUChatOpenAI(
             model=m,
-            base_url=OLLAMA_BASE_URL,
-            api_key=OLLAMA_API_KEY,
+            base_url=_OLLAMA_OPENAI,
+            api_key=os.getenv("OPENAI_API_KEY", "ollama"),
             temperature=0.1,
-            max_tokens=4096,
+            timeout=120.0,
         )
-    elif _LANGCHAIN_OLLAMA_INSTALLED:
-        return _ChatOllama(model=m, num_ctx=16000, temperature=0.1)
-    else:
-        raise ImportError("pip install langchain-openai")
+    raise ImportError(
+        "browser-use needs a compatible LLM. Install with: "
+        "pip install browser-use"
+    )
 
 
 async def _run_task(task: str, model: str, timeout: int = _BU_TIMEOUT) -> str:

@@ -204,23 +204,93 @@ def node_run_tests(state: SpecState) -> dict:
     return {"test_results": results, "messages": [msg]}
 
 
+def _extract_failure_signals(output: str, max_chars: int = 6000) -> str:
+    """Pull the most useful lines from a pytest failure log.
+
+    Long pytest outputs contain TONS of noise (collection log, dots, summary).
+    The model heals better with: failure header + assertion + traceback line(s)
+    for each failed test, in order. Cap at max_chars total."""
+    if not output:
+        return ""
+    lines = output.splitlines()
+    keep: list[str] = []
+    in_failure = False
+    for line in lines:
+        # FAILURES section header marks the start of useful content
+        if "==== FAILURES" in line or "==== ERRORS" in line:
+            in_failure = True
+        if "==== short test summary" in line:
+            in_failure = True  # also valuable — keeps summary
+        if in_failure:
+            keep.append(line)
+        elif (line.startswith("FAILED ") or line.startswith("ERROR ")
+              or "AssertionError" in line or "Error: " in line[:30]
+              or "TimeoutError" in line):
+            keep.append(line)
+    if not keep:
+        # Fallback — take the tail (last 80 lines usually has the failures)
+        keep = lines[-80:]
+    text = "\n".join(keep)
+    if len(text) > max_chars:
+        # Keep both ends — start has failure headers, end has summary
+        head = text[: max_chars // 2]
+        tail = text[-max_chars // 2:]
+        text = head + "\n... [truncated middle] ...\n" + tail
+    return text
+
+
+def _failed_test_names(output: str) -> list[str]:
+    """Extract the names of failed tests from pytest output."""
+    names: list[str] = []
+    for line in output.splitlines():
+        m = re.match(r"FAILED\s+(\S+::\S+)", line)
+        if m:
+            names.append(m.group(1).split("::")[-1].split("[")[0])
+    return list(dict.fromkeys(names))  # dedupe preserving order
+
+
 def node_heal_tests(state: SpecState) -> dict:
     results  = state.get("test_results", {})
     code     = state.get("test_code", "")
     attempts = state.get("fix_attempts", 0) + 1
+    output   = results.get("output", "")
     log(f"  [HEAL] Round {attempts}/{MAX_FIX_RETRIES}")
 
-    fixed_raw = ai_call(
-        SYS_TEST,
-        f"Fix these failing Playwright tests.\n\n"
-        f"FAILURES (truncated):\n{results.get('output','')[:2000]}\n\n"
-        f"CURRENT CODE:\n{code}\n\n"
-        "Return ONLY the complete corrected Python file.",
-        4096,
+    failure_log    = _extract_failure_signals(output)
+    failed_names   = _failed_test_names(output)
+    failed_summary = ", ".join(failed_names[:8]) or "(unknown)"
+
+    log(f"  [HEAL] Failed tests this round: {failed_summary}")
+
+    # Use the AI's own validator-feedback loop in ai_call by passing a
+    # python-AST validator. Each model gets one auto-correction attempt
+    # before we move on, which dramatically improves fix success rate.
+    def _validator(text: str) -> tuple[bool, str]:
+        cleaned = ensure_imports(clean_code(text))
+        return is_valid_python(cleaned)
+
+    user = (
+        f"Some Playwright tests are FAILING. Fix ONLY the failing tests; do "
+        f"not delete passing tests. Return the COMPLETE corrected Python file.\n\n"
+        f"FAILED TEST NAMES:\n  {failed_summary}\n\n"
+        f"FAILURE LOG (extracted relevant lines):\n{failure_log}\n\n"
+        f"CURRENT TEST FILE:\n{code}\n\n"
+        f"Common fixes for staging:\n"
+        f"- If 'Locator: timeout exceeded' on .first → add .filter(visible=True).first\n"
+        f"- If 'Locator: not enabled' → wrap fill() in try/except + pytest.skip on rate-limit\n"
+        f"- If 'Locator.click intercepted' → use locator.click(force=True)\n"
+        f"- If page text is in Arabic → match Arabic text or both EN+AR variants\n"
+        f"- If wait_for_load_state('networkidle') hangs → use 'domcontentloaded'\n\n"
+        f"Return ONLY the corrected Python — no markdown fences, no prose."
     )
+
+    try:
+        fixed_raw = ai_call(SYS_TEST, user, max_tokens=4096, validator=_validator)
+    except TypeError:
+        fixed_raw = ai_call(SYS_TEST, user, 4096)
     fixed = ensure_imports(clean_code(fixed_raw))
-    ok, _ = is_valid_python(fixed)
-    if ok and fixed:
+    ok, err = is_valid_python(fixed)
+    if ok and fixed and len(fixed) > len(_HEADER_PROBE):
         tf = state["test_file"]
         Path(tf).write_text(fixed, encoding="utf-8")
         return {
@@ -228,10 +298,15 @@ def node_heal_tests(state: SpecState) -> dict:
             "fix_attempts": attempts,
             "messages":     [f"[HEAL] Round {attempts} — applied fix"],
         }
+    log(f"  [HEAL] AI fix invalid ({err}) — keeping previous code, retrying tests")
     return {
         "fix_attempts": attempts,
         "messages":     [f"[HEAL] Round {attempts} — AI fix failed, will retry run"],
     }
+
+
+# Sentinel used to detect "AI just returned the imports header with no tests"
+_HEADER_PROBE = "import os, time, pytest\nfrom playwright.sync_api import"
 
 
 def node_save_memory(state: SpecState) -> dict:
