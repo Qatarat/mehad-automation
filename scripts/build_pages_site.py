@@ -1,0 +1,349 @@
+"""
+Build the GitHub Pages site directory from a finished CI run's reports.
+
+Layout:
+  gh-pages-site/
+    index.html                  — landing page with stats + links to everything
+    report.html                 — full master consolidated bug report
+    agents/
+      qa01-functional.html      — per-agent reports (links from index)
+      qa02-edge.html
+      ...
+    history/
+      index.html                — list of past runs
+      run-NN.html               — archived master report for run NN
+      run-NN/
+        agents/                 — archived per-agent reports for run NN
+
+Run AFTER consolidate_reports.py has run (so reports/bug-report.html exists)
+and AFTER all agent artifacts have been downloaded into reports/.
+"""
+from __future__ import annotations
+import json, os, re, shutil, sys
+from pathlib import Path
+from datetime import datetime
+
+ROOT        = Path(__file__).parent.parent
+REPORTS_DIR = ROOT / "reports"
+SITE_DIR    = ROOT / "gh-pages-site"
+RUN_NUMBER  = os.getenv("GITHUB_RUN_NUMBER", "0")
+RUN_URL     = os.getenv("GITHUB_RUN_URL",
+                        f"https://github.com/{os.getenv('GITHUB_REPOSITORY','')}/actions/runs/{os.getenv('GITHUB_RUN_ID','')}")
+COMMIT_SHA  = (os.getenv("GITHUB_SHA", "") or "")[:7]
+COMMIT_MSG  = os.getenv("GITHUB_COMMIT_MESSAGE", "")  # set in workflow
+
+
+# ─── Per-agent report mapping ─────────────────────────────────────────────────
+# (file_basename, link_label, group_emoji)
+AGENT_REPORTS = [
+    ("qa01-functional.html",   "QA-01 Functional",                "🧪"),
+    ("qa02-edge.html",         "QA-02 Edge Cases",                "🔍"),
+    ("qa03-security.html",     "QA-03 Security",                  "🔒"),
+    ("qa04-performance.html",  "QA-04 Performance",               "⚡"),
+    ("qa05-hallucination.html","QA-05 Hallucination/Data",        "🧠"),
+    ("qa06-api.html",          "QA-06 API & Network",             "🌐"),
+    ("qa07-accessibility.html","QA-07 Accessibility",             "♿"),
+    ("qa08-mobile.html",       "QA-08 Mobile / Viewport",         "📱"),
+    ("qa09-seo.html",          "QA-09 SEO & Meta",                "🔎"),
+    ("qa10-i18n.html",         "QA-10 i18n & RTL",                "🌏"),
+]
+
+
+def _load_summary() -> dict:
+    p = REPORTS_DIR / "consolidated_summary.json"
+    if not p.exists():
+        return {}
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _has_agent_report(filename: str) -> Path | None:
+    """Find an agent's html report by walking REPORTS_DIR (artifacts may
+    extract under nested subdirs)."""
+    direct = REPORTS_DIR / filename
+    if direct.exists():
+        return direct
+    for hit in REPORTS_DIR.rglob(filename):
+        if hit.is_file():
+            return hit
+    return None
+
+
+def _existing_history(site: Path) -> list[tuple[int, Path]]:
+    """Return [(run_num, path), ...] for historical reports, sorted desc."""
+    history_dir = site / "history"
+    if not history_dir.exists():
+        return []
+    out = []
+    for p in history_dir.glob("run-*.html"):
+        m = re.match(r"run-(\d+)\.html", p.name)
+        if m:
+            out.append((int(m.group(1)), p))
+    out.sort(reverse=True)
+    return out
+
+
+def _stat_box(label: str, value, klass: str) -> str:
+    return (f'<div class="stat {klass}">'
+            f'<div class="lbl">{label}</div>'
+            f'<div class="val">{value}</div></div>')
+
+
+def _agent_card(filename: str, label: str, emoji: str) -> str:
+    has = _has_agent_report(filename) is not None
+    if has:
+        return (f'<a class="agent-card" href="agents/{filename}">'
+                f'<div class="emoji">{emoji}</div>'
+                f'<div class="lbl">{label}</div>'
+                f'<div class="cta">View report →</div></a>')
+    return (f'<div class="agent-card disabled" title="Report not generated this run">'
+            f'<div class="emoji">{emoji}</div>'
+            f'<div class="lbl">{label}</div>'
+            f'<div class="cta muted">No data</div></div>')
+
+
+def _history_table(history: list[tuple[int, Path]]) -> str:
+    if not history:
+        return ('<p style="color:#8b949e;text-align:center;padding:30px">'
+                'No previous runs archived yet — this is the first deployment.</p>')
+    rows = []
+    for run_num, _path in history[:25]:  # show last 25 runs
+        rows.append(
+            f'<tr><td>Run #{run_num}</td>'
+            f'<td><a href="history/run-{run_num}.html">View report</a></td></tr>'
+        )
+    return (
+        '<table class="history-table">'
+        '<thead><tr><th>Run</th><th>Report</th></tr></thead>'
+        f'<tbody>{"".join(rows)}</tbody></table>'
+    )
+
+
+def _build_index_html(summary: dict, history: list[tuple[int, Path]]) -> str:
+    p   = summary.get("total_passed", 0)
+    f   = summary.get("total_failed", 0)
+    t   = summary.get("total_tests", 0)
+    rate= summary.get("pass_rate", "—")
+    bugs= summary.get("total_bugs", 0)
+    sources = summary.get("sources", [])
+    base_url = summary.get("base_url", "")
+    when = summary.get("timestamp", "")
+    when_short = when[:19].replace("T", " ") if when else ""
+
+    rate_klass = "pass" if (isinstance(rate, str) and rate.endswith("%")
+                            and float(rate.rstrip("%")) >= 95) else "warn"
+
+    stats_html = (
+        _stat_box("Passed", p, "pass") +
+        _stat_box("Failed", f, "fail" if f else "ok") +
+        _stat_box("Total Tests", t, "total") +
+        _stat_box("Pass Rate", rate, rate_klass) +
+        _stat_box("Bug Tickets", bugs, "fail" if bugs else "ok") +
+        _stat_box("Sources", len(sources), "total")
+    )
+    agent_grid = "".join(_agent_card(fn, lbl, em) for fn, lbl, em in AGENT_REPORTS)
+
+    history_html = _history_table(history)
+
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Fagun QA — Run #{RUN_NUMBER}</title>
+<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB5PSIuOWVtIiBmb250LXNpemU9IjkwIj7wn6SWPC90ZXh0Pjwvc3ZnPg=="/>
+<style>
+  * {{ box-sizing:border-box }}
+  body {{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:#0d1117; color:#e6edf3; margin:0; padding:0; line-height:1.5;
+  }}
+  .hero {{
+    background:linear-gradient(135deg,#1f6feb 0%,#7c3aed 100%);
+    padding:48px 32px; border-bottom:1px solid #30363d;
+  }}
+  .hero-inner {{ max-width:1100px; margin:0 auto }}
+  .hero h1 {{ margin:0 0 8px; font-size:32px; font-weight:700; letter-spacing:-.5px }}
+  .hero .sub {{ color:#cdd9e5; font-size:15px; margin-top:6px }}
+  .hero .meta {{ color:rgba(255,255,255,.85); font-size:13px; margin-top:18px;
+                 display:flex; flex-wrap:wrap; gap:18px }}
+  .hero .meta a {{ color:#fff; text-decoration:underline }}
+  .wrap {{ max-width:1100px; margin:0 auto; padding:32px }}
+  .stats {{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:14px; margin-bottom:36px;
+  }}
+  .stat {{
+    background:#161b22; border:1px solid #30363d; border-radius:8px;
+    padding:18px 20px;
+  }}
+  .stat .lbl {{ font-size:11px; text-transform:uppercase; letter-spacing:.6px;
+              color:#8b949e; font-weight:600 }}
+  .stat .val {{ font-size:30px; font-weight:700; margin-top:4px }}
+  .stat.pass .val {{ color:#3fb950 }}
+  .stat.fail .val {{ color:#f85149 }}
+  .stat.warn .val {{ color:#d29922 }}
+  .stat.ok .val   {{ color:#3fb950 }}
+  .stat.total .val{{ color:#58a6ff }}
+  h2 {{ font-size:18px; margin:32px 0 16px; padding-bottom:10px;
+        border-bottom:1px solid #30363d }}
+  .primary-cta {{
+    display:block; padding:24px 30px; background:#1f6feb;
+    border-radius:10px; color:#fff; text-decoration:none; font-size:16px;
+    font-weight:600; margin-bottom:36px; transition:background .15s;
+  }}
+  .primary-cta:hover {{ background:#388bfd }}
+  .primary-cta .cta-sub {{ font-size:12px; font-weight:400; opacity:.9;
+                          margin-top:4px }}
+  .agent-grid {{
+    display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:14px;
+  }}
+  .agent-card {{
+    background:#161b22; border:1px solid #30363d; border-radius:8px;
+    padding:20px; text-decoration:none; color:#e6edf3; display:block;
+    transition:transform .12s,border-color .12s,background .12s;
+  }}
+  .agent-card:hover {{ border-color:#58a6ff; background:#1c2333; transform:translateY(-2px) }}
+  .agent-card.disabled {{ opacity:.55; cursor:not-allowed }}
+  .agent-card .emoji {{ font-size:28px; margin-bottom:8px }}
+  .agent-card .lbl   {{ font-weight:600; font-size:14px; margin-bottom:4px }}
+  .agent-card .cta   {{ font-size:12px; color:#58a6ff }}
+  .agent-card .cta.muted {{ color:#8b949e }}
+  .history-table {{
+    width:100%; border-collapse:collapse; background:#161b22;
+    border-radius:8px; overflow:hidden;
+  }}
+  .history-table th, .history-table td {{
+    padding:11px 18px; text-align:left; border-bottom:1px solid #30363d;
+    font-size:13px;
+  }}
+  .history-table th {{ background:#0d1117; font-size:11px;
+                       text-transform:uppercase; letter-spacing:.5px;
+                       color:#8b949e }}
+  .history-table tr:last-child td {{ border-bottom:none }}
+  .history-table tr:hover td {{ background:#1c2333 }}
+  .history-table a {{ color:#58a6ff; text-decoration:none }}
+  .history-table a:hover {{ text-decoration:underline }}
+  .footer {{ margin-top:44px; padding:20px; text-align:center;
+             color:#8b949e; font-size:12px; border-top:1px solid #30363d }}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <h1>🤖 Fagun Autonomous QA Report</h1>
+    <div class="sub">9 AI agents · 240+ tests · auto-generated bug tickets · zero API cost</div>
+    <div class="meta">
+      <span><b>Run:</b> #{RUN_NUMBER}</span>
+      <span><b>Commit:</b> <a href="https://github.com/{os.getenv('GITHUB_REPOSITORY','')}/commit/{os.getenv('GITHUB_SHA','')}">{COMMIT_SHA}</a></span>
+      <span><b>Target:</b> {base_url or '—'}</span>
+      <span><b>Generated:</b> {when_short}</span>
+      <span><a href="{RUN_URL}">View CI run on GitHub →</a></span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="stats">{stats_html}</div>
+
+  <a class="primary-cta" href="report.html">
+    📊 View the full master bug report →
+    <div class="cta-sub">Every test, every bug, with screenshots and friendly explanations</div>
+  </a>
+
+  <h2>📂 Per-Agent Reports</h2>
+  <p style="color:#8b949e;font-size:13px;margin:0 0 16px">
+    Each QA agent produces its own pytest-html report. Click a card to see
+    just that agent's results.
+  </p>
+  <div class="agent-grid">{agent_grid}</div>
+
+  <h2>🕐 History</h2>
+  <p style="color:#8b949e;font-size:13px;margin:0 0 16px">
+    Past runs are archived — click to compare against earlier baselines.
+  </p>
+  {history_html}
+
+  <div class="footer">
+    Built by Fagun Autonomous AI Test Agent · 100% local AI · no third-party API keys
+  </div>
+
+</div>
+
+</body></html>"""
+
+
+def _archive_dir() -> Path:
+    """Per-run archive folder where this run's individual reports go."""
+    arc = SITE_DIR / "history" / f"run-{RUN_NUMBER}"
+    arc.mkdir(parents=True, exist_ok=True)
+    return arc
+
+
+def main() -> None:
+    SITE_DIR.mkdir(exist_ok=True)
+    (SITE_DIR / "agents").mkdir(exist_ok=True)
+    (SITE_DIR / "history").mkdir(exist_ok=True)
+    archive = _archive_dir()
+
+    # 1. Master report at /report.html (and archived copy at /history/run-N.html)
+    master = REPORTS_DIR / "bug-report.html"
+    if master.exists():
+        shutil.copy(master, SITE_DIR / "report.html")
+        shutil.copy(master, SITE_DIR / "history" / f"run-{RUN_NUMBER}.html")
+        print(f"  ✅ master report → report.html  +  history/run-{RUN_NUMBER}.html")
+    else:
+        print("  ⚠️  reports/bug-report.html not found — site will have no master report")
+
+    # 2. Per-agent reports under /agents/ (and archived copy)
+    found_agents = 0
+    for filename, label, _emoji in AGENT_REPORTS:
+        src = _has_agent_report(filename)
+        if src is not None:
+            shutil.copy(src, SITE_DIR / "agents" / filename)
+            (archive / "agents").mkdir(exist_ok=True)
+            shutil.copy(src, archive / "agents" / filename)
+            found_agents += 1
+    print(f"  ✅ per-agent reports: {found_agents}/{len(AGENT_REPORTS)}")
+
+    # 3. Build index.html
+    summary = _load_summary()
+    history = _existing_history(SITE_DIR)
+    # Add this run to the in-memory history for the index render
+    if (SITE_DIR / "history" / f"run-{RUN_NUMBER}.html").exists():
+        try:
+            num = int(RUN_NUMBER)
+            history = sorted(set(history + [(num, Path(f"history/run-{num}.html"))]),
+                             reverse=True)
+        except Exception:
+            pass
+
+    (SITE_DIR / "index.html").write_text(
+        _build_index_html(summary, history), encoding="utf-8")
+    print(f"  ✅ index.html built ({len(history)} runs in history)")
+
+    # 4. History index page
+    rows = []
+    for run_num, _ in history[:50]:
+        rows.append(f'<li><a href="run-{run_num}.html">Run #{run_num}</a></li>')
+    (SITE_DIR / "history" / "index.html").write_text(f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/><title>Fagun QA — History</title>
+<style>body{{font-family:system-ui;background:#0d1117;color:#e6edf3;padding:32px;max-width:600px;margin:0 auto}}
+h1{{color:#58a6ff}}a{{color:#58a6ff;text-decoration:none}}a:hover{{text-decoration:underline}}
+li{{padding:8px 0;border-bottom:1px solid #30363d}}</style></head>
+<body><h1>QA Report History</h1>
+<p><a href="../index.html">← Back to latest</a></p>
+<ul style="list-style:none;padding:0">{"".join(rows)}</ul></body></html>""", encoding="utf-8")
+    print(f"  ✅ history/index.html with {len(history)} entries")
+
+    print(f"\nSite ready at: {SITE_DIR}")
+    print(f"Files: {sum(1 for _ in SITE_DIR.rglob('*.html'))} HTML pages")
+
+
+if __name__ == "__main__":
+    main()
