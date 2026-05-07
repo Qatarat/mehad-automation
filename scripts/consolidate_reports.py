@@ -355,6 +355,9 @@ SYSTEM_SELFTEST_NAMES = {
     # Phase 4.2 — autonomous exploratory verifications
     "test_phase4_verification_walker_captures_synthetic_js_error",
     "test_phase4_verification_walker_categorises_severity",
+    # Phase 4.3 — fuzzing verifications
+    "test_phase4_verification_fuzzer_generates_diverse_inputs",
+    "test_phase4_verification_fuzzer_deterministic",
 }
 
 
@@ -591,6 +594,7 @@ def build_consolidated_results(base_url: str) -> dict:
         "qa17_memory":           ("QA-17 Memory Leak",         "QA17"),
         "qa18_network":          ("QA-18 Network Resilience",  "QA18"),
         "qa19_exploratory":      ("QA-19 Autonomous Exploratory","QA19"),
+        "qa20_fuzzing":          ("QA-20 Property-Based Fuzz", "QA20"),
     }
 
     for file_stem, (group_name, prefix) in qa_groups.items():

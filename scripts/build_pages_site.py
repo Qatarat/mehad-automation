@@ -58,6 +58,7 @@ AGENT_REPORTS = [
     ("agent-qa17_memory.html",          "qa17-memory.html",          "QA-17 Memory Leak",         "💧"),
     ("agent-qa18_network.html",         "qa18-network.html",         "QA-18 Network Resilience",  "📡"),
     ("agent-qa19_exploratory.html",     "qa19-exploratory.html",     "QA-19 Autonomous Explorer", "🤖"),
+    ("agent-qa20_fuzzing.html",         "qa20-fuzzing.html",         "QA-20 Property-Based Fuzz", "🎲"),
     ("agent-login.html",                "ai-test-agent.html",        "AI Test Agent (auto-gen)",  "🛠️"),
 ]
 

