@@ -1084,6 +1084,112 @@ class TestQA03Security:
         assert captured_cors == [], (
             f"Wildcard CORS on auth endpoints: {captured_cors}")
 
+    # ── Auth-bypass probes — verify protected endpoints reject unauthorised
+    # requests. Probes common path patterns; if a pattern returns 200 + JSON
+    # without auth, that's the bug we want to surface.
+
+    def test_qa03_protected_api_rejects_no_auth(self, page: Page):
+        """Probe likely-protected endpoints with NO auth header — must not
+        return user data (200 + JSON with PII fields). 401/403/404 are all OK;
+        a redirect is OK; only an unauthenticated 200-with-data is a bug."""
+        api_base = BASE_URL.rstrip("/").rsplit("/", 1)[0]  # strip /en or /ar
+        candidates = ["/api/me", "/api/users/me", "/api/profile",
+                      "/api/v1/me", "/api/users/1", "/api/admin"]
+        leaks: list = []
+        ctx = page.context
+        for path in candidates:
+            try:
+                resp = ctx.request.get(f"{api_base}{path}", timeout=8000)
+            except Exception:
+                continue
+            if 200 <= resp.status < 300:
+                ct = (resp.headers.get("content-type", "") or "").lower()
+                if "json" in ct:
+                    try:
+                        body = resp.json()
+                        # PII-ish fields suggest a real user payload
+                        leak_keys = {"email", "phone", "password", "token",
+                                     "name", "userId", "user_id", "id"}
+                        if isinstance(body, dict) and (set(body) & leak_keys):
+                            leaks.append({"path": path, "leaked": list(set(body) & leak_keys)})
+                        elif isinstance(body, list) and body and isinstance(body[0], dict) \
+                                and (set(body[0]) & leak_keys):
+                            leaks.append({"path": path, "leaked_list_size": len(body)})
+                    except Exception:
+                        pass
+        assert leaks == [], (
+            f"Unauthenticated requests returned user data: {leaks}")
+
+    def test_qa03_forged_jwt_rejected(self, page: Page):
+        """Send a syntactically valid but unsigned JWT — server must reject
+        with 401/403. Accepting forged tokens (200) is a critical auth bug."""
+        # 'none' alg JWT with admin-y claims — common bypass pattern
+        forged = ("eyJhbGciOiJub25lIiwidHlwIjoiSldUIn0."
+                  "eyJzdWIiOiIxIiwicm9sZSI6ImFkbWluIiwiaWF0IjoxNzAwMDAwMDAwfQ.")
+        api_base = BASE_URL.rstrip("/").rsplit("/", 1)[0]
+        candidates = ["/api/me", "/api/users/me", "/api/profile", "/api/admin"]
+        accepted: list = []
+        ctx = page.context
+        for path in candidates:
+            try:
+                resp = ctx.request.get(
+                    f"{api_base}{path}",
+                    headers={"Authorization": f"Bearer {forged}"},
+                    timeout=8000,
+                )
+            except Exception:
+                continue
+            # 200 with a JSON body would mean the forged token was accepted
+            if 200 <= resp.status < 300:
+                ct = (resp.headers.get("content-type", "") or "").lower()
+                if "json" in ct:
+                    accepted.append({"path": path, "status": resp.status})
+        assert accepted == [], f"Forged 'alg=none' JWT accepted at: {accepted}"
+
+    def test_qa03_idor_other_user_id_not_accessible(self, page: Page):
+        """IDOR probe — request /api/users/{id} for a few IDs without auth.
+        Must not leak per-user records to anonymous callers."""
+        api_base = BASE_URL.rstrip("/").rsplit("/", 1)[0]
+        leaks: list = []
+        ctx = page.context
+        for uid in ("1", "2", "999", "00000000-0000-0000-0000-000000000001"):
+            for tmpl in ("/api/users/{}", "/api/v1/users/{}", "/api/profile/{}"):
+                try:
+                    resp = ctx.request.get(
+                        f"{api_base}{tmpl.format(uid)}", timeout=6000)
+                except Exception:
+                    continue
+                if 200 <= resp.status < 300:
+                    ct = (resp.headers.get("content-type", "") or "").lower()
+                    if "json" in ct:
+                        try:
+                            body = resp.json()
+                            if isinstance(body, dict) and any(
+                                    k in body for k in ("email", "phone", "password")):
+                                leaks.append({"endpoint": tmpl.format(uid)})
+                        except Exception:
+                            pass
+        assert leaks == [], f"IDOR — user data accessible without auth: {leaks}"
+
+    def test_qa03_session_cookie_marked_httponly_secure(self, page: Page):
+        """If a session cookie is set on login flow, it must be HttpOnly +
+        Secure. Cookies that lack these flags are XSS-stealable."""
+        page.goto(BASE_URL)
+        page.wait_for_load_state(LOAD_STATE)
+        page.wait_for_timeout(800)
+        cookies = page.context.cookies()
+        weak: list = []
+        sess_keys = ("session", "sid", "auth", "token", "jwt")
+        for c in cookies:
+            name_l = c.get("name", "").lower()
+            if any(k in name_l for k in sess_keys):
+                if not c.get("httpOnly", False):
+                    weak.append({"name": c["name"], "missing": "HttpOnly"})
+                # Secure flag is only required on HTTPS contexts
+                if BASE_URL.startswith("https") and not c.get("secure", False):
+                    weak.append({"name": c["name"], "missing": "Secure"})
+        assert weak == [], f"Session-like cookies missing security flags: {weak}"
+
 
 # ─────────────────────────────────────────────────────────────────────────────
 # QA-04  PERFORMANCE & JAVASCRIPT ERROR TESTS
@@ -1683,6 +1789,48 @@ class TestQA06APIAndNetwork:
         page.wait_for_load_state(LOAD_STATE)
         page.wait_for_timeout(800)
         assert cors_errors == [], f"CORS errors on find-tutors: {cors_errors[:3]}"
+
+    # ── JSON schema validation — every JSON response captured during page
+    # load must be valid JSON (parseable + structurally sane). Catches
+    # truncated / malformed / HTML-instead-of-JSON server responses that
+    # downstream tests would silently misinterpret.
+
+    def test_qa06_json_responses_are_well_formed(self, page: Page):
+        """Every application/json response on homepage load must parse and
+        be a dict or list (not a stray string or null). Catches malformed
+        JSON, accidental HTML error pages served with json content-type,
+        and truncated responses."""
+        from jsonschema import validate, ValidationError
+        problems: list = []
+        captured: list = []
+
+        def _capture(resp):
+            ct = (resp.headers.get("content-type", "") or "").lower()
+            if "application/json" in ct and resp.status < 400:
+                try:
+                    captured.append({"url": resp.url, "body": resp.json()})
+                except Exception as e:
+                    problems.append({"url": resp.url[:120],
+                                      "error": f"unparseable JSON: {type(e).__name__}"})
+
+        page.on("response", _capture)
+        page.goto(BASE_URL)
+        page.wait_for_load_state(LOAD_STATE)
+        page.wait_for_timeout(1200)
+
+        # Permissive top-level schema — body must be object or array
+        top_schema = {"type": ["object", "array"]}
+        for c in captured:
+            try:
+                validate(instance=c["body"], schema=top_schema)
+            except ValidationError as e:
+                problems.append({"url": c["url"][:120],
+                                  "error": f"schema violation: {e.message}"})
+
+        # We don't fail when no JSON is captured — many marketing pages have none
+        if captured:
+            print(f"  [QA-06 schema] validated {len(captured)} JSON response(s)")
+        assert problems == [], f"Malformed/invalid JSON responses: {problems[:5]}"
 
 
 # ─────────────────────────────────────────────────────────────────────────────

@@ -1679,6 +1679,99 @@ def _save_partial_state(agent):
         log(f"  [STATE] ⚠️  Could not save partial state: {e}")
 
 
+# ── Surgical selector self-heal ───────────────────────────────────────────────
+# When a test fails because Playwright can't find an element, parse the
+# selector out of the error and ask AI for a single replacement based on the
+# live DOM. Persisted via memory.update_selector so the fix survives runs.
+# This is *cheaper* than the full-file regen path (one short prompt vs.
+# rewriting the whole test file) and produces a memory entry, so the next
+# generation cycle uses the corrected selector from the start.
+
+_SELECTOR_ERR_PATTERNS = [
+    re.compile(r"locator\.[a-z_]+:.*selector resolved to .* but is hidden", re.I),
+    re.compile(r"waiting for (?:locator|selector) ['\"]([^'\"]+)['\"]", re.I),
+    re.compile(r"Element is not (?:visible|attached|enabled)"),
+    re.compile(r"locator\.[a-z_]+: (?:Timeout|Error)", re.I),
+    re.compile(r"strict mode violation: locator\(['\"]([^'\"]+)['\"]"),
+    re.compile(r"selector ['\"]([^'\"]+)['\"] (?:not found|did not match)"),
+]
+
+
+def _looks_like_selector_failure(output: str) -> bool:
+    """True if the pytest output contains a Playwright selector error."""
+    return any(p.search(output) for p in _SELECTOR_ERR_PATTERNS)
+
+
+def _extract_failing_selectors(output: str) -> list[str]:
+    """Pull selector strings out of Playwright error messages. Returns
+    distinct selectors in order of appearance.
+
+    Selectors often contain quotes themselves (`button:has-text("Log In")`),
+    so we match the OUTER quote type and capture greedily until the same
+    quote — single-quoted and double-quoted variants are handled separately
+    rather than with `['\"]` which truncates at the first inner quote."""
+    seen, found = set(), []
+    pairs = [
+        # Pattern 1: waiting for locator/selector 'X' or "X"
+        r"waiting for (?:locator|selector) '([^']+)'",
+        r'waiting for (?:locator|selector) "([^"]+)"',
+        # Pattern 2: locator('X')  /  locator("X")
+        r"locator\('([^']+)'\)",
+        r'locator\("([^"]+)"\)',
+        # Pattern 3: page.X("Y") / frame.X("Y")
+        r"(?:page|frame)\.[a-z_]+\('([^']+)'",
+        r'(?:page|frame)\.[a-z_]+\("([^"]+)"',
+    ]
+    for pat in pairs:
+        for m in re.finditer(pat, output, re.I):
+            s = m.group(1)
+            if 1 < len(s) < 200 and s not in seen:
+                seen.add(s); found.append(s)
+    return found[:3]  # cap — we only repair the first few
+
+
+def _heal_selector_via_ai(spec_name: str, broken: str,
+                           failure_excerpt: str, code: str) -> str | None:
+    """Ask AI for ONE replacement Playwright selector. Cheap (single prompt
+    of ~500 tokens) compared to full-file regen. Returns new selector or None."""
+    prompt = (
+        f"A Playwright test failed because this selector no longer matches:\n"
+        f"  BROKEN: {broken}\n\n"
+        f"FAILURE EXCERPT:\n{failure_excerpt[:800]}\n\n"
+        f"TEST FILE CONTEXT (first 60 lines):\n"
+        f"{chr(10).join(code.splitlines()[:60])}\n\n"
+        "Return ONE replacement Playwright selector — prefer text-based "
+        "(`text=Sign In`), role-based (`role=button[name=\"Sign In\"]`), "
+        "or aria-label match (`[aria-label=\"Sign In\"]`). Output the "
+        "selector ONLY — no quotes, no explanation, single line."
+    )
+    raw = ai_call(SYS_TEST, prompt, max_tokens=200)
+    if not raw:
+        return None
+    candidate = raw.strip().splitlines()[0].strip()
+    # Strip surrounding quotes the model often adds
+    candidate = candidate.strip("`'\" ")
+    # Sanity — must look like a selector, not prose
+    if not candidate or len(candidate) > 250 or "\n" in candidate:
+        return None
+    if " " in candidate and not any(
+            candidate.startswith(p) for p in
+            ("text=", "role=", "[", "css=", "xpath=", ".", "#", "//")):
+        # Spaces without a valid prefix — likely prose like "the button"
+        return None
+    return candidate
+
+
+def _apply_selector_fix(code: str, broken: str, fixed: str) -> str:
+    """Replace `broken` with `fixed` inside the test file source. Quotes
+    both single- and double-quoted occurrences."""
+    out = code
+    # Replace ".." → ".." occurrences and '..' → '..' occurrences
+    out = out.replace(f'"{broken}"', f'"{fixed}"')
+    out = out.replace(f"'{broken}'", f"'{fixed}'")
+    return out
+
+
 # ── Main agent ────────────────────────────────────────────────────────────────
 
 class AutonomousTestAgent:
@@ -1864,10 +1957,44 @@ class AutonomousTestAgent:
         results = run_tests(test_file)
         self._show(results)
 
-        # 6. Self-heal
+        # 6. Self-heal — try SURGICAL selector fix first (cheap, persistent),
+        # then fall back to full-file regen if the failure isn't selector-shaped
+        # or surgical fix didn't resolve all failures.
         if results["failed"] > 0:
             log(f"\n  [REFLECT] {results['failed']} failure(s) — self-healing...")
+
+            # 6a. Surgical path — selector failures only. Extract broken
+            # selectors, ask AI for replacements, persist via update_selector.
+            if _looks_like_selector_failure(results["output"]):
+                broken_selectors = _extract_failing_selectors(results["output"])
+                if broken_selectors:
+                    log(f"  [HEAL] surgical — {len(broken_selectors)} broken "
+                        f"selector(s) detected")
+                    surgical_applied = 0
+                    for broken in broken_selectors:
+                        new_sel = _heal_selector_via_ai(
+                            name, broken, results["output"], code)
+                        if new_sel and new_sel != broken:
+                            log(f"  [HEAL] {broken!r} → {new_sel!r}")
+                            code = _apply_selector_fix(code, broken, new_sel)
+                            update_selector(f"{name}::{broken}", new_sel)
+                            surgical_applied += 1
+                    if surgical_applied:
+                        v, e = is_valid_python(ensure_imports(code))
+                        if v:
+                            test_file.write_text(ensure_imports(code))
+                            results = run_tests(test_file)
+                            self._show(results)
+                            if results["failed"] == 0:
+                                log("  [HEAL] ✅ surgical fix resolved all failures")
+                        else:
+                            log(f"  [HEAL] ⚠️  surgical patch broke syntax ({e}) "
+                                f"— falling through to full regen")
+
+            # 6b. Full-file regen fallback for any remaining failures
             for fix_round in range(1, MAX_FIX_RETRIES + 1):
+                if results["failed"] == 0:
+                    break
                 log(f"  [FIX] Round {fix_round}/{MAX_FIX_RETRIES}")
                 fixed_raw = ai_call(
                     SYS_TEST,
