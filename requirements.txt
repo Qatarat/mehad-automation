@@ -6,6 +6,8 @@ pytest-json-report>=1.5.0
 pytest-html>=4.1.0
 pytest-timeout>=2.3.1
 Jinja2>=3.1.4
+# Pillow — screenshot annotation (red banner with error message on failure shots)
+Pillow>=10.0.0
 
 # LangGraph — graph-based multi-agent orchestration
 langgraph>=0.2.0

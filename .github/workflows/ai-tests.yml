@@ -392,7 +392,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report
+          pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
 
       - name: Install Playwright Chromium
         run: playwright install chromium --with-deps
@@ -447,6 +447,9 @@ jobs:
           path: |
             reports/qa01*
             reports/qa02*
+            reports/screenshots/
+            reports/videos/
+            reports/evidence/
           retention-days: 30
           if-no-files-found: warn
 
@@ -474,7 +477,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report
+          pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
 
       - name: Install Playwright Chromium
         run: playwright install chromium --with-deps
@@ -539,6 +542,9 @@ jobs:
             reports/qa03*
             reports/qa04*
             reports/qa05*
+            reports/screenshots/
+            reports/videos/
+            reports/evidence/
           retention-days: 30
           if-no-files-found: warn
 
@@ -556,7 +562,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: "pip" }
       - name: Install dependencies
-        run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report
+        run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
         run: playwright install chromium --with-deps
       - name: Prepare reports directory
@@ -584,7 +590,11 @@ jobs:
         if: always()
         with:
           name: qa-agent-3-reports-${{ github.run_number }}
-          path: reports/qa0[67]*
+          path: |
+            reports/qa0[67]*
+            reports/screenshots/
+            reports/videos/
+            reports/evidence/
           retention-days: 30
           if-no-files-found: warn
 
@@ -603,7 +613,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: "pip" }
       - name: Install dependencies
-        run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report
+        run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
         run: playwright install chromium --with-deps
       - name: Prepare reports directory
@@ -622,7 +632,11 @@ jobs:
         if: always()
         with:
           name: qa-agent-4-reports-${{ github.run_number }}
-          path: reports/qa08*
+          path: |
+            reports/qa08*
+            reports/screenshots/
+            reports/videos/
+            reports/evidence/
           retention-days: 30
           if-no-files-found: warn
 
@@ -701,7 +715,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: "pip" }
       - name: Install dependencies
-        run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report
+        run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
         run: playwright install chromium --with-deps
       - name: Prepare reports directory
@@ -730,7 +744,11 @@ jobs:
         if: always()
         with:
           name: qa-agent-6-reports-${{ github.run_number }}
-          path: reports/qa09*
+          path: |
+            reports/qa09*
+            reports/screenshots/
+            reports/videos/
+            reports/evidence/
           retention-days: 30
           if-no-files-found: warn
 
@@ -748,7 +766,7 @@ jobs:
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: "pip" }
       - name: Install dependencies
-        run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report
+        run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
         run: playwright install chromium --with-deps
       - name: Prepare reports directory
@@ -777,7 +795,11 @@ jobs:
         if: always()
         with:
           name: qa-agent-7-reports-${{ github.run_number }}
-          path: reports/qa10*
+          path: |
+            reports/qa10*
+            reports/screenshots/
+            reports/videos/
+            reports/evidence/
           retention-days: 30
           if-no-files-found: warn
 
@@ -820,43 +842,43 @@ jobs:
         continue-on-error: true
         with:
           name: qa-agent-1-reports-${{ github.run_number }}
-          path: reports/
+          path: reports/agent-1/
       - name: Download QA Agent 2 artifacts
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           name: qa-agent-2-reports-${{ github.run_number }}
-          path: reports/
+          path: reports/agent-2/
       - name: Download QA Agent 3 artifacts
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           name: qa-agent-3-reports-${{ github.run_number }}
-          path: reports/
+          path: reports/agent-3/
       - name: Download QA Agent 4 artifacts
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           name: qa-agent-4-reports-${{ github.run_number }}
-          path: reports/
+          path: reports/agent-4/
       - name: Download QA Agent 5 artifacts
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           name: qa-agent-5-langgraph-${{ github.run_number }}
-          path: reports/
+          path: reports/agent-5/
       - name: Download QA Agent 6 artifacts
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           name: qa-agent-6-reports-${{ github.run_number }}
-          path: reports/
+          path: reports/agent-6/
       - name: Download QA Agent 7 artifacts
         uses: actions/download-artifact@v4
         continue-on-error: true
         with:
           name: qa-agent-7-reports-${{ github.run_number }}
-          path: reports/
+          path: reports/agent-7/
       - name: Download screenshots (for embedding in master report)
         uses: actions/download-artifact@v4
         continue-on-error: true

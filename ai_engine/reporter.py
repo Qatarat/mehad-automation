@@ -182,6 +182,51 @@ ol.steps li{{margin-bottom:5px}}
 .no-shot{{background:#0d1117;border:1px dashed var(--border);border-radius:8px;
          padding:20px;text-align:center;color:var(--muted);font-size:12px}}
 
+/* ── Video PoC ── */
+.video-wrap{{margin-top:16px}}
+.video-label{{font-size:11px;font-weight:600;text-transform:uppercase;
+             letter-spacing:.6px;color:var(--muted);margin-bottom:8px;
+             display:flex;align-items:center;gap:6px}}
+.video-label::before{{content:"🎬"}}
+.poc-video{{width:100%;max-height:540px;border:1px solid var(--border);
+           border-radius:8px;background:#000}}
+.video-cta{{display:inline-block;margin-top:6px;font-size:11px;color:#58a6ff;
+           text-decoration:none}}
+.video-cta:hover{{text-decoration:underline}}
+
+/* ── Sticky back button (top of report) ── */
+.back-bar{{position:sticky;top:0;z-index:50;background:#0d1117ee;
+          border-bottom:1px solid var(--border);padding:8px 0;
+          backdrop-filter:blur(8px)}}
+.back-bar-inner{{max-width:1100px;margin:0 auto;padding:0 20px;
+                 display:flex;align-items:center;gap:14px;font-size:12px}}
+.back-link{{color:#58a6ff;text-decoration:none;display:inline-flex;
+            align-items:center;gap:6px;font-weight:600;
+            padding:6px 12px;border:1px solid var(--border);border-radius:6px;
+            background:#161b22;transition:background .15s,border-color .15s}}
+.back-link:hover{{background:#1c2333;border-color:#58a6ff}}
+.back-bar-spacer{{flex:1}}
+.back-bar-quick{{color:var(--muted);font-size:11px}}
+.back-bar-quick a{{color:#58a6ff;text-decoration:none;margin-left:8px}}
+.back-bar-quick a:hover{{text-decoration:underline}}
+
+/* ── Footer + contact card ── */
+.footer-wrap{{margin-top:60px;padding:24px 20px;border-top:1px solid var(--border);
+             text-align:center}}
+.contact-card{{display:inline-flex;flex-direction:column;align-items:center;
+              gap:6px;padding:18px 28px;background:var(--surface);
+              border:1px solid var(--border);border-radius:10px;
+              margin:14px auto 18px}}
+.contact-card .name{{font-weight:700;font-size:15px;color:var(--text)}}
+.contact-card .title{{font-size:12px;color:var(--muted)}}
+.contact-card .links{{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;
+                     justify-content:center}}
+.contact-card .links a{{color:#58a6ff;text-decoration:none;font-size:12px;
+                       padding:5px 10px;border:1px solid var(--border);
+                       border-radius:6px;background:#0d1117;
+                       transition:background .15s,border-color .15s}}
+.contact-card .links a:hover{{background:#1c2333;border-color:#58a6ff}}
+
 /* ── Error/traceback collapsible ── */
 .err-toggle{{width:100%;background:#0d1117;border:1px solid var(--border);
             border-radius:6px;padding:10px 14px;color:var(--c-critical);
@@ -333,6 +378,21 @@ tr:hover td{{background:#1c2333}}
 </head>
 <body>
 
+<!-- Sticky back-button bar — visible on all reports so users can return
+     to the dashboard regardless of which #anchor they opened. -->
+<div class="back-bar">
+  <div class="back-bar-inner">
+    <a href="index.html" class="back-link">← Back to Dashboard</a>
+    <span class="back-bar-spacer"></span>
+    <span class="back-bar-quick">
+      Jump:
+      <a href="#bugs">🐛 Bugs</a>
+      <a href="#tests">🧪 Tests</a>
+      <a href="#summary-table">📊 Summary</a>
+    </span>
+  </div>
+</div>
+
 <!-- Lightbox -->
 <div id="lb" onclick="this.classList.remove('show')">
   <img id="lb-img" src="" alt="Screenshot"/>
@@ -424,9 +484,24 @@ tr:hover td{{background:#1c2333}}
 <div class="sec-title" style="margin-top:40px">Coverage Gaps <span class="count">AI Analysis</span></div>
 {gaps_html}
 
-<!-- Footer -->
-<div style="text-align:center;color:var(--muted);font-size:12px;margin-top:60px;padding-top:20px;border-top:1px solid var(--border)">
-  Fagun Autonomous Testing &nbsp;·&nbsp; Powered by Ollama + Playwright + pytest &nbsp;·&nbsp; Zero API keys
+<!-- Footer with author/contact card -->
+<div class="footer-wrap">
+  <div style="color:var(--muted);font-size:12px;margin-bottom:6px">
+    Built by Fagun Autonomous AI Test Agent · 100% local AI · no third-party API keys
+  </div>
+  <div class="contact-card">
+    <div class="name">Mejbaur Bahar Fagun</div>
+    <div class="title">Senior Software Engineer QA (IV) · Markopolo.ai</div>
+    <div class="links">
+      <a href="mailto:r@markopolo.ai">📧 r@markopolo.ai</a>
+      <a href="https://markopolo.ai" target="_blank" rel="noopener">🌐 markopolo.ai</a>
+      <a href="https://www.linkedin.com/in/mejbaur" target="_blank" rel="noopener">💼 LinkedIn</a>
+      <a href="https://github.com/mejbaur-markopolo" target="_blank" rel="noopener">🐙 GitHub</a>
+    </div>
+  </div>
+  <div style="color:var(--muted);font-size:11px;margin-top:8px">
+    Powered by Ollama · Playwright · pytest · LangGraph
+  </div>
 </div>
 
 </div><!-- /wrap -->
@@ -598,6 +673,8 @@ def _bug_ticket(bug: dict, idx: int) -> str:
     err   = _esc(bug.get("error_message", ""))
     tb    = _esc(bug.get("traceback", ""))
     shot  = bug.get("screenshot_b64", "")
+    video = bug.get("video_path", "")  # relative path under reports/
+    tdata = bug.get("test_data", "")
     bug_id= bug.get("id", f"BUG-{idx:03d}")
     env_b = bug.get("browser", "Chromium")
     env_v = bug.get("viewport", "1280×720")
@@ -627,11 +704,11 @@ def _bug_ticket(bug: dict, idx: int) -> str:
   </div>
 </div>"""
 
-    # Screenshot / POC
+    # Screenshot PoC — annotated with red banner showing the error
     if shot:
         shot_html = f"""
 <div class="shot-wrap">
-  <div class="shot-label">Proof of Concept — Screenshot</div>
+  <div class="shot-label">Proof of Concept — Screenshot (annotated with bug)</div>
   <img class="screenshot" src="{shot}" alt="Test failure screenshot"
        onclick="openShot(this.src)" title="Click to enlarge"/>
 </div>"""
@@ -641,6 +718,33 @@ def _bug_ticket(bug: dict, idx: int) -> str:
   <div class="shot-label">Proof of Concept — Screenshot</div>
   <div class="no-shot">No screenshot captured (test may have failed before page loaded)</div>
 </div>"""
+
+    # Video PoC — Playwright recording. Helps reviewers see the exact
+    # sequence of actions that led to the failure.
+    if video:
+        video_html = f"""
+<div class="video-wrap">
+  <div class="video-label">Proof of Concept — Screen Recording</div>
+  <video class="poc-video" controls preload="metadata"
+         src="{_esc(video)}" type="video/webm">
+    Your browser does not support embedded video.
+  </video>
+  <div><a class="video-cta" href="{_esc(video)}" download>⬇ Download .webm</a></div>
+</div>"""
+    else:
+        video_html = ""
+
+    # Test data row — what data was actually used (if any)
+    if tdata:
+        td_html = f"""
+<div class="info-block analysis" style="margin-bottom:16px">
+  <div class="ib-label">🧪 Test data used</div>
+  <div style="font-family:'SF Mono',monospace;color:#a371f7;font-size:12px">
+    {_esc(tdata)}
+  </div>
+</div>"""
+    else:
+        td_html = ""
 
     # Error collapsible
     err_id = f"err-{idx}"
@@ -770,9 +874,11 @@ def _bug_ticket(bug: dict, idx: int) -> str:
   </div>
   <div class="bug-body">
     {desc_html}
+    {td_html}
     {steps_html}
     {exp_act}
     {shot_html}
+    {video_html}
     {err_section}
     {ev_html}
     <div style="margin-top:16px">{analysis_fix}</div>

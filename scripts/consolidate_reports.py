@@ -27,12 +27,16 @@ from friendly import (
 
 REPORTS_DIR = ROOT / "reports"
 
-# Screenshot index built by conftest.py — nodeid → {path, url, timestamp}
-_SHOT_INDEX: dict = {}
-_SHOT_INDEX_LOADED = False
+# Merged indexes built from EVERY artifact directory under reports/.
+# CI downloads each agent's screenshots/videos into reports/<artifact-name>/...
+# so we walk recursively for all _index.json files and merge them.
+_SHOT_INDEX:  dict = {}      # nodeid → {path, url, error, timestamp}
+_VIDEO_INDEX: dict = {}      # nodeid → relative video path
+_INDEXES_LOADED = False
 
 # Cache for {test_function_name → docstring} — built lazily on first lookup
-_DOCSTRING_CACHE: dict[str, str] | None = None
+_DOCSTRING_CACHE:  dict[str, str] | None = None
+_TESTDATA_CACHE:   dict[str, str] | None = None
 
 
 def _docstrings() -> dict[str, str]:
@@ -45,23 +49,180 @@ def _docstrings() -> dict[str, str]:
     return _DOCSTRING_CACHE
 
 
-def _load_shot_index() -> None:
-    global _SHOT_INDEX, _SHOT_INDEX_LOADED
-    if _SHOT_INDEX_LOADED:
-        return
-    _SHOT_INDEX_LOADED = True
-    idx_path = REPORTS_DIR / "screenshots" / "_index.json"
-    if idx_path.exists():
+def _testdata() -> dict[str, str]:
+    """Lazy: extract per-test data from each test function's source.
+
+    Looks for:
+      • `# TEST_DATA: <values>` comments
+      • Literal strings/numbers passed to `.fill(...)`, `.type(...)`,
+        `.set_input_files(...)`, etc.
+      • References to known fixtures (TEST_PHONE, TEST_OTP, etc.)
+    Returns {function_name: human-readable test data string}."""
+    global _TESTDATA_CACHE
+    if _TESTDATA_CACHE is not None:
+        return _TESTDATA_CACHE
+
+    import ast as _ast
+
+    out: dict[str, str] = {}
+    test_files = list((ROOT / "tests").glob("test_*.py"))
+    for tf in test_files:
         try:
-            _SHOT_INDEX = json.loads(idx_path.read_text(encoding="utf-8"))
+            src = tf.read_text(encoding="utf-8")
+            tree = _ast.parse(src)
         except Exception:
-            pass
+            continue
+        src_lines = src.splitlines()
+
+        for node in _ast.walk(tree):
+            if not isinstance(node, (_ast.FunctionDef, _ast.AsyncFunctionDef)):
+                continue
+            if not node.name.startswith("test_"):
+                continue
+
+            data_bits: list[str] = []
+
+            # 1. Look for `# TEST_DATA: ...` comment in the function body
+            try:
+                start = node.lineno
+                end   = (getattr(node, "end_lineno", None) or
+                         start + 30)
+                for ln in src_lines[start - 1: min(end, len(src_lines))]:
+                    if "# TEST_DATA:" in ln:
+                        bit = ln.split("# TEST_DATA:", 1)[-1].strip()
+                        if bit:
+                            data_bits.append(bit)
+                            break
+            except Exception:
+                pass
+
+            # 2. Walk the function body for `.fill(...)` / `.type(...)` calls
+            seen: set[str] = set()
+            for sub in _ast.walk(node):
+                if not isinstance(sub, _ast.Call):
+                    continue
+                method = getattr(sub.func, "attr", "")
+                if method not in ("fill", "type", "press", "select_option",
+                                   "set_input_files", "check"):
+                    continue
+                if not sub.args:
+                    continue
+                arg = sub.args[0]
+                if isinstance(arg, _ast.Constant) and isinstance(arg.value, (str, int, float)):
+                    val = repr(arg.value).strip("'\"")
+                    if val and val not in seen and len(val) <= 80:
+                        seen.add(val)
+                        data_bits.append(f'{method}("{val}")')
+                elif isinstance(arg, _ast.Name):
+                    name = arg.id
+                    if name in seen: continue
+                    seen.add(name)
+                    data_bits.append(f"{method}({name})")
+                elif isinstance(arg, _ast.JoinedStr):
+                    # f-string — give a hint
+                    data_bits.append(f"{method}(<f-string>)")
+
+            # 3. References to known test-data constants used in body
+            CONSTS = ("TEST_PHONE", "TEST_OTP", "TEST_EMAIL", "TEST_PASSWORD",
+                       "TEST_USER_NAME", "TEST_COUNTRY_CODE", "BASE_URL")
+            for sub in _ast.walk(node):
+                if isinstance(sub, _ast.Name) and sub.id in CONSTS:
+                    if sub.id not in seen:
+                        seen.add(sub.id)
+                        data_bits.append(sub.id)
+
+            if data_bits:
+                # Cap total length
+                joined = " · ".join(data_bits[:6])
+                if len(joined) > 240:
+                    joined = joined[:237] + "..."
+                out[node.name] = joined
+
+    _TESTDATA_CACHE = out
+    return _TESTDATA_CACHE
 
 
-def _screenshot_b64(nodeid: str, fn_name: str) -> str:
-    """Return base64 data-URI for the failure screenshot, or '' if not found."""
-    _load_shot_index()
-    # Try exact nodeid match first, then fn_name substring match
+def _load_indexes() -> None:
+    """Walk REPORTS_DIR for all `_index.json` files (screenshots + videos)
+    produced by every CI runner and merge them into single in-memory
+    indexes. This is what makes screenshots actually show up in the
+    consolidated report — each agent's screenshots are in different
+    extracted artifact subdirs."""
+    global _INDEXES_LOADED
+    if _INDEXES_LOADED:
+        return
+    _INDEXES_LOADED = True
+
+    # screenshots/_index.json (potentially nested in artifact subdirs)
+    for idx_path in REPORTS_DIR.rglob("screenshots/_index.json"):
+        try:
+            data = json.loads(idx_path.read_text(encoding="utf-8"))
+            for nodeid, entry in data.items():
+                # Resolve the recorded relative path against multiple roots
+                # so it works whether the artifact extracted at REPORTS_DIR
+                # or at REPORTS_DIR/qa-agent-N/.
+                rel = entry.get("path", "")
+                resolved = _resolve_artifact_path(rel, idx_path.parent)
+                if resolved is not None:
+                    entry = dict(entry)
+                    entry["_resolved_path"] = resolved
+                _SHOT_INDEX.setdefault(nodeid, entry)
+        except Exception as e:
+            print(f"  [SHOT-INDEX] {idx_path}: {e}")
+
+    # videos/_index.json
+    for idx_path in REPORTS_DIR.rglob("videos/_index.json"):
+        try:
+            data = json.loads(idx_path.read_text(encoding="utf-8"))
+            for nodeid, rel in data.items():
+                if not isinstance(rel, str):
+                    continue
+                resolved = _resolve_artifact_path(rel, idx_path.parent)
+                if resolved is not None:
+                    _VIDEO_INDEX.setdefault(nodeid, str(resolved))
+        except Exception as e:
+            print(f"  [VIDEO-INDEX] {idx_path}: {e}")
+
+    print(f"  [INDEX] Loaded {len(_SHOT_INDEX)} screenshots, "
+          f"{len(_VIDEO_INDEX)} videos from disk", flush=True)
+
+
+def _resolve_artifact_path(rel: str, near_dir: Path) -> Path | None:
+    """The path stored in _index.json was relative to the runner's repo root.
+    On the consolidate runner the file might live under a different artifact
+    subdir. Try several plausible locations."""
+    if not rel:
+        return None
+    rel_path = Path(rel)
+    # Try paths in order: near the index file, then various roots
+    candidates = [
+        near_dir / Path(rel).name,                  # same dir as _index.json
+        near_dir.parent / Path(rel).name,           # parent dir
+        ROOT / rel,                                  # original relative path
+        REPORTS_DIR / Path(rel).name,                # reports/<file>
+        REPORTS_DIR / "screenshots" / Path(rel).name,
+        REPORTS_DIR / "videos" / Path(rel).name,
+        rel_path if rel_path.is_absolute() else None,
+    ]
+    for c in candidates:
+        if c is None: continue
+        try:
+            if c.exists() and c.is_file():
+                return c.resolve()
+        except (OSError, ValueError):
+            continue
+    # Last resort: rglob through reports for any matching basename
+    target_name = Path(rel).name
+    for found in REPORTS_DIR.rglob(target_name):
+        if found.is_file():
+            return found.resolve()
+    return None
+
+
+def _screenshot_b64(nodeid: str, fn_name: str) -> tuple[str, str]:
+    """Return (base64 data-URI, error_text) for the failure screenshot,
+    or ('','') if not found. Error text comes from conftest annotation."""
+    _load_indexes()
     entry = _SHOT_INDEX.get(nodeid)
     if not entry:
         for key, val in _SHOT_INDEX.items():
@@ -69,18 +230,47 @@ def _screenshot_b64(nodeid: str, fn_name: str) -> str:
                 entry = val
                 break
     if not entry:
-        return ""
-    png_path = Path(entry.get("path", ""))
-    if not png_path.exists():
-        # Path might be relative to project root
-        png_path = ROOT / png_path
-    if not png_path.exists():
-        return ""
+        return "", ""
+    png_path: Path | None = entry.get("_resolved_path")
+    if not isinstance(png_path, Path) or not png_path.exists():
+        png_path = _resolve_artifact_path(entry.get("path", ""), REPORTS_DIR)
+    if not png_path or not png_path.exists():
+        return "", entry.get("error", "")
     try:
         data = base64.b64encode(png_path.read_bytes()).decode()
-        return f"data:image/png;base64,{data}"
+        return f"data:image/png;base64,{data}", entry.get("error", "")
+    except Exception:
+        return "", entry.get("error", "")
+
+
+def _video_path(nodeid: str, fn_name: str) -> str:
+    """Return a RELATIVE path to the failure video usable in the HTML
+    report (the video file gets copied into the report's directory by the
+    site builder). Returns '' if no video was captured."""
+    _load_indexes()
+    target = _VIDEO_INDEX.get(nodeid)
+    if not target:
+        for key, val in _VIDEO_INDEX.items():
+            if fn_name in key:
+                target = val; break
+    if not target:
+        return ""
+    p = Path(target)
+    if not p.exists():
+        return ""
+    # Copy the video into reports/videos-embed/ so the report can reference it
+    embed_dir = REPORTS_DIR / "videos-embed"
+    embed_dir.mkdir(exist_ok=True)
+    dest_name = f"{re.sub(r'[^A-Za-z0-9_.-]', '_', fn_name)[:80]}.webm"
+    dest = embed_dir / dest_name
+    try:
+        if not dest.exists():
+            import shutil as _sh
+            _sh.copy(p, dest)
     except Exception:
         return ""
+    # Return path relative to reports/ which is where the HTML lives
+    return f"videos-embed/{dest_name}"
 
 
 def _load(path: Path) -> dict:
@@ -112,6 +302,7 @@ def _bugs_from_pytest_json(data: dict, prefix: str, base_url: str) -> list:
     and to build a step-by-step reproduction guide for non-engineers."""
     bugs = []
     docstrings = _docstrings()
+    testdata   = _testdata()
     for t in data.get("tests", []):
         if t.get("outcome") not in ("failed", "error"):
             continue
@@ -126,6 +317,14 @@ def _bugs_from_pytest_json(data: dict, prefix: str, base_url: str) -> list:
 
         ds       = docstrings.get(fn_name, "")
         param    = parse_parametrize_id(nodeid)
+        td_src   = testdata.get(fn_name, "")
+        # Compose a single test-data string from parametrize values + source
+        if param and td_src:
+            td_combined = f"params: [{param}] · src: {td_src}"
+        elif param:
+            td_combined = f"params: [{param}]"
+        else:
+            td_combined = td_src
         sev, pri = _infer_severity(nodeid)
 
         # Friendly fields — these are what non-engineers actually read
@@ -135,6 +334,10 @@ def _bugs_from_pytest_json(data: dict, prefix: str, base_url: str) -> list:
         f_exp  = friendly_expected(fn_name, ds)
         f_act  = friendly_actual(crash_msg or short, longrepr)
         f_steps = friendly_steps(fn_name, ds, base_url, param)
+
+        # PoC capture: screenshot (with banner) + video
+        shot_b64, captured_err = _screenshot_b64(nodeid, fn_name)
+        video_rel = _video_path(nodeid, fn_name)
 
         bugs.append({
             "id":            f"{prefix}-{len(bugs)+1:03d}",
@@ -147,13 +350,14 @@ def _bugs_from_pytest_json(data: dict, prefix: str, base_url: str) -> list:
             "expected":      f_exp,
             "actual":        f_act,
             "steps":         f_steps,
-            "test_data":     param,
+            "test_data":     td_combined,
             "docstring":     ds,
             "duration":      f"{duration:.2f}s" if duration else "",
             "error_message": short[:500],
             "traceback":     longrepr[:2000],
             "timestamp":     datetime.now().isoformat(),
-            "screenshot_b64": _screenshot_b64(nodeid, fn_name),
+            "screenshot_b64": shot_b64,
+            "video_path":    video_rel,    # relative path under reports/
             "browser":       "Chromium",
             "viewport":      "1280x720",
             "env":           "Staging",
@@ -168,6 +372,7 @@ def _passed_from_pytest_json(data: dict) -> list:
     group so users can see exactly which test cases ran and what data
     each one used."""
     docstrings = _docstrings()
+    testdata   = _testdata()
     out = []
     for t in data.get("tests", []):
         outcome = t.get("outcome", "")
@@ -176,7 +381,16 @@ def _passed_from_pytest_json(data: dict) -> list:
         nodeid = t.get("nodeid", "")
         call   = t.get("call") or {}
         dur    = call.get("duration", 0.0) if isinstance(call, dict) else 0.0
-        out.append(build_passed_test_entry(nodeid, dur, docstrings))
+        rec = build_passed_test_entry(nodeid, dur, docstrings)
+        # Augment params with source-extracted test data so the report
+        # shows real values used (TEST_PHONE, fill("..."), etc.)
+        fn_name = nodeid.split("::")[-1].split("[")[0]
+        td_src  = testdata.get(fn_name, "")
+        if td_src and not rec.get("params"):
+            rec["params"] = td_src
+        elif td_src and rec.get("params"):
+            rec["params"] = f"[{rec['params']}] · {td_src}"
+        out.append(rec)
     return out
 
 
@@ -255,7 +469,13 @@ def build_consolidated_results(base_url: str) -> dict:
             REPORTS_DIR / f"result_{file_stem}.json",
             REPORTS_DIR / f"{file_stem}.json",
         ]
-        # Also search in downloaded artifact directories
+        # Also search in nested artifact directories (each QA agent's
+        # artifact extracts to reports/agent-N/ to avoid screenshot collisions).
+        for stem in (f"{file_stem}_results.json",
+                     f"result_{file_stem}.json",
+                     f"{file_stem}.json"):
+            candidates.extend(REPORTS_DIR.rglob(stem))
+        # Legacy artifact-dir layout (older runs)
         for artifact_dir in REPORTS_DIR.glob("qa_agent_*"):
             if artifact_dir.is_dir():
                 candidates += list(artifact_dir.glob("*.json"))

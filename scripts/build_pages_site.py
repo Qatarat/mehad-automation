@@ -324,6 +324,18 @@ def main() -> None:
     else:
         print("  ⚠️  reports/bug-report.html not found — site will have no master report")
 
+    # 1b. Copy the embedded-videos directory so <video src="videos-embed/..."> works.
+    videos_embed = REPORTS_DIR / "videos-embed"
+    if videos_embed.exists() and any(videos_embed.iterdir()):
+        dest_videos = SITE_DIR / "videos-embed"
+        if dest_videos.exists():
+            shutil.rmtree(dest_videos)
+        shutil.copytree(videos_embed, dest_videos)
+        # Also copy into archived per-run folder so historical reports keep their videos
+        shutil.copytree(videos_embed, archive / "videos-embed")
+        n_videos = sum(1 for _ in dest_videos.glob("*.webm"))
+        print(f"  ✅ videos-embed/ copied ({n_videos} video(s))")
+
     # 2. Per-agent reports under /agents/ (and archived copy). Prefer the
     #    custom Fagun-styled `agent-<src>.html` over the default pytest-html
     #    output. Fall back to pytest-html only if no custom report exists.
