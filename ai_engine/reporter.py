@@ -139,6 +139,24 @@ pre{{background:#0d1117;border:1px solid var(--border);border-radius:6px;
               padding:8px 12px;background:#0d1117;border-radius:6px;
               border-left:3px solid #a371f7}}
 
+/* ── Cross-spec inconsistency section ──────────────────────────────────── */
+.ci-summary{{margin:24px 0 16px}}
+.ci-headline{{font-size:13px;color:var(--muted);margin-bottom:14px}}
+.ci-headline strong{{color:var(--c-medium)}}
+.ci-list{{display:flex;flex-direction:column;gap:10px}}
+.ci-row{{background:var(--surface);border:1px solid var(--border);
+        border-radius:8px;padding:12px 16px}}
+.ci-cat{{font-weight:600;color:var(--text);font-size:13px;margin-bottom:8px}}
+.ci-table{{width:100%;border-collapse:collapse;font-size:12px}}
+.ci-table th{{background:#0d1117;color:var(--muted);font-size:10px;
+             text-transform:uppercase;letter-spacing:.5px;
+             padding:6px 12px;text-align:left;border:1px solid var(--border)}}
+.ci-table td{{padding:6px 12px;border:1px solid var(--border)}}
+.ci-value code{{color:var(--c-medium);font-weight:600}}
+.ci-spec-chip{{display:inline-block;font-size:10px;font-family:'SF Mono',monospace;
+              background:#0d1117;color:#a371f7;border:1px solid var(--border);
+              border-radius:4px;padding:2px 6px;margin:2px 3px}}
+
 /* ── Section titles ── */
 .sec-title{{font-size:16px;font-weight:600;border-bottom:1px solid var(--border);
            padding-bottom:10px;margin:40px 0 20px}}
@@ -461,6 +479,9 @@ tr:hover td{{background:#1c2333}}
 <!-- Cluster summary — groups bugs by root cause (e.g. 6 missing-headers
      finding share '1 root cause: security headers') -->
 {cluster_summary}
+
+<!-- Extra section: cross-spec inconsistencies, etc. -->
+{extra_section_html}
 
 <!-- Bug Tickets -->
 <div class="sec-title" id="bugs">
@@ -1296,7 +1317,8 @@ def _build_cluster_summary(all_bugs: list[dict]) -> str:
 
 
 def generate_report(all_results: dict, base_url: str, model: str,
-                    output_filename: str = "bug-report.html") -> Path:
+                    output_filename: str = "bug-report.html",
+                    extra_section_html: str = "") -> Path:
     all_bugs = [b for r in all_results.values() for b in r.get("bugs", [])]
 
     total_passed = sum(r.get("passed", 0) for r in all_results.values())
@@ -1343,6 +1365,7 @@ def generate_report(all_results: dict, base_url: str, model: str,
         total_tests  = total_tests,
         total_bugs       = len(all_bugs),
         cluster_summary  = cluster_summary,
+        extra_section_html = extra_section_html,
         bug_tickets_html = bug_tickets_html,
         results_rows     = results_rows,
         spec_details_html= spec_details_html,

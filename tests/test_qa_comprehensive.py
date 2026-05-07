@@ -3442,3 +3442,57 @@ class TestQA20PropertyBasedFuzzing:
         c = _qa20_gen_inputs(n=20, seed=100)
         assert a == b, "verification failed — fuzzer not deterministic"
         assert a != c, "verification failed — different seeds produced same output"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Phase 4.6 — CROSS-SPEC INCONSISTENCY DETECTION
+# Verifications for scripts/spec_consistency.py
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestPhase46SpecInconsistencyVerification:
+    """System self-tests for the cross-spec contradiction detector."""
+
+    @pytest.mark.system_selftest
+    def test_phase46_verification_detects_synthetic_contradiction(self, tmp_path: Path):
+        """Two synthetic spec files with contradicting values must be flagged."""
+        import sys as _sys
+        _sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+        from spec_consistency import detect_inconsistencies
+
+        (tmp_path / "spec_a.md").write_text(
+            "# Spec A\n* Number max length: 10\n* OTP max length: 6\n"
+        )
+        (tmp_path / "spec_b.md").write_text(
+            "# Spec B\n* Number max length: 12\n* OTP max length: 6\n"
+        )
+        incs = detect_inconsistencies(tmp_path)
+        # phone_max_length differs (10 vs 12) → should be flagged
+        # OTP max length matches → should NOT be flagged
+        cats = [i.category_key for i in incs]
+        assert "phone_max_length" in cats, (
+            f"verification failed — synthetic phone-length contradiction "
+            f"not detected. found categories: {cats}"
+        )
+        assert "otp_max_length" not in cats, (
+            f"verification failed — non-contradicting OTP length flagged: {cats}"
+        )
+
+    @pytest.mark.system_selftest
+    def test_phase46_verification_html_renders(self):
+        """The render_html_section helper must produce non-empty HTML for
+        a non-empty inconsistency list, and empty string for an empty list."""
+        import sys as _sys
+        _sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
+        from spec_consistency import Inconsistency, render_html_section
+
+        empty = render_html_section([])
+        assert empty == "", "verification failed — empty list should render empty string"
+
+        incs = [Inconsistency(
+            category_key="phone_max_length",
+            values={10: ["spec_a"], 12: ["spec_b"]},
+        )]
+        html = render_html_section(incs)
+        assert "Spec Inconsistencies" in html
+        assert "spec_a" in html and "spec_b" in html
+        assert "10" in html and "12" in html

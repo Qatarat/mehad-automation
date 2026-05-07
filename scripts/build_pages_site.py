@@ -142,6 +142,153 @@ def _history_table(history: list[tuple[int, Path]]) -> str:
     )
 
 
+def _load_trends() -> dict:
+    """Load reports/trends.json — populated by consolidate_reports.py."""
+    p = REPORTS_DIR / "trends.json"
+    if not p.exists():
+        return {}
+    try:
+        import json as _j
+        return _j.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _detect_regressions(runs: list[dict]) -> list[str]:
+    """Compare the most recent run against the previous one. Returns a
+    list of human-readable regression messages."""
+    if len(runs) < 2:
+        return []
+    cur = runs[-1]; prev = runs[-2]
+    alerts: list[str] = []
+
+    def _pct(s: str) -> float | None:
+        if not s or not s.endswith("%"):
+            return None
+        try:
+            return float(s.rstrip("%"))
+        except ValueError:
+            return None
+
+    cur_rate, prev_rate = _pct(cur.get("pass_rate", "")), _pct(prev.get("pass_rate", ""))
+    if cur_rate is not None and prev_rate is not None:
+        delta = cur_rate - prev_rate
+        if delta <= -2.0:
+            alerts.append(
+                f"⚠️ Pass rate dropped {abs(delta):.1f}% "
+                f"({prev_rate:.1f}% → {cur_rate:.1f}%) since run #{prev['run_number']}"
+            )
+    cur_bugs = cur.get("bugs", 0)
+    prev_bugs = prev.get("bugs", 0)
+    if cur_bugs > prev_bugs + 2:
+        alerts.append(
+            f"⚠️ Bug count jumped {prev_bugs} → {cur_bugs} "
+            f"(+{cur_bugs - prev_bugs} new) since run #{prev['run_number']}"
+        )
+    cur_failed = cur.get("failed", 0)
+    prev_failed = prev.get("failed", 0)
+    if cur_failed > prev_failed + 3:
+        alerts.append(
+            f"⚠️ Failed-test count jumped {prev_failed} → {cur_failed} "
+            f"(+{cur_failed - prev_failed}) since run #{prev['run_number']}"
+        )
+    return alerts
+
+
+def _trend_chart_html(trends: dict) -> str:
+    """SVG sparkline + summary card. Pure-HTML so no external chart library
+    needed. Shows last 30 runs of pass-rate + bug-count."""
+    runs = trends.get("runs", [])[-30:]
+    if not runs:
+        return ""
+
+    # Compute pass rate per run as float
+    points = []
+    for r in runs:
+        rate = r.get("pass_rate", "")
+        if not (isinstance(rate, str) and rate.endswith("%")):
+            continue
+        try:
+            v = float(rate.rstrip("%"))
+        except ValueError:
+            continue
+        points.append((r["run_number"], v, r.get("failed", 0), r.get("bugs", 0)))
+
+    if not points:
+        return ""
+
+    # SVG sparkline for pass rate
+    w, h, pad = 720, 110, 24
+    inner_w = w - 2 * pad
+    inner_h = h - 2 * pad
+    n = len(points)
+    if n == 1:
+        path_d = f"M {pad} {pad + inner_h / 2} L {pad + inner_w} {pad + inner_h / 2}"
+        circles = f'<circle cx="{pad + inner_w/2}" cy="{pad + inner_h/2}" r="4" fill="#3fb950"/>'
+    else:
+        coords = []
+        for i, (run_num, rate, failed, bugs) in enumerate(points):
+            x = pad + (inner_w * i / (n - 1))
+            # Pass rate 0..100 → y inner_h..0
+            y = pad + (inner_h * (1 - rate / 100.0))
+            coords.append((x, y, run_num, rate, failed, bugs))
+        path_d = "M " + " L ".join(f"{x:.1f} {y:.1f}" for x, y, *_ in coords)
+        circles = "".join(
+            f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3" '
+            f'fill="{"#3fb950" if r >= 95 else "#d29922" if r >= 85 else "#f85149"}">'
+            f'<title>Run #{rn}: {r:.1f}% pass · {f} failed · {b} bugs</title>'
+            f'</circle>'
+            for x, y, rn, r, f, b in coords
+        )
+
+    last = points[-1]
+    last_rate = last[1]
+    rate_color = "#3fb950" if last_rate >= 95 else "#d29922" if last_rate >= 85 else "#f85149"
+
+    alerts = _detect_regressions(runs)
+    alerts_html = ""
+    if alerts:
+        items = "".join(f'<li>{a}</li>' for a in alerts)
+        alerts_html = f"""
+<div class="trend-alerts">
+  <div class="trend-alerts-title">📉 Regression alerts</div>
+  <ul>{items}</ul>
+</div>"""
+
+    return f"""
+<h2>📊 Trend ({len(points)} run(s))</h2>
+<div class="trend-card">
+  <div class="trend-summary">
+    <div>
+      <div class="trend-label">Latest pass rate</div>
+      <div class="trend-value" style="color:{rate_color}">{last_rate:.1f}%</div>
+    </div>
+    <div>
+      <div class="trend-label">Latest run</div>
+      <div class="trend-value">#{last[0]}</div>
+    </div>
+    <div>
+      <div class="trend-label">Total failures</div>
+      <div class="trend-value">{last[2]}</div>
+    </div>
+    <div>
+      <div class="trend-label">Bug tickets</div>
+      <div class="trend-value">{last[3]}</div>
+    </div>
+  </div>
+  <svg viewBox="0 0 {w} {h}" class="trend-svg" preserveAspectRatio="none">
+    <line x1="{pad}" y1="{pad + inner_h * 0.05}" x2="{pad + inner_w}" y2="{pad + inner_h * 0.05}" stroke="#30363d" stroke-dasharray="2,2"/>
+    <line x1="{pad}" y1="{pad + inner_h * 0.5}"  x2="{pad + inner_w}" y2="{pad + inner_h * 0.5}" stroke="#30363d" stroke-dasharray="2,2"/>
+    <text x="{pad - 4}" y="{pad + inner_h * 0.05 + 4}" fill="#8b949e" font-size="10" text-anchor="end">100%</text>
+    <text x="{pad - 4}" y="{pad + inner_h * 0.5 + 4}" fill="#8b949e" font-size="10" text-anchor="end">50%</text>
+    <text x="{pad - 4}" y="{pad + inner_h + 2}" fill="#8b949e" font-size="10" text-anchor="end">0%</text>
+    <path d="{path_d}" fill="none" stroke="#58a6ff" stroke-width="2"/>
+    {circles}
+  </svg>
+  {alerts_html}
+</div>"""
+
+
 def _build_index_html(summary: dict, history: list[tuple[int, Path]]) -> str:
     p   = summary.get("total_passed", 0)
     f   = summary.get("total_failed", 0)
@@ -168,6 +315,7 @@ def _build_index_html(summary: dict, history: list[tuple[int, Path]]) -> str:
                          for src, pub, lbl, em in AGENT_REPORTS)
 
     history_html = _history_table(history)
+    trend_html   = _trend_chart_html(_load_trends())
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -263,6 +411,23 @@ def _build_index_html(summary: dict, history: list[tuple[int, Path]]) -> str:
   .history-table a:hover {{ text-decoration:underline }}
   .footer {{ margin-top:44px; padding:20px; text-align:center;
              color:#8b949e; font-size:12px; border-top:1px solid #30363d }}
+  /* Trend chart */
+  .trend-card {{ background:#161b22; border:1px solid #30363d; border-radius:8px;
+                padding:18px 22px; margin:24px 0 }}
+  .trend-summary {{ display:grid;
+                   grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
+                   gap:16px; margin-bottom:14px }}
+  .trend-label {{ font-size:11px; color:#8b949e; text-transform:uppercase;
+                 letter-spacing:.5px }}
+  .trend-value {{ font-size:24px; font-weight:700; margin-top:2px }}
+  .trend-svg   {{ width:100%; height:120px; display:block }}
+  .trend-alerts{{ margin-top:14px; padding:12px 16px;
+                 background:#2d1b1b; border-left:3px solid #f85149;
+                 border-radius:6px }}
+  .trend-alerts-title {{ font-weight:700; color:#f85149; margin-bottom:6px;
+                        font-size:13px }}
+  .trend-alerts ul {{ margin:0; padding-left:18px; color:#e6edf3; font-size:12px }}
+  .trend-alerts li {{ margin:3px 0 }}
 </style>
 </head>
 <body>
@@ -289,6 +454,8 @@ def _build_index_html(summary: dict, history: list[tuple[int, Path]]) -> str:
     📊 View the full master bug report →
     <div class="cta-sub">Every test, every bug, with screenshots and friendly explanations</div>
   </a>
+
+  {trend_html}
 
   <h2>📂 Per-Agent Reports</h2>
   <p style="color:#8b949e;font-size:13px;margin:0 0 16px">

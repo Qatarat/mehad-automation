@@ -28,6 +28,7 @@ from bug_clustering import (
     cluster_bugs, compute_fingerprint, compute_category_title,
     load_trends, update_trends, fingerprint_recurrence_count,
 )
+from spec_consistency import detect_inconsistencies, render_html_section
 
 REPORTS_DIR = ROOT / "reports"
 
@@ -358,6 +359,9 @@ SYSTEM_SELFTEST_NAMES = {
     # Phase 4.3 — fuzzing verifications
     "test_phase4_verification_fuzzer_generates_diverse_inputs",
     "test_phase4_verification_fuzzer_deterministic",
+    # Phase 4.6 — spec consistency verifications
+    "test_phase46_verification_detects_synthetic_contradiction",
+    "test_phase46_verification_html_renders",
 }
 
 
@@ -722,9 +726,24 @@ def main():
     (REPORTS_DIR / "summary.json").write_text(
         json.dumps(merged_summary, indent=2), encoding="utf-8")
 
+    # ── Cross-spec inconsistency detection (Phase 4.6) ──────────────────
+    # Find places where two specs assert contradictory requirements about
+    # the same thing. Produced HTML is injected into the master report.
+    spec_inconsistencies = detect_inconsistencies("specs")
+    if spec_inconsistencies:
+        print(f"[CONSOLIDATE] {len(spec_inconsistencies)} spec inconsistency "
+              f"cluster(s) detected:")
+        for inc in spec_inconsistencies:
+            values = list(inc.values.keys())
+            print(f"  • {inc.category_key}: {values}")
+    else:
+        print("[CONSOLIDATE] no cross-spec contradictions found")
+    inconsistencies_html = render_html_section(spec_inconsistencies)
+
     # Generate the consolidated HTML bug report (full master report)
     from ai_engine.reporter import generate_report
-    out = generate_report(all_results, base_url, model)
+    out = generate_report(all_results, base_url, model,
+                          extra_section_html=inconsistencies_html)
     print(f"[CONSOLIDATE] ✅ Master report → {out}")
     print(f"[CONSOLIDATE] ✅ Summary       → {cons_path}")
 
