@@ -12,22 +12,33 @@ A self-writing, self-healing QA automation system that:
 
 1. **Reads** your Markdown spec files (written by a human QA)
 2. **Compiles** them into deterministic JSON (no AI guessing structure)
-3. **Generates** Playwright tests across all **22 testing types**
+3. **Generates** Playwright tests across **24 test types** — ≥330 runtime tests per spec
 4. **Validates** the generated code before execution (AST gate)
 5. **Runs** tests against your staging environment
-6. **Heals** failures automatically (3 rounds of AI self-fix)
-7. **Reports** a professional HTML bug report with POC screenshots
-8. **Learns** from failures via persistent memory between runs
-9. **Browses** autonomously via [browser-use](https://github.com/browser-use/browser-use) + local Ollama (no API key)
+6. **Heals** failures with a **surgical selector self-fix** — extracts the broken locator, asks AI for one replacement, persists via `memory.update_selector` so the fix survives across runs (full-file regen as fallback)
+7. **Caches** generated test code by `sha256(spec_md + base_url)` — unchanged specs reuse last run's tests, persisted to gh-pages so stateless CI runners benefit
+8. **Detects multiple languages** from each spec md (`/en`, `/ar`, …) and runs the suite per locale (page loads, `<html lang>`, `dir="rtl"` enforcement)
+9. **Walks every spec URL** autonomously via QA-19 (deterministic walk + optional [browser-use](https://github.com/browser-use/browser-use) + Ollama)
+10. **Reports** a professional HTML report with POC screenshots, annotated failure videos (.webm), live history and trend charts on GitHub Pages
 
 ```
-specs/*.md → Spec Compiler → JSON → AI → 22 Test Types → Validate → Execute
-           → Self-Heal → Bug Tickets (with POC) → Gap Analysis → HTML Report
-           ↑
-       browser-use (optional) — autonomously discovers selectors + explores pages
+specs/*.md ─► Spec Compiler ─► JSON ─► AI ─► 24 Test Types ─► AST Validate ─► Execute
+                                       │                                        │
+                                       │   ◄── cache lookup (sha256)            ▼
+                                       │                                  Surgical Self-Heal
+                                       └── Anti-Hallucination Guard       (selector fix → memory)
+                                              "use ONLY spec fields"             │
+                                                                                 ▼
+       browser-use (optional, QA-19)  ────────►  Autonomous Walk ─►  Bug Tickets (POC + video)
+       walks every spec URL +                                              │
+       4 hand-picked URLs                                                  ▼
+                                                                  HTML Report + Trend Charts
+                                                                          │
+                                                                          ▼
+                                                              GitHub Pages (live, public)
 ```
 
-Push a change → GitHub Actions runs the full pipeline automatically.
+Push a change → GitHub Actions runs **18 parallel QA agent jobs** + AI Test Agent + consolidate-and-publish to GitHub Pages.
 
 ---
 
@@ -36,27 +47,41 @@ Push a change → GitHub Actions runs the full pipeline automatically.
 ```
 your-page.md
    ↓
-spec_compiler.py  ← converts MD to structured JSON (deterministic, no AI)
+spec_parser.py    ← extracts URL, languages, flows, edge cases, validation rules,
+                    test data — all deterministic, no AI
    ↓
-your-page.spec.json  ← selector map + flows + edge cases + test data
+spec_compiler.py  ← MD → structured JSON (UI element selector map)
    ↓
-test_generator.py  ← 22 test types, real test data injected from spec
+your-page.spec.json
    ↓
-test_validator.py  ← AST gate (blocks syntax errors, missing assertions)
+test_memory.py    ← cache lookup: sha256(spec_md + base_url)
+                    cache HIT  → reuse last run's tests, skip AI
+                    cache MISS → continue to generation ↓
    ↓
-pytest execution   ← conftest.py captures network + console + performance
+test_generator.py ← 24 test types — real test data injected
+                    anti-hallucination guard: "use ONLY spec fields"
+                    parametrize-heavy: ≥330 runtime tests / spec
    ↓
-memory.py          ← records failures, persists selector fixes between runs
+test_validator.py ← AST gate (blocks syntax errors, missing assertions)
    ↓
-self-heal loop     ← AI rewrites failing tests (max 3 rounds)
+pytest execution  ← conftest.py captures network + console + performance + video
+                    HEADED=1 opens a real browser window so you watch it run
    ↓
-bug_builder.py     ← per-failure AI bug tickets with POC screenshots
+self-heal loop    ← (a) Surgical: extract failing selector → AI suggests one
+                        replacement → memory.update_selector (persists)
+                    (b) Full-file regen — fallback if surgical fails
+                    Max 3 rounds.
    ↓
-gap_checker.py     ← coverage gap analysis against spec requirements
+memory.py         ← records failures, persists selector fixes across runs
    ↓
-reporter.py        ← full HTML report (screenshots, network logs, evidence)
+bug_builder.py    ← per-failure AI bug tickets with POC screenshots + .webm video
    ↓
-generate_ci_summary.py  ← GitHub Step Summary: test data per type, pass/fail per test
+gap_checker.py    ← coverage gap analysis against spec requirements
+   ↓
+reporter.py       ← master HTML report (dark theme, click-to-expand, filters)
+   ↓
+build_pages_site.py ← consolidates 18 agents → publishes to gh-pages
+                       index + history table + trend chart + per-agent reports
 ```
 
 ### Old vs New
@@ -65,13 +90,17 @@ generate_ci_summary.py  ← GitHub Step Summary: test data per type, pass/fail p
 |---------------------------------|-------------------------------------------------|
 | AI interprets raw Markdown      | Compiler extracts structure first               |
 | AI guesses selectors            | Selector map built from UI element table        |
+| AI invents fields not in spec   | Anti-hallucination guard on every prompt        |
 | Same spec → different tests     | Same spec → same JSON → deterministic tests     |
-| One giant AI prompt             | 22 focused prompts, real test data injected     |
+| One giant AI prompt             | 24 focused prompts, real test data injected     |
 | No validation before execution  | AST validator blocks broken code                |
-| Starts fresh every run          | Memory persists fixes between runs              |
+| Starts fresh every run          | Persistent memory + sha256 test cache (gh-pages backed) |
 | 5-model fallback chain          | 14-model fallback chain (all free/open-source)  |
+| Full-file regen on every fail   | Surgical selector self-heal first, full regen as fallback |
 | `assert page.url` only          | Real fill + click + assert using compiled selectors |
 | CI shows pass/fail only         | CI shows per-type test data, failure messages   |
+| One language only               | Multi-language detection per spec (en, ar, …)   |
+| Single-runner CI                | 18 parallel QA agent jobs + AI agent + consolidate + Pages |
 
 ---
 
@@ -203,36 +232,43 @@ Note: browser-use needs a larger model (7b+) which isn't pulled by default in CI
 
 ---
 
-## 22 Test Types
+## Test Types — ≥330 runtime tests per spec
 
-| # | Type | What It Tests |
-|---|------|---------------|
-| 1 | **Smoke** | 4 critical-path checks in under 60s each |
-| 2 | **Functional** | Every user flow defined in the spec |
-| 3 | **Validation** | Form field rules (valid/invalid inputs + error messages) |
-| 4 | **Negative** | Wrong credentials, rejected inputs, unexpected states |
-| 5 | **Boundary** | Min/max length, 255 chars, overflow, empty strings |
-| 6 | **Data Driven** | `@pytest.mark.parametrize` with spec test data table |
-| 7 | **Deep Form** | Tab order, paste, password masking, autocomplete, required marks |
-| 8 | **API/Network** | Request method, response status, response body structure |
-| 9 | **Accessibility** | axe-core violations, ARIA labels, keyboard navigation |
-| 10 | **Responsive** | 6 viewports: 375px → 1920px (parametrized) |
-| 11 | **Navigation** | Internal links (forgot password, sign up, back, etc.) |
-| 12 | **Session/Auth** | Token persistence, redirect when authenticated |
-| 13 | **Performance** | Page load < 3s, DOMContentLoaded, Web Vitals |
-| 14 | **Console Errors** | No JS errors on load or form interaction |
-| 15 | **Error States** | No stack traces exposed, network error handling |
-| 16 | **Visual/Layout** | Elements within viewport, title set, favicon loads |
-| 17 | **Cross-browser** | Smoke tests tagged for Chromium / Firefox / WebKit |
-| 18 | **i18n** | Arabic RTL, Chinese, emoji, accented chars, zero-width |
-| 19 | **Rate Limiting** | Rapid submission, brute force, double-click |
-| 20 | **Cookie/Storage** | localStorage no passwords, session cookies, storage isolation |
-| 21 | **Security** | 16 XSS + 13 SQLi OWASP vectors via `@pytest.mark.parametrize` |
+The AI emits one test function (or one parametrized test) per type. `pytest.mark.parametrize` then explodes each into many runtime tests, so a single spec file produces **≥330 tests** without bloating AI generation cost.
 
-Each type generates **4–8 test functions** with:
-- Real test data from your spec injected into prompts
+| # | Type | Runtime tests / spec | What It Tests |
+|---|------|----------------------|---------------|
+| 1 | **Smoke** | ~4 | Page reachable, no 5xx, title set, body non-empty |
+| 2 | **Functional** | up to **16** | One test per `## User Flows` entry — exact spec order |
+| 3 | **Validation** | **8–16** | For every rule: one invalid + one valid input |
+| 4 | **Negative** | **16** | Wrong credentials, rejected inputs + 4 universal scenarios (back btn, double-click, paste, rapid-fire) |
+| 5 | **Edge Cases** | up to **14** | One test per `## Edge Cases` entry parsed from spec md |
+| 6 | **Boundary** | **34** | Length extremes, unicode/RTL/emoji, format strings, path traversal, CRLF, null bytes |
+| 7 | **Combinatorial** | **32** | 8 input shapes × 4 viewports — input-shape × viewport matrix |
+| 8 | **Data Driven** | ~10 | Parametrized over spec test data table |
+| 9 | **Deep Form** | ~5 | Tab order, paste, password masking, autocomplete |
+| 10 | **API/Network** | ~6 | Request method, response status, structure |
+| 11 | **Accessibility** | ~6 | axe-core violations, ARIA labels, keyboard nav |
+| 12 | **Responsive** | ~5 | 5 viewports: 375px → 1920px |
+| 13 | **Navigation** | ~5 | Internal links (forgot pw, sign up, back) |
+| 14 | **Session/Auth** | ~5 | Token persistence, redirect when authenticated |
+| 15 | **Performance** | ~3 | Page load, DOMContentLoaded, Web Vitals |
+| 16 | **Console Errors** | ~3 | No JS errors on load or form interaction |
+| 17 | **Error States** | ~3 | No stack traces, graceful network errors |
+| 18 | **Visual/Layout** | ~3 | Elements within viewport, title, favicon |
+| 19 | **Cross-browser** | ~3 | Tagged for Chromium / Firefox / WebKit |
+| 20 | **i18n** | **28** | RTL (Arabic, Hebrew, Persian, Urdu) + CJK + emoji + accents + zero-width |
+| 21 | **Multi-Language** | 4 × N locales | One per locale parsed from spec — page loads, `<html lang>`, `dir="rtl"`, no JS errors |
+| 22 | **Rate Limiting** | ~3 | Rapid submission, brute force, double-click |
+| 23 | **Cookie/Storage** | ~3 | localStorage no passwords, session cookies, isolation |
+| 24 | **Security** | **100** | 50 XSS + 50 SQLi OWASP vectors via parametrize (×fields tested) |
+
+Each test includes:
+
+- Real test data from your spec injected into prompts (no AI guessing)
 - `# TEST_DATA: <value>` comments for CI traceability
-- Assertion messages that show actual vs expected values
+- Assertion messages that show expected vs actual
+- An anti-hallucination guard in every prompt: AI must use ONLY fields, buttons, URLs, and labels from the spec — no inventing UI elements
 
 ---
 
@@ -313,21 +349,24 @@ git commit -m "Add checkout spec"
 git push
 ```
 
-GitHub Actions runs all 22 test types automatically.
+GitHub Actions runs all 24 test types + 18 hand-crafted QA agents automatically.
 
 ---
 
-## Manual Setup (step by step)
+## Manual Setup (only if `python install.py` doesn't fit your environment)
+
+`python install.py` already does all of this cross-platform — only follow these steps if you need to install pieces by hand.
 
 ### Prerequisites
 
-- macOS or Linux, Python 3.10+
+- macOS, Linux, or Windows
+- Python 3.10+
 
 ### 1. Clone
 
 ```bash
-git clone https://github.com/mejbaur-fagun/Fagun-Automation-Testing.git
-cd Fagun-Automation-Testing
+git clone https://github.com/mejbaur-markopolo/Markopolo-Automation-Testing.git
+cd Markopolo-Automation-Testing
 ```
 
 ### 2. Install Ollama
@@ -337,41 +376,44 @@ cd Fagun-Automation-Testing
 brew install ollama && brew services start ollama
 
 # Linux
-curl -fsSL https://ollama.ai/install.sh | sh && ollama serve &
+curl -fsSL https://ollama.com/install.sh | sh && ollama serve &
+
+# Windows
+# Download and run the official installer from:
+# https://ollama.com/download/windows
 ```
 
 ### 3. Pull models
 
 ```bash
-# Minimum — CI grade (986 MB):
+# First-run default (~1 GB):
 ollama pull qwen2.5-coder:1.5b
 
-# Recommended for local — best quality (4.7 GB):
+# Stronger model for higher-quality generation (~5 GB):
 ollama pull qwen2.5-coder:7b
-
-# Optional extra backups:
-ollama pull llama3.2:1b
-ollama pull phi3.5
 ```
 
-### 4. Install Python deps
+### 4. Install Python deps + Playwright
 
 ```bash
 pip install -r requirements.txt
-playwright install chromium
+playwright install chromium               # Linux: add --with-deps
 ```
 
 ### 5. Run
 
 ```bash
-# Default staging URL
-python ai_engine/agent.py
+# Default staging URL with visible browser
+python run.py
 
-# Custom URL + better model
-BASE_URL=https://your-app.com AI_MODEL=qwen2.5-coder:7b python ai_engine/agent.py
+# AI Test Agent (auto-generate + auto-run)
+python run.py --ai
 
-# With test password
-TEST_PASSWORD=YourPass python ai_engine/agent.py
+# Custom URL
+python run.py --url https://your-app.com
+
+# Or call the agent directly with extra env vars
+BASE_URL=https://your-app.com AI_MODEL=qwen2.5-coder:7b TEST_PASSWORD=YourPass python -m ai_engine.agent
 ```
 
 ### 6. View report
@@ -380,104 +422,139 @@ TEST_PASSWORD=YourPass python ai_engine/agent.py
 open reports/bug-report.html
 ```
 
+The CI run also publishes the same report (and the full history + trend charts) to GitHub Pages at `https://<your-org>.github.io/<your-repo>/`.
+
 ---
 
 ## Project Structure
 
 ```
-Fagun-Automation-Testing/
+Markopolo-Automation-Testing/
+│
+├── install.py                    ← Cross-OS one-shot installer
+├── run.py                        ← Single-command runner (visible browser by default)
 │
 ├── specs/                        ← YOUR INPUT (edit these)
-│   ├── login.md                  ← Login page spec
-│   ├── reset-password.md         ← Password reset spec
-│   ├── signup.md                 ← Registration spec
+│   ├── login.md                  ← Login page (with EN + AR locales)
+│   ├── student_*.md              ← Student-side flows (favorites, payments, etc.)
+│   ├── tutor_*.md                ← Tutor-side flows (signup, calendar, etc.)
 │   ├── TEMPLATE.md               ← Copy this to add new pages
 │   └── *.spec.json               ← Auto-compiled (do not edit)
 │
 ├── ai_engine/                    ← Core system
-│   ├── agent.py                  ← Main orchestrator + 14-model chain
-│   ├── spec_parser.py            ← Parses MD into ParsedSpec dataclass
+│   ├── agent.py                  ← AI Test Agent v5 + surgical self-heal + cache
+│   ├── spec_parser.py            ← Parses MD into ParsedSpec (incl. languages, edge cases)
 │   ├── spec_compiler.py          ← MD → structured JSON (deterministic)
-│   ├── test_generator.py         ← 22 test types with real test data
+│   ├── spec_directives.py        ← Honors "skip X" directives in spec md
+│   ├── test_generator.py         ← 24 test types with real test data + anti-hallucination
 │   ├── test_validator.py         ← AST gate (syntax + assertions)
+│   ├── test_memory.py            ← Cross-run cache (sha256 of spec + base url)
+│   ├── memory.py                 ← Persistent selector fixes + flake markers
+│   ├── browser_agent.py          ← browser-use integration (autonomous QA-19)
+│   ├── vision_validator.py       ← Vision-LLM (qwen2-vl) for QA-22
+│   ├── langgraph_agent.py        ← LangGraph orchestrator (QA-5)
 │   ├── evidence.py               ← Network/console/performance capture
 │   ├── bug_builder.py            ← AI bug ticket writer
 │   ├── gap_checker.py            ← Coverage gap analysis
-│   ├── memory.py                 ← Persistent learning between runs
-│   └── reporter.py               ← HTML report generator
+│   └── reporter.py               ← HTML report generator (dark theme)
+│
+├── tests/
+│   ├── test_qa_comprehensive.py  ← 22 hand-crafted QA test classes (QA-01..22)
+│   ├── _visual_diff.py           ← Pixel-diff for QA-11 visual regression
+│   └── visual_baselines/         ← Saved baseline screenshots
 │
 ├── scripts/
-│   └── generate_ci_summary.py   ← Writes detailed GitHub Step Summary
-│                                    (test data per type, pass/fail per test)
+│   ├── consolidate_reports.py    ← Merges all 19 CI artifacts into master report
+│   ├── build_pages_site.py       ← GitHub Pages site (index, history, agent reports)
+│   ├── test_data_viewer.py       ← Expandable "Test Data Used" report section
+│   └── generate_ci_summary.py    ← GitHub Step Summary
 │
 ├── payloads/                     ← OWASP security vectors
-│   ├── xss.txt                   ← 16 XSS vectors
-│   ├── sqli.txt                  ← 13 SQL injection vectors
-│   ├── boundary.txt              ← 9 boundary strings
+│   ├── xss.txt                   ← 50 XSS vectors
+│   ├── sqli.txt                  ← 50 SQL injection vectors
+│   ├── boundary.txt              ← 60+ boundary strings
 │   └── __init__.py
 │
-├── tests/                        ← AI-generated tests (runtime)
+├── cache/                        ← AI test-code cache (sha256-keyed, gh-pages backed)
+│   └── tests/<slug>.json
+│
 ├── reports/                      ← Test results (runtime)
-│   ├── bug-report.html           ← Main HTML report (dark theme)
-│   ├── screenshots/              ← Failure screenshots (POC)
-│   ├── evidence/                 ← Per-test network/console/perf data
-│   ├── test_data_log.json        ← What test data AI used per type
-│   ├── ci_summary.md             ← GitHub Step Summary source
-│   ├── gaps_*.txt                ← Coverage gap reports
+│   ├── bug-report.html           ← Master HTML report
+│   ├── screenshots/              ← Failure screenshots (POC, annotated)
+│   ├── videos/                   ← .webm video PoC for failed tests
+│   ├── evidence/                 ← Per-test network/console/perf JSON
+│   ├── test_data_log.json        ← Every test data input the run exercised
+│   ├── trends.json               ← Cumulative pass-rate trend across runs
 │   └── summary.json              ← Machine-readable totals
 │
-├── setup.sh                      ← One-command setup (macOS/Linux)
-├── conftest.py                   ← pytest config + evidence capture
-├── pytest.ini                    ← pytest settings
+├── conftest.py                   ← pytest config + evidence capture + HEADED support
+├── pytest.ini
 ├── requirements.txt
 └── .github/workflows/
-    └── ai-tests.yml              ← Full CI/CD pipeline (19 steps)
+    └── ai-tests.yml              ← 18 parallel QA agents + AI Test Agent + consolidate
 ```
 
 ---
 
 ## CI/CD
 
-Every push to `main` triggers the full pipeline automatically.
+Every push to `main` triggers the full pipeline. **20 jobs run in parallel**:
 
-```
-checkout → python 3.12 → deps → playwright → ollama → cache models
-→ pull 4 models → verify 11 modules → compile specs → run AI agent
-→ generate CI summary → upload 5 artifacts
-```
+| Job | Covers |
+|-----|--------|
+| AI Test Agent v5 | Auto-generates 24 test types per spec; runs them; bug-tickets failures |
+| QA Agent 1 | QA-01 Functional, QA-02 Edge Cases |
+| QA Agent 2 | QA-03 Security (172 tests), QA-04 Performance, QA-05 Hallucination/Data |
+| QA Agent 3 | QA-06 API & Network, QA-07 Accessibility |
+| QA Agent 4 | QA-08 Mobile / Cross-viewport |
+| QA Agent 5 | LangGraph AI Orchestration |
+| QA Agent 6–18 | QA-09 SEO, QA-10 i18n, QA-11 Visual Regression, QA-12 JS Errors, QA-13 Security Headers, QA-14 Cookies, QA-15 OWASP Surface, QA-16 Core Web Vitals, QA-17 Memory Leak, QA-18 Network Resilience, QA-19 Autonomous Explorer, QA-20 Property Fuzz, QA-22 Vision-LLM |
+| Consolidate | Merges every artifact into the master HTML report |
+| pages-deploy | Publishes report + history + trend chart to GitHub Pages |
 
 ### Artifacts per run
 
 | Artifact | Contents |
 |----------|----------|
-| `bug-report-N` | Self-contained HTML report with screenshots |
-| `screenshots-N` | PNG failure screenshots (POC evidence) |
-| `full-reports-N` | All reports + evidence + JSON data |
-| `ai-generated-tests-N` | The 22-type generated Playwright test files |
-| `compiled-specs-N` | Compiled JSON spec files |
+| `qa-agent-N-reports-RUN` | Per-agent HTML + JSON + screenshots + videos |
+| `ai-test-agent-RUN` | AI-generated test files + per-spec results |
+| `master-report-RUN` | Consolidated HTML report + bug tickets + trend |
+| `cache-RUN` | AI test-code cache (gh-pages-backed across runs) |
 
 ### GitHub Step Summary (per run)
 
 The Actions summary tab shows:
+
 - AI model used + full model chain
 - Per-type breakdown with collapsible test tables
 - Test data used for each test case (`# TEST_DATA:` annotations)
 - Pass/fail status per test function
-- Failure messages inline (no digging into logs needed)
+- Failure messages inline
 - Coverage gaps detected
-- Links to all artifacts
+- Links to all artifacts and the live GitHub Pages report
 
 ### Manual trigger with custom settings
 
 Go to: **Actions → Fagun Autonomous AI Testing → Run workflow**
 
-You can override:
-- **AI model** — e.g. `qwen2.5-coder:7b` for better quality
+Inputs:
+- **AI model** — e.g. `qwen2.5-coder:7b` for higher quality
 - **Target URL** — test against a different environment
+- **browser_use** — enable autonomous browser exploration (QA-19)
+- **enable_vision** — enable QA-22 vision-LLM (pulls a 5 GB model)
 
-### CI model caching
+### CI model + test caching
 
-Models are cached between runs using `actions/cache@v4`. After the first run (~15 min), subsequent runs skip the download and start in ~2 min.
+- **Ollama models** are cached between runs via `actions/cache@v4`. First run pulls ~1 GB; subsequent runs skip the download.
+- **Generated test code** is cached by `sha256(spec_md + base_url)` and persisted to gh-pages. Unchanged specs reuse last run's tests so the AI Test Agent only calls Ollama for new or modified specs.
+
+### Live report site
+
+After each successful run, GitHub Pages is updated at `https://<owner>.github.io/<repo>/` with:
+
+- The current master report + every per-agent report
+- A **history table** showing every prior run (sourced from `trends.json` so all runs are listed even if older `run-N.html` files were cleaned up)
+- A **trend sparkline** with pass-rate per run + alerts on regressions
 
 ---
 
@@ -524,41 +601,73 @@ The Spec Compiler reads these headings and builds the JSON deterministically. AI
 
 ## Security Payloads
 
-OWASP-standard vectors for authorized security testing:
+OWASP / PortSwigger-standard vectors for authorized security testing:
 
-- `payloads/xss.txt` — 16 XSS vectors (script tags, event handlers, data URIs, etc.)
-- `payloads/sqli.txt` — 13 SQL injection vectors (UNION, OR 1=1, blind, etc.)
-- `payloads/boundary.txt` — 9 boundary strings (empty, max-length, null, whitespace)
+- `payloads/xss.txt` — **50** XSS vectors (script tags, event handlers, data URIs, SVG, encoded variants)
+- `payloads/sqli.txt` — **50** SQL injection vectors (UNION, OR 1=1, blind, time-based, MS-SQL specific)
+- `payloads/boundary.txt` — **60+** boundary strings (length extremes, unicode/RTL/emoji, format strings, path traversal, CRLF, null bytes)
 
-Tests verify your app handles malicious input safely — they assert the payload is **not executed**, not that it causes an error. Use only on applications you own or have permission to test.
+Tests verify your app handles malicious input safely — they assert the payload is **not executed** or that the response is graceful (no 500, no leaked stack trace, no DB error). Use only on applications you own or have permission to test.
+
+In addition to the parametrized XSS/SQLi tests, QA-03 ships dedicated **auth-bypass probes**:
+
+- Unauthenticated request to `/api/me`, `/api/admin`, `/api/users/me` — fails only if real PII comes back
+- Forged `alg=none` JWT with admin claims — must be rejected with 401/403
+- IDOR probe across `/api/users/{1,2,999,uuid}`
+- Session cookies must have `HttpOnly` + `Secure` flags
+
+QA-06 adds **JSON schema validation** — every `application/json` response on page load must parse and be object-or-array shape (catches truncated JSON, HTML-error-pages-with-wrong-content-type, etc.).
 
 ---
 
 ## CI Behaviour Notes
 
-### TEMPLATE.md is automatically skipped
+### TEMPLATE.md / README.md / EXAMPLE.md are automatically skipped
 
-`specs/TEMPLATE.md` is never processed as a test spec — the agent skips it automatically. Only your real spec files (login.md, signup.md, etc.) are tested.
+`specs/TEMPLATE.md` is never processed as a test spec — the agent skips it (and any spec starting with `_`). Only your real spec files are tested.
 
-### CI job timeout (60 minutes)
+### Spec directives are honoured
 
-The CI job is capped at 60 minutes. Model pulls are limited to three small models (`qwen2.5-coder:1.5b`, `tinyllama:1.1b`, `qwen2.5:0.5b`) to keep CI fast. Larger models (7b+) are for local use.
+Add a line like `<!-- skip: security, performance -->` in a spec md file and the agent will not generate those test types for that spec. Useful for static pages where security / perf testing isn't meaningful.
+
+### CI job timeouts
+
+- **AI Test Agent v5**: 90 min (it generates and runs tests for every spec; cache hits make subsequent runs much faster)
+- **QA Agent 1, 2**: 45 min (heaviest hand-crafted suites — QA-03 alone is 172 tests after payload expansion)
+- **QA Agent 3 .. 18**: 30 min each
+- **Consolidate**: 15 min
 
 ### Partial results on cancellation
 
-If the CI job is cancelled mid-run, `reports/summary.json` and `reports/test_data_log.json` are still written with whatever completed (marked `"partial": true`). The GitHub Step Summary will show partial results.
+If the CI job is cancelled mid-run, `reports/summary.json` and `reports/test_data_log.json` are still written with whatever completed (marked `"partial": true`). The Consolidate job runs with `if: always()` so the master report is built even when some agents fail or time out.
 
-### ollama.chat() has a 90-second timeout
+### Per-call AI timeout (90 s)
 
-Each AI call has a `AI_TIMEOUT=90s` hard limit. If a model hangs (slow cold start, partial download), it is skipped after 90 seconds and the next model in the chain is tried.
+Each `ollama.chat()` call has a 90-second hard limit. If a model hangs, it is skipped and the next model in the chain is tried. After two consecutive timeouts a model is blacklisted for the rest of the session.
 
 ### Each Playwright operation has a 15-second timeout
 
-`conftest.py` sets `page.set_default_timeout(15000)` on every test page. Navigation uses `wait_until="domcontentloaded"` instead of `"networkidle"` to avoid hanging on pages with long-polling or websockets.
+`conftest.py` sets `page.set_default_timeout(15000)` on every test page. Navigation uses `wait_until="domcontentloaded"` instead of `"networkidle"` to avoid hanging on pages with long-polling or websockets. SPA hydration is handled with explicit `page.wait_for_function(...)` checks in `conftest.py` to avoid white-screen captures.
+
+### Concurrency
+
+Pushes cancel older runs (`cancel-in-progress: true`). If you push twice in quick succession, only the newer commit's run keeps going.
 
 ---
 
 ## Troubleshooting
+
+### `python install.py` says Ollama still not on PATH
+
+Open a fresh terminal (so PATH picks up the new install) and re-run `python install.py`. On Windows the official installer requires a logout/login or a new terminal.
+
+### `python run.py` opens the browser but tests are blank / nothing happens
+
+Staging may be unreachable. Override the URL:
+
+```bash
+python run.py --url https://your-actual-staging.example.com
+```
 
 ### "Ollama not running"
 
