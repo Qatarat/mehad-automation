@@ -1,0 +1,2393 @@
+============================= test session starts ==============================
+collecting ... collected 95 items
+[COLLECT] 95 test(s) found
+  → tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_login_page_elements_present[chromium]
+  → tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_empty_email_blocks_submit[chromium]
+  → tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_empty_password_blocks_submit[chromium]
+  → tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_invalid_email_format_rejected[chromium]
+  → tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_forgot_password_link_navigates[chromium]
+  → tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_signup_link_navigates[chromium]
+  → tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_invalid_credentials_show_error[chromium]
+  → tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_password_field_masked_by_default[chromium]
+  → tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_double_submit_prevented[chromium]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_leading_trailing_whitespace_email[chromium]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_uppercase_email[chromium]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_password_special_chars[chromium]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_password_with_spaces[chromium]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_email[chromium-255-255-char]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_password[chromium]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_zero_width_unicode_in_email[chromium]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_rtl_unicode_in_email[chromium]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_emoji_in_email[chromium]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_only_whitespace_both_fields[chromium]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_null_byte_in_password[chromium]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_newline_in_email[chromium]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<script>alert(1)</script>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<script>alert(1)</script>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_reflected_in_page_source[chromium]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_template_injection_detection[chromium]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR '1'='1]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_raw_payload_in_email[chromium]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_no_sensitive_data_in_responses[chromium]
+  → tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_login_page_loads_under_3s[chromium]
+  → tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_time_to_first_byte_under_600ms[chromium]
+  → tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_dom_content_loaded_under_2s[chromium]
+  → tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_js_errors_on_load[chromium]
+  → tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_js_errors_after_interaction[chromium]
+  → tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_404_resources_on_login[chromium]
+  → tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_500_errors_on_load[chromium]
+  → tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_mixed_content_warnings[chromium]
+  → tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport0]
+  → tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_placeholder_text_visible_as_content[chromium]
+  → tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_duplicate_form_fields[chromium]
+  → tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_stale_error_messages_on_fresh_load[chromium]
+  → tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_page_title_is_meaningful[chromium]
+  → tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_error_message_does_not_leak_field_specifics[chromium]
+  → tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_data_bleeding_between_sessions[chromium]
+  → tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_hallucination_no_impossible_success_message[chromium]
+  → tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_hallucination_no_phantom_dashboard_elements[chromium]
+  → tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_hallucination_error_message_content_quality[chromium]
+  → tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_consistent_page_state_across_navigation[chromium]
+  → tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_back_button_no_form_resubmission[chromium]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_email[chromium-256-256-char]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-"><script>alert(1)</script>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-"><script>alert(1)</script>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR '1'='1'--]
+  → tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport1]
+  → tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_email[chromium-512-512-char]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<img src=x onerror=alert(1)>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<img src=x onerror=alert(1)>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR 1=1--]
+  → tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport2]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<svg onload=alert(1)>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<svg onload=alert(1)>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-admin'--]
+  → tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport3]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-javascript:alert(1)]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-javascript:alert(1)]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR 'x'='x]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<body onload=alert(1)>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<body onload=alert(1)>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-'; DROP TABLE users;--]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-'"><script>alert(document.domain)</script>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-'"><script>alert(document.domain)</script>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' UNION SELECT 1,2,3--]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<ScRiPt>alert(1)</ScRiPt>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<ScRiPt>alert(1)</ScRiPt>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-1' AND 1=1--]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-1' AND 1=2--]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-"><img src=x onerror=alert(1)>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-"><img src=x onerror=alert(1)>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR 1=1#]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<iframe src="javascript:alert(1)"></iframe>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<iframe src="javascript:alert(1)"></iframe>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-") OR ("1"="1]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<input type="text" value="<script>alert(1)</script>">]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<input type="text" value="<script>alert(1)</script>">]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR ''=']
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<div onmouseover="alert(1)">test</div>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<div onmouseover="alert(1)">test</div>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-1;SELECT * FROM users--]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<a href="javascript:alert(1)">click</a>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<a href="javascript:alert(1)">click</a>]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-{{7*7}}]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-{{7*7}}]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-${7*7}]
+  → tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-${7*7}]
+
+tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_login_page_elements_present[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_login_page_elements_present[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [  1%]
+tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_empty_email_blocks_submit[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_empty_email_blocks_submit[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [  2%]
+tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_empty_password_blocks_submit[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_empty_password_blocks_submit[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [  3%]
+tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_invalid_email_format_rejected[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_invalid_email_format_rejected[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [  4%]
+tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_forgot_password_link_navigates[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_forgot_password_link_navigates[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [  5%]
+tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_signup_link_navigates[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_signup_link_navigates[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [  6%]
+tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_invalid_credentials_show_error[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_invalid_credentials_show_error[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [  7%]
+tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_password_field_masked_by_default[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_password_field_masked_by_default[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [  8%]
+tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_double_submit_prevented[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_double_submit_prevented[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [  9%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_leading_trailing_whitespace_email[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_leading_trailing_whitespace_email[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 10%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_uppercase_email[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_uppercase_email[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 11%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_password_special_chars[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_password_special_chars[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 12%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_password_with_spaces[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_password_with_spaces[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 13%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_email[chromium-255-255-char]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_email[chromium-255-255-char]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 14%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_password[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_password[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 15%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_zero_width_unicode_in_email[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_zero_width_unicode_in_email[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 16%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_rtl_unicode_in_email[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_rtl_unicode_in_email[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 17%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_emoji_in_email[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_emoji_in_email[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 18%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_only_whitespace_both_fields[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_only_whitespace_both_fields[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 20%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_null_byte_in_password[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_null_byte_in_password[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 21%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_newline_in_email[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_newline_in_email[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 22%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<script>alert(1)</script>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<script>alert(1)</script>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 23%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<script>alert(1)</script>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<script>alert(1)</script>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 24%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_reflected_in_page_source[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_reflected_in_page_source[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 25%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_template_injection_detection[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_template_injection_detection[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 26%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR '1'='1]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR '1'='1]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 27%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_raw_payload_in_email[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_raw_payload_in_email[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 28%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_no_sensitive_data_in_responses[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_no_sensitive_data_in_responses[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 29%]
+tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_login_page_loads_under_3s[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_login_page_loads_under_3s[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+  - fonts loaded
+
+FAILED [ 30%]
+tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_time_to_first_byte_under_600ms[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_time_to_first_byte_under_600ms[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 31%]
+tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_dom_content_loaded_under_2s[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_dom_content_loaded_under_2s[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 32%]
+tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_js_errors_on_load[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_js_errors_on_load[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 33%]
+tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_js_errors_after_interaction[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_js_errors_after_interaction[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 34%]
+tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_404_resources_on_login[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_404_resources_on_login[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 35%]
+tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_500_errors_on_load[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_500_errors_on_load[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 36%]
+tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_mixed_content_warnings[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_mixed_content_warnings[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 37%]
+tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport0]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport0]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 38%]
+tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_placeholder_text_visible_as_content[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_placeholder_text_visible_as_content[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 40%]
+tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_duplicate_form_fields[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_duplicate_form_fields[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 41%]
+tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_stale_error_messages_on_fresh_load[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_stale_error_messages_on_fresh_load[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 42%]
+tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_page_title_is_meaningful[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_page_title_is_meaningful[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 43%]
+tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_error_message_does_not_leak_field_specifics[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_error_message_does_not_leak_field_specifics[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 44%]
+tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_data_bleeding_between_sessions[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_data_bleeding_between_sessions[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 45%]
+tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_hallucination_no_impossible_success_message[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_hallucination_no_impossible_success_message[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 46%]
+tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_hallucination_no_phantom_dashboard_elements[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_hallucination_no_phantom_dashboard_elements[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 47%]
+tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_hallucination_error_message_content_quality[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_hallucination_error_message_content_quality[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 48%]
+tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_consistent_page_state_across_navigation[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_consistent_page_state_across_navigation[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 49%]
+tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_back_button_no_form_resubmission[chromium]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_back_button_no_form_resubmission[chromium]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 50%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_email[chromium-256-256-char]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_email[chromium-256-256-char]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 51%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-"><script>alert(1)</script>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-"><script>alert(1)</script>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 52%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-"><script>alert(1)</script>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-"><script>alert(1)</script>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 53%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR '1'='1'--]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR '1'='1'--]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 54%]
+tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport1]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport1]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 55%]
+tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_email[chromium-512-512-char]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_email[chromium-512-512-char]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 56%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<img src=x onerror=alert(1)>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<img src=x onerror=alert(1)>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 57%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<img src=x onerror=alert(1)>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<img src=x onerror=alert(1)>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 58%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR 1=1--]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR 1=1--]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 60%]
+tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport2]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport2]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 61%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<svg onload=alert(1)>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<svg onload=alert(1)>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 62%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<svg onload=alert(1)>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<svg onload=alert(1)>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 63%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-admin'--]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-admin'--]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 64%]
+tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport3]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport3]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 65%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-javascript:alert(1)]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-javascript:alert(1)]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 66%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-javascript:alert(1)]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-javascript:alert(1)]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 67%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR 'x'='x]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR 'x'='x]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 68%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<body onload=alert(1)>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<body onload=alert(1)>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 69%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<body onload=alert(1)>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<body onload=alert(1)>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 70%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-'; DROP TABLE users;--]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-'; DROP TABLE users;--]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 71%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-'"><script>alert(document.domain)</script>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-'"><script>alert(document.domain)</script>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 72%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-'"><script>alert(document.domain)</script>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-'"><script>alert(document.domain)</script>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 73%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' UNION SELECT 1,2,3--]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' UNION SELECT 1,2,3--]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 74%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<ScRiPt>alert(1)</ScRiPt>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<ScRiPt>alert(1)</ScRiPt>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 75%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<ScRiPt>alert(1)</ScRiPt>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<ScRiPt>alert(1)</ScRiPt>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 76%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-1' AND 1=1--]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-1' AND 1=1--]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 77%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 78%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 80%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-1' AND 1=2--]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-1' AND 1=2--]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 81%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-"><img src=x onerror=alert(1)>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-"><img src=x onerror=alert(1)>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 82%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-"><img src=x onerror=alert(1)>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-"><img src=x onerror=alert(1)>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 83%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR 1=1#]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR 1=1#]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 84%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<iframe src="javascript:alert(1)"></iframe>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<iframe src="javascript:alert(1)"></iframe>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 85%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<iframe src="javascript:alert(1)"></iframe>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<iframe src="javascript:alert(1)"></iframe>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 86%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-") OR ("1"="1]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-") OR ("1"="1]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 87%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<input type="text" value="<script>alert(1)</script>">]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<input type="text" value="<script>alert(1)</script>">]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 88%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<input type="text" value="<script>alert(1)</script>">]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<input type="text" value="<script>alert(1)</script>">]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 89%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR ''=']   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR ''=']: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 90%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<div onmouseover="alert(1)">test</div>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<div onmouseover="alert(1)">test</div>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 91%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<div onmouseover="alert(1)">test</div>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<div onmouseover="alert(1)">test</div>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 92%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-1;SELECT * FROM users--]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-1;SELECT * FROM users--]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 93%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<a href="javascript:alert(1)">click</a>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<a href="javascript:alert(1)">click</a>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 94%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<a href="javascript:alert(1)">click</a>]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<a href="javascript:alert(1)">click</a>]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 95%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-{{7*7}}]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-{{7*7}}]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 96%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-{{7*7}}]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-{{7*7}}]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 97%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-${7*7}]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-${7*7}]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [ 98%]
+tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-${7*7}]   [SCREENSHOT] Failed for tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-${7*7}]: Page.screenshot: Timeout 15000ms exceeded.
+Call log:
+  - taking page screenshot
+  - waiting for fonts to load...
+
+FAILED [100%]
+
+=================================== FAILURES ===================================
+______ TestQA01Functional.test_qa01_login_page_elements_present[chromium] ______
+tests/test_qa_comprehensive.py:115: in test_qa01_login_page_elements_present
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_______ TestQA01Functional.test_qa01_empty_email_blocks_submit[chromium] _______
+tests/test_qa_comprehensive.py:127: in test_qa01_empty_email_blocks_submit
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_____ TestQA01Functional.test_qa01_empty_password_blocks_submit[chromium] ______
+tests/test_qa_comprehensive.py:144: in test_qa01_empty_password_blocks_submit
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_____ TestQA01Functional.test_qa01_invalid_email_format_rejected[chromium] _____
+tests/test_qa_comprehensive.py:156: in test_qa01_invalid_email_format_rejected
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+____ TestQA01Functional.test_qa01_forgot_password_link_navigates[chromium] _____
+tests/test_qa_comprehensive.py:169: in test_qa01_forgot_password_link_navigates
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_________ TestQA01Functional.test_qa01_signup_link_navigates[chromium] _________
+tests/test_qa_comprehensive.py:184: in test_qa01_signup_link_navigates
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+____ TestQA01Functional.test_qa01_invalid_credentials_show_error[chromium] _____
+tests/test_qa_comprehensive.py:200: in test_qa01_invalid_credentials_show_error
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+___ TestQA01Functional.test_qa01_password_field_masked_by_default[chromium] ____
+tests/test_qa_comprehensive.py:223: in test_qa01_password_field_masked_by_default
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+________ TestQA01Functional.test_qa01_double_submit_prevented[chromium] ________
+tests/test_qa_comprehensive.py:233: in test_qa01_double_submit_prevented
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA02EdgeCaseBoundary.test_qa02_ec_leading_trailing_whitespace_email[chromium] _
+tests/test_qa_comprehensive.py:262: in test_qa02_ec_leading_trailing_whitespace_email
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_______ TestQA02EdgeCaseBoundary.test_qa02_ec_uppercase_email[chromium] ________
+tests/test_qa_comprehensive.py:277: in test_qa02_ec_uppercase_email
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+____ TestQA02EdgeCaseBoundary.test_qa02_ec_password_special_chars[chromium] ____
+tests/test_qa_comprehensive.py:290: in test_qa02_ec_password_special_chars
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_____ TestQA02EdgeCaseBoundary.test_qa02_ec_password_with_spaces[chromium] _____
+tests/test_qa_comprehensive.py:302: in test_qa02_ec_password_with_spaces
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+--------------------------- Captured stdout teardown ---------------------------
+
+  [CONSOLE] 1 error(s) in test_qa02_ec_password_with_spaces[chromium]:
+    ERROR: Failed to load resource: net::ERR_SOCKET_NOT_CONNECTED
+_ TestQA02EdgeCaseBoundary.test_qa02_ec_very_long_email[chromium-255-255-char] _
+tests/test_qa_comprehensive.py:319: in test_qa02_ec_very_long_email
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+______ TestQA02EdgeCaseBoundary.test_qa02_ec_very_long_password[chromium] ______
+tests/test_qa_comprehensive.py:334: in test_qa02_ec_very_long_password
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA02EdgeCaseBoundary.test_qa02_ec_zero_width_unicode_in_email[chromium] __
+tests/test_qa_comprehensive.py:346: in test_qa02_ec_zero_width_unicode_in_email
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_____ TestQA02EdgeCaseBoundary.test_qa02_ec_rtl_unicode_in_email[chromium] _____
+tests/test_qa_comprehensive.py:358: in test_qa02_ec_rtl_unicode_in_email
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+________ TestQA02EdgeCaseBoundary.test_qa02_ec_emoji_in_email[chromium] ________
+tests/test_qa_comprehensive.py:370: in test_qa02_ec_emoji_in_email
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA02EdgeCaseBoundary.test_qa02_ec_only_whitespace_both_fields[chromium] __
+tests/test_qa_comprehensive.py:382: in test_qa02_ec_only_whitespace_both_fields
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+____ TestQA02EdgeCaseBoundary.test_qa02_ec_null_byte_in_password[chromium] _____
+tests/test_qa_comprehensive.py:395: in test_qa02_ec_null_byte_in_password
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_______ TestQA02EdgeCaseBoundary.test_qa02_ec_newline_in_email[chromium] _______
+tests/test_qa_comprehensive.py:407: in test_qa02_ec_newline_in_email
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-<script>alert(1)</script>] _
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-<script>alert(1)</script>] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+______ TestQA03Security.test_qa03_xss_reflected_in_page_source[chromium] _______
+tests/test_qa_comprehensive.py:464: in test_qa03_xss_reflected_in_page_source
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+______ TestQA03Security.test_qa03_template_injection_detection[chromium] _______
+tests/test_qa_comprehensive.py:479: in test_qa03_template_injection_detection
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_____ TestQA03Security.test_qa03_sqli_in_email_field[chromium-' OR '1'='1] _____
+tests/test_qa_comprehensive.py:497: in test_qa03_sqli_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+________ TestQA03Security.test_qa03_sqli_raw_payload_in_email[chromium] ________
+tests/test_qa_comprehensive.py:522: in test_qa03_sqli_raw_payload_in_email
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_____ TestQA03Security.test_qa03_no_sensitive_data_in_responses[chromium] ______
+tests/test_qa_comprehensive.py:552: in test_qa03_no_sensitive_data_in_responses
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA04PerformanceAndJSErrors.test_qa04_login_page_loads_under_3s[chromium] _
+tests/test_qa_comprehensive.py:571: in test_qa04_login_page_loads_under_3s
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA04PerformanceAndJSErrors.test_qa04_time_to_first_byte_under_600ms[chromium] _
+tests/test_qa_comprehensive.py:580: in test_qa04_time_to_first_byte_under_600ms
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA04PerformanceAndJSErrors.test_qa04_dom_content_loaded_under_2s[chromium] _
+tests/test_qa_comprehensive.py:592: in test_qa04_dom_content_loaded_under_2s
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+___ TestQA04PerformanceAndJSErrors.test_qa04_no_js_errors_on_load[chromium] ____
+tests/test_qa_comprehensive.py:608: in test_qa04_no_js_errors_on_load
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+--------------------------- Captured stdout teardown ---------------------------
+
+  [CONSOLE] 2 error(s) in test_qa04_no_js_errors_on_load[chromium]:
+    ERROR: Failed to load resource: net::ERR_NAME_NOT_RESOLVED
+    WARNING: [LiveChat] Fetch region failed
+_ TestQA04PerformanceAndJSErrors.test_qa04_no_js_errors_after_interaction[chromium] _
+tests/test_qa_comprehensive.py:620: in test_qa04_no_js_errors_after_interaction
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA04PerformanceAndJSErrors.test_qa04_no_404_resources_on_login[chromium] _
+tests/test_qa_comprehensive.py:636: in test_qa04_no_404_resources_on_login
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+___ TestQA04PerformanceAndJSErrors.test_qa04_no_500_errors_on_load[chromium] ___
+tests/test_qa_comprehensive.py:648: in test_qa04_no_500_errors_on_load
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA04PerformanceAndJSErrors.test_qa04_no_mixed_content_warnings[chromium] _
+tests/test_qa_comprehensive.py:660: in test_qa04_no_mixed_content_warnings
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA04PerformanceAndJSErrors.test_qa04_responsive_layout_no_errors[chromium-viewport0] _
+tests/test_qa_comprehensive.py:682: in test_qa04_responsive_layout_no_errors
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA05HallucinationDataIntegrity.test_qa05_no_placeholder_text_visible_as_content[chromium] _
+tests/test_qa_comprehensive.py:710: in test_qa05_no_placeholder_text_visible_as_content
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA05HallucinationDataIntegrity.test_qa05_no_duplicate_form_fields[chromium] _
+tests/test_qa_comprehensive.py:725: in test_qa05_no_duplicate_form_fields
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA05HallucinationDataIntegrity.test_qa05_no_stale_error_messages_on_fresh_load[chromium] _
+tests/test_qa_comprehensive.py:743: in test_qa05_no_stale_error_messages_on_fresh_load
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA05HallucinationDataIntegrity.test_qa05_page_title_is_meaningful[chromium] _
+tests/test_qa_comprehensive.py:760: in test_qa05_page_title_is_meaningful
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA05HallucinationDataIntegrity.test_qa05_error_message_does_not_leak_field_specifics[chromium] _
+tests/test_qa_comprehensive.py:775: in test_qa05_error_message_does_not_leak_field_specifics
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA05HallucinationDataIntegrity.test_qa05_no_data_bleeding_between_sessions[chromium] _
+tests/test_qa_comprehensive.py:802: in test_qa05_no_data_bleeding_between_sessions
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA05HallucinationDataIntegrity.test_qa05_hallucination_no_impossible_success_message[chromium] _
+tests/test_qa_comprehensive.py:825: in test_qa05_hallucination_no_impossible_success_message
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA05HallucinationDataIntegrity.test_qa05_hallucination_no_phantom_dashboard_elements[chromium] _
+tests/test_qa_comprehensive.py:847: in test_qa05_hallucination_no_phantom_dashboard_elements
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA05HallucinationDataIntegrity.test_qa05_hallucination_error_message_content_quality[chromium] _
+tests/test_qa_comprehensive.py:873: in test_qa05_hallucination_error_message_content_quality
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA05HallucinationDataIntegrity.test_qa05_consistent_page_state_across_navigation[chromium] _
+tests/test_qa_comprehensive.py:899: in test_qa05_consistent_page_state_across_navigation
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA05HallucinationDataIntegrity.test_qa05_back_button_no_form_resubmission[chromium] _
+tests/test_qa_comprehensive.py:921: in test_qa05_back_button_no_form_resubmission
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA02EdgeCaseBoundary.test_qa02_ec_very_long_email[chromium-256-256-char] _
+tests/test_qa_comprehensive.py:319: in test_qa02_ec_very_long_email
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-"><script>alert(1)</script>] _
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-"><script>alert(1)</script>] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+___ TestQA03Security.test_qa03_sqli_in_email_field[chromium-' OR '1'='1'--] ____
+tests/test_qa_comprehensive.py:497: in test_qa03_sqli_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA04PerformanceAndJSErrors.test_qa04_responsive_layout_no_errors[chromium-viewport1] _
+tests/test_qa_comprehensive.py:682: in test_qa04_responsive_layout_no_errors
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA02EdgeCaseBoundary.test_qa02_ec_very_long_email[chromium-512-512-char] _
+tests/test_qa_comprehensive.py:319: in test_qa02_ec_very_long_email
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-<img src=x onerror=alert(1)>] _
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-<img src=x onerror=alert(1)>] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_____ TestQA03Security.test_qa03_sqli_in_email_field[chromium-' OR 1=1--] ______
+tests/test_qa_comprehensive.py:497: in test_qa03_sqli_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA04PerformanceAndJSErrors.test_qa04_responsive_layout_no_errors[chromium-viewport2] _
+tests/test_qa_comprehensive.py:682: in test_qa04_responsive_layout_no_errors
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-<svg onload=alert(1)>] _
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-<svg onload=alert(1)>] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+______ TestQA03Security.test_qa03_sqli_in_email_field[chromium-admin'--] _______
+tests/test_qa_comprehensive.py:497: in test_qa03_sqli_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA04PerformanceAndJSErrors.test_qa04_responsive_layout_no_errors[chromium-viewport3] _
+tests/test_qa_comprehensive.py:682: in test_qa04_responsive_layout_no_errors
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-javascript:alert(1)] __
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-javascript:alert(1)] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_____ TestQA03Security.test_qa03_sqli_in_email_field[chromium-' OR 'x'='x] _____
+tests/test_qa_comprehensive.py:497: in test_qa03_sqli_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-<body onload=alert(1)>] _
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-<body onload=alert(1)>] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_sqli_in_email_field[chromium-'; DROP TABLE users;--] _
+tests/test_qa_comprehensive.py:497: in test_qa03_sqli_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-'"><script>alert(document.domain)</script>] _
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-'"><script>alert(document.domain)</script>] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_sqli_in_email_field[chromium-' UNION SELECT 1,2,3--] _
+tests/test_qa_comprehensive.py:497: in test_qa03_sqli_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-<ScRiPt>alert(1)</ScRiPt>] _
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-<ScRiPt>alert(1)</ScRiPt>] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+____ TestQA03Security.test_qa03_sqli_in_email_field[chromium-1' AND 1=1--] _____
+tests/test_qa_comprehensive.py:497: in test_qa03_sqli_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT>] _
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT>] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+____ TestQA03Security.test_qa03_sqli_in_email_field[chromium-1' AND 1=2--] _____
+tests/test_qa_comprehensive.py:497: in test_qa03_sqli_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-"><img src=x onerror=alert(1)>] _
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-"><img src=x onerror=alert(1)>] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+______ TestQA03Security.test_qa03_sqli_in_email_field[chromium-' OR 1=1#] ______
+tests/test_qa_comprehensive.py:497: in test_qa03_sqli_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-<iframe src="javascript:alert(1)"></iframe>] _
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-<iframe src="javascript:alert(1)"></iframe>] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+____ TestQA03Security.test_qa03_sqli_in_email_field[chromium-") OR ("1"="1] ____
+tests/test_qa_comprehensive.py:497: in test_qa03_sqli_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-<input type="text" value="<script>alert(1)</script>">] _
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-<input type="text" value="<script>alert(1)</script>">] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+______ TestQA03Security.test_qa03_sqli_in_email_field[chromium-' OR ''='] ______
+tests/test_qa_comprehensive.py:497: in test_qa03_sqli_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-<div onmouseover="alert(1)">test</div>] _
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-<div onmouseover="alert(1)">test</div>] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_sqli_in_email_field[chromium-1;SELECT * FROM users--] _
+tests/test_qa_comprehensive.py:497: in test_qa03_sqli_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_email_field[chromium-<a href="javascript:alert(1)">click</a>] _
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_ TestQA03Security.test_qa03_xss_in_password_field[chromium-<a href="javascript:alert(1)">click</a>] _
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+_______ TestQA03Security.test_qa03_xss_in_email_field[chromium-{{7*7}}] ________
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+______ TestQA03Security.test_qa03_xss_in_password_field[chromium-{{7*7}}] ______
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+________ TestQA03Security.test_qa03_xss_in_email_field[chromium-${7*7}] ________
+tests/test_qa_comprehensive.py:434: in test_qa03_xss_in_email_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+______ TestQA03Security.test_qa03_xss_in_password_field[chromium-${7*7}] _______
+tests/test_qa_comprehensive.py:452: in test_qa03_xss_in_password_field
+    page.goto(LOGIN_URL)
+/opt/homebrew/lib/python3.14/site-packages/playwright/sync_api/_generated.py:9054: in goto
+    self._sync(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_page.py:552: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_frame.py:153: in goto
+    await self._channel.send(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/homebrew/lib/python3.14/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f"{parsed_st['apiName']}: {error}") from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to "https://beta-stg.markopolo.ai/login", waiting until "load"
+=========================== short test summary info ============================
+FAILED tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_login_page_elements_present[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_empty_email_blocks_submit[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_empty_password_blocks_submit[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_invalid_email_format_rejected[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_forgot_password_link_navigates[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_signup_link_navigates[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_invalid_credentials_show_error[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_password_field_masked_by_default[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_double_submit_prevented[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_leading_trailing_whitespace_email[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_uppercase_email[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_password_special_chars[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_password_with_spaces[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_email[chromium-255-255-char]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_password[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_zero_width_unicode_in_email[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_rtl_unicode_in_email[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_emoji_in_email[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_only_whitespace_both_fields[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_null_byte_in_password[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_newline_in_email[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<script>alert(1)</script>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<script>alert(1)</script>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_reflected_in_page_source[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_template_injection_detection[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR '1'='1]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_raw_payload_in_email[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_no_sensitive_data_in_responses[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_login_page_loads_under_3s[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_time_to_first_byte_under_600ms[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_dom_content_loaded_under_2s[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_js_errors_on_load[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_js_errors_after_interaction[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_404_resources_on_login[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_500_errors_on_load[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_no_mixed_content_warnings[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport0]
+FAILED tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_placeholder_text_visible_as_content[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_duplicate_form_fields[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_stale_error_messages_on_fresh_load[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_page_title_is_meaningful[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_error_message_does_not_leak_field_specifics[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_no_data_bleeding_between_sessions[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_hallucination_no_impossible_success_message[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_hallucination_no_phantom_dashboard_elements[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_hallucination_error_message_content_quality[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_consistent_page_state_across_navigation[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA05HallucinationDataIntegrity::test_qa05_back_button_no_form_resubmission[chromium]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_email[chromium-256-256-char]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-"><script>alert(1)</script>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-"><script>alert(1)</script>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR '1'='1'--]
+FAILED tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport1]
+FAILED tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary::test_qa02_ec_very_long_email[chromium-512-512-char]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<img src=x onerror=alert(1)>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<img src=x onerror=alert(1)>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR 1=1--]
+FAILED tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport2]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<svg onload=alert(1)>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<svg onload=alert(1)>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-admin'--]
+FAILED tests/test_qa_comprehensive.py::TestQA04PerformanceAndJSErrors::test_qa04_responsive_layout_no_errors[chromium-viewport3]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-javascript:alert(1)]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-javascript:alert(1)]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR 'x'='x]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<body onload=alert(1)>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<body onload=alert(1)>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-'; DROP TABLE users;--]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-'"><script>alert(document.domain)</script>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-'"><script>alert(document.domain)</script>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' UNION SELECT 1,2,3--]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<ScRiPt>alert(1)</ScRiPt>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<ScRiPt>alert(1)</ScRiPt>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-1' AND 1=1--]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<SCRIPT>alert(String.fromCharCode(88,83,83))</SCRIPT>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-1' AND 1=2--]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-"><img src=x onerror=alert(1)>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-"><img src=x onerror=alert(1)>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR 1=1#]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<iframe src="javascript:alert(1)"></iframe>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<iframe src="javascript:alert(1)"></iframe>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-") OR ("1"="1]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<input type="text" value="<script>alert(1)</script>">]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<input type="text" value="<script>alert(1)</script>">]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-' OR ''=']
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<div onmouseover="alert(1)">test</div>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<div onmouseover="alert(1)">test</div>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_sqli_in_email_field[chromium-1;SELECT * FROM users--]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-<a href="javascript:alert(1)">click</a>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-<a href="javascript:alert(1)">click</a>]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-{{7*7}}]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-{{7*7}}]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_email_field[chromium-${7*7}]
+FAILED tests/test_qa_comprehensive.py::TestQA03Security::test_qa03_xss_in_password_field[chromium-${7*7}]
+======================= 95 failed in 2871.10s (0:47:51) ========================
