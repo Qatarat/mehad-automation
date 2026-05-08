@@ -78,18 +78,39 @@ generate_ci_summary.py  ← GitHub Step Summary: test data per type, pass/fail p
 ## Quick Start (One Command)
 
 ```bash
-git clone https://github.com/mejbaur-fagun/Fagun-Automation-Testing.git
-cd Fagun-Automation-Testing
-bash setup.sh
+git clone https://github.com/mejbaur-markopolo/Markopolo-Automation-Testing.git
+cd Markopolo-Automation-Testing
+python run.py
 ```
 
-`setup.sh` installs Ollama, pulls models interactively, installs Python deps, verifies all modules, and creates a `.env` file.
+That's it. On first invocation `run.py` calls `install.py`, which on macOS / Linux / Windows:
 
-Then run:
+- verifies Python ≥ 3.10
+- `pip install -r requirements.txt`
+- installs Playwright Chromium (with Linux system libs)
+- installs Ollama (Homebrew on macOS, official `install.sh` on Linux,
+  prints the Windows installer URL)
+- starts `ollama serve` in the background
+- pulls the small first-run model (`qwen2.5-coder:1.5b` — ~1 GB)
+
+Then it opens a real Chromium window so you can **watch** the QA suite run live
+(`HEADED=1`, slow-motion 800 ms between actions).
+
+### Run modes
 
 ```bash
-source .env
-python ai_engine/agent.py
+python run.py            # demo: TestQA01Functional with visible browser (~3 min)
+python run.py --ai       # AI Test Agent v5 — auto-generates from md specs
+python run.py --all      # every QA agent suite — full ~30 min run
+python run.py --headless # same as default but no visible window
+python run.py --url https://your-staging.example.com   # any URL
+```
+
+### Just check the environment
+
+```bash
+python install.py --check   # report what's installed / missing, install nothing
+python install.py --big     # install + pull the 7b model (~5 GB) for stronger AI
 ```
 
 ---
