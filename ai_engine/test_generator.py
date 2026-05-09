@@ -169,6 +169,10 @@ def validation(spec: ParsedSpec) -> str:
     invalid_data = "\n".join(f"  - {t}" for t in spec.test_data_invalid[:10])
     valid_data   = "\n".join(f"  - {t}" for t in spec.test_data_valid[:8])
     target_count = max(8, min(n_rules * 2, 16))  # 2 per rule, capped 8-16
+    # Pre-hoist fallback strings — backslashes inside f-string {} are a
+    # SyntaxError on Python < 3.12, so we must NOT inline \n literals there.
+    _invalid_fallback = "  - empty string\n  - spaces only\n  - invalid@@@email\n  - <script>alert(1)</script>"
+    _valid_fallback   = "  - valid@example.com\n  - Test@1234!"
 
     return _ai(f"""{_RULES}
 PAGE: {spec.page_name}  URL: {spec.url}
@@ -181,10 +185,10 @@ VALIDATION RULES (use ONLY these — do not invent rules):
 {rules}
 
 INVALID TEST INPUTS (use these — ONE per invalid test):
-{invalid_data or "  - empty string\n  - spaces only\n  - invalid@@@email\n  - <script>alert(1)</script>"}
+{invalid_data or _invalid_fallback}
 
 VALID TEST INPUTS:
-{valid_data or "  - valid@example.com\n  - Test@1234!"}
+{valid_data or _valid_fallback}
 
 PATTERN (use exactly):
 1. page.goto(URL, wait_until="domcontentloaded", timeout=15000)
