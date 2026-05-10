@@ -1,0 +1,193 @@
+{
+  "runs": [
+    {
+      "run_number": 2,
+      "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/25559428043",
+      "passed": 401,
+      "failed": 15,
+      "total": 416,
+      "bugs": 15,
+      "pass_rate": "96.4%"
+    },
+    {
+      "run_number": 3,
+      "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/25567295476",
+      "passed": 401,
+      "failed": 15,
+      "total": 416,
+      "bugs": 15,
+      "pass_rate": "96.4%"
+    },
+    {
+      "run_number": 4,
+      "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/25589866393",
+      "passed": 401,
+      "failed": 15,
+      "total": 416,
+      "bugs": 15,
+      "pass_rate": "96.4%"
+    },
+    {
+      "run_number": 5,
+      "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/25606287318",
+      "passed": 401,
+      "failed": 15,
+      "total": 416,
+      "bugs": 15,
+      "pass_rate": "96.4%"
+    },
+    {
+      "run_number": 6,
+      "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/25618239294",
+      "passed": 398,
+      "failed": 18,
+      "total": 416,
+      "bugs": 18,
+      "pass_rate": "95.7%"
+    }
+  ],
+  "fingerprints": {
+    "cedd28bdbcf1": {
+      "first_seen_run": 2,
+      "last_seen_run": 6,
+      "runs_seen": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "ba3a1c4e62f0": {
+      "first_seen_run": 2,
+      "last_seen_run": 6,
+      "runs_seen": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "01585086b351": {
+      "first_seen_run": 2,
+      "last_seen_run": 6,
+      "runs_seen": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "3fb581456488": {
+      "first_seen_run": 2,
+      "last_seen_run": 6,
+      "runs_seen": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "01cd6b2d1b53": {
+      "first_seen_run": 2,
+      "last_seen_run": 6,
+      "runs_seen": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "d89a19962de5": {
+      "first_seen_run": 2,
+      "last_seen_run": 6,
+      "runs_seen": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "61bdca766f4e": {
+      "first_seen_run": 2,
+      "last_seen_run": 6,
+      "runs_seen": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "318b5b7cebe6": {
+      "first_seen_run": 2,
+      "last_seen_run": 6,
+      "runs_seen": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "9252bcf5ad3d": {
+      "first_seen_run": 2,
+      "last_seen_run": 6,
+      "runs_seen": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "c0c999130a00": {
+      "first_seen_run": 2,
+      "last_seen_run": 6,
+      "runs_seen": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "a7f290e2b3be": {
+      "first_seen_run": 2,
+      "last_seen_run": 6,
+      "runs_seen": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    "249110d9e8a6": {
+      "first_seen_run": 6,
+      "last_seen_run": 6,
+      "runs_seen": [
+        6
+      ]
+    },
+    "9ffcd9c4a36e": {
+      "first_seen_run": 6,
+      "last_seen_run": 6,
+      "runs_seen": [
+        6
+      ]
+    },
+    "de41860e2619": {
+      "first_seen_run": 6,
+      "last_seen_run": 6,
+      "runs_seen": [
+        6
+      ]
+    }
+  }
+}
