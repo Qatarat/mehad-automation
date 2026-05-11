@@ -126,19 +126,46 @@ def _agent_card(custom_src: str, public_name: str, label: str, emoji: str) -> st
             f'<div class="cta muted">No data</div></div>')
 
 
-def _history_table(history: list[tuple[int, Path]]) -> str:
+def _fmt_run_ts(run_num: int, ts_map: dict[int, str]) -> str:
+    """Return a human-readable date+time string (12-hour) for a run, or ''."""
+    raw = ts_map.get(run_num, "")
+    if not raw:
+        # Fallback: read mtime of the archived HTML file if it exists on disk
+        p = SITE_DIR / "history" / f"run-{run_num}.html"
+        if p.exists():
+            try:
+                raw = datetime.utcfromtimestamp(p.stat().st_mtime).isoformat() + "Z"
+            except Exception:
+                return ""
+    if not raw:
+        return ""
+    try:
+        # Accept both "2025-05-11T12:34:56Z" and "2025-05-11T12:34:56"
+        raw = raw.rstrip("Z")
+        dt = datetime.fromisoformat(raw)
+        return dt.strftime("%b %d, %Y %I:%M %p")   # e.g. "May 11, 2025 12:34 PM"
+    except Exception:
+        return ""
+
+
+def _history_table(history: list[tuple[int, Path]], ts_map: dict[int, str] | None = None) -> str:
     if not history:
         return ('<p style="color:#8b949e;text-align:center;padding:30px">'
                 'No previous runs archived yet — this is the first deployment.</p>')
+    ts_map = ts_map or {}
     rows = []
     for run_num, _path in history[:50]:  # show last 50 runs
+        ts = _fmt_run_ts(run_num, ts_map)
+        ts_cell = (f'<span style="color:#8b949e;font-size:12px">{ts}</span>'
+                   if ts else '<span style="color:#484f58;font-size:12px">—</span>')
         rows.append(
             f'<tr><td>Run #{run_num}</td>'
+            f'<td>{ts_cell}</td>'
             f'<td><a href="history/run-{run_num}.html">View report</a></td></tr>'
         )
     return (
         '<table class="history-table">'
-        '<thead><tr><th>Run</th><th>Report</th></tr></thead>'
+        '<thead><tr><th>Run</th><th>Date &amp; Time</th><th>Report</th></tr></thead>'
         f'<tbody>{"".join(rows)}</tbody></table>'
     )
 
@@ -315,8 +342,14 @@ def _build_index_html(summary: dict, history: list[tuple[int, Path]]) -> str:
     agent_grid = "".join(_agent_card(src, pub, lbl, em)
                          for src, pub, lbl, em in AGENT_REPORTS)
 
-    history_html = _history_table(history)
-    trend_html   = _trend_chart_html(_load_trends())
+    trends = _load_trends()
+    ts_map: dict[int, str] = {
+        int(r["run_number"]): r.get("timestamp", "")
+        for r in trends.get("runs", [])
+        if r.get("run_number") and r.get("timestamp")
+    }
+    history_html = _history_table(history, ts_map)
+    trend_html   = _trend_chart_html(trends)
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -638,9 +671,19 @@ def main() -> None:
     print(f"  ✅ index.html built ({len(history)} runs in history)")
 
     # 4. History index page (with unified footer)
+    # Build ts_map for the history page (same source as index.html)
+    _trends_hist = _load_trends()
+    _ts_map_hist: dict[int, str] = {
+        int(r["run_number"]): r.get("timestamp", "")
+        for r in _trends_hist.get("runs", [])
+        if r.get("run_number") and r.get("timestamp")
+    }
     rows = []
     for run_num, _ in history[:50]:
-        rows.append(f'<li><a href="run-{run_num}.html">Run #{run_num}</a></li>')
+        ts = _fmt_run_ts(run_num, _ts_map_hist)
+        ts_str = (f'<span style="color:#8b949e;font-size:12px;margin-left:10px">'
+                  f'🕐 {ts}</span>') if ts else ""
+        rows.append(f'<li><a href="run-{run_num}.html">Run #{run_num}</a>{ts_str}</li>')
     (SITE_DIR / "history" / "index.html").write_text(f"""<!DOCTYPE html>
 <html><head><meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>

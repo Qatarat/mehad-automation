@@ -21,6 +21,7 @@ import hashlib
 import json
 import re
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
@@ -262,6 +263,7 @@ def update_trends(trends: dict, run_number: int | str, run_url: str,
     trends.setdefault("runs", []).append({
         "run_number": run_num,
         "run_url":    run_url,
+        "timestamp":  datetime.utcnow().isoformat() + "Z",
         "passed":     totals.get("total_passed", 0),
         "failed":     totals.get("total_failed", 0),
         "total":      totals.get("total_tests", 0),
