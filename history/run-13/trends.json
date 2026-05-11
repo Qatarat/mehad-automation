@@ -119,6 +119,16 @@
       "total": 401,
       "bugs": 12,
       "pass_rate": "97.0%"
+    },
+    {
+      "run_number": 13,
+      "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/25675215649",
+      "timestamp": "2026-05-11T16:08:46.669518Z",
+      "passed": 402,
+      "failed": 12,
+      "total": 414,
+      "bugs": 12,
+      "pass_rate": "97.1%"
     }
   ],
   "fingerprints": {
