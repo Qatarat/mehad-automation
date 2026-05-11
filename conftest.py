@@ -158,6 +158,7 @@ def browser_type_launch_args(browser_type_launch_args):
         **browser_type_launch_args,
         "headless": not _HEADED,    # HEADED=1 → open real browser window
         "slow_mo":  _SLOW_MO,       # SLOW_MO=800 → 800ms delay per action
+        "timeout":  60000,          # 60s browser launch timeout (Windows IOCP is slow)
     }
 
 

@@ -1599,11 +1599,19 @@ def _stream(cmd: list, env: dict, timeout: int = 300) -> tuple[int, str]:
 
 def run_tests(test_file: Path) -> dict:
     json_report = REPORTS_DIR / f"result_{test_file.stem}.json"
-    env = {**os.environ, "BASE_URL": BASE_URL, "PWDEBUG": "0", "PYTHONUNBUFFERED": "1"}
+    env = {
+        **os.environ,
+        "BASE_URL": BASE_URL,
+        "PWDEBUG": "0",
+        "PYTHONUNBUFFERED": "1",
+        # Give Playwright 60 s to launch the browser subprocess on slow/Windows machines.
+        "PLAYWRIGHT_TIMEOUT": "60000",
+    }
 
     log(f"  [COLLECT] Discovering tests in {test_file.name}...")
     _rc, cout = _stream([sys.executable, "-m", "pytest", str(test_file),
-                         "--collect-only", "-q", "--no-header"], env, timeout=60)
+                         "--collect-only", "-q", "--no-header",
+                         "--browser=chromium"], env, timeout=90)
     m = re.search(r"(\d+) tests? collected", cout)
     collected = int(m.group(1)) if m else len(re.findall(r"::test_\w+", cout))
     log(f"  [COLLECT] {collected} test function(s) found")
@@ -1615,9 +1623,10 @@ def run_tests(test_file: Path) -> dict:
     rc, output = _stream(
         [sys.executable, "-m", "pytest", str(test_file),
          "-v", "--tb=short", "--no-header",
+         "--browser=chromium",
          "--json-report", f"--json-report-file={json_report}",
-         "--timeout=30"],
-        env, timeout=300,
+         "--timeout=60"],
+        env, timeout=420,
     )
 
     passed = failed = total = 0
