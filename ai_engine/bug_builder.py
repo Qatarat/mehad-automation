@@ -97,6 +97,122 @@ _SEVERITY_BY_PREFIX: list[tuple[str, str, str]] = [
     ("qa10",            "LOW",      "P3"),
 ]
 
+# ── Prioritization Framework metadata ─────────────────────────────────────────
+# Sourced from the Dev Support Board & AI Scrum Board prioritization document.
+PRIORITY_META: dict[str, dict] = {
+    "P0": {
+        "label":  "Highest",
+        "sla":    "24 hours",
+        "board":  "Expedite",
+        "action": "Hotfix within 24h. Full fix queued as P1.",
+    },
+    "P1": {
+        "label":  "High",
+        "sla":    "2–3 working days",
+        "board":  "Expedite",
+        "action": "Phase delivery. PM sign-off required.",
+    },
+    "P2": {
+        "label":  "Medium",
+        "sla":    "Current or next sprint",
+        "board":  "Everything Else",
+        "action": "Decompose before sprint entry.",
+    },
+    "P3": {
+        "label":  "Low",
+        "sla":    "Backlog, next available",
+        "board":  "Everything Else",
+        "action": "Demote to Discard if demand < 5 signals.",
+    },
+}
+
+# Keywords used by the Bug decision tree to classify impact type
+_BLOCKING_KEYWORDS   = frozenset([
+    "login", "auth", "signup", "checkout", "payment", "session",
+    "campaign", "smoke", "functional", "otp", "trigger", "preset",
+])
+_CAMPAIGN_KEYWORDS   = frozenset([
+    "campaign", "checkout", "payment", "trigger", "preset", "send",
+    "schedule", "segment",
+])
+_DATA_INTEGRITY_KEYS = frozenset([
+    "hallucination", "data_integrity", "attribution", "segment",
+    "analytics", "duplicate", "revenue",
+])
+
+
+def _framework_meta(severity: str, priority: str, test_name: str) -> dict:
+    """Apply the Bug decision tree from the prioritization framework.
+
+    Tree (abridged):
+      HV customer impact? (CRITICAL severity assumed yes)
+        Blocking core flow → P0   else → P1
+      HIGH / MEDIUM affecting campaign or data integrity → P1
+      MEDIUM other → P2,  LOW → P3
+
+    Data Integrity Rule: any data trust issue is P1 minimum.
+    Security Exception: confirmed vulnerability is P1 minimum.
+    """
+    nm = test_name.lower()
+    is_blocking = any(kw in nm for kw in _BLOCKING_KEYWORDS)
+    is_campaign = any(kw in nm for kw in _CAMPAIGN_KEYWORDS)
+    is_data     = any(kw in nm for kw in _DATA_INTEGRITY_KEYS)
+
+    if severity == "CRITICAL":
+        # CRITICAL = HV customer impact assumed (security breach, data loss, auth broken)
+        if is_blocking or priority == "P0":
+            fp        = "P0"
+            rationale = ("Security breach / data loss / auth completely broken — "
+                         "HV customer impact. Blocking core flow → P0 Highest.")
+            biz       = True
+        else:
+            fp        = "P1"
+            rationale = ("CRITICAL severity, feature degraded but not fully blocking. "
+                         "HV customer impact → P1 High.")
+            biz       = True
+    elif severity == "HIGH":
+        fp  = "P1"
+        biz = False
+        if is_campaign:
+            rationale = ("Core campaign flow impacted. "
+                         "Framework: blocking campaign creation or active campaigns → P1 High.")
+        elif is_data:
+            rationale = ("Data integrity issue — merchant sees incorrect data. "
+                         "Framework Data Integrity Rule → P1 minimum.")
+        else:
+            rationale = ("Significant feature degraded. "
+                         "Framework: HV feature impacted → P1 High.")
+    elif severity == "MEDIUM":
+        biz = False
+        if is_campaign:
+            fp        = "P1"
+            rationale = ("Campaign flow blocked despite medium severity. "
+                         "Framework: blocking active campaigns → P1 High.")
+        elif is_data:
+            fp        = "P1"
+            rationale = ("Data integrity issue — merchant sees incorrect data. "
+                         "Framework Data Integrity Rule → P1 minimum.")
+        else:
+            fp        = "P2"
+            rationale = ("Valid issue, no active urgency. "
+                         "Framework: current or next sprint → P2 Medium.")
+    else:  # LOW
+        fp        = "P3"
+        rationale = ("Cosmetic / locale / non-critical defect. "
+                     "Framework: backlog, next available → P3 Low.")
+        biz       = False
+
+    m = PRIORITY_META[fp]
+    return {
+        "priority":           fp,
+        "priority_label":     m["label"],
+        "sla":                m["sla"],
+        "board_section":      m["board"],
+        "priority_rationale": rationale,
+        "priority_action":    m["action"],
+        "biz_escalate":       biz,
+    }
+
 
 def _infer_severity_from_test_name(test_name: str) -> tuple[str, str]:
     """Return (severity, priority) inferred from the test-name prefix."""
@@ -288,12 +404,23 @@ Return only the JSON object — no prose, no markdown fences."""
     else:
         ticket_data = minimal  # AI failed completely → use deterministic ticket
 
+    # Apply the prioritization framework decision tree.
+    # This overrides any AI-assigned priority with framework-consistent values
+    # and enriches the ticket with SLA, board section, and rationale.
+    fw = _framework_meta(ticket_data["severity"], ticket_data["priority"], test_name)
+
     # Final assembled ticket includes test-run metadata
     return {
         "id":            bug_id,
         "test_name":     test_name,
         "severity":      ticket_data["severity"],
-        "priority":      ticket_data["priority"],
+        "priority":      fw["priority"],
+        "priority_label":     fw["priority_label"],
+        "sla":                fw["sla"],
+        "board_section":      fw["board_section"],
+        "priority_rationale": fw["priority_rationale"],
+        "priority_action":    fw["priority_action"],
+        "biz_escalate":       fw["biz_escalate"],
         "title":         ticket_data["title"][:140],
         "description":   ticket_data["description"],
         "steps":         ticket_data["steps"][:8],

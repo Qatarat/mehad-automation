@@ -235,10 +235,50 @@ pre{{background:#0d1117;border:1px solid var(--border);border-radius:6px;
 .badge.PASS    {{background:var(--c-pass-bg);    color:var(--c-pass);    border:1px solid var(--c-pass)}}
 .badge.FAIL    {{background:var(--c-critical-bg);color:var(--c-critical);border:1px solid var(--c-critical)}}
 .badge.gen-fail{{background:#3d2000;color:#fb923c;border:1px solid #fb923c}}
-.badge.P0{{background:#450a0a;color:#fca5a5}}
-.badge.P1{{background:#3d1a0a;color:#fdba74}}
-.badge.P2{{background:#1a2e0a;color:#86efac}}
-.badge.P3{{background:#0a1a2e;color:#93c5fd}}
+.badge.P0{{background:#450a0a;color:#fca5a5;border:1px solid #f85149}}
+.badge.P1{{background:#3d1a0a;color:#fdba74;border:1px solid #f0883e}}
+.badge.P2{{background:#1a2e0a;color:#86efac;border:1px solid #3fb950}}
+.badge.P3{{background:#0a1a2e;color:#93c5fd;border:1px solid #58a6ff}}
+
+/* ── Priority framework strip ── */
+.priority-strip{{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px}}
+.pstrip-item{{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+            padding:14px 16px;cursor:pointer;transition:transform .12s,border-color .12s,background .12s;
+            text-align:center}}
+.pstrip-item:hover{{background:#1c2333;transform:translateY(-2px)}}
+.pstrip-label{{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}}
+.pstrip-val{{font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}}
+.pstrip-sla{{font-size:10px;color:var(--muted);margin-top:4px}}
+.pstrip-item.p0{{border-top:3px solid var(--c-critical)}}
+.pstrip-item.p0 .pstrip-label,.pstrip-item.p0 .pstrip-val{{color:var(--c-critical)}}
+.pstrip-item.p1{{border-top:3px solid var(--c-high)}}
+.pstrip-item.p1 .pstrip-label,.pstrip-item.p1 .pstrip-val{{color:var(--c-high)}}
+.pstrip-item.p2{{border-top:3px solid var(--c-medium)}}
+.pstrip-item.p2 .pstrip-label,.pstrip-item.p2 .pstrip-val{{color:var(--c-medium)}}
+.pstrip-item.p3{{border-top:3px solid var(--c-low)}}
+.pstrip-item.p3 .pstrip-label,.pstrip-item.p3 .pstrip-val{{color:var(--c-low)}}
+@media(max-width:768px){{.priority-strip{{grid-template-columns:repeat(2,1fr)}}}}
+@media(max-width:480px){{.priority-strip{{grid-template-columns:1fr 1fr}}}}
+
+/* ── Board section chip ── */
+.board-chip{{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 8px;
+           border-radius:4px;text-transform:uppercase;display:inline-block}}
+.board-chip.expedite{{background:#450a0a;color:#fca5a5;border:1px solid #f85149}}
+.board-chip.else{{background:#0a1628;color:#93c5fd;border:1px solid #3b82f6}}
+
+/* ── BIZ-ESCALATE badge ── */
+.biz-badge{{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 8px;
+          border-radius:4px;background:#2d1b55;color:#d8b4fe;border:1px solid #7c3aed;
+          display:inline-block;animation:biz-pulse 2s ease-in-out infinite}}
+@keyframes biz-pulse{{0%,100%{{opacity:1}} 50%{{opacity:.7}}}}
+
+/* ── SLA chip ── */
+.sla-chip{{font-size:10px;color:var(--muted);background:#0d1117;border:1px solid var(--border);
+         border-radius:4px;padding:2px 8px;display:inline-block}}
+
+/* ── Priority rationale info block ── */
+.info-block.priority{{background:#0a1822;border-left:3px solid #60a5fa}}
+.info-block.priority .ib-label{{color:#60a5fa}}
 
 /* ── Bug ticket card ── */
 .bug-card{{background:var(--surface);border:1px solid var(--border);
@@ -587,6 +627,34 @@ tr:hover td{{background:#1c2333}}
   <a href="#tests"       class="stat total"    data-filter="all"      title="Show all tests"><div class="label">Total Tests</div><div class="val">{total_tests}</div></a>
 </div>
 
+<!-- Priority breakdown — click to filter bug list by priority level -->
+<div class="priority-strip">
+  <div class="pstrip-item p0" onclick="applyBugFilter('P0')"
+       title="P0 Highest · 24h SLA · Expedite section — hotfix immediately">
+    <div class="pstrip-label">P0 · Highest</div>
+    <div class="pstrip-val">{cnt_p0}</div>
+    <div class="pstrip-sla">⏱ 24h SLA &nbsp;·&nbsp; 🎯 Expedite</div>
+  </div>
+  <div class="pstrip-item p1" onclick="applyBugFilter('P1')"
+       title="P1 High · 2–3 working days · Expedite section">
+    <div class="pstrip-label">P1 · High</div>
+    <div class="pstrip-val">{cnt_p1}</div>
+    <div class="pstrip-sla">⏱ 2–3 working days &nbsp;·&nbsp; 🎯 Expedite</div>
+  </div>
+  <div class="pstrip-item p2" onclick="applyBugFilter('P2')"
+       title="P2 Medium · Current or next sprint · Everything Else">
+    <div class="pstrip-label">P2 · Medium</div>
+    <div class="pstrip-val">{cnt_p2}</div>
+    <div class="pstrip-sla">⏱ Current sprint &nbsp;·&nbsp; 📋 Everything Else</div>
+  </div>
+  <div class="pstrip-item p3" onclick="applyBugFilter('P3')"
+       title="P3 Low · Backlog · Everything Else">
+    <div class="pstrip-label">P3 · Low</div>
+    <div class="pstrip-val">{cnt_p3}</div>
+    <div class="pstrip-sla">⏱ Backlog &nbsp;·&nbsp; 📋 Everything Else</div>
+  </div>
+</div>
+
 <!-- Cluster summary — groups bugs by root cause (e.g. 6 missing-headers
      finding share '1 root cause: security headers') -->
 {cluster_summary}
@@ -599,14 +667,21 @@ tr:hover td{{background:#1c2333}}
   Bug Tickets <span class="count">{total_bugs}</span>
 </div>
 
-<!-- Bug-tickets severity filter (visible only when at least one bug exists) -->
+<!-- Bug-tickets filters — by severity or by priority level -->
 <div class="filter-bar bug-filter-bar" id="bug-filter-bar">
-  <span class="filter-lbl">Filter:</span>
+  <span class="filter-lbl">Severity:</span>
   <button class="fbtn active" data-bug-filter="all">All ({total_bugs})</button>
   <button class="fbtn fbtn-critical" data-bug-filter="CRITICAL">Critical ({cnt_critical})</button>
   <button class="fbtn fbtn-high"     data-bug-filter="HIGH">High ({cnt_high})</button>
   <button class="fbtn fbtn-medium"   data-bug-filter="MEDIUM">Medium ({cnt_medium})</button>
   <button class="fbtn fbtn-low"      data-bug-filter="LOW">Low ({cnt_low})</button>
+</div>
+<div class="filter-bar" style="margin-top:6px">
+  <span class="filter-lbl">Priority:</span>
+  <button class="fbtn" data-bug-filter="P0" title="P0 Highest — 24h SLA — Expedite">P0 Highest ({cnt_p0})</button>
+  <button class="fbtn" data-bug-filter="P1" title="P1 High — 2-3 days — Expedite">P1 High ({cnt_p1})</button>
+  <button class="fbtn" data-bug-filter="P2" title="P2 Medium — This sprint">P2 Medium ({cnt_p2})</button>
+  <button class="fbtn" data-bug-filter="P3" title="P3 Low — Backlog">P3 Low ({cnt_p3})</button>
 </div>
 
 <div id="bug-list">
@@ -737,10 +812,18 @@ function applyTestSearch(q){{
 }}
 
 function applyBugFilter(sev){{
-  // sev = "all" | "CRITICAL" | "HIGH" | "MEDIUM" | "LOW"
+  // sev = "all" | "CRITICAL"|"HIGH"|"MEDIUM"|"LOW" (severity)
+  //       | "P0"|"P1"|"P2"|"P3" (priority)
   document.querySelectorAll('#bug-list .bug-card').forEach(function(c){{
     if(sev === 'all'){{ c.dataset.hidden = '0'; return; }}
-    var match = c.querySelector('.badge.' + sev) !== null;
+    var match;
+    if(/^P[0-3]$/.test(sev)){{
+      // Priority filter — uses data-priority attribute on the card
+      match = c.dataset.priority === sev;
+    }} else {{
+      // Severity filter — looks for a matching badge class
+      match = c.querySelector('.badge.' + sev) !== null;
+    }}
     c.dataset.hidden = match ? '0' : '1';
   }});
   document.querySelectorAll('[data-bug-filter]').forEach(function(b){{
@@ -837,6 +920,18 @@ def _bug_ticket(bug: dict, idx: int) -> str:
     env_b = bug.get("browser", "Chromium")
     env_v = bug.get("viewport", "1280×720")
     env_e = bug.get("env", "Staging")
+
+    # ── Prioritization framework fields ──────────────────────────────────────
+    priority_label    = bug.get("priority_label", "")
+    sla               = bug.get("sla", "")
+    board_section     = bug.get("board_section", "")
+    priority_rationale= bug.get("priority_rationale", "")
+    priority_action   = bug.get("priority_action", "")
+    biz_escalate      = bug.get("biz_escalate", False)
+
+    board_cls = "expedite" if board_section == "Expedite" else "else"
+    biz_html  = '<span class="biz-badge">[BIZ-ESCALATE]</span>' if biz_escalate else ""
+    pri_label_html = f" · {priority_label}" if priority_label else ""
 
     # Steps list
     steps_html = ""
@@ -1012,14 +1107,27 @@ def _bug_ticket(bug: dict, idx: int) -> str:
   <div>{_esc(desc) or "<em style='color:var(--muted)'>See error details below</em>"}</div>
 </div>""" if desc else ""
 
+    # Priority rationale block (framework decision tree output)
+    priority_html = ""
+    if priority_rationale:
+        action_line = (f'<div style="margin-top:6px;font-size:11px;color:var(--muted)">'
+                       f'Action: {_esc(priority_action)}</div>') if priority_action else ""
+        priority_html = f"""
+<div class="info-block priority" style="margin-bottom:16px">
+  <div class="ib-label">🎯 Priority Rationale</div>
+  <div>{_esc(priority_rationale)}</div>
+  {action_line}
+</div>"""
+
     return f"""
-<div class="bug-card" id="{bug_id}">
+<div class="bug-card" id="{bug_id}" data-priority="{pri}">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
         <span class="bug-id">{bug_id}</span>
         <span class="badge {sev}">{sev}</span>
-        <span class="badge {pri}">{pri}</span>
+        <span class="badge {pri}">{pri}{pri_label_html}</span>
+        {biz_html}
       </div>
       <div class="bug-title">{_esc(title)}</div>
       <div class="bug-meta">
@@ -1027,10 +1135,13 @@ def _bug_ticket(bug: dict, idx: int) -> str:
         <span>🧪 <code>{_esc(test)}</code></span>
         <span>🕐 {ts}</span>
         {'<span>⏱ ' + dur + '</span>' if dur else ''}
+        {f'<span><span class="sla-chip">⏱ SLA: {_esc(sla)}</span></span>' if sla else ''}
+        {f'<span><span class="board-chip {board_cls}">{_esc(board_section)}</span></span>' if board_section else ''}
       </div>
     </div>
   </div>
   <div class="bug-body">
+    {priority_html}
     {desc_html}
     {td_html}
     {steps_html}
@@ -1446,9 +1557,12 @@ def generate_report(all_results: dict, base_url: str, model: str,
     total_tests  = sum(r.get("total",  0) for r in all_results.values())
 
     cnt = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
+    pri_cnt = {"P0": 0, "P1": 0, "P2": 0, "P3": 0}
     for b in all_bugs:
         sev = b.get("severity", "MEDIUM").upper()
         cnt[sev] = cnt.get(sev, 0) + 1
+        pri = b.get("priority", "P2")
+        pri_cnt[pri] = pri_cnt.get(pri, 0) + 1
 
     # ── Cluster summary banner ─────────────────────────────────────────────
     # consolidate-reports.py adds 'fingerprint' + 'category_title' to each
@@ -1480,6 +1594,10 @@ def generate_report(all_results: dict, base_url: str, model: str,
         cnt_high     = cnt["HIGH"],
         cnt_medium   = cnt["MEDIUM"],
         cnt_low      = cnt["LOW"],
+        cnt_p0       = pri_cnt["P0"],
+        cnt_p1       = pri_cnt["P1"],
+        cnt_p2       = pri_cnt["P2"],
+        cnt_p3       = pri_cnt["P3"],
         total_passed = total_passed,
         total_failed = total_failed,
         total_tests  = total_tests,

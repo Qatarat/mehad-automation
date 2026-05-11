@@ -12,6 +12,8 @@ from datetime import datetime
 ROOT = Path(__file__).parent.parent
 sys.path.insert(0, str(ROOT))
 
+from ai_engine.bug_builder import _framework_meta
+
 REPORTS_DIR = ROOT / "reports"
 TESTS_DIR   = ROOT / "tests"
 
@@ -123,10 +125,21 @@ def build_all_results(summary: dict, data_log: dict) -> dict:
             longrepr = call.get("longrepr", "")
             lines    = [l for l in longrepr.splitlines() if l.strip()]
             short    = "\n".join(lines[-5:]) if lines else "No details"
+            sev = "CRITICAL" if any(kw in nodeid.lower() for kw in ("security","xss","sqli","injection","csrf")) \
+                  else "HIGH" if any(kw in nodeid.lower() for kw in ("auth","login","smoke","functional","payment")) \
+                  else "MEDIUM"
+            pri = "P0" if sev == "CRITICAL" else "P1" if sev == "HIGH" else "P2"
+            fw  = _framework_meta(sev, pri, fn_name)
             bugs.append({
                 "id":            f"BUG-{spec_name[:3].upper()}-{len(bugs)+1:03d}",
-                "severity":      "HIGH" if "security" in nodeid.lower() else "MEDIUM",
-                "priority":      "P1" if "security" in nodeid.lower() else "P2",
+                "severity":      sev,
+                "priority":      fw["priority"],
+                "priority_label":     fw["priority_label"],
+                "sla":                fw["sla"],
+                "board_section":      fw["board_section"],
+                "priority_rationale": fw["priority_rationale"],
+                "priority_action":    fw["priority_action"],
+                "biz_escalate":       fw["biz_escalate"],
                 "title":         f"Test failed: {fn_name}",
                 "test_name":     fn_name,
                 "page_url":      summary.get("base_url", ""),
