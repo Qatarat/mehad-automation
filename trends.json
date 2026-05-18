@@ -29,52 +29,67 @@
       "total": 417,
       "bugs": 13,
       "pass_rate": "96.9%"
+    },
+    {
+      "run_number": 22,
+      "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/26011209972",
+      "timestamp": "2026-05-18T04:20:58.440394Z",
+      "passed": 338,
+      "failed": 81,
+      "total": 419,
+      "bugs": 81,
+      "pass_rate": "80.7%"
     }
   ],
   "fingerprints": {
     "ba3a1c4e62f0": {
       "first_seen_run": 19,
-      "last_seen_run": 21,
+      "last_seen_run": 22,
       "runs_seen": [
         19,
         20,
-        21
+        21,
+        22
       ]
     },
     "a7bfd7d38d07": {
       "first_seen_run": 19,
-      "last_seen_run": 21,
+      "last_seen_run": 22,
       "runs_seen": [
         19,
         20,
-        21
+        21,
+        22
       ]
     },
     "9252bcf5ad3d": {
       "first_seen_run": 19,
-      "last_seen_run": 21,
+      "last_seen_run": 22,
       "runs_seen": [
         19,
         20,
-        21
+        21,
+        22
       ]
     },
     "01cd6b2d1b53": {
       "first_seen_run": 19,
-      "last_seen_run": 21,
+      "last_seen_run": 22,
       "runs_seen": [
         19,
         20,
-        21
+        21,
+        22
       ]
     },
     "3fb581456488": {
       "first_seen_run": 19,
-      "last_seen_run": 21,
+      "last_seen_run": 22,
       "runs_seen": [
         19,
         20,
-        21
+        21,
+        22
       ]
     },
     "249110d9e8a6": {
@@ -87,29 +102,32 @@
     },
     "a7f290e2b3be": {
       "first_seen_run": 19,
-      "last_seen_run": 21,
+      "last_seen_run": 22,
       "runs_seen": [
         19,
         20,
-        21
+        21,
+        22
       ]
     },
     "d89a19962de5": {
       "first_seen_run": 19,
-      "last_seen_run": 21,
+      "last_seen_run": 22,
       "runs_seen": [
         19,
         20,
-        21
+        21,
+        22
       ]
     },
     "c0c999130a00": {
       "first_seen_run": 19,
-      "last_seen_run": 21,
+      "last_seen_run": 22,
       "runs_seen": [
         19,
         20,
-        21
+        21,
+        22
       ]
     },
     "01585086b351": {
@@ -123,20 +141,29 @@
     },
     "de41860e2619": {
       "first_seen_run": 19,
-      "last_seen_run": 21,
+      "last_seen_run": 22,
       "runs_seen": [
         19,
         20,
-        21
+        21,
+        22
       ]
     },
     "61bdca766f4e": {
       "first_seen_run": 19,
-      "last_seen_run": 21,
+      "last_seen_run": 22,
       "runs_seen": [
         19,
         20,
-        21
+        21,
+        22
+      ]
+    },
+    "046ef2e7920e": {
+      "first_seen_run": 22,
+      "last_seen_run": 22,
+      "runs_seen": [
+        22
       ]
     }
   }
