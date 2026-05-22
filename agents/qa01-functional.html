@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA Bug Report — 2026-05-20 04:19:37</title>
+<title>Mehad QA Bug Report — 2026-05-22 04:21:07</title>
 <style>
 /* ── Reset & base ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -590,7 +590,7 @@ tr:hover td{background:#1c2333}
       </div>
     </div>
     <div class="hdr-meta">
-      <div><b>Date:</b> 2026-05-20 04:19:37</div>
+      <div><b>Date:</b> 2026-05-22 04:21:07</div>
       <div><b>Target:</b> https://dev.mehadedu.com/en</div>
       <div><b>AI Model:</b> unknown (local · no API key)</div>
       <div><b>Browser:</b> Chromium (headless)</div>
@@ -605,10 +605,10 @@ tr:hover td{background:#1c2333}
 <div class="stats">
   <a href="#bugs"        class="stat critical" data-filter="bugs"     title="Show CRITICAL bug tickets"><div class="label">Critical</div><div class="val">0</div></a>
   <a href="#bugs"        class="stat high"     data-filter="bugs"     title="Show HIGH bug tickets"><div class="label">High</div>    <div class="val">2</div></a>
-  <a href="#bugs"        class="stat medium"   data-filter="bugs"     title="Show MEDIUM bug tickets"><div class="label">Medium</div>  <div class="val">7</div></a>
+  <a href="#bugs"        class="stat medium"   data-filter="bugs"     title="Show MEDIUM bug tickets"><div class="label">Medium</div>  <div class="val">9</div></a>
   <a href="#bugs"        class="stat low"      data-filter="bugs"     title="Show LOW bug tickets"><div class="label">Low</div>     <div class="val">0</div></a>
-  <a href="#tests"       class="stat pass"     data-filter="passed"   title="Show only PASSED tests"><div class="label">Passed</div>  <div class="val">36</div></a>
-  <a href="#tests"       class="stat fail"     data-filter="failed"   title="Show only FAILED tests"><div class="label">Failed</div>  <div class="val">9</div></a>
+  <a href="#tests"       class="stat pass"     data-filter="passed"   title="Show only PASSED tests"><div class="label">Passed</div>  <div class="val">34</div></a>
+  <a href="#tests"       class="stat fail"     data-filter="failed"   title="Show only FAILED tests"><div class="label">Failed</div>  <div class="val">11</div></a>
   <a href="#tests"       class="stat total"    data-filter="all"      title="Show all tests"><div class="label">Total Tests</div><div class="val">45</div></a>
 </div>
 
@@ -629,7 +629,7 @@ tr:hover td{background:#1c2333}
   <div class="pstrip-item p2" onclick="applyBugFilter('P2')"
        title="P2 Medium · Current or next sprint · Everything Else">
     <div class="pstrip-label">P2 · Medium</div>
-    <div class="pstrip-val">7</div>
+    <div class="pstrip-val">9</div>
     <div class="pstrip-sla">⏱ Current sprint &nbsp;·&nbsp; 📋 Everything Else</div>
   </div>
   <div class="pstrip-item p3" onclick="applyBugFilter('P3')"
@@ -645,19 +645,29 @@ tr:hover td{background:#1c2333}
 
 <div class="cluster-summary" id="clusters">
   <div class="sec-title" style="margin:24px 0 12px">
-    🎯 Root-Cause Summary <span class="count">1 clusters</span>
+    🎯 Root-Cause Summary <span class="count">2 clusters</span>
   </div>
-  <div class="cluster-headline">9 bug ticket(s) → <strong>1 unique root cause(s)</strong></div>
+  <div class="cluster-headline">11 bug ticket(s) → <strong>2 unique root cause(s)</strong></div>
   <div class="cluster-list">
 <div class="cluster-row">
   <div class="cluster-meta">
     <span class="badge HIGH">HIGH</span>
     <span class="badge P1">P1</span>
     <span class="cluster-count">9× affected</span>
-    <span class="recurrence-badge">3× consecutive runs</span>
+    <span class="recurrence-badge">4× consecutive runs</span>
   </div>
   <div class="cluster-title">Accessibility: required attribute missing</div>
-  <div class="cluster-tickets"><a href="#QA-01 -001" class="cluster-bug-link">QA-01 -001</a> <a href="#QA-01 -002" class="cluster-bug-link">QA-01 -002</a> <a href="#QA-01 -003" class="cluster-bug-link">QA-01 -003</a> <a href="#QA-01 -004" class="cluster-bug-link">QA-01 -004</a> <a href="#QA-01 -005" class="cluster-bug-link">QA-01 -005</a> <a href="#QA-01 -006" class="cluster-bug-link">QA-01 -006</a> <a href="#QA-01 -007" class="cluster-bug-link">QA-01 -007</a> <a href="#QA-01 -008" class="cluster-bug-link">QA-01 -008</a> <a href="#QA-01 -009" class="cluster-bug-link">QA-01 -009</a></div>
+  <div class="cluster-tickets"><a href="#QA-01 -003" class="cluster-bug-link">QA-01 -003</a> <a href="#QA-01 -004" class="cluster-bug-link">QA-01 -004</a> <a href="#QA-01 -005" class="cluster-bug-link">QA-01 -005</a> <a href="#QA-01 -006" class="cluster-bug-link">QA-01 -006</a> <a href="#QA-01 -007" class="cluster-bug-link">QA-01 -007</a> <a href="#QA-01 -008" class="cluster-bug-link">QA-01 -008</a> <a href="#QA-01 -009" class="cluster-bug-link">QA-01 -009</a> <a href="#QA-01 -010" class="cluster-bug-link">QA-01 -010</a> <a href="#QA-01 -011" class="cluster-bug-link">QA-01 -011</a></div>
+</div>
+<div class="cluster-row">
+  <div class="cluster-meta">
+    <span class="badge MEDIUM">MEDIUM</span>
+    <span class="badge P2">P2</span>
+    <span class="cluster-count">2× affected</span>
+    
+  </div>
+  <div class="cluster-title">Uncategorized failure</div>
+  <div class="cluster-tickets"><a href="#QA-01 -001" class="cluster-bug-link">QA-01 -001</a> <a href="#QA-01 -002" class="cluster-bug-link">QA-01 -002</a></div>
 </div></div>
   <div class="cluster-help">
     Bugs sharing a root cause are grouped here so you fix one thing
@@ -670,23 +680,23 @@ tr:hover td{background:#1c2333}
 
 <!-- Bug Tickets -->
 <div class="sec-title" id="bugs">
-  Bug Tickets <span class="count">9</span>
+  Bug Tickets <span class="count">11</span>
 </div>
 
 <!-- Bug-tickets filters — by severity or by priority level -->
 <div class="filter-bar bug-filter-bar" id="bug-filter-bar">
   <span class="filter-lbl">Severity:</span>
-  <button class="fbtn active" data-bug-filter="all">All (9)</button>
+  <button class="fbtn active" data-bug-filter="all">All (11)</button>
   <button class="fbtn fbtn-critical" data-bug-filter="CRITICAL">Critical (0)</button>
   <button class="fbtn fbtn-high"     data-bug-filter="HIGH">High (2)</button>
-  <button class="fbtn fbtn-medium"   data-bug-filter="MEDIUM">Medium (7)</button>
+  <button class="fbtn fbtn-medium"   data-bug-filter="MEDIUM">Medium (9)</button>
   <button class="fbtn fbtn-low"      data-bug-filter="LOW">Low (0)</button>
 </div>
 <div class="filter-bar" style="margin-top:6px">
   <span class="filter-lbl">Priority:</span>
   <button class="fbtn" data-bug-filter="P0" title="P0 Highest — 24h SLA — Expedite">P0 Highest (0)</button>
   <button class="fbtn" data-bug-filter="P1" title="P1 High — 2-3 days — Expedite">P1 High (2)</button>
-  <button class="fbtn" data-bug-filter="P2" title="P2 Medium — This sprint">P2 Medium (7)</button>
+  <button class="fbtn" data-bug-filter="P2" title="P2 Medium — This sprint">P2 Medium (9)</button>
   <button class="fbtn" data-bug-filter="P3" title="P3 Low — Backlog">P3 Low (0)</button>
 </div>
 
@@ -701,12 +711,202 @@ tr:hover td{background:#1c2333}
         <span class="badge P2">P2</span>
         
       </div>
+      <div class="bug-title">Failed: Test qa01 homepage loads correct url</div>
+      <div class="bug-meta">
+        <span>🔗 <a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
+        <span>🧪 <code>test_qa01_homepage_loads_correct_url</code></span>
+        <span>🕐 2026-05-22 04:21:06</span>
+        <span>⏱ 15.00s</span>
+        
+        
+      </div>
+    </div>
+  </div>
+  <div class="bug-body">
+    
+    
+<div class="info-block analysis" style="margin-bottom:16px">
+  <div class="ib-label">📋 What this test was checking</div>
+  <div>Homepage must load at the Mehad /en URL without redirect loop — verified against https://dev.mehadedu.com/en.</div>
+</div>
+    
+<div class="info-block analysis" style="margin-bottom:16px">
+  <div class="ib-label">🧪 Test data used</div>
+  <div style="font-family:'SF Mono',monospace;color:#a371f7;font-size:12px">
+    BASE_URL
+  </div>
+</div>
+    
+<div style="margin-bottom:16px">
+  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+              color:var(--muted);margin-bottom:8px">Steps to Reproduce</div>
+  <ol class="steps"><li>Open a browser and go to https://dev.mehadedu.com/en</li><li>Observe the result: it does NOT match what the test expected (see Actual Behavior)</li></ol>
+</div>
+    
+<div class="two-col">
+  <div class="info-block expected">
+    <div class="ib-label">✓ What should happen</div>
+    <div>Homepage must load at the Mehad /en URL without redirect loop.</div>
+  </div>
+  <div class="info-block actual">
+    <div class="ib-label">✗ What actually happened</div>
+    <div>The test could not load the page within 15000ms — the server is too slow or unreachable.</div>
+  </div>
+</div>
+    
+<div class="shot-wrap">
+  <div class="shot-label">Proof of Concept — Screenshot</div>
+  <div class="no-shot">No screenshot captured (test may have failed before page loaded)</div>
+</div>
+    
+    
+<button class="err-toggle" onclick="toggleErr('err-1')">
+  <span>▶ Show error details</span>
+  <span style="font-size:11px;color:var(--muted)">AssertionError / Traceback</span>
+</button>
+<div class="err-body" id="err-1">
+  <pre style="margin-top:8px"><strong style="color:var(--c-critical)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</strong>
+
+tests/test_qa_comprehensive.py:140: in test_qa01_homepage_loads_correct_url
+    page.goto(BASE_URL)
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py:9612: in goto
+    self._sync(
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_page.py:557: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_frame.py:156: in goto
+    await self._channel.send(
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</pre>
+</div>
+    
+    <div style="margin-top:16px"></div>
+    <div class="env-strip">
+      <span><b>Browser:</b> Chromium</span>
+      <span><b>Viewport:</b> 1280x720</span>
+      <span><b>Env:</b> Staging</span>
+      <span><b>Spec:</b> <a href="https://dev.mehadedu.com/en" target="_blank">View page</a></span>
+    </div>
+  </div>
+</div>
+<div class="bug-card" id="QA-01 -002" data-priority="P2">
+  <div class="bug-card-hdr">
+    <div>
+      <div class="left">
+        <span class="bug-id">QA-01 -002</span>
+        <span class="badge MEDIUM">MEDIUM</span>
+        <span class="badge P2">P2</span>
+        
+      </div>
+      <div class="bug-title">Failed: Test qa01 page title contains mehad</div>
+      <div class="bug-meta">
+        <span>🔗 <a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
+        <span>🧪 <code>test_qa01_page_title_contains_mehad</code></span>
+        <span>🕐 2026-05-22 04:21:06</span>
+        <span>⏱ 15.00s</span>
+        
+        
+      </div>
+    </div>
+  </div>
+  <div class="bug-body">
+    
+    
+<div class="info-block analysis" style="margin-bottom:16px">
+  <div class="ib-label">📋 What this test was checking</div>
+  <div>Page title must mention Mehad (brand presence check) — verified against https://dev.mehadedu.com/en.</div>
+</div>
+    
+<div class="info-block analysis" style="margin-bottom:16px">
+  <div class="ib-label">🧪 Test data used</div>
+  <div style="font-family:'SF Mono',monospace;color:#a371f7;font-size:12px">
+    BASE_URL
+  </div>
+</div>
+    
+<div style="margin-bottom:16px">
+  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+              color:var(--muted);margin-bottom:8px">Steps to Reproduce</div>
+  <ol class="steps"><li>Open a browser and go to https://dev.mehadedu.com/en</li><li>Observe the result: it does NOT match what the test expected (see Actual Behavior)</li></ol>
+</div>
+    
+<div class="two-col">
+  <div class="info-block expected">
+    <div class="ib-label">✓ What should happen</div>
+    <div>Page title must mention Mehad (brand presence check).</div>
+  </div>
+  <div class="info-block actual">
+    <div class="ib-label">✗ What actually happened</div>
+    <div>The test could not load the page within 15000ms — the server is too slow or unreachable.</div>
+  </div>
+</div>
+    
+<div class="shot-wrap">
+  <div class="shot-label">Proof of Concept — Screenshot</div>
+  <div class="no-shot">No screenshot captured (test may have failed before page loaded)</div>
+</div>
+    
+    
+<button class="err-toggle" onclick="toggleErr('err-2')">
+  <span>▶ Show error details</span>
+  <span style="font-size:11px;color:var(--muted)">AssertionError / Traceback</span>
+</button>
+<div class="err-body" id="err-2">
+  <pre style="margin-top:8px"><strong style="color:var(--c-critical)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</strong>
+
+tests/test_qa_comprehensive.py:147: in test_qa01_page_title_contains_mehad
+    page.goto(BASE_URL)
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py:9612: in goto
+    self._sync(
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_page.py:557: in goto
+    return await self._main_frame.goto(**locals_to_params(locals()))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_frame.py:156: in goto
+    await self._channel.send(
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
+    return await self._connection.wrap_api_call(
+/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
+    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
+E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
+E   Call log:
+E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</pre>
+</div>
+    
+    <div style="margin-top:16px"></div>
+    <div class="env-strip">
+      <span><b>Browser:</b> Chromium</span>
+      <span><b>Viewport:</b> 1280x720</span>
+      <span><b>Env:</b> Staging</span>
+      <span><b>Spec:</b> <a href="https://dev.mehadedu.com/en" target="_blank">View page</a></span>
+    </div>
+  </div>
+</div>
+<div class="bug-card" id="QA-01 -003" data-priority="P2">
+  <div class="bug-card-hdr">
+    <div>
+      <div class="left">
+        <span class="bug-id">QA-01 -003</span>
+        <span class="badge MEDIUM">MEDIUM</span>
+        <span class="badge P2">P2</span>
+        
+      </div>
       <div class="bug-title">Failed: Test qa01 modal country code default is 966</div>
       <div class="bug-meta">
         <span>🔗 <a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span>🧪 <code>test_qa01_modal_country_code_default_is_966</code></span>
-        <span>🕐 2026-05-20 04:19:36</span>
-        <span>⏱ 2.84s</span>
+        <span>🕐 2026-05-22 04:21:06</span>
+        <span>⏱ 2.87s</span>
         
         
       </div>
@@ -744,11 +944,11 @@ tr:hover td{background:#1c2333}
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-1')">
+<button class="err-toggle" onclick="toggleErr('err-3')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--muted)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-1">
+<div class="err-body" id="err-3">
   <pre style="margin-top:8px"><strong style="color:var(--c-critical)">E   AssertionError: Country code selector not found
 E   assert 0 &gt; 0
 E    +  where 0 = count()
@@ -771,11 +971,11 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-01 -002" data-priority="P2">
+<div class="bug-card" id="QA-01 -004" data-priority="P2">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-01 -002</span>
+        <span class="bug-id">QA-01 -004</span>
         <span class="badge MEDIUM">MEDIUM</span>
         <span class="badge P2">P2</span>
         
@@ -784,8 +984,8 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
       <div class="bug-meta">
         <span>🔗 <a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span>🧪 <code>test_qa01_country_code_dropdown_opens</code></span>
-        <span>🕐 2026-05-20 04:19:36</span>
-        <span>⏱ 17.82s</span>
+        <span>🕐 2026-05-22 04:21:06</span>
+        <span>⏱ 17.87s</span>
         
         
       </div>
@@ -823,11 +1023,11 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-2')">
+<button class="err-toggle" onclick="toggleErr('err-4')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--muted)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-2">
+<div class="err-body" id="err-4">
   <pre style="margin-top:8px"><strong style="color:var(--c-critical)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 15000ms exceeded.
 E   Call log:
@@ -860,11 +1060,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-01 -003" data-priority="P2">
+<div class="bug-card" id="QA-01 -005" data-priority="P2">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-01 -003</span>
+        <span class="bug-id">QA-01 -005</span>
         <span class="badge MEDIUM">MEDIUM</span>
         <span class="badge P2">P2</span>
         
@@ -873,8 +1073,8 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
       <div class="bug-meta">
         <span>🔗 <a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span>🧪 <code>test_qa01_country_search_filters_results</code></span>
-        <span>🕐 2026-05-20 04:19:36</span>
-        <span>⏱ 17.91s</span>
+        <span>🕐 2026-05-22 04:21:06</span>
+        <span>⏱ 20.09s</span>
         
         
       </div>
@@ -918,11 +1118,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-3')">
+<button class="err-toggle" onclick="toggleErr('err-5')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--muted)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-3">
+<div class="err-body" id="err-5">
   <pre style="margin-top:8px"><strong style="color:var(--c-critical)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 15000ms exceeded.
 E   Call log:
@@ -955,11 +1155,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-01 -004" data-priority="P2">
+<div class="bug-card" id="QA-01 -006" data-priority="P2">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-01 -004</span>
+        <span class="bug-id">QA-01 -006</span>
         <span class="badge MEDIUM">MEDIUM</span>
         <span class="badge P2">P2</span>
         
@@ -968,8 +1168,8 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
       <div class="bug-meta">
         <span>🔗 <a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span>🧪 <code>test_qa01_country_bangladesh_selectable</code></span>
-        <span>🕐 2026-05-20 04:19:36</span>
-        <span>⏱ 17.83s</span>
+        <span>🕐 2026-05-22 04:21:06</span>
+        <span>⏱ 20.15s</span>
         
         
       </div>
@@ -1013,11 +1213,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-4')">
+<button class="err-toggle" onclick="toggleErr('err-6')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--muted)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-4">
+<div class="err-body" id="err-6">
   <pre style="margin-top:8px"><strong style="color:var(--c-critical)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 15000ms exceeded.
 E   Call log:
@@ -1050,11 +1250,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-01 -005" data-priority="P2">
+<div class="bug-card" id="QA-01 -007" data-priority="P2">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-01 -005</span>
+        <span class="bug-id">QA-01 -007</span>
         <span class="badge MEDIUM">MEDIUM</span>
         <span class="badge P2">P2</span>
         
@@ -1063,8 +1263,8 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
       <div class="bug-meta">
         <span>🔗 <a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span>🧪 <code>test_qa01_send_code_enabled_after_phone_entry</code></span>
-        <span>🕐 2026-05-20 04:19:36</span>
-        <span>⏱ 17.86s</span>
+        <span>🕐 2026-05-22 04:21:06</span>
+        <span>⏱ 20.09s</span>
         
         
       </div>
@@ -1108,11 +1308,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-5')">
+<button class="err-toggle" onclick="toggleErr('err-7')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--muted)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-5">
+<div class="err-body" id="err-7">
   <pre style="margin-top:8px"><strong style="color:var(--c-critical)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 15000ms exceeded.
 E   Call log:
@@ -1147,11 +1347,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-01 -006" data-priority="P1">
+<div class="bug-card" id="QA-01 -008" data-priority="P1">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-01 -006</span>
+        <span class="bug-id">QA-01 -008</span>
         <span class="badge HIGH">HIGH</span>
         <span class="badge P1">P1</span>
         
@@ -1160,8 +1360,8 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
       <div class="bug-meta">
         <span>🔗 <a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span>🧪 <code>test_qa01_full_login_flow_success</code></span>
-        <span>🕐 2026-05-20 04:19:36</span>
-        <span>⏱ 17.82s</span>
+        <span>🕐 2026-05-22 04:21:06</span>
+        <span>⏱ 17.95s</span>
         
         
       </div>
@@ -1205,11 +1405,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-6')">
+<button class="err-toggle" onclick="toggleErr('err-8')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--muted)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-6">
+<div class="err-body" id="err-8">
   <pre style="margin-top:8px"><strong style="color:var(--c-critical)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 15000ms exceeded.
 E   Call log:
@@ -1244,11 +1444,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-01 -007" data-priority="P1">
+<div class="bug-card" id="QA-01 -009" data-priority="P1">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-01 -007</span>
+        <span class="bug-id">QA-01 -009</span>
         <span class="badge HIGH">HIGH</span>
         <span class="badge P1">P1</span>
         
@@ -1257,7 +1457,7 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
       <div class="bug-meta">
         <span>🔗 <a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span>🧪 <code>test_qa01_otp_input_appears_after_send_code</code></span>
-        <span>🕐 2026-05-20 04:19:36</span>
+        <span>🕐 2026-05-22 04:21:06</span>
         <span>⏱ 17.83s</span>
         
         
@@ -1302,11 +1502,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-7')">
+<button class="err-toggle" onclick="toggleErr('err-9')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--muted)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-7">
+<div class="err-body" id="err-9">
   <pre style="margin-top:8px"><strong style="color:var(--c-critical)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 15000ms exceeded.
 E   Call log:
@@ -1341,11 +1541,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-01 -008" data-priority="P2">
+<div class="bug-card" id="QA-01 -010" data-priority="P2">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-01 -008</span>
+        <span class="bug-id">QA-01 -010</span>
         <span class="badge MEDIUM">MEDIUM</span>
         <span class="badge P2">P2</span>
         
@@ -1354,8 +1554,8 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
       <div class="bug-meta">
         <span>🔗 <a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span>🧪 <code>test_qa01_resend_timer_appears_after_send_code</code></span>
-        <span>🕐 2026-05-20 04:19:36</span>
-        <span>⏱ 17.88s</span>
+        <span>🕐 2026-05-22 04:21:06</span>
+        <span>⏱ 18.08s</span>
         
         
       </div>
@@ -1399,11 +1599,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-8')">
+<button class="err-toggle" onclick="toggleErr('err-10')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--muted)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-8">
+<div class="err-body" id="err-10">
   <pre style="margin-top:8px"><strong style="color:var(--c-critical)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 15000ms exceeded.
 E   Call log:
@@ -1438,11 +1638,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-01 -009" data-priority="P2">
+<div class="bug-card" id="QA-01 -011" data-priority="P2">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-01 -009</span>
+        <span class="bug-id">QA-01 -011</span>
         <span class="badge MEDIUM">MEDIUM</span>
         <span class="badge P2">P2</span>
         
@@ -1451,8 +1651,8 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
       <div class="bug-meta">
         <span>🔗 <a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span>🧪 <code>test_qa01_change_number_link_appears_after_send</code></span>
-        <span>🕐 2026-05-20 04:19:36</span>
-        <span>⏱ 18.55s</span>
+        <span>🕐 2026-05-22 04:21:06</span>
+        <span>⏱ 18.01s</span>
         
         
       </div>
@@ -1496,11 +1696,11 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-9')">
+<button class="err-toggle" onclick="toggleErr('err-11')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--muted)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-9">
+<div class="err-body" id="err-11">
   <pre style="margin-top:8px"><strong style="color:var(--c-critical)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Locator.click: Timeout 15000ms exceeded.
 E   Call log:
@@ -1549,10 +1749,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <tr>
       <td><strong>qa01_functional</strong></td>
       <td><span class="badge FAIL">FAILED</span></td>
-      <td style="color:var(--c-pass)">36</td>
-      <td style="color:var(--c-critical)">9</td>
+      <td style="color:var(--c-pass)">34</td>
+      <td style="color:var(--c-critical)">11</td>
       <td>45</td>
-      <td><a href="#QA-01 -001" class="badge MEDIUM">QA-01 -001</a> <a href="#QA-01 -002" class="badge MEDIUM">QA-01 -002</a> <a href="#QA-01 -003" class="badge MEDIUM">QA-01 -003</a> <a href="#QA-01 -004" class="badge MEDIUM">QA-01 -004</a> <a href="#QA-01 -005" class="badge MEDIUM">QA-01 -005</a> <a href="#QA-01 -006" class="badge HIGH">QA-01 -006</a> <a href="#QA-01 -007" class="badge HIGH">QA-01 -007</a> <a href="#QA-01 -008" class="badge MEDIUM">QA-01 -008</a> <a href="#QA-01 -009" class="badge MEDIUM">QA-01 -009</a></td>
+      <td><a href="#QA-01 -001" class="badge MEDIUM">QA-01 -001</a> <a href="#QA-01 -002" class="badge MEDIUM">QA-01 -002</a> <a href="#QA-01 -003" class="badge MEDIUM">QA-01 -003</a> <a href="#QA-01 -004" class="badge MEDIUM">QA-01 -004</a> <a href="#QA-01 -005" class="badge MEDIUM">QA-01 -005</a> <a href="#QA-01 -006" class="badge MEDIUM">QA-01 -006</a> <a href="#QA-01 -007" class="badge MEDIUM">QA-01 -007</a> <a href="#QA-01 -008" class="badge HIGH">QA-01 -008</a> <a href="#QA-01 -009" class="badge HIGH">QA-01 -009</a> <a href="#QA-01 -010" class="badge MEDIUM">QA-01 -010</a> <a href="#QA-01 -011" class="badge MEDIUM">QA-01 -011</a></td>
     </tr>
   </tbody>
 </table>
@@ -1565,8 +1765,8 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
 <div class="filter-bar test-filter-bar">
   <span class="filter-lbl">Show:</span>
   <button class="fbtn active" data-test-filter="all">All (45)</button>
-  <button class="fbtn fbtn-pass" data-test-filter="passed">✅ Passed (36)</button>
-  <button class="fbtn fbtn-fail" data-test-filter="failed">❌ Failed (9)</button>
+  <button class="fbtn fbtn-pass" data-test-filter="passed">✅ Passed (34)</button>
+  <button class="fbtn fbtn-fail" data-test-filter="failed">❌ Failed (11)</button>
   <input type="text" class="fbtn-search" placeholder="🔍 Search by test name..." data-search="">
   <button class="fbtn-action" data-action="expand-all">⬇ Expand all</button>
   <button class="fbtn-action" data-action="collapse-all">⬆ Collapse all</button>
@@ -1575,7 +1775,7 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
 
 <div class="spec-blk">
   <div class="spec-blk-hdr" onclick="toggleSpec('spec-detail-0')">
-    <span class="spec-blk-title">❌ <code>qa01_functional</code> — <span style='color:var(--c-pass)'>36 passed</span> · <span style='color:var(--c-critical)'>9 failed</span> · 45 total</span>
+    <span class="spec-blk-title">❌ <code>qa01_functional</code> — <span style='color:var(--c-pass)'>34 passed</span> · <span style='color:var(--c-critical)'>11 failed</span> · 45 total</span>
     <span class="spec-blk-toggle">▶ Show tests</span>
   </div>
   <div class="spec-blk-body" id="spec-detail-0">
@@ -1587,36 +1787,12 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
 <details class="trow pass">
   <summary>
     <span class="t-chip pass">✅ PASSED</span>
-    <span class="trow-name">test_qa01_homepage_loads_correct_url</span>
-    <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">6.28s</span>
-  </summary>
-  <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must load at the Mehad /en URL without redirect loop.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">6.28s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_homepage_loads_correct_url</code></span></div>
-  </div>
-</details>
-
-<details class="trow pass">
-  <summary>
-    <span class="t-chip pass">✅ PASSED</span>
-    <span class="trow-name">test_qa01_page_title_contains_mehad</span>
-    <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">4.98s</span>
-  </summary>
-  <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Page title must mention Mehad (brand presence check).</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.98s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_page_title_contains_mehad</code></span></div>
-  </div>
-</details>
-
-<details class="trow pass">
-  <summary>
-    <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_header_logo_visible</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">4.93s</span>
+    <span class="trow-dur">9.54s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Mehad logo/link must be visible in the header.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.93s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_header_logo_visible</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Mehad logo/link must be visible in the header.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">9.54s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_header_logo_visible</code></span></div>
   </div>
 </details>
 
@@ -1625,10 +1801,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_header_login_button_present</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">3.37s</span>
+    <span class="trow-dur">11.38s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Log In button must be visible in the header (unauthenticated state).</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">3.37s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_header_login_button_present</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Log In button must be visible in the header (unauthenticated state).</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">11.38s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_header_login_button_present</code></span></div>
   </div>
 </details>
 
@@ -1637,10 +1813,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_header_navigation_links_present</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">4.27s</span>
+    <span class="trow-dur">4.74s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Header must have Home, Become a Tutor, How It Works, About Us links.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.27s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_header_navigation_links_present</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Header must have Home, Become a Tutor, How It Works, About Us links.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.74s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_header_navigation_links_present</code></span></div>
   </div>
 </details>
 
@@ -1649,10 +1825,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_language_toggle_buttons_present</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">3.94s</span>
+    <span class="trow-dur">10.44s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Language toggle (EN/AR) buttons must be visible in header.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">3.94s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_language_toggle_buttons_present</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Language toggle (EN/AR) buttons must be visible in header.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">10.44s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_language_toggle_buttons_present</code></span></div>
   </div>
 </details>
 
@@ -1661,10 +1837,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_hero_headline_present</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">1.86s</span>
+    <span class="trow-dur">4.36s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Hero H1 headline must contain the main marketing copy.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.86s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_hero_headline_present</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Hero H1 headline must contain the main marketing copy.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.36s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_hero_headline_present</code></span></div>
   </div>
 </details>
 
@@ -1673,10 +1849,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_hero_platform_badge_present</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">1.31s</span>
+    <span class="trow-dur">5.31s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Saudi Arabia's #1 platform badge or stats must be present.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.31s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_hero_platform_badge_present</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Saudi Arabia's #1 platform badge or stats must be present.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">5.31s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_hero_platform_badge_present</code></span></div>
   </div>
 </details>
 
@@ -1685,10 +1861,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_hero_stats_non_empty</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">1.41s</span>
+    <span class="trow-dur">5.44s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Teacher count, student count, satisfaction stats must not be zero/empty.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.41s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_hero_stats_non_empty</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Teacher count, student count, satisfaction stats must not be zero/empty.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">5.44s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_hero_stats_non_empty</code></span></div>
   </div>
 </details>
 
@@ -1697,10 +1873,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_tutor_search_form_present</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">1.60s</span>
+    <span class="trow-dur">5.56s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Tutor search form with Find a Teacher button must be on homepage.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.60s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_tutor_search_form_present</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Tutor search form with Find a Teacher button must be on homepage.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">5.56s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_tutor_search_form_present</code></span></div>
   </div>
 </details>
 
@@ -1709,10 +1885,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_find_teacher_navigates_to_find_tutors</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">2.95s</span>
+    <span class="trow-dur">6.03s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Clicking Find a Teacher with no filters navigates to /en/find-tutors.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.95s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_find_teacher_navigates_to_find_tutors</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Clicking Find a Teacher with no filters navigates to /en/find-tutors.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">6.03s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_find_teacher_navigates_to_find_tutors</code></span></div>
   </div>
 </details>
 
@@ -1721,10 +1897,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_search_subject_dropdown_present</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">1.26s</span>
+    <span class="trow-dur">1.44s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Subject dropdown with 'Select subject' placeholder must be in search form.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.26s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_search_subject_dropdown_present</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Subject dropdown with 'Select subject' placeholder must be in search form.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.44s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_search_subject_dropdown_present</code></span></div>
   </div>
 </details>
 
@@ -1733,10 +1909,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_study_subjects_section_present</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">1.25s</span>
+    <span class="trow-dur">1.56s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">'Most Requested Subjects' / 'STUDY SUBJECTS' section must be visible.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.25s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_study_subjects_section_present</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">'Most Requested Subjects' / 'STUDY SUBJECTS' section must be visible.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.56s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_study_subjects_section_present</code></span></div>
   </div>
 </details>
 
@@ -1745,10 +1921,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_how_it_works_section_present</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">4.36s</span>
+    <span class="trow-dur">4.37s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">'How It Works' / 'Three Steps to Success' section must be visible.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.36s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_how_it_works_section_present</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">'How It Works' / 'Three Steps to Success' section must be visible.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.37s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_how_it_works_section_present</code></span></div>
   </div>
 </details>
 
@@ -1757,10 +1933,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_top_teachers_section_present</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">1.30s</span>
+    <span class="trow-dur">1.40s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">'Our Top Teachers' section with tutor cards must be visible.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.30s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_top_teachers_section_present</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">'Our Top Teachers' section with tutor cards must be visible.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.40s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_top_teachers_section_present</code></span></div>
   </div>
 </details>
 
@@ -1769,10 +1945,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_footer_present_with_links</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">1.51s</span>
+    <span class="trow-dur">1.86s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Footer must contain Mehad logo, nav links, and copyright.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.51s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_footer_present_with_links</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Footer must contain Mehad logo, nav links, and copyright.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.86s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_footer_present_with_links</code></span></div>
   </div>
 </details>
 
@@ -1781,10 +1957,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_student_reviews_section_present</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">1.30s</span>
+    <span class="trow-dur">4.57s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Student testimonials/reviews section must exist.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.30s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_student_reviews_section_present</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Student testimonials/reviews section must exist.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.57s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_student_reviews_section_present</code></span></div>
   </div>
 </details>
 
@@ -1793,10 +1969,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_login_modal_opens_on_button_click</span>
     
-    <span class="trow-dur">2.86s</span>
+    <span class="trow-dur">5.75s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Clicking Log In button must open the login modal/dialog.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.86s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_login_modal_opens_on_button_click</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Clicking Log In button must open the login modal/dialog.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">5.75s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_login_modal_opens_on_button_click</code></span></div>
   </div>
 </details>
 
@@ -1805,10 +1981,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_modal_has_welcome_back_title</span>
     
-    <span class="trow-dur">2.81s</span>
+    <span class="trow-dur">6.67s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Login modal title must be 'Welcome back'.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.81s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_has_welcome_back_title</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Login modal title must be 'Welcome back'.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">6.67s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_has_welcome_back_title</code></span></div>
   </div>
 </details>
 
@@ -1817,10 +1993,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_modal_has_sign_in_subtitle</span>
     
-    <span class="trow-dur">2.84s</span>
+    <span class="trow-dur">5.22s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Login modal subtitle must mention 'Sign in to continue'.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.84s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_has_sign_in_subtitle</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Login modal subtitle must mention 'Sign in to continue'.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">5.22s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_has_sign_in_subtitle</code></span></div>
   </div>
 </details>
 
@@ -1829,10 +2005,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_modal_has_whatsapp_number_label</span>
     
-    <span class="trow-dur">2.84s</span>
+    <span class="trow-dur">5.51s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Login modal must have 'WhatsApp Number' label visible.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.84s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_has_whatsapp_number_label</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Login modal must have 'WhatsApp Number' label visible.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">5.51s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_has_whatsapp_number_label</code></span></div>
   </div>
 </details>
 
@@ -1841,10 +2017,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_modal_has_phone_input</span>
     
-    <span class="trow-dur">2.81s</span>
+    <span class="trow-dur">5.54s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Login modal must have a telephone input field.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.81s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_has_phone_input</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Login modal must have a telephone input field.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">5.54s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_has_phone_input</code></span></div>
   </div>
 </details>
 
@@ -1853,10 +2029,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_send_code_button_present</span>
     
-    <span class="trow-dur">2.86s</span>
+    <span class="trow-dur">5.17s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Send Code button must be present in the login modal.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.86s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_send_code_button_present</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Send Code button must be present in the login modal.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">5.17s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_send_code_button_present</code></span></div>
   </div>
 </details>
 
@@ -1865,10 +2041,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_send_code_disabled_without_phone</span>
     
-    <span class="trow-dur">2.86s</span>
+    <span class="trow-dur">3.04s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Send Code button must be disabled when phone field is empty.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.86s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_send_code_disabled_without_phone</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Send Code button must be disabled when phone field is empty.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">3.04s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_send_code_disabled_without_phone</code></span></div>
   </div>
 </details>
 
@@ -1877,10 +2053,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_modal_close_button_present</span>
     
-    <span class="trow-dur">2.86s</span>
+    <span class="trow-dur">2.87s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Modal must have a Close button (X) to dismiss.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.86s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_close_button_present</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Modal must have a Close button (X) to dismiss.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.87s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_close_button_present</code></span></div>
   </div>
 </details>
 
@@ -1889,10 +2065,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_modal_closes_on_close_button_click</span>
     
-    <span class="trow-dur">4.13s</span>
+    <span class="trow-dur">4.12s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Clicking Close button must dismiss the login modal.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.13s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_closes_on_close_button_click</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Clicking Close button must dismiss the login modal.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.12s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_closes_on_close_button_click</code></span></div>
   </div>
 </details>
 
@@ -1901,10 +2077,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_phone_field_accepts_numbers</span>
     <span class="trow-params">fill(&quot;98976564&quot;)</span>
-    <span class="trow-dur">2.89s</span>
+    <span class="trow-dur">5.16s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Phone input must accept digit input.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">fill(&quot;98976564&quot;)</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.89s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_phone_field_accepts_numbers</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Phone input must accept digit input.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">fill(&quot;98976564&quot;)</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">5.16s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_phone_field_accepts_numbers</code></span></div>
   </div>
 </details>
 
@@ -1913,10 +2089,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_become_a_tutor_link_navigates</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">2.62s</span>
+    <span class="trow-dur">2.49s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Become a Tutor link must navigate to /en/become-tutor.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.62s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_become_a_tutor_link_navigates</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Become a Tutor link must navigate to /en/become-tutor.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.49s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_become_a_tutor_link_navigates</code></span></div>
   </div>
 </details>
 
@@ -1925,10 +2101,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_how_it_works_link_navigates</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">2.19s</span>
+    <span class="trow-dur">2.13s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">How It Works link must navigate to /en/how-mehad-works.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.19s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_how_it_works_link_navigates</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">How It Works link must navigate to /en/how-mehad-works.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.13s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_how_it_works_link_navigates</code></span></div>
   </div>
 </details>
 
@@ -1937,10 +2113,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_about_us_link_navigates</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">2.15s</span>
+    <span class="trow-dur">2.58s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">About Us link must navigate to /en/about-us.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.15s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_about_us_link_navigates</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">About Us link must navigate to /en/about-us.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.58s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_about_us_link_navigates</code></span></div>
   </div>
 </details>
 
@@ -1949,10 +2125,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_language_toggle_ar_navigates</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">2.29s</span>
+    <span class="trow-dur">2.70s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Clicking AR button must navigate to the Arabic locale.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.29s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_language_toggle_ar_navigates</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Clicking AR button must navigate to the Arabic locale.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.70s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_language_toggle_ar_navigates</code></span></div>
   </div>
 </details>
 
@@ -1961,10 +2137,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_subject_badge_navigates_to_find_tutors</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">2.27s</span>
+    <span class="trow-dur">2.90s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Clicking a subject badge (e.g. Math) must navigate to /en/find-tutors.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.27s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_subject_badge_navigates_to_find_tutors</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Clicking a subject badge (e.g. Math) must navigate to /en/find-tutors.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.90s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_subject_badge_navigates_to_find_tutors</code></span></div>
   </div>
 </details>
 
@@ -1973,10 +2149,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_find_tutors_page_loads</span>
     
-    <span class="trow-dur">1.32s</span>
+    <span class="trow-dur">1.67s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Direct navigation to /en/find-tutors must load the tutor listing page.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.32s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_find_tutors_page_loads</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Direct navigation to /en/find-tutors must load the tutor listing page.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.67s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_find_tutors_page_loads</code></span></div>
   </div>
 </details>
 
@@ -1985,10 +2161,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_find_tutors_page_shows_tutor_cards</span>
     
-    <span class="trow-dur">3.70s</span>
+    <span class="trow-dur">3.40s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Find tutors page must display at least one tutor card.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">3.70s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_find_tutors_page_shows_tutor_cards</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Find tutors page must display at least one tutor card.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">3.40s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_find_tutors_page_shows_tutor_cards</code></span></div>
   </div>
 </details>
 
@@ -1997,10 +2173,10 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_arabic_locale_page_loads</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">1.64s</span>
+    <span class="trow-dur">1.42s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Navigating to /ar must load the Arabic locale without errors.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.64s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_arabic_locale_page_loads</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Navigating to /ar must load the Arabic locale without errors.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.42s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_arabic_locale_page_loads</code></span></div>
   </div>
 </details>
 
@@ -2009,10 +2185,34 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa01_footer_privacy_policy_link_works</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">2.21s</span>
+    <span class="trow-dur">1.88s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Footer Privacy Policy link must navigate to the policy page.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.21s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_footer_privacy_policy_link_works</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Footer Privacy Policy link must navigate to the policy page.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.88s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_footer_privacy_policy_link_works</code></span></div>
+  </div>
+</details>
+
+<details class="trow fail">
+  <summary>
+    <span class="t-chip fail">❌ FAILED</span>
+    <span class="trow-name">test_qa01_homepage_loads_correct_url</span>
+    <span class="trow-params">BASE_URL</span>
+    <span class="trow-dur">—</span>
+  </summary>
+  <div class="trow-details">
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must load at the Mehad /en URL without redirect loop.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_homepage_loads_correct_url</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Homepage must load at the Mehad /en URL without redirect loop.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test could not load the page within 15000ms — the server is too slow or unreachable.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -001">QA-01 -001</a> — see full details below</span></div>
+  </div>
+</details>
+
+<details class="trow fail">
+  <summary>
+    <span class="t-chip fail">❌ FAILED</span>
+    <span class="trow-name">test_qa01_page_title_contains_mehad</span>
+    <span class="trow-params">BASE_URL</span>
+    <span class="trow-dur">—</span>
+  </summary>
+  <div class="trow-details">
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Page title must mention Mehad (brand presence check).</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_page_title_contains_mehad</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Page title must mention Mehad (brand presence check).</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test could not load the page within 15000ms — the server is too slow or unreachable.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -002">QA-01 -002</a> — see full details below</span></div>
   </div>
 </details>
 
@@ -2024,7 +2224,7 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="trow-dur">—</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Country code selector must default to Saudi Arabia +966.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_country_code_default_is_966</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Country code selector must default to Saudi Arabia +966.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">Country code selector not found</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -001">QA-01 -001</a> — see full details below</span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Country code selector must default to Saudi Arabia +966.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_modal_country_code_default_is_966</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Country code selector must default to Saudi Arabia +966.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">Country code selector not found</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -003">QA-01 -003</a> — see full details below</span></div>
   </div>
 </details>
 
@@ -2036,7 +2236,7 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="trow-dur">—</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Clicking country code selector must open a dropdown with search.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_country_code_dropdown_opens</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Clicking country code selector must open a dropdown with search.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -002">QA-01 -002</a> — see full details below</span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Clicking country code selector must open a dropdown with search.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_country_code_dropdown_opens</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Clicking country code selector must open a dropdown with search.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -004">QA-01 -004</a> — see full details below</span></div>
   </div>
 </details>
 
@@ -2048,7 +2248,7 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="trow-dur">—</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Typing in country search must filter the country list.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">fill(&quot;Bangladesh&quot;)</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_country_search_filters_results</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Typing in country search must filter the country list.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -003">QA-01 -003</a> — see full details below</span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Typing in country search must filter the country list.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">fill(&quot;Bangladesh&quot;)</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_country_search_filters_results</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Typing in country search must filter the country list.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -005">QA-01 -005</a> — see full details below</span></div>
   </div>
 </details>
 
@@ -2060,7 +2260,7 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="trow-dur">—</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Bangladesh +880 must be selectable from the country dropdown.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">fill(&quot;Bangladesh&quot;)</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_country_bangladesh_selectable</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Bangladesh +880 must be selectable from the country dropdown.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -004">QA-01 -004</a> — see full details below</span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Bangladesh +880 must be selectable from the country dropdown.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">fill(&quot;Bangladesh&quot;)</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_country_bangladesh_selectable</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Bangladesh +880 must be selectable from the country dropdown.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -006">QA-01 -006</a> — see full details below</span></div>
   </div>
 </details>
 
@@ -2072,7 +2272,7 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="trow-dur">—</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Send Code button must become enabled after a valid phone is entered.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">TEST_COUNTRY_CODE · TEST_PHONE</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_send_code_enabled_after_phone_entry</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Send Code button must become enabled after a valid phone is entered.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -005">QA-01 -005</a> — see full details below</span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Send Code button must become enabled after a valid phone is entered.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">TEST_COUNTRY_CODE · TEST_PHONE</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_send_code_enabled_after_phone_entry</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Send Code button must become enabled after a valid phone is entered.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -007">QA-01 -007</a> — see full details below</span></div>
   </div>
 </details>
 
@@ -2084,7 +2284,7 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="trow-dur">—</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Complete WhatsApp OTP login must succeed and show user name in header.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">fill(TEST_OTP) · TEST_COUNTRY_CODE · TEST_PHONE · TEST_USER_NAME</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_full_login_flow_success</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Complete WhatsApp OTP login must succeed and show user name in header.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -006">QA-01 -006</a> — see full details below</span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Complete WhatsApp OTP login must succeed and show user name in header.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">fill(TEST_OTP) · TEST_COUNTRY_CODE · TEST_PHONE · TEST_USER_NAME</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_full_login_flow_success</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Complete WhatsApp OTP login must succeed and show user name in header.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -008">QA-01 -008</a> — see full details below</span></div>
   </div>
 </details>
 
@@ -2096,7 +2296,7 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="trow-dur">—</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">After clicking Send Code, OTP input must appear/become enabled.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">TEST_COUNTRY_CODE · TEST_PHONE</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_otp_input_appears_after_send_code</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">After clicking Send Code, OTP input must appear/become enabled.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -007">QA-01 -007</a> — see full details below</span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">After clicking Send Code, OTP input must appear/become enabled.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">TEST_COUNTRY_CODE · TEST_PHONE</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_otp_input_appears_after_send_code</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">After clicking Send Code, OTP input must appear/become enabled.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -009">QA-01 -009</a> — see full details below</span></div>
   </div>
 </details>
 
@@ -2108,7 +2308,7 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="trow-dur">—</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Resend countdown timer must appear after Send Code is clicked.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">TEST_COUNTRY_CODE · TEST_PHONE</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_resend_timer_appears_after_send_code</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Resend countdown timer must appear after Send Code is clicked.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -008">QA-01 -008</a> — see full details below</span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Resend countdown timer must appear after Send Code is clicked.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">TEST_COUNTRY_CODE · TEST_PHONE</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_resend_timer_appears_after_send_code</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">Resend countdown timer must appear after Send Code is clicked.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -010">QA-01 -010</a> — see full details below</span></div>
   </div>
 </details>
 
@@ -2120,7 +2320,7 @@ E     - waiting for locator(&quot;[aria-label=\&quot;Country code\&quot;]&quot;)
     <span class="trow-dur">—</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">'Change Mobile Number' link must appear after Send Code.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">TEST_COUNTRY_CODE · TEST_PHONE</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_change_number_link_appears_after_send</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">'Change Mobile Number' link must appear after Send Code.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -009">QA-01 -009</a> — see full details below</span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">'Change Mobile Number' link must appear after Send Code.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">TEST_COUNTRY_CODE · TEST_PHONE</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">—</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa01_change_number_link_appears_after_send</code></span></div><div class="td-row"><span class="td-lbl exp">Expected:</span><span class="td-val">'Change Mobile Number' link must appear after Send Code.</span></div><div class="td-row"><span class="td-lbl act">What happened:</span><span class="td-val">The test tried to click a button, but the button never became clickable within 15000ms. Often this means the button is hidden or covered by another element.</span></div><div class="td-row"><span class="td-lbl">Bug ticket:</span><span class="td-val"><a href="#QA-01 -011">QA-01 -011</a> — see full details below</span></div>
   </div>
 </details>
   </div>
