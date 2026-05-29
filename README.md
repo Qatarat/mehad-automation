@@ -1,738 +1,400 @@
-# Mehad Autonomous AI Testing
+# Mehad Autonomous QA Platform
 
-> **Intent-based autonomous QA system** — describe your app in Markdown, AI handles everything else.
+<div align="center">
 
-**Zero API keys. Zero hardcoded scripts. Zero manual maintenance. 100% free and open source.**
+[![CI](https://github.com/Qatarat/mehad-automation/actions/workflows/ai-tests.yml/badge.svg)](https://github.com/Qatarat/mehad-automation/actions/workflows/ai-tests.yml)
+![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
+![Playwright](https://img.shields.io/badge/Playwright-1.44%2B-green?logo=playwright)
+![Claude](https://img.shields.io/badge/Claude-Sonnet%204.6-blueviolet?logo=anthropic)
+![Ollama](https://img.shields.io/badge/Ollama-local%20AI-orange)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
----
+**Write a Markdown spec. Get a fully automated browser test suite — for any web app.**
 
-## What Is This?
+*300+ tests from 41 specs · Auto-regenerates on spec change · WhatsApp OTP auth support · No coding required*
 
-A self-writing, self-healing QA automation system that:
-
-1. **Reads** your Markdown spec files (written by a human QA)
-2. **Compiles** them into deterministic JSON (no AI guessing structure)
-3. **Generates** Playwright tests across **24 test types** — ≥330 runtime tests per spec
-4. **Validates** the generated code before execution (AST gate)
-5. **Runs** tests against your staging environment
-6. **Heals** failures with a **surgical selector self-fix** — extracts the broken locator, asks AI for one replacement, persists via `memory.update_selector` so the fix survives across runs (full-file regen as fallback)
-7. **Caches** generated test code by `sha256(spec_md + base_url)` — unchanged specs reuse last run's tests, persisted to gh-pages so stateless CI runners benefit
-8. **Detects multiple languages** from each spec md (`/en`, `/ar`, …) and runs the suite per locale (page loads, `<html lang>`, `dir="rtl"` enforcement)
-9. **Walks every spec URL** autonomously via QA-19 (deterministic walk + optional [browser-use](https://github.com/browser-use/browser-use) + Ollama)
-10. **Reports** a professional HTML report with POC screenshots, annotated failure videos (.webm), live history and trend charts on GitHub Pages
-
-```
-specs/*.md ─► Spec Compiler ─► JSON ─► AI ─► 24 Test Types ─► AST Validate ─► Execute
-                                       │                                        │
-                                       │   ◄── cache lookup (sha256)            ▼
-                                       │                                  Surgical Self-Heal
-                                       └── Anti-Hallucination Guard       (selector fix → memory)
-                                              "use ONLY spec fields"             │
-                                                                                 ▼
-       browser-use (optional, QA-19)  ────────►  Autonomous Walk ─►  Bug Tickets (POC + video)
-       walks every spec URL +                                              │
-       4 hand-picked URLs                                                  ▼
-                                                                  HTML Report + Trend Charts
-                                                                          │
-                                                                          ▼
-                                                              GitHub Pages (live, public)
-```
-
-Push a change → GitHub Actions runs **18 parallel QA agent jobs** + AI Test Agent + consolidate-and-publish to GitHub Pages.
+</div>
 
 ---
 
-## Architecture (v5)
+## Why Software Testers Use This Tool
 
-```
-your-page.md
-   ↓
-spec_parser.py    ← extracts URL, languages, flows, edge cases, validation rules,
-                    test data — all deterministic, no AI
-   ↓
-spec_compiler.py  ← MD → structured JSON (UI element selector map)
-   ↓
-your-page.spec.json
-   ↓
-test_memory.py    ← cache lookup: sha256(spec_md + base_url)
-                    cache HIT  → reuse last run's tests, skip AI
-                    cache MISS → continue to generation ↓
-   ↓
-test_generator.py ← 24 test types — real test data injected
-                    anti-hallucination guard: "use ONLY spec fields"
-                    parametrize-heavy: ≥330 runtime tests / spec
-   ↓
-test_validator.py ← AST gate (blocks syntax errors, missing assertions)
-   ↓
-pytest execution  ← conftest.py captures network + console + performance + video
-                    HEADED=1 opens a real browser window so you watch it run
-   ↓
-self-heal loop    ← (a) Surgical: extract failing selector → AI suggests one
-                        replacement → memory.update_selector (persists)
-                    (b) Full-file regen — fallback if surgical fails
-                    Max 3 rounds.
-   ↓
-memory.py         ← records failures, persists selector fixes across runs
-   ↓
-bug_builder.py    ← per-failure AI bug tickets with POC screenshots + .webm video
-   ↓
-gap_checker.py    ← coverage gap analysis against spec requirements
-   ↓
-reporter.py       ← master HTML report (dark theme, click-to-expand, filters)
-   ↓
-build_pages_site.py ← consolidates 18 agents → publishes to gh-pages
-                       index + history table + trend chart + per-agent reports
-```
+Writing Playwright tests manually is slow and repetitive. This tool eliminates that entirely.
 
-### Old vs New
+**You write a spec MD file (plain English + numbered steps), and the tool generates hundreds of real browser tests automatically.**
 
-| Old Approach (v1)               | This Approach (v5)                              |
-|---------------------------------|-------------------------------------------------|
-| AI interprets raw Markdown      | Compiler extracts structure first               |
-| AI guesses selectors            | Selector map built from UI element table        |
-| AI invents fields not in spec   | Anti-hallucination guard on every prompt        |
-| Same spec → different tests     | Same spec → same JSON → deterministic tests     |
-| One giant AI prompt             | 24 focused prompts, real test data injected     |
-| No validation before execution  | AST validator blocks broken code                |
-| Starts fresh every run          | Persistent memory + sha256 test cache (gh-pages backed) |
-| 5-model fallback chain          | 14-model fallback chain (all free/open-source)  |
-| Full-file regen on every fail   | Surgical selector self-heal first, full regen as fallback |
-| `assert page.url` only          | Real fill + click + assert using compiled selectors |
-| CI shows pass/fail only         | CI shows per-type test data, failure messages   |
-| One language only               | Multi-language detection per spec (en, ar, …)   |
-| Single-runner CI                | 18 parallel QA agent jobs + AI agent + consolidate + Pages |
+| Without this tool | With this tool |
+|---|---|
+| Write thousands of lines of Playwright code by hand | Maintain one Markdown file per page |
+| A week of work per feature | Tests appear in minutes |
+| Tests drift out of sync with the spec | Spec IS the source of truth — tests regenerate automatically |
+| Security, accessibility, load time checks skipped | Every test type generated by default, every time |
+| Only works for one codebase | Drop any project's specs in — swap env vars |
+
+**Every spec MD file automatically produces:**
+- UI element visibility checks
+- User flow walkthroughs (from numbered step lists)
+- Requirement regression tests
+- Edge case coverage (from validation bullet points)
+- XSS and SQL injection security probes
+- Load time assertions
+- Accessibility violation reports
+- Boundary value and invalid input tests
 
 ---
 
-## Quick Start (One Command)
-
-```bash
-git clone https://github.com/mejbaur-markopolo/Markopolo-Automation-Testing.git
-cd Markopolo-Automation-Testing
-python run.py
-```
-
-That's it. On first invocation `run.py` calls `install.py`, which on macOS / Linux / Windows:
-
-- verifies Python ≥ 3.10
-- `pip install -r requirements.txt`
-- installs Playwright Chromium (with Linux system libs)
-- installs Ollama (Homebrew on macOS, official `install.sh` on Linux,
-  prints the Windows installer URL)
-- starts `ollama serve` in the background
-- pulls the small first-run model (`qwen2.5-coder:1.5b` — ~1 GB)
-
-Then it opens a real Chromium window so you can **watch** the QA suite run live
-(`HEADED=1`, slow-motion 800 ms between actions).
-
-### Run modes
-
-```bash
-python run.py            # demo: TestQA01Functional with visible browser (~3 min)
-python run.py --ai       # AI Test Agent v5 — auto-generates from md specs
-python run.py --all      # every QA agent suite — full ~30 min run
-python run.py --headless # same as default but no visible window
-python run.py --url https://your-staging.example.com   # any URL
-```
-
-### Just check the environment
-
-```bash
-python install.py --check   # report what's installed / missing, install nothing
-python install.py --big     # install + pull the 7b model (~5 GB) for stronger AI
-```
-
----
-
-## AI Stack (all free, all local, no API keys)
-
-### 14-Model Fallback Chain
-
-If the primary model fails, the next is tried automatically. No intervention needed.
-
-| # | Model | Size | Notes |
-|---|-------|------|-------|
-| 1 | `qwen2.5-coder:7b` | 4.7 GB | Best code quality — use locally |
-| 2 | `deepseek-coder:6.7b` | 3.8 GB | Excellent code model |
-| 3 | `codellama:7b` | 3.8 GB | Meta code model |
-| 4 | `mistral:7b` | 4.1 GB | Strong general model |
-| 5 | `phi4:3.8b` | 2.3 GB | Microsoft Phi-4 |
-| 6 | `llama3.2:3b` | 2.0 GB | Meta 3B |
-| 7 | `phi3.5` | 2.2 GB | Microsoft Phi-3.5 |
-| 8 | `gemma2:2b` | 1.6 GB | Google Gemma2 |
-| 9 | `llama3.2:1b` | 1.3 GB | Meta 1B |
-| 10 | `qwen2.5-coder:1.5b` | 986 MB | **Default CI model** |
-| 11 | `tinyllama:1.1b` | 637 MB | Ultra-tiny fallback |
-| 12 | `qwen2.5:0.5b` | 395 MB | Smallest possible fallback |
-
-> Set a different primary with `AI_MODEL=qwen2.5-coder:7b python ai_engine/agent.py`
-
-**Template fallback**: if every AI model fails, a deterministic template engine generates valid tests using the compiled spec's CSS selectors — tests always run, even with zero AI.
-
----
-
-## browser-use Integration (Autonomous Browser AI)
-
-This system integrates [browser-use](https://github.com/browser-use/browser-use) — an open-source library that lets an AI agent control a real browser autonomously. Used here with **local Ollama models only** — zero API keys, zero cost.
-
-### What browser-use adds
-
-| Feature | Without browser-use | With browser-use |
-|---------|---------------------|------------------|
-| Selector discovery | Compiled from spec file | AI visits page, finds real selectors automatically |
-| Exploratory testing | Spec-driven only | AI browses page, finds unexpected issues |
-| Flow validation | Generated test script | AI actually performs the flow like a real user |
-
-### Enable browser-use
-
-```bash
-# Install dependencies
-pip install browser-use langchain-ollama
-
-# Pull a model that supports tool calling (needed by browser-use)
-ollama pull qwen2.5:7b     # recommended — best local quality
-# or
-ollama pull llama3.2:3b    # lighter option
-
-# Run with browser-use enabled
-BROWSER_USE_ENABLED=true BROWSER_USE_MODEL=qwen2.5:7b python ai_engine/agent.py
-```
-
-### Which models work with browser-use
-
-browser-use requires a model that supports **tool/function calling**. Small models (1.5b, 1b) usually don't work well.
-
-| Model | Size | Works? | Notes |
-|-------|------|--------|-------|
-| `qwen2.5:7b` | 4.7 GB | ✅ Best | Recommended |
-| `qwen2.5-coder:7b` | 4.7 GB | ✅ Good | Strong for forms/buttons |
-| `llama3.2:3b` | 2.0 GB | ⚠️ Basic | Limited tool calling |
-| `mistral:7b` | 4.1 GB | ✅ Good | Strong reasoning |
-| `qwen2.5-coder:1.5b` | 986 MB | ❌ Poor | Too small for reliable tool calling |
-
-### What it does in the pipeline
-
-When `BROWSER_USE_ENABLED=true`, after compiling the spec to JSON, the browser agent:
-
-1. **Visits the real page** — navigates to the actual URL
-2. **Discovers selectors** — finds real CSS selectors for each UI element and enriches the spec
-3. **Reports issues** — any visible errors, broken images, or JS console issues
-
-All discovered selectors are passed into the test generator so tests use real, working selectors instead of guesses.
-
-### In CI (GitHub Actions)
-
-browser-use is **disabled by default** in CI to keep runs fast. Enable it via `workflow_dispatch`:
-
-```
-Actions → Mehad Autonomous AI Testing → Run workflow → browser_use: true
-```
-
-Note: browser-use needs a larger model (7b+) which isn't pulled by default in CI. If enabled without the right model, it falls back gracefully.
-
----
-
-## Test Types — ≥330 runtime tests per spec
-
-The AI emits one test function (or one parametrized test) per type. `pytest.mark.parametrize` then explodes each into many runtime tests, so a single spec file produces **≥330 tests** without bloating AI generation cost.
-
-| # | Type | Runtime tests / spec | What It Tests |
-|---|------|----------------------|---------------|
-| 1 | **Smoke** | ~4 | Page reachable, no 5xx, title set, body non-empty |
-| 2 | **Functional** | up to **16** | One test per `## User Flows` entry — exact spec order |
-| 3 | **Validation** | **8–16** | For every rule: one invalid + one valid input |
-| 4 | **Negative** | **16** | Wrong credentials, rejected inputs + 4 universal scenarios (back btn, double-click, paste, rapid-fire) |
-| 5 | **Edge Cases** | up to **14** | One test per `## Edge Cases` entry parsed from spec md |
-| 6 | **Boundary** | **34** | Length extremes, unicode/RTL/emoji, format strings, path traversal, CRLF, null bytes |
-| 7 | **Combinatorial** | **32** | 8 input shapes × 4 viewports — input-shape × viewport matrix |
-| 8 | **Data Driven** | ~10 | Parametrized over spec test data table |
-| 9 | **Deep Form** | ~5 | Tab order, paste, password masking, autocomplete |
-| 10 | **API/Network** | ~6 | Request method, response status, structure |
-| 11 | **Accessibility** | ~6 | axe-core violations, ARIA labels, keyboard nav |
-| 12 | **Responsive** | ~5 | 5 viewports: 375px → 1920px |
-| 13 | **Navigation** | ~5 | Internal links (forgot pw, sign up, back) |
-| 14 | **Session/Auth** | ~5 | Token persistence, redirect when authenticated |
-| 15 | **Performance** | ~3 | Page load, DOMContentLoaded, Web Vitals |
-| 16 | **Console Errors** | ~3 | No JS errors on load or form interaction |
-| 17 | **Error States** | ~3 | No stack traces, graceful network errors |
-| 18 | **Visual/Layout** | ~3 | Elements within viewport, title, favicon |
-| 19 | **Cross-browser** | ~3 | Tagged for Chromium / Firefox / WebKit |
-| 20 | **i18n** | **28** | RTL (Arabic, Hebrew, Persian, Urdu) + CJK + emoji + accents + zero-width |
-| 21 | **Multi-Language** | 4 × N locales | One per locale parsed from spec — page loads, `<html lang>`, `dir="rtl"`, no JS errors |
-| 22 | **Rate Limiting** | ~3 | Rapid submission, brute force, double-click |
-| 23 | **Cookie/Storage** | ~3 | localStorage no passwords, session cookies, isolation |
-| 24 | **Security** | **100** | 50 XSS + 50 SQLi OWASP vectors via parametrize (×fields tested) |
-
-Each test includes:
-
-- Real test data from your spec injected into prompts (no AI guessing)
-- `# TEST_DATA: <value>` comments for CI traceability
-- Assertion messages that show expected vs actual
-- An anti-hallucination guard in every prompt: AI must use ONLY fields, buttons, URLs, and labels from the spec — no inventing UI elements
-
----
-
-## Adapt to ANY Project
-
-This system works with any web application. To test a different project:
-
-### Option A — Use the template (fastest)
-
-```bash
-cp specs/TEMPLATE.md specs/your-page.md
-# Edit specs/your-page.md — fill in URL, selectors, flows, validations
-python ai_engine/agent.py
-```
-
-`specs/TEMPLATE.md` is a fully documented template with examples for every section.
-
-### Option B — Write from scratch
-
-Create `specs/your-page.md` with these sections:
-
-```markdown
-# Page Name: Checkout
-
-## URL
-/checkout
-
-## UI Elements
-| Element          | Selector / Hint              | Notes     |
-|------------------|------------------------------|-----------|
-| Email field      | input[type='email']          | Required  |
-| Card number      | input[name='cardNumber']     | Required  |
-| Pay button       | button[type='submit']        | Text: Pay |
-
-## Requirements
-- REQ-001: User can complete checkout with valid card
-- REQ-002: Invalid card shows error message
-
-## User Flows
-### Flow 1: Successful Checkout
-1. Navigate to /checkout
-2. Fill in email
-3. Fill in card details
-4. Click Pay
-5. Expect redirect to /order-confirmation
-
-## Validation Rules
-| Field  | Rule              | Error Message              |
-|--------|-------------------|----------------------------|
-| Email  | Valid email format | Please enter a valid email |
-| Card   | 16 digits          | Invalid card number        |
-
-## Edge Cases
-| ID    | Scenario                      | Expected                  |
-|-------|-------------------------------|---------------------------|
-| EC-001 | Submit with empty card       | Show validation error     |
-| EC-002 | SQL injection in email field | Error, no SQL execution   |
-
-## Test Data
-| Category      | Value                    |
-|---------------|--------------------------|
-| Valid email   | test@mailinator.com      |
-| Valid card    | 4111111111111111         |
-| Invalid card  | 1234                     |
-```
-
-### Step 3: Run
-
-```bash
-BASE_URL=https://your-staging.com python ai_engine/agent.py
-```
-
-### Step 4: Push to CI
-
-```bash
-git add specs/your-page.md
-git commit -m "Add checkout spec"
-git push
-```
-
-GitHub Actions runs all 24 test types + 18 hand-crafted QA agents automatically.
-
----
-
-## Manual Setup (only if `python install.py` doesn't fit your environment)
-
-`python install.py` already does all of this cross-platform — only follow these steps if you need to install pieces by hand.
-
-### Prerequisites
-
-- macOS, Linux, or Windows
-- Python 3.10+
+## Quick Start (5 minutes)
 
 ### 1. Clone
 
 ```bash
-git clone https://github.com/mejbaur-markopolo/Markopolo-Automation-Testing.git
-cd Markopolo-Automation-Testing
+git clone https://github.com/Qatarat/mehad-automation
+cd mehad-automation
 ```
 
-### 2. Install Ollama
-
-```bash
-# macOS
-brew install ollama && brew services start ollama
-
-# Linux
-curl -fsSL https://ollama.com/install.sh | sh && ollama serve &
-
-# Windows
-# Download and run the official installer from:
-# https://ollama.com/download/windows
-```
-
-### 3. Pull models
-
-```bash
-# First-run default (~1 GB):
-ollama pull qwen2.5-coder:1.5b
-
-# Stronger model for higher-quality generation (~5 GB):
-ollama pull qwen2.5-coder:7b
-```
-
-### 4. Install Python deps + Playwright
+### 2. Install dependencies
 
 ```bash
 pip install -r requirements.txt
-playwright install chromium               # Linux: add --with-deps
+playwright install chromium
 ```
 
-### 5. Run
+### 3. Set credentials
 
 ```bash
-# Default staging URL with visible browser
-python run.py
+export BASE_URL="https://dev.mehadedu.com/en"
 
-# AI Test Agent (auto-generate + auto-run)
-python run.py --ai
+# WhatsApp OTP auth (Mehad default):
+export TEST_PHONE="98976564"
+export TEST_OTP="123456"
+export TEST_COUNTRY="+880"
 
-# Custom URL
-python run.py --url https://your-app.com
-
-# Or call the agent directly with extra env vars
-BASE_URL=https://your-app.com AI_MODEL=qwen2.5-coder:7b TEST_PASSWORD=YourPass python -m ai_engine.agent
+# OR standard email/password auth:
+export TEST_EMAIL="tester@yourcompany.com"
+export TEST_PASSWORD="YourPassword"
 ```
 
-### 6. View report
+### 4. Run all tests
 
 ```bash
-open reports/bug-report.html
+pytest tests/test_specs_all.py -v
 ```
 
-The CI run also publishes the same report (and the full history + trend charts) to GitHub Pages at `https://<your-org>.github.io/<your-repo>/`.
+Tests auto-regenerate from specs every time you run — if you changed any `.md` file since the last run, tests rebuild before pytest collects.
+
+---
+
+## How It Works
+
+```
+specs/*.md  ←  you write this (plain English, numbered steps)
+     ↓
+ai_engine/spec_parser.py   ←  extracts URL, flows, edge cases, requirements
+ai_engine/spec_compiler.py ←  extracts selectors, test data
+     ↓
+scripts/validate_all_specs.py  ←  generates tests/test_specs_all.py
+     ↓
+tests/test_specs_all.py        ←  300+ tests across 41 specs
+     ↓
+pytest + Playwright            ←  runs against dev.mehadedu.com/en
+     ↓
+reports/                       ←  HTML report, JSON results, screenshots
+```
+
+The `conftest.py` hook watches for spec changes. If any `.md` file is newer than the generated test file, tests auto-regenerate before pytest collects. **You never run the generator manually.**
+
+---
+
+## Auto-Discovery: Drop a File, Get Tests
+
+Any `.md` file you add to `specs/` is picked up on the next `pytest` run. No code changes. No registration.
+
+```bash
+# Add a new page spec
+cp specs/TEMPLATE.md specs/tutor_dashboard.md
+# Edit it — describe the page with numbered steps
+pytest tests/test_specs_all.py -k "TutorDashboard" -v
+# Tests are auto-generated and run immediately
+```
+
+Files named `TEMPLATE.md`, `README.md`, or `EXAMPLE.md` are skipped.
+
+---
+
+## Spec Format — Two Styles Supported
+
+### Style 1: Structured (full coverage, recommended for new specs)
+
+```markdown
+# Login Page
+
+**URL:** `https://dev.mehadedu.com/en`
+
+## UI Elements
+| Element          | Identifier Hint                    | Type   |
+|------------------|------------------------------------|--------|
+| Login button     | `aria-label="Login"`               | Button |
+| Phone input      | `input[type="tel"]`                | Input  |
+| Send Code button | `button:has-text("Send Code")`     | Button |
+
+## User Flows
+### Flow 1: Happy path login
+1. Navigate to homepage
+2. Click Login button
+3. Select country code +880
+4. Enter phone number 98976564
+5. Click Send Code
+6. Enter OTP 123456
+7. Verify redirect to dashboard
+
+## Edge Cases
+| EC-01 | Empty phone number | Error shown |
+| EC-02 | Wrong OTP code     | Error shown |
+
+## Requirements
+- REQ-01: Login button visible in header
+- REQ-02: OTP must be 6 digits
+```
+
+### Style 2: Prose/Steps (Mehad's current format — fully supported)
+
+```markdown
+# Tutor Signup Process
+
+## Steps to Reproduce Tutor Signup
+
+1. Go to https://dev.mehadedu.com/en
+2. Click "Become a Tutor" button from header
+3. Click "Apply Now" button
+4. Enter country code and phone number
+5. Click "Send Code" and enter the OTP
+
+### Validation
+- First Name: maximum 30 characters
+- Email: must be unique and valid format
+- Bio: maximum 500 characters
+```
+
+Both formats produce full test coverage. The parser extracts flows from numbered steps, requirements from validation bullets, and selectors from field name mentions.
+
+---
+
+## Authentication — WhatsApp OTP
+
+Mehad uses WhatsApp OTP auth (phone number + 6-digit code). The auth fixture supports this out of the box.
+
+```bash
+# Set your test account credentials:
+TEST_PHONE="98976564"      # phone number without country code
+TEST_OTP="123456"          # OTP for the test account
+TEST_COUNTRY="+880"        # country code (Bangladesh default)
+
+# Or override the full login URL:
+LOGIN_URL="https://dev.mehadedu.com/en"   # opens homepage → clicks Login modal
+```
+
+If auth fails (OTP expired, network down), all tests are **skipped gracefully** — they do not fail. Public page tests run regardless.
+
+To use standard email/password instead, set `TEST_EMAIL` and `TEST_PASSWORD` — the fixture auto-detects which mode to use.
+
+---
+
+## Environment Variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `BASE_URL` | `https://dev.mehadedu.com/en` | Target application URL |
+| `LOGIN_URL` | same as `BASE_URL` | Full login page URL (override if different) |
+| `TEST_PHONE` | `98976564` | Phone number for WhatsApp OTP auth |
+| `TEST_OTP` | `123456` | OTP code for the test phone number |
+| `TEST_COUNTRY` | `+880` | Country dialing code |
+| `TEST_EMAIL` | *(unset)* | Email for standard email/password auth |
+| `TEST_PASSWORD` | *(unset)* | Password for standard auth |
+| `LOAD_TIME_LIMIT` | `20.0` | Max page load time in seconds |
+| `HEADED` | `0` | Set to `1` to watch the browser during tests |
+| `SLOW_MO` | `0` | Milliseconds between Playwright actions |
+
+---
+
+## Current Test Coverage (41 Specs)
+
+| Category | Specs |
+|---|---|
+| **Student flows** | login, hero_section, find_tutor, find_course, favorites, messages, bookings, payments, reviews, settings, language |
+| **Tutor flows** | signup, profile, instructor_profile, conversation, reviews, group_session, earnings, availability, notifications, logout |
+| **Auth** | login, login_reset, reset_password, change_2fa_number |
+| **Admin** | add_admin, add_super_admin, students, instructors, subjects, subject_categories, reviews, testimonials, notifications, translations |
+| **Platform** | hours_packages, session, promo_codes, payout, platform_fee, reports |
+
+**Total: 300 tests from 41 specs**
+
+---
+
+## Using This Tool for Any Project
+
+Replace the Mehad specs with your own:
+
+```bash
+# Remove the existing specs
+rm specs/*.md
+
+# Add your own
+cp specs/TEMPLATE.md specs/dashboard.md
+cp specs/TEMPLATE.md specs/checkout.md
+# Edit each file — describe the page with numbered steps
+
+# Point at your app
+export BASE_URL="https://staging.your-app.com"
+export LOGIN_URL="https://staging.your-app.com/login"
+export TEST_EMAIL="qa@yourcompany.com"
+export TEST_PASSWORD="YourQAPassword"
+
+# Run
+pytest tests/test_specs_all.py -v
+```
+
+The auth fixture automatically handles standard email/password login when `TEST_EMAIL` is set.
+
+---
+
+## GitHub Actions CI
+
+### Configure secrets
+
+Go to **Settings → Secrets and variables → Actions** and add:
+
+| Secret | Description |
+|---|---|
+| `BASE_URL` | Your staging app URL |
+| `TEST_PHONE` | Phone number for WhatsApp OTP auth |
+| `TEST_OTP` | OTP for the test account |
+| `TEST_COUNTRY` | Country dialing code |
+| `TEST_EMAIL` | Email (if using standard auth) |
+| `TEST_PASSWORD` | Password (if using standard auth) |
+
+### Trigger a run
+
+- **Manual:** Actions → Mehad Autonomous AI Testing → Run workflow
+- **Automatic:** Runs on every push to `main` and nightly at 02:00 UTC
+
+---
+
+## AI Models (Optional Enhancement)
+
+The platform generates tests **without any AI API key**. AI is used for enhanced test generation and self-healing:
+
+1. **Claude Sonnet 4.6** — if `ANTHROPIC_API_KEY` is set (best quality)
+2. **Ollama local models** — free, no API key:
+   - `qwen2.5-coder:7b` (recommended)
+   - `qwen2.5-coder:1.5b` (fast CI default)
+   - `llama3.2`, `phi3.5`, `mistral`, `codellama` (fallbacks)
+
+```bash
+brew install ollama
+ollama pull qwen2.5-coder:7b
+ollama serve &
+```
 
 ---
 
 ## Project Structure
 
 ```
-Markopolo-Automation-Testing/
-│
-├── install.py                    ← Cross-OS one-shot installer
-├── run.py                        ← Single-command runner (visible browser by default)
-│
-├── specs/                        ← YOUR INPUT (edit these)
-│   ├── login.md                  ← Login page (with EN + AR locales)
-│   ├── student_*.md              ← Student-side flows (favorites, payments, etc.)
-│   ├── tutor_*.md                ← Tutor-side flows (signup, calendar, etc.)
-│   ├── TEMPLATE.md               ← Copy this to add new pages
-│   └── *.spec.json               ← Auto-compiled (do not edit)
-│
-├── ai_engine/                    ← Core system
-│   ├── agent.py                  ← AI Test Agent v5 + surgical self-heal + cache
-│   ├── spec_parser.py            ← Parses MD into ParsedSpec (incl. languages, edge cases)
-│   ├── spec_compiler.py          ← MD → structured JSON (deterministic)
-│   ├── spec_directives.py        ← Honors "skip X" directives in spec md
-│   ├── test_generator.py         ← 24 test types with real test data + anti-hallucination
-│   ├── test_validator.py         ← AST gate (syntax + assertions)
-│   ├── test_memory.py            ← Cross-run cache (sha256 of spec + base url)
-│   ├── memory.py                 ← Persistent selector fixes + flake markers
-│   ├── browser_agent.py          ← browser-use integration (autonomous QA-19)
-│   ├── vision_validator.py       ← Vision-LLM (qwen2-vl) for QA-22
-│   ├── langgraph_agent.py        ← LangGraph orchestrator (QA-5)
-│   ├── evidence.py               ← Network/console/performance capture
-│   ├── bug_builder.py            ← AI bug ticket writer
-│   ├── gap_checker.py            ← Coverage gap analysis
-│   └── reporter.py               ← HTML report generator (dark theme)
-│
-├── tests/
-│   ├── test_qa_comprehensive.py  ← 22 hand-crafted QA test classes (QA-01..22)
-│   ├── _visual_diff.py           ← Pixel-diff for QA-11 visual regression
-│   └── visual_baselines/         ← Saved baseline screenshots
+.
+├── specs/                         ← Your spec MD files (41 for Mehad)
+│   └── *.md                       ← One file per page/feature
 │
 ├── scripts/
-│   ├── consolidate_reports.py    ← Merges all 19 CI artifacts into master report
-│   ├── build_pages_site.py       ← GitHub Pages site (index, history, agent reports)
-│   ├── test_data_viewer.py       ← Expandable "Test Data Used" report section
-│   └── generate_ci_summary.py    ← GitHub Step Summary
+│   └── validate_all_specs.py      ← Parses specs/ → generates tests/test_specs_all.py
 │
-├── payloads/                     ← OWASP security vectors
-│   ├── xss.txt                   ← 50 XSS vectors
-│   ├── sqli.txt                  ← 50 SQL injection vectors
-│   ├── boundary.txt              ← 60+ boundary strings
-│   └── __init__.py
+├── tests/
+│   ├── test_specs_all.py          ← Auto-generated (do not edit manually)
+│   ├── test_qa_comprehensive.py   ← Hand-crafted 22-type QA suite
+│   ├── test_login_e2e.py          ← E2E login/auth tests
+│   └── test_signup_e2e.py         ← E2E signup tests
 │
-├── cache/                        ← AI test-code cache (sha256-keyed, gh-pages backed)
-│   └── tests/<slug>.json
+├── conftest.py                    ← Auto-regenerates tests + evidence capture
+│                                    (screenshots, video, network logs on failure)
 │
-├── reports/                      ← Test results (runtime)
-│   ├── bug-report.html           ← Master HTML report
-│   ├── screenshots/              ← Failure screenshots (POC, annotated)
-│   ├── videos/                   ← .webm video PoC for failed tests
-│   ├── evidence/                 ← Per-test network/console/perf JSON
-│   ├── test_data_log.json        ← Every test data input the run exercised
-│   ├── trends.json               ← Cumulative pass-rate trend across runs
-│   └── summary.json              ← Machine-readable totals
+├── ai_engine/                     ← Core AI pipeline
+│   ├── agent.py                   ← Main AI entry point
+│   ├── spec_parser.py             ← Extracts flows/requirements/edge cases
+│   │                                 (handles both structured and prose formats)
+│   ├── spec_compiler.py           ← Builds selector map from UI tables or prose
+│   ├── test_generator.py          ← Generates 24 test types per spec
+│   └── ...                        ← Self-heal, bug builder, reporter
 │
-├── conftest.py                   ← pytest config + evidence capture + HEADED support
+├── payloads/                      ← Security testing payloads
+│   ├── xss.txt
+│   ├── sqli.txt
+│   └── boundary.txt
+│
+├── reports/                       ← Output: HTML reports, screenshots, videos
+│
+├── .github/workflows/ai-tests.yml ← CI pipeline (18 parallel QA jobs)
 ├── pytest.ini
-├── requirements.txt
-└── .github/workflows/
-    └── ai-tests.yml              ← 18 parallel QA agents + AI Test Agent + consolidate
+└── requirements.txt
 ```
 
 ---
 
-## CI/CD
+## Local Development
 
-Every push to `main` triggers the full pipeline. **20 jobs run in parallel**:
+```bash
+# Run all tests
+BASE_URL=https://dev.mehadedu.com/en pytest tests/test_specs_all.py -v
 
-| Job | Covers |
-|-----|--------|
-| AI Test Agent v5 | Auto-generates 24 test types per spec; runs them; bug-tickets failures |
-| QA Agent 1 | QA-01 Functional, QA-02 Edge Cases |
-| QA Agent 2 | QA-03 Security (172 tests), QA-04 Performance, QA-05 Hallucination/Data |
-| QA Agent 3 | QA-06 API & Network, QA-07 Accessibility |
-| QA Agent 4 | QA-08 Mobile / Cross-viewport |
-| QA Agent 5 | LangGraph AI Orchestration |
-| QA Agent 6–18 | QA-09 SEO, QA-10 i18n, QA-11 Visual Regression, QA-12 JS Errors, QA-13 Security Headers, QA-14 Cookies, QA-15 OWASP Surface, QA-16 Core Web Vitals, QA-17 Memory Leak, QA-18 Network Resilience, QA-19 Autonomous Explorer, QA-20 Property Fuzz, QA-22 Vision-LLM |
-| Consolidate | Merges every artifact into the master HTML report |
-| pages-deploy | Publishes report + history + trend chart to GitHub Pages |
+# Run a single spec class
+pytest tests/test_specs_all.py -k "TutorSignup" -v
 
-### Artifacts per run
+# Watch the browser (debug mode)
+HEADED=1 SLOW_MO=800 pytest tests/test_specs_all.py -k "Login" -v
 
-| Artifact | Contents |
-|----------|----------|
-| `qa-agent-N-reports-RUN` | Per-agent HTML + JSON + screenshots + videos |
-| `ai-test-agent-RUN` | AI-generated test files + per-spec results |
-| `master-report-RUN` | Consolidated HTML report + bug tickets + trend |
-| `cache-RUN` | AI test-code cache (gh-pages-backed across runs) |
+# Adjust load time for slow staging
+LOAD_TIME_LIMIT=30 pytest tests/test_specs_all.py -v
 
-### GitHub Step Summary (per run)
-
-The Actions summary tab shows:
-
-- AI model used + full model chain
-- Per-type breakdown with collapsible test tables
-- Test data used for each test case (`# TEST_DATA:` annotations)
-- Pass/fail status per test function
-- Failure messages inline
-- Coverage gaps detected
-- Links to all artifacts and the live GitHub Pages report
-
-### Manual trigger with custom settings
-
-Go to: **Actions → Mehad Autonomous AI Testing → Run workflow**
-
-Inputs:
-- **AI model** — e.g. `qwen2.5-coder:7b` for higher quality
-- **Target URL** — test against a different environment
-- **browser_use** — enable autonomous browser exploration (QA-19)
-- **enable_vision** — enable QA-22 vision-LLM (pulls a 5 GB model)
-
-### CI model + test caching
-
-- **Ollama models** are cached between runs via `actions/cache@v4`. First run pulls ~1 GB; subsequent runs skip the download.
-- **Generated test code** is cached by `sha256(spec_md + base_url)` and persisted to gh-pages. Unchanged specs reuse last run's tests so the AI Test Agent only calls Ollama for new or modified specs.
-
-### Live report site
-
-After each successful run, GitHub Pages is updated at `https://<owner>.github.io/<repo>/` with:
-
-- The current master report + every per-agent report
-- A **history table** showing every prior run (sourced from `trends.json` so all runs are listed even if older `run-N.html` files were cleaned up)
-- A **trend sparkline** with pass-rate per run + alerts on regressions
-
----
-
-## How It Works: Fallback Chain
-
+# Manually regenerate tests without running
+BASE_URL=https://dev.mehadedu.com/en python3 scripts/validate_all_specs.py
 ```
-AI call attempt
-   ↓
-qwen2.5-coder:1.5b (primary)    ← try
-   ↓ fails
-llama3.2:1b                     ← try
-   ↓ fails
-phi3.5                          ← try
-   ↓ fails
-qwen2.5:0.5b                    ← try
-   ↓ all fail
-Template engine (zero-AI)       ← always works
-   Uses compiled spec selectors:
-   - fills input[type='email']
-   - fills input[type='password']
-   - clicks button[type='submit']
-   - asserts no 500/404, console errors, load time < 5s
-```
-
-The template engine is not a "dummy" — it uses the CSS selectors compiled from your spec to generate tests that actually interact with your page's form fields.
-
----
-
-## Spec Format Reference
-
-```markdown
-## UI Elements       ← table: Element | Selector/Hint | Notes
-## Requirements      ← bullet list or table: REQ-X-NN description
-## User Flows        ← ### Flow N — Name, then numbered steps
-## Validation Rules  ← table: Field | Rule | Error Message
-## Edge Cases        ← table: EC-X-NN | Scenario | Expected
-## API Contract      ← METHOD /api/endpoint table
-## Test Data         ← table: Category | Value
-```
-
-The Spec Compiler reads these headings and builds the JSON deterministically. AI never guesses the structure — it only generates test code once the structure is already known.
-
----
-
-## Security Payloads
-
-OWASP / PortSwigger-standard vectors for authorized security testing:
-
-- `payloads/xss.txt` — **50** XSS vectors (script tags, event handlers, data URIs, SVG, encoded variants)
-- `payloads/sqli.txt` — **50** SQL injection vectors (UNION, OR 1=1, blind, time-based, MS-SQL specific)
-- `payloads/boundary.txt` — **60+** boundary strings (length extremes, unicode/RTL/emoji, format strings, path traversal, CRLF, null bytes)
-
-Tests verify your app handles malicious input safely — they assert the payload is **not executed** or that the response is graceful (no 500, no leaked stack trace, no DB error). Use only on applications you own or have permission to test.
-
-In addition to the parametrized XSS/SQLi tests, QA-03 ships dedicated **auth-bypass probes**:
-
-- Unauthenticated request to `/api/me`, `/api/admin`, `/api/users/me` — fails only if real PII comes back
-- Forged `alg=none` JWT with admin claims — must be rejected with 401/403
-- IDOR probe across `/api/users/{1,2,999,uuid}`
-- Session cookies must have `HttpOnly` + `Secure` flags
-
-QA-06 adds **JSON schema validation** — every `application/json` response on page load must parse and be object-or-array shape (catches truncated JSON, HTML-error-pages-with-wrong-content-type, etc.).
-
----
-
-## CI Behaviour Notes
-
-### TEMPLATE.md / README.md / EXAMPLE.md are automatically skipped
-
-`specs/TEMPLATE.md` is never processed as a test spec — the agent skips it (and any spec starting with `_`). Only your real spec files are tested.
-
-### Spec directives are honoured
-
-Add a line like `<!-- skip: security, performance -->` in a spec md file and the agent will not generate those test types for that spec. Useful for static pages where security / perf testing isn't meaningful.
-
-### CI job timeouts
-
-- **AI Test Agent v5**: 90 min (it generates and runs tests for every spec; cache hits make subsequent runs much faster)
-- **QA Agent 1, 2**: 45 min (heaviest hand-crafted suites — QA-03 alone is 172 tests after payload expansion)
-- **QA Agent 3 .. 18**: 30 min each
-- **Consolidate**: 15 min
-
-### Partial results on cancellation
-
-If the CI job is cancelled mid-run, `reports/summary.json` and `reports/test_data_log.json` are still written with whatever completed (marked `"partial": true`). The Consolidate job runs with `if: always()` so the master report is built even when some agents fail or time out.
-
-### Per-call AI timeout (90 s)
-
-Each `ollama.chat()` call has a 90-second hard limit. If a model hangs, it is skipped and the next model in the chain is tried. After two consecutive timeouts a model is blacklisted for the rest of the session.
-
-### Each Playwright operation has a 15-second timeout
-
-`conftest.py` sets `page.set_default_timeout(15000)` on every test page. Navigation uses `wait_until="domcontentloaded"` instead of `"networkidle"` to avoid hanging on pages with long-polling or websockets. SPA hydration is handled with explicit `page.wait_for_function(...)` checks in `conftest.py` to avoid white-screen captures.
-
-### Concurrency
-
-Pushes cancel older runs (`cancel-in-progress: true`). If you push twice in quick succession, only the newer commit's run keeps going.
 
 ---
 
 ## Troubleshooting
 
-### `python install.py` says Ollama still not on PATH
+**Tests show `SKIPPED: Auth setup failed`**  
+Set `TEST_PHONE` + `TEST_OTP` + `TEST_COUNTRY` and verify your test account OTP is valid. Set `HEADED=1` to watch the auth flow in the browser.
 
-Open a fresh terminal (so PATH picks up the new install) and re-run `python install.py`. On Windows the official installer requires a logout/login or a new terminal.
-
-### `python run.py` opens the browser but tests are blank / nothing happens
-
-Staging may be unreachable. Override the URL:
-
+**`playwright: Executable doesn't exist`**  
 ```bash
-python run.py --url https://your-actual-staging.example.com
+playwright install chromium
 ```
 
-### "Ollama not running"
-
+**Load time tests failing**  
 ```bash
-# macOS
-brew services start ollama
-
-# Linux
-ollama serve &
+LOAD_TIME_LIMIT=30 pytest tests/test_specs_all.py -v
 ```
 
-### "0 tests collected"
+**Elements skipped instead of passing**  
+Some UI elements only appear in specific states (logged-in, empty state, post-onboarding). Tests skip gracefully rather than failing — this is expected.
 
-Check the generated file directly:
-
+**All tests in a spec class ERRORing**  
+Run that spec in isolation for a fresh auth session:  
 ```bash
-cat tests/test_login.py
-python ai_engine/test_validator.py tests/
+pytest tests/test_specs_all.py -k "Content" -v
 ```
 
-If the file is empty, all AI models failed and the template engine also failed (rare). Check Ollama is running: `ollama list`.
-
-### "No module named 'ollama'"
-
+**New spec not generating tests**  
+Make sure the file is in `specs/`, named `*.md`, and is not `TEMPLATE.md` or `README.md`. Touch the file to force regeneration:  
 ```bash
-pip install ollama
-# or
-pip3 install ollama --break-system-packages
-```
-
-### AI model not downloaded (404 errors in logs)
-
-```bash
-ollama pull qwen2.5-coder:1.5b
-ollama list   # verify it shows
-```
-
-After 2 consecutive 404s the agent fast-fails to the template engine to avoid log spam.
-
-### Tests pass but all use `assert page.url`
-
-This means the template engine ran (AI unavailable). Pull a model:
-
-```bash
-ollama pull qwen2.5-coder:1.5b
-```
-
-Or use a larger model for better quality:
-
-```bash
-AI_MODEL=qwen2.5-coder:7b python ai_engine/agent.py
-```
-
-### "pip not found" on macOS
-
-```bash
-pip3 install -r requirements.txt
-```
-
-### Reports directory missing
-
-```bash
-mkdir -p reports reports/screenshots reports/evidence
+touch specs/your_spec.md && pytest tests/test_specs_all.py -v
 ```
 
 ---
 
-*Built with Ollama + Playwright + pytest + GitHub Actions — zero cloud cost, zero API keys, fully open source.*
+<div align="center">
+
+Built by **[Mejbaur Bahar Fagun](mailto:mejbaur@markopolo.ai)** · Senior Software Engineer QA (IV) · Markopolo.ai
+
+Powered by Claude + Playwright + Ollama
+
+</div>

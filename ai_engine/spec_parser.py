@@ -94,8 +94,18 @@ def parse(spec_path: Path) -> ParsedSpec:
 
     # ── Requirements ──────────────────────────────────────────────────────────
     requirements = re.findall(r"(REQ-[A-Z\-\d]+:.+)", raw)
+    # Also treat numbered validation/check bullets as implicit requirements
+    if not requirements:
+        req_bullets = re.findall(
+            r"[-*]\s+((?:Ensure|Verify|Confirm|Check|Validate|Must|Should)[^\n]{10,80})",
+            raw, re.IGNORECASE
+        )
+        for i, txt in enumerate(req_bullets[:15], 1):
+            requirements.append(f"REQ-{i:02d}: {txt.strip()}")
 
     # ── User flows ────────────────────────────────────────────────────────────
+    # Support both Markopolo format (## User Flows → ### Flow N)
+    # and Mehad format (## Steps to Reproduce... → numbered list)
     flows_section = _between(raw, "## User Flows", ["## Validation", "## Edge", "## Expected", "## Test Data", "## API"])
     flow_blocks = re.split(r"###\s+Flow\s+\d+", flows_section, flags=re.IGNORECASE)
     flows = []
@@ -108,6 +118,22 @@ def parse(spec_path: Path) -> ParsedSpec:
         if steps:
             flows.append({"name": title[:60], "steps": steps[:10]})
 
+    # Mehad-style: "## Steps to Reproduce...", "## Steps for...", "# ... Process"
+    if not flows:
+        step_sections = re.finditer(
+            r"##\s+(Steps[^\n]*|.*Process[^\n]*|.*Flow[^\n]*|.*Booking[^\n]*)\n(.*?)(?=\n##\s|\Z)",
+            raw, re.DOTALL | re.IGNORECASE
+        )
+        for m in step_sections:
+            title = m.group(1).strip()[:60]
+            block = m.group(2)
+            steps = re.findall(r"\d+\.\s+(.+)", block)
+            # Also extract sub-steps from ### sections
+            sub_steps = re.findall(r"###\s+\d+\.\s+(.+)", block)
+            all_steps = (sub_steps or steps)[:10]
+            if all_steps:
+                flows.append({"name": title, "steps": all_steps})
+
     # ── Edge cases (table) ────────────────────────────────────────────────────
     edge_cases = []
     for row in re.finditer(
@@ -118,6 +144,18 @@ def parse(spec_path: Path) -> ParsedSpec:
             "scenario": row.group(2).strip(),
             "expected": row.group(3).strip(),
         })
+    # Mehad-style: bullet points with "should not", "must not", negative scenarios
+    if not edge_cases:
+        ec_bullets = re.findall(
+            r"[-*]\s+((?:Empty|Invalid|Wrong|Incorrect|Duplicate|Missing|No |Over|Exceed|Max|Min)[^\n]{5,80})",
+            raw, re.IGNORECASE
+        )
+        for i, txt in enumerate(ec_bullets[:12], 1):
+            edge_cases.append({
+                "id": f"EC-{i:02d}",
+                "scenario": txt.strip(),
+                "expected": "System shows appropriate error or prevents the action",
+            })
 
     # ── Validation rules ──────────────────────────────────────────────────────
     val_section = _between(raw, "## Validation Rules", ["## Edge", "## Expected", "## Test Data", "## API"])

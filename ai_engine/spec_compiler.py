@@ -136,6 +136,28 @@ def _requirements(section: str) -> list[dict]:
     return reqs
 
 
+def _prose_requirements(md_text: str) -> list[dict]:
+    """Extract implicit requirements from prose bullet points when no REQ-XX format exists."""
+    reqs: list[dict] = []
+    seen: set[str] = set()
+    # Strong requirement phrases
+    patterns = [
+        r"[-*]\s+((?:Must|Should|Ensure|Verify|Confirm|Validate|Check|System must|System should)[^\n]{10,100})",
+        r"[-*]\s+((?:Maximum|Minimum|At least|No more than|Up to|Required|Only|Cannot)[^\n]{10,100})",
+    ]
+    # Also look for "### Validation" and similar sub-headers that imply requirements
+    val_bullets = []
+    for pat in patterns:
+        val_bullets.extend(re.findall(pat, md_text, re.IGNORECASE | re.MULTILINE))
+    for i, txt in enumerate(val_bullets[:15], 1):
+        t = txt.strip()
+        if t in seen or len(t) < 10:
+            continue
+        seen.add(t)
+        reqs.append({"id": f"REQ-{i:02d}", "text": t})
+    return reqs
+
+
 # ── Flow step parser ──────────────────────────────────────────────────────────
 
 def _flow_step(line: str, elements: dict) -> dict | None:
@@ -277,6 +299,135 @@ def _test_data(section: str) -> tuple[list[str], list[str]]:
     return valid[:10], invalid[:10]
 
 
+def _prose_test_data(md_text: str) -> tuple[list[str], list[str]]:
+    """Generate sensible test data from prose validation mentions."""
+    valid: list[str] = []
+    invalid: list[str] = []
+
+    # Extract max-length values and generate boundary test data
+    for m in re.finditer(r"maximum\s+(?:of\s+)?(\d+)\s+characters?", md_text, re.IGNORECASE):
+        n = int(m.group(1))
+        valid.append("A" * min(n, 30))           # valid: within limit
+        invalid.append("A" * (n + 5))             # invalid: exceeds limit
+
+    # Email fields
+    if re.search(r"\bemail\b", md_text, re.IGNORECASE):
+        valid.append("test@mehadedu.com")
+        invalid.append("notanemail")
+
+    # Phone fields
+    if re.search(r"\bphone|whatsapp|mobile\b", md_text, re.IGNORECASE):
+        valid.append("98976564")
+        invalid.append("abc")
+
+    # OTP fields
+    if re.search(r"\botp|verification.?code\b", md_text, re.IGNORECASE):
+        valid.append("123456")
+        invalid.append("000000")
+
+    return valid[:8], invalid[:8]
+
+
+# ── Prose-format fallbacks (Mehad-style specs) ───────────────────────────────
+
+def _prose_selectors(md_text: str) -> dict:
+    """Infer selectors from prose field mentions when no UI Elements table exists."""
+    elements: dict = {}
+    # Patterns: "Enter your <field>", "<field>: enter/input...", "click <button>"
+    field_patterns = [
+        (r"(?:enter|type|fill|input)\s+(?:your\s+)?([a-zA-Z ]{3,30})(?:\s+field|\s+\(|:|\.|$)", "input"),
+        (r"([a-zA-Z ]{3,25})\s+field\s*(?:\(|:|-|—)", "input"),
+        (r"([a-zA-Z ]{3,25})\s+(?:input|textbox|text field)\s*(?:\(|:|$)", "input"),
+        (r"click\s+(?:the\s+)?(?:on\s+)?[\"']?([a-zA-Z ]{3,30})[\"']?\s+button", "button"),
+        (r"[\"']([a-zA-Z ]{3,30})[\"']\s+button", "button"),
+        (r"click\s+(?:the\s+)?(?:on\s+)?[\"']?([a-zA-Z ]{3,30})[\"']\s+link", "link"),
+    ]
+    skip_words = {"your", "the", "a", "an", "this", "that", "any", "all", "no", "on",
+                  "of", "in", "to", "by", "or", "and", "next", "back"}
+    seen: set[str] = set()
+    for pattern, kind in field_patterns:
+        for m in re.finditer(pattern, md_text, re.IGNORECASE | re.MULTILINE):
+            name = m.group(1).strip().lower()
+            name = re.sub(r"\s+", " ", name)
+            if name in skip_words or len(name) < 3 or name in seen:
+                continue
+            seen.add(name)
+            key = _norm(name)
+            if kind == "button":
+                selector = f"button:has-text('{name.title()}')"
+            elif kind == "link":
+                selector = f"a:has-text('{name.title()}')"
+            else:
+                selector = _infer_selector(key, name)
+            elements[key] = {"label": name.title(), "hint": name, "selector": selector}
+            if len(elements) >= 20:
+                break
+        if len(elements) >= 20:
+            break
+    return elements
+
+
+def _prose_url(md_text: str) -> str:
+    """Extract URL from prose when no **URL:** field exists."""
+    m = re.search(r"\*\*URL:\*\*\s*`?([^\s`\)]+)`?", md_text)
+    if m:
+        return m.group(1).strip()
+    for line in md_text.splitlines()[:40]:
+        m = re.search(r"https?://[^\s\]\)`),;]+", line)
+        if m:
+            return m.group(0).rstrip(".,;)")
+    return ""
+
+
+def _prose_flows(md_text: str, elements: dict) -> list[dict]:
+    """Extract flows from ## Steps... sections in Mehad prose format."""
+    flows: list[dict] = []
+    # Match any second-level heading that looks like a step sequence
+    pattern = re.compile(
+        r"##\s+((?:Steps?[^\n]*|.*?Process[^\n]*|.*?Flow[^\n]*|.*?Booking[^\n]*))\n(.*?)(?=\n##\s|\Z)",
+        re.DOTALL | re.IGNORECASE
+    )
+    for m in pattern.finditer(md_text):
+        title = m.group(1).strip()[:60]
+        block = m.group(2)
+        # Prefer ### N. sub-headers, fall back to numbered list items
+        sub = re.findall(r"###\s+\d+\.\s+(.+)", block)
+        numbered = re.findall(r"^\d+\.\s+(.+)", block, re.MULTILINE)
+        steps = (sub or numbered)[:10]
+        if steps:
+            compiled_steps = []
+            for s in steps:
+                step_dict = _flow_step(s, elements)
+                compiled_steps.append(step_dict or s)
+            flows.append({"name": title, "steps": compiled_steps})
+    return flows
+
+
+def _prose_edge_cases(md_text: str) -> list[dict]:
+    """Extract edge cases from validation/bullet sections in prose format."""
+    cases: list[dict] = []
+    # Look for validation sections
+    val_pattern = re.compile(
+        r"(?:###?\s+)?(?:Validation|Input\s+Field\s+Validation|Edge\s+Cases?)[^\n]*\n(.*?)(?=\n###?\s|\n##\s|\Z)",
+        re.DOTALL | re.IGNORECASE
+    )
+    seen: set[str] = set()
+    for m in val_pattern.finditer(md_text):
+        block = m.group(1)
+        bullets = re.findall(r"[-*]\s+(.+)", block)
+        for i, b in enumerate(bullets[:12], len(cases) + 1):
+            txt = b.strip()
+            if txt in seen or len(txt) < 10:
+                continue
+            seen.add(txt)
+            cases.append({
+                "id": f"EC-{i:02d}",
+                "scenario": txt,
+                "expected": "System shows appropriate error or prevents the action",
+            })
+    return cases[:15]
+
+
 # ── Master compiler ───────────────────────────────────────────────────────────
 
 def compile_spec(md_text: str, source_file: str = "") -> dict:
@@ -292,17 +443,38 @@ def compile_spec(md_text: str, source_file: str = "") -> dict:
 
     elements = _ui_elements(ui_raw)
     elements.update(_ui_elements(modal_raw))   # merge modal selectors in
-    flows    = _flows(flow_raw, elements)
-    ecs      = _edge_cases(ec_raw)
+
+    # Mehad-style prose fallbacks when structured sections are absent
+    if not elements:
+        elements = _prose_selectors(md_text)
+    flows = _flows(flow_raw, elements)
+    if not flows:
+        flows = _prose_flows(md_text, elements)
+    ecs = _edge_cases(ec_raw)
+    if not ecs:
+        ecs = _prose_edge_cases(md_text)
     vd, inv  = _test_data(data_raw)
+    if not vd:
+        vd, inv_extra = _prose_test_data(md_text)
+        inv = inv or inv_extra
+
+    # Requirements: structured first, prose fallback
+    reqs = _requirements(req_raw)
+    if not reqs:
+        reqs = _prose_requirements(md_text)
+
+    # URL fallback for prose specs
+    url = _url(md_text) or _prose_url(md_text)
+    path_m = re.search(r"https?://[^/\s]+(/[^\s`\)]+)", url)
+    path = path_m.group(1) if path_m else _path(md_text)
 
     return {
         "source":       source_file,
         "page":         _page_name(md_text),
-        "url":          _url(md_text),
-        "path":         _path(md_text),
+        "url":          url,
+        "path":         path,
         "selectors":    elements,
-        "requirements": _requirements(req_raw),
+        "requirements": reqs,
         "flows":        flows,
         "edge_cases":   ecs,
         "validation":   _validation(val_raw),

@@ -15,6 +15,35 @@ import os, re, json, shutil, sys, pytest
 from pathlib import Path
 from datetime import datetime
 
+
+def pytest_configure(config):
+    """Auto-regenerate tests/test_specs_all.py whenever specs/*.md change."""
+    import subprocess
+    root      = Path(__file__).parent
+    specs_dir = root / "specs"
+    output_py = root / "tests" / "test_specs_all.py"
+    if getattr(config.option, "collectonly", False):
+        return
+    md_files = [
+        f for f in specs_dir.glob("*.md")
+        if f.stem not in ("TEMPLATE", "README", "EXAMPLE")
+    ]
+    if not md_files:
+        return
+    newest_spec = max(f.stat().st_mtime for f in md_files)
+    out_mtime   = output_py.stat().st_mtime if output_py.exists() else 0
+    if newest_spec > out_mtime:
+        print(f"\n[spec-autodiscover] Specs changed — regenerating {output_py.name}...")
+        result = subprocess.run(
+            [sys.executable, str(root / "scripts" / "validate_all_specs.py")],
+            capture_output=True, text=True, cwd=str(root)
+        )
+        if result.returncode != 0:
+            print(f"[spec-autodiscover] WARNING: generator failed:\n{result.stderr[-800:]}")
+        else:
+            spec_names = [f.stem for f in md_files]
+            print(f"[spec-autodiscover] Regenerated — {len(md_files)} specs: {', '.join(spec_names)}")
+
 # Spec directive parser — honor "Don't test X" / "Skip Y" instructions
 # the spec author writes inside the .md spec files.
 sys.path.insert(0, str(Path(__file__).parent))
