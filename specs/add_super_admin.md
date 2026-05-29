@@ -1,287 +1,73 @@
-Super Admin Management Process
-
-
-Open the browser and go to:
-Super Admin Dashboard
-
-
-Login successfully using Super Admin credentials.
-
-
-After successful login, the dashboard interface will appear.
-
-
-From the sidebar/dashboard menu, click on the Super Admin section.
-
-
-Verify the Super Admin list page:
-
-
-All existing Super Admins should be visible.
-
-
-Verify displayed information:
-
-
-Full Name
-
-
-Email
-
-
-Phone Number
-
-
-Role
-
-
-Status
-
-
-Created Date
-
-
-Last Login
-
-
-
-
-
-
-
-Add Super Admin Process
-
-
-Click the Add Super Admin button.
-
-
-A modal/form should appear.
-
-
-Enter the First Name.
-
-
-Validate character limit.
-
-
-First Name should not exceed 32 characters.
-
-
-Empty field validation should work properly.
-
-
-
-
-Enter the Last Name.
-
-
-Validate character limit.
-
-
-Last Name should not exceed 32 characters.
-
-
-Empty field validation should work properly.
-
-
-
-
-Enter the Email Address.
-
-
-Verify proper email format validation.
-
-
-Invalid email formats should not be accepted.
-
-
-Duplicate email validation should work properly.
-
-
-
-
-Enter the Phone Number.
-
-
-Select the country code first.
-
-
-Enter a valid phone number.
-
-
-Invalid numbers should not be accepted.
-
-
-Empty field validation should work properly.
-
-
-
-
-Set a Password.
-
-
-Password validation rules should work properly.
-
-
-Weak password validation should appear if applicable.
-
-
-
-
-Select the Time Zone.
-
-
-Verify timezone dropdown functionality.
-
-
-Ensure timezone selection works properly.
-
-
-
-
-Click the Create button.
-
-
-Verify Super Admin creation:
-
-
-
-
-Super Admin should be created successfully.
-
-
-Success message should appear.
-
-
-Newly created Super Admin should appear in the Super Admin list.
-
-
-
-Super Admin List Verification
-
-
-Verify the newly created user appears in the dashboard list.
-
-
-Check displayed information:
-
-
-Correct Name
-
-
-Correct Email
-
-
-Correct Phone Number
-
-
-Role should display as Super Admin
-
-
-Status should display correctly
-
-
-Created Date should be accurate
-
-
-Last Login should display if the user has logged in
-
-
-
-
-
-Super Admin Actions Verification
-
-
-In the Action column, click the Three Dot Menu.
-
-
-Verify available actions.
-
-
-
-View Profile Details
-
-
-Click the View option.
-
-
-Verify profile details:
-
-
-First Name
-
-
-Last Name
-
-
-Email
-
-
-Phone Number
-
-
-Role
-
-
-Status
-
-
-Time Zone
-
-
-Other related information
-
-
-
-
-Ensure all displayed information is accurate.
-
-
-
-Copy Email Functionality
-
-
-Click the Copy Email option.
-
-
-Verify:
-
-
-Email should copy successfully.
-
-
-Copied email should match the actual user email.
-
-
-
-
-
-Delete Super Admin
-
-
-Click the Delete option.
-
-
-Verify delete confirmation modal if available.
-
-
-Confirm deletion.
-
-
-Verify:
-
-
-Super Admin account should be deleted successfully.
-
-
-Deleted user should no longer appear in the list.
-
-
-Proper success message should appear.
-
-
-Deleted Super Admin should not be able to login anymore.
-
-
-
+# Page: Add Super Admin — Super Admin Dashboard
+
+**URL:** `https://dev.mehadedu.com/en/super-admin-login`
+
+## Description
+Super admin management page. Existing super admins can add, view, and delete other super admin accounts. Includes full validation for name, email, phone, password, and timezone.
+
+## UI Elements
+
+| Element | Selector | Notes |
+|---|---|---|
+| Super Admin section | `a:has-text("Super Admin"), [data-testid="super-admin-nav"]` | Required |
+| Add Super Admin button | `button:has-text("Add Super Admin")` | Required |
+| First name input | `input[name="firstName"], input[placeholder*="First Name"]` | Required |
+| Last name input | `input[name="lastName"], input[placeholder*="Last Name"]` | Required |
+| Email input | `input[type="email"]` | Required |
+| Phone input | `input[type="tel"]` | Required |
+| Password input | `input[type="password"]` | Required |
+| Timezone selector | `select[name="timezone"], [placeholder*="Time Zone"]` | Required |
+| Create button | `button:has-text("Create")` | Required |
+| Super admin list table | `table, [data-testid="super-admin-list"]` | Required |
+| Three dot menu | `button[aria-label*="actions"]` | Required |
+| Delete option | `[role="menuitem"]:has-text("Delete")` | Optional |
+
+## User Flows
+
+### Flow 1: Add New Super Admin
+1. Navigate to Super Admin Dashboard
+2. Click "Super Admin" in sidebar
+3. Click "Add Super Admin"
+4. Fill First Name (max 32 chars)
+5. Fill Last Name (max 32 chars)
+6. Fill unique Email
+7. Select country and fill Phone
+8. Set Password
+9. Select Timezone
+10. Click "Create"
+→ Expected: Super admin created, appears in list
+
+### Flow 2: Delete Super Admin
+1. Find super admin in list
+2. Click three-dot menu
+3. Click "Delete"
+4. Confirm deletion
+→ Expected: Deleted, removed from list, cannot login
+
+## Requirements
+- REQ-01: Super Admin list shows all super admins
+- REQ-02: First/last name max 32 characters
+- REQ-03: Email must be unique and valid format
+- REQ-04: Password validates strength requirements
+- REQ-05: Delete requires confirmation
+- REQ-06: Deleted super admin cannot login
+
+## Edge Cases
+| EC-01 | Duplicate email | Error shown |
+| EC-02 | Name over 32 chars | Validation error |
+| EC-03 | Weak password | Validation error |
+| EC-04 | Delete self | Should be prevented |
+
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | Super |
+| name | Admin |
+| name | superadmin@mehadedu.com |
+
+### Invalid
+| Field | Value |
+|---|---|
+| name | notanemail |
+| name | 123 |

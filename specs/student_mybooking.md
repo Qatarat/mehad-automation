@@ -1,103 +1,89 @@
-Student Booking & Session Flow Test Cases (Frontend)
-Base Steps (Given by User)
-Login as a student
-Click Profile icon from header section
-Sidebar menu should open
-Click on My Bookings
-Redirect to /dashboard/bookings page
-View Upcoming Sessions
-View Completed Sessions (Session History)
-Match current time with session schedule
-Click Join button for active session
-Attend the session/class
-After session end time → go to Upcoming
-Click Complete Session button
-Session moves to Completed Sessions / History
-Additional Test Scenarios (Recommended)
-🔹 UI / UX Validation
-Profile icon visible in header
-Sidebar opens smoothly after click
-My Bookings menu visible and clickable
-Proper layout for:
-Upcoming Sessions
-Completed Sessions
-Session cards properly aligned
-Buttons (Join, Complete) clearly visible
-Responsive design for mobile/tablet
-🔹 Navigation Validation
-Clicking My Bookings redirects correctly
-URL should be /dashboard/bookings
-Page loads without errors
-Back/refresh maintains correct state
-🔹 Upcoming Session Validation
-Only future sessions displayed
-Sessions sorted by nearest time
-Each session shows:
-Title
-Date & time
-Status
-Join button behavior:
-Before time → disabled
-On time → enabled
-After time → hidden or disabled
-🔹 Join Session Validation
-Join button clickable only at valid time
-Clicking Join:
-Opens session/class page
-Redirect works correctly
-Prevent multiple clicks
-Show loader while joining
-🔹 Time-Based Logic Validation
-System time must match session time
-Edge cases:
-Before time → cannot join
-Exact time → join allowed
-After time → join restricted
-🔹 Complete Session Validation
-Complete Session button visible after session ends
-Clicking Complete:
-Updates session status
-Removes from Upcoming
-Prevent multiple submissions
-🔹 Completed Session (History) Validation
-Completed sessions appear in history
-Must include:
-Session details
-Completion status
-Correct sorting (latest first recommended)
-🔹 Data Consistency Validation
-Session should not exist in both sections
-No duplicate sessions
-Data sync with backend
-🔹 Error Handling
-Failed session load → show error
-Join failure → retry option
-Complete action failure → proper message
-🔹 Security Validation
-Only logged-in users can access bookings
-Unauthorized access redirects to login
-Session links protected
-🔹 Performance
-Page load time < 3 seconds
-Smooth UI interaction
-No lag during join/complete actions
-🔹 Cross Browser Testing
-Chrome, Firefox, Edge support
-Mobile browser compatibility
-🔹 Accessibility
-Keyboard navigation supported
-Proper button labels
-Screen reader compatibility
-Bonus (Automation Scope)
-Automate full flow using Playwright / Cypress
-Validate:
-Session fetch API
-Join session API
-Complete session API
-Mock time for session validation
-End-to-end flow testing
-Notes
-Test with different session times (past, present, future)
-Verify timezone handling
-Check session auto-expiry behavior
-Ensure frontend and backend data consistency
+# Page: Student My Bookings
+
+**URL:** `https://dev.mehadedu.com/en/dashboard/bookings`
+
+## Description
+Student's booking management page. Shows upcoming and completed sessions. Students can join active sessions, complete them, and view session recordings from history.
+
+## UI Elements
+
+| Element | Selector | Notes |
+|---|---|---|
+| My Bookings heading | `h1:has-text("My Bookings"), h2:has-text("Bookings")` | Required |
+| Upcoming sessions section | `:has-text("Upcoming"), [data-tab="upcoming"]` | Required |
+| Session History section | `:has-text("Session History"), [data-tab="history"]` | Required |
+| Session card | `.session-card, [data-testid="booking-card"]` | Required |
+| Join Classroom button | `button:has-text("Join Classroom")` | Conditional — at session time |
+| Complete Session button | `button:has-text("Complete Session")` | Conditional — after session ends |
+| View Recording button | `button:has-text("View Recording")` | Conditional — in history |
+| Session title | `.session-title, [data-testid="session-title"]` | Required |
+| Session date-time | `.session-datetime, time` | Required |
+| Session status | `.session-status, [data-testid="status"]` | Required |
+| Unbooked section | `:has-text("Unbooked"), [data-tab="unbooked"]` | Conditional |
+
+## User Flows
+
+### Flow 1: View My Bookings
+1. Navigate to https://dev.mehadedu.com/en/dashboard/bookings
+2. Page shows upcoming sessions
+3. Sessions are sorted by nearest time
+→ Expected: Upcoming sessions displayed with correct details
+
+### Flow 2: Join a Session at Scheduled Time
+1. Navigate to My Bookings
+2. Find session whose time has arrived
+3. "Join Classroom" button is now visible
+4. Click "Join Classroom"
+5. Classroom opens
+→ Expected: Live classroom session starts
+
+### Flow 3: Complete Session and Write Review
+1. After session ends, navigate to My Bookings
+2. Find completed session
+3. Click "Complete Session"
+4. Review prompt may appear
+5. Submit rating and review
+→ Expected: Session moves to Session History
+
+### Flow 4: View Recording in Session History
+1. Navigate to My Bookings
+2. Click "Session History" tab
+3. Find completed session
+4. Click "View Recording"
+→ Expected: Recording file loads (e.g. "Recording 1.1")
+
+## Requirements
+- REQ-01: My Bookings page accessible at /en/dashboard/bookings
+- REQ-02: Upcoming sessions show session title, date-time, status
+- REQ-03: Join Classroom button only appears at scheduled session time
+- REQ-04: Complete Session button appears after session ends
+- REQ-05: Clicking Complete Session updates status and moves to history
+- REQ-06: Session History shows completed sessions with recording option
+- REQ-07: View Recording opens a valid recording file
+- REQ-08: Tutor cancellation moves session to Unbooked section
+- REQ-09: Student cannot join session before scheduled time
+- REQ-10: Cancelled sessions do not appear in Upcoming
+
+## Edge Cases
+| EC-01 | Join before session time | Join button not visible or disabled |
+| EC-02 | Complete Session before session ends | Button not visible |
+| EC-03 | No bookings exist | Empty state message shown |
+| EC-04 | Tutor cancels 1-to-1 session | Session appears in Unbooked section |
+| EC-05 | Student books same group session twice | System prevents duplicate |
+| EC-06 | Recording not yet available | View Recording disabled or shows pending |
+| EC-07 | Unauthenticated user accesses bookings | Redirects to login |
+
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | 98976564 |
+| name | 123456 |
+| name | upcoming |
+| name | completed |
+
+### Invalid
+| Field | Value |
+|---|---|
+| name | 000000 |
+| name | 000000 |

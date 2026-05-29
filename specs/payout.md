@@ -1,104 +1,69 @@
-# Super Admin Payout Flow (End-to-End Process)
+# Page: Super Admin Payout Management
 
-## 1. Login Success Process
-- The Super Admin will log in successfully
-- Authentication will be validated
-- After successful login, the dashboard will load
+**URL:** `https://dev.mehadedu.com/en/dashboard/payout`
 
----
+## Description
+Super Admin payout management. Shows Total Help, Pending Payouts, Total Payouts cards. Admin approves tutor payout requests. Approved payouts update tutor's available balance.
 
-## 2. Navigate to Payout Section
-- Click on the **"Payout"** option from the sidebar
-- After clicking, a **Dialog / Modal** will open
+## UI Elements
 
----
+| Element | Selector | Notes |
+|---|---|---|
+| Payout heading | `h1:has-text("Payout"), h2:has-text("Payouts")` | Required |
+| Total Help card | `:has-text("Total Help"), [data-testid="total-help"]` | Required |
+| Pending Payouts card | `:has-text("Pending Payouts"), [data-testid="pending-payouts"]` | Required |
+| Total Payouts card | `:has-text("Total Payouts"), [data-testid="total-payouts"]` | Required |
+| Pending payouts table | `table, [data-testid="payout-list"]` | Required |
+| Tutor name column | `th:has-text("Tutor"), td` | Required |
+| Payout amount | `.payout-amount, [data-testid="amount"]` | Required |
+| Status column | `th:has-text("Status"), .status-badge` | Required |
+| Approve button | `button:has-text("Approve")` | Required |
+| Three dot menu | `button[aria-label*="actions"]` | Optional |
+| View Session Details | `[role="menuitem"]:has-text("View Session Details")` | Optional |
+| Manual Trigger button | `button:has-text("Manual Trigger")` | Optional |
 
-## 3. Payout Dashboard Cards
-There will be a total of 4 cards at the top of the dialog:
+## User Flows
 
-1. Total Help
-2. Pending Payouts
-3. Total Payouts
-4. Total Refunds *(Currently NOT enabled / Not available)*
+### Flow 1: Approve Payout Request
+1. Login as super admin
+2. Navigate to Payout section
+3. Find pending payout in table
+4. Click "Approve"
+→ Expected: Status changes to Paid, tutor balance updated
 
-👉 Currently focus on:
-- Total Help
-- Pending Payouts
-- Total Payouts
+### Flow 2: View Session Details
+1. Find payout request
+2. Click three-dot menu
+3. Click "View Session Details"
+4. Full breakdown shown
+→ Expected: Sessions, fees, and date breakdown visible
 
----
+### Flow 3: View Payout Dashboard Stats
+1. Navigate to payout page
+2. View Total Help, Pending Payouts, Total Payouts cards
+→ Expected: Accurate statistics displayed
 
-## 4. Pending Payouts Logic
-The Pending Payouts section will display:
+## Requirements
+- REQ-01: Payout page shows 3 summary cards
+- REQ-02: Pending payouts list shows tutor name, sessions, amount, date range, fees, status
+- REQ-03: Approve changes status from Pending to Paid
+- REQ-04: Approval updates tutor's available balance
+- REQ-05: Manual Trigger button creates test payout requests
+- REQ-06: Session details modal shows full breakdown
 
-- Tutor Name
-- Completed Sessions Count
-- Requested Payout Amount
-- Date Range
-- Fees Breakdown
-  - Platform Fee included in fee calculation
-- Status (Pending / Approved)
-- Actions Button
+## Edge Cases
+| EC-01 | Approve already-approved payout | Error or button disabled |
+| EC-02 | No pending payouts | Empty state in list |
+| EC-03 | View details for old payout | Historical data shown |
 
----
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | 98976564 |
+| name | 123456 |
 
-## 5. Action Flow (Approve Process)
-In the Action column, there will be:
-
-### Options:
-- Approve Button
-- Three Dot Menu (⋮)
-
-### After Approval:
-- Pending → Paid status will be updated
-- Amount will be added to Total Paid
-- Total Held will be updated
-
----
-
-## 6. View Details (Three Dot Menu)
-- “View Session Details” option will be available
-- It will show full payout breakdown:
-  - Sessions list
-  - Tutor details
-  - Fee calculation
-  - Date-wise breakdown
-
----
-
-## 7. Manual Trigger Button (IMPORTANT)
-- A **Manual Trigger Button** will be available
-- It will be used to simulate/test new payout requests
-
-### Verification points:
-- Check if new payout requests are being created
-- Check if amount calculation is correct
-- Check if entries are properly added to the Pending list
-
----
-
-## 8. Tutor Profile Validation
-- Visit Tutor Profile
-- Verify:
-  - Payout deduction is correct
-  - Session count matches
-  - Earnings are updating properly
-
----
-
-## 9. End-to-End Verification Flow
-✔ Login → Dashboard → Payout  
-✔ Request generation (manual + system)  
-✔ Pending state verification  
-✔ Approval flow  
-✔ Paid state update  
-✔ Tutor profile sync  
-
----
-
-## 10. Final Goal
-- All payout requests should correctly reach the Super Admin
-- After Super Admin approval, the system should automatically update:
-  - Tutor side
-  - Admin side
-  - Reports / totals
+### Invalid
+| Field | Value |
+|---|---|
+| name | 000000 |

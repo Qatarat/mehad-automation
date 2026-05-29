@@ -1,107 +1,66 @@
-# Reset Password (Super Admin)
+# Page: Reset Password — Super Admin Account Settings
 
-## Overview
+**URL:** `https://dev.mehadedu.com/en/dashboard/account-settings`
 
-The Reset Password feature allows the Super Admin to manually change their account password from the Account Settings panel.
+## Description
+Super Admin password reset from Account Settings. Admin enters new password and confirms it. After reset, old password becomes invalid and new password required for login.
 
-This feature is used for:
-- Security updates
-- Password recovery (manual change)
-- Credential rotation
+## UI Elements
 
-After resetting, the new password must be used for future logins.
+| Element | Selector | Notes |
+|---|---|---|
+| Account Settings link | `a:has-text("Account Settings"), [data-testid="account-settings"]` | Required |
+| Reset Password card | `:has-text("Reset Password"), [data-testid="reset-password-card"]` | Required |
+| New password input | `input[type="password"][name="newPassword"], input[placeholder*="New Password"]` | Required |
+| Show password toggle | `button[aria-label*="show"], button[aria-label*="eye"]` | Optional |
+| Confirm password input | `input[type="password"][name="confirmPassword"], input[placeholder*="Confirm"]` | Required |
+| Reset Password button | `button:has-text("Reset Password"), button[type="submit"]` | Required |
+| Success message | `:has-text("Password"), :has-text("updated"), :has-text("reset")` | Conditional |
 
----
+## User Flows
 
-# Open Reset Password
+### Flow 1: Reset Password Successfully
+1. Login as super admin
+2. Navigate to Account Settings
+3. Click "Reset Password" card
+4. Modal opens with new password fields
+5. Enter new strong password
+6. Enter same password in confirm field
+7. Click "Reset Password"
+8. Success message shown
+9. Old password no longer works
+10. New password required for next login
 
-1. Login as Super Admin.
-2. Open the **Sidebar**.
-3. Go to **Account Settings**.
-4. Click on **Reset Password** card.
+### Flow 2: Password Mismatch
+1. Enter new password: NewPass@123
+2. Enter confirm: DifferentPass@123
+3. Click "Reset Password"
+4. Error: passwords do not match
 
----
+## Requirements
+- REQ-01: Reset Password accessible from Account Settings
+- REQ-02: New password must be strong
+- REQ-03: Confirm password must match new password
+- REQ-04: Old password becomes invalid after reset
+- REQ-05: Eye icon toggles password visibility
+- REQ-06: Success message shown after reset
 
-# Reset Password Modal
+## Edge Cases
+| EC-01 | Passwords do not match | Error shown |
+| EC-02 | Weak password | Validation error |
+| EC-03 | Same as old password | Error: must be unique |
+| EC-04 | Empty new password field | Validation error |
+| EC-05 | Empty confirm password | Validation error |
 
-After clicking the card, a modal will open containing password fields.
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | NewSecure@Pass123 |
+| name | StrongPass@456 |
 
----
-
-## Fields
-
-### New Password
-- Enter a new strong password.
-- Must be:
-  - Unique
-  - Strong (secure format required)
-
-### Show/Hide Password
-- Eye (👁) icon available to toggle password visibility.
-
----
-
-### Confirm Password
-- Re-enter the same password for confirmation.
-- Must exactly match the New Password field.
-
----
-
-# Reset Password Process
-
-1. Enter a strong new password.
-2. Confirm the same password in the confirmation field.
-3. Click on **Reset Password** button.
-4. System validates both fields.
-
----
-
-## Success Scenario
-
-- If valid:
-  - Password is updated successfully.
-  - Success message is shown.
-
----
-
-## Failure Scenario
-
-- If passwords do not match:
-  - Error message is shown.
-- If password is weak:
-  - Validation error is shown.
-
----
-
-# Post Reset Behavior
-
-After successful reset:
-
-1. Old password becomes invalid.
-2. New password becomes active immediately.
-3. Super Admin must use the new password for login.
-4. Next login requires updated credentials.
-
----
-
-# Functional & Validation Checks
-
-## Password Rules
-- Must be strong
-- Must be unique
-- Must meet system security requirements
-
-## Confirmation Check
-- New Password and Confirm Password must match
-
-## UI Checks
-- Eye icon works properly
-- Modal opens and closes correctly
-
-## Security Checks
-- Old password should no longer work
-- New password should be immediately active
-
-## Login Verification
-- Login works only with updated password
-- Invalid old password is rejected
+### Invalid
+| Field | Value |
+|---|---|
+| name | weakpassword |
+| name | mismatch_confirm |

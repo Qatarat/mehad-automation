@@ -1,144 +1,83 @@
-# Content Management - Testimonials Process
-
-## Login Process
-
-1. Open the browser and go to:  
-   [Super Admin Dashboard](https://dev.mehadedu.com/ar/super-admin-login)
-
-2. Login successfully using Super Admin credentials.
-
-3. After successful login, the dashboard interface will appear.
-
----
-
-# Testimonials Management
-
-## Navigation Process
-
-1. From the sidebar menu, click on **Content Management**.
-
-2. From the dropdown options, click on **Testimonials**.
-
-3. Verify that the Testimonials dashboard opens successfully.
-
----
-
-## Search Functionality
-
-1. Use the search box to search testimonials by name.
-
-2. Verify that the correct testimonial data appears in the search result.
-
----
-
-## Filter Functionality
-
-1. Use the status filter option.
-
-2. Verify filtering by:
-   - Active
-   - Inactive
-
-3. Verify that filtered testimonial data is displayed correctly.
-
----
-
-# Create Testimonial
-
-## Create Testimonial Navigation
-
-1. Click on the **Create Testimonial** button with the plus icon.
-
-2. Verify that the Create Testimonial form opens successfully.
-
----
-
-## Avatar Upload Validation
-
-1. Upload an avatar image.
-
-2. Verify that the maximum allowed file size is 2 MB.
-
-3. Verify that files larger than 2 MB are not accepted.
-
----
-
-## Name Field Validation
-
-1. Enter a testimonial name.
-
-2. Verify that the maximum character length is 32 characters.
-
----
-
-## Role Field Validation
-
-1. Enter the role information.
-
-2. Verify that the role field accepts valid role data.
-
-3. Verify that the maximum character length is 32 characters.
-
----
-
-## Rating Functionality
-
-1. Set the testimonial rating.
-
-2. Verify that the selected rating is saved correctly.
-
----
-
-## Testimonial Comment
-
-1. Enter testimonial comments/feedback.
-
-2. Verify that comments are saved successfully.
-
----
-
-## Status Toggle Functionality
-
-### Active Status
-1. Enable the status toggle as **Active**.
-
-2. Click on the **Create** button.
-
-3. Verify that the testimonial is created successfully.
-
-4. Verify that the testimonial is publicly visible on the landing page of MehadEdu.
-
-5. Scroll through the landing page and verify that the testimonial appears inside a testimonial card.
-
----
-
-### Inactive Status
-1. Set the status toggle as **Inactive**.
-
-2. Click on the **Create** button.
-
-3. Verify that the testimonial is created successfully.
-
-4. Verify that the testimonial is not publicly visible on the landing page.
-
----
-
-# Action Button Functionality
-
-## Edit Testimonial
-
-1. Click on the **Edit** button from the action menu.
-
-2. Update testimonial information.
-
-3. Verify that updated testimonial information is saved successfully.
-
----
-
-## Delete Testimonial
-
-1. Click on the **Delete** button from the action menu.
-
-2. Verify that the testimonial is deleted successfully.
-
-3. Verify that deleted testimonial data no longer appears in the dashboard or landing page.
+# Page: Testimonials Management — Super Admin
+
+**URL:** `https://dev.mehadedu.com/en/super-admin-login`
+
+## Description
+Super Admin content management for testimonials displayed on the landing page. Testimonials have Active/Inactive status. Active testimonials appear on public landing page in testimonial section.
+
+## UI Elements
+
+| Element | Selector | Notes |
+|---|---|---|
+| Content Management link | `a:has-text("Content Management"), [data-testid="content-nav"]` | Required |
+| Testimonials option | `a:has-text("Testimonials"), [role="menuitem"]:has-text("Testimonials")` | Required |
+| Testimonials heading | `h1:has-text("Testimonials"), h2:has-text("Testimonials")` | Required |
+| Create Testimonial button | `button:has-text("Create Testimonial"), button[aria-label*="create"]` | Required |
+| Search input | `input[placeholder*="Search"]` | Optional |
+| Status filter | `select[aria-label*="Status"], [placeholder*="Active"]` | Optional |
+| Testimonial list | `table, [data-testid="testimonials-list"]` | Required |
+| Avatar upload | `input[type="file"]` | Optional |
+| Name input | `input[name="name"], input[placeholder*="Name"]` | Required |
+| Role input | `input[name="role"], input[placeholder*="Role"]` | Optional |
+| Rating selector | `.star-rating, [aria-label*="rating"]` | Optional |
+| Comment textarea | `textarea[name="comment"]` | Required |
+| Status toggle | `[role="switch"]` | Required |
+| Create button | `button:has-text("Create"), button[type="submit"]` | Required |
+| Edit option | `[role="menuitem"]:has-text("Edit")` | Optional |
+| Delete option | `[role="menuitem"]:has-text("Delete")` | Optional |
+
+## User Flows
+
+### Flow 1: Create Active Testimonial
+1. Navigate to Content Management > Testimonials
+2. Click "Create Testimonial"
+3. Upload avatar (max 2 MB)
+4. Fill Name (max 32 chars): Ahmed Student
+5. Fill Role (max 32 chars): Student
+6. Set Rating: 5 stars
+7. Enter Comment: Great platform for learning
+8. Toggle Status: Active
+9. Click "Create"
+10. Navigate to landing page
+11. Verify testimonial appears in testimonial section
+
+### Flow 2: Create Inactive Testimonial
+1. Create testimonial with Status: Inactive
+2. Navigate to landing page
+3. Verify testimonial NOT visible
+
+### Flow 3: Edit Testimonial
+1. Find testimonial in list
+2. Click action > Edit
+3. Update comment
+4. Save
+5. Landing page reflects update
+
+## Requirements
+- REQ-01: Testimonials page accessible from Content Management menu
+- REQ-02: Name field max 32 characters
+- REQ-03: Role field max 32 characters
+- REQ-04: Avatar max 2 MB
+- REQ-05: Active testimonials visible on landing page
+- REQ-06: Inactive testimonials hidden from public
+- REQ-07: Delete removes testimonial permanently
+
+## Edge Cases
+| EC-01 | Name over 32 chars | Validation error |
+| EC-02 | Avatar over 2 MB | Upload rejected |
+| EC-03 | Create with Inactive status | Not shown on landing page |
+| EC-04 | Delete active testimonial | Removed from landing page |
+
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | Test Student |
+| name | Ahmed Learner |
+| name | Sara Teacher |
+
+### Invalid
+| Field | Value |
+|---|---|
+| name | empty_name |
+| name | name_over_thirtytwo_characters_long |

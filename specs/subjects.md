@@ -1,149 +1,80 @@
-# Subjects Management
+# Page: Subjects Management
 
-## Overview
-
-The Subjects section is managed by the Super Admin.
-
-Subjects are used across the entire platform, including:
-- Tutor Profile
-- Student Side
-- Tutor Search
-- Slot Booking
-- Course Modules
-- Enrollment System
-
-When tutors create or update their profiles, they must select the subjects they want to teach from this section.
-
-All created subjects become available platform-wide.
-
----
-
-# Open Subjects Dashboard
-
-1. Login as Super Admin.
-2. Open the **Sidebar**.
-3. Go to **Settings**.
-4. Click on **Subjects**.
-5. The Subjects Dashboard will be displayed.
-
----
-
-# Search Subject
-
-1. Use the **Search Subject** field.
-2. Enter the subject name.
-3. Matching subjects should appear in the list.
-
----
-
-# Subject Status Management
-
-## Active Status
-- If a subject status is **Active**, it will be publicly visible and usable across the platform.
-
-## Disable Status
-- If a subject status is **Disable**, it will not be publicly visible.
-
----
-
-# Featured Subject Management
-
-## Featured ON
-- If a subject is marked as **Featured**, it will appear on the Landing Page as a featured subject.
-
-## Featured OFF
-- If featured is disabled, the subject will not appear in the featured section of the Landing Page.
-
----
-
-# Create Subject
-
-1. Click on the **Create Subject** button.
-2. A modal/form will open.
-
----
-
-# Subject Creation Fields
-
-## Upload Logo
-
-1. Click on the upload/drag area.
-2. Select a logo or image from local storage.
-3. Upload the file.
-
-### Validation
-- Maximum file size: **10 MB**
-
----
-
-## Category Selection
-
-1. Select the appropriate category for the subject.
-
----
-
-## Subject Name
-
-1. Enter the subject name.
-
-### Validation
-- Maximum length: **32 characters**
-
----
-
-## Arabic Subject Name
-
-1. Enter the subject name in Arabic.
-2. This will be used when the platform language is switched to Arabic.
-
----
+**URL:** `https://dev.mehadedu.com/en/dashboard/subjects`
 
 ## Description
+Super Admin manages subjects used platform-wide (tutor profiles, search, booking, enrollment). Subjects have Active/Disable status and Featured flag for landing page display. Supports English and Arabic names.
 
-1. Enter a short subject description.
+## UI Elements
 
-### Validation
-- Maximum length: **500 characters**
+| Element | Selector | Notes |
+|---|---|---|
+| Subjects heading | `h1:has-text("Subjects"), h2:has-text("Subjects")` | Required |
+| Create Subject button | `button:has-text("Create Subject")` | Required |
+| Search input | `input[placeholder*="Search Subject"]` | Optional |
+| Status filter | `select[aria-label*="Status"]` | Optional |
+| Subjects table | `table, [data-testid="subjects-table"]` | Required |
+| Subject name | `.subject-name, [data-testid="subject-name"]` | Required |
+| Status toggle | `[role="switch"]` | Required |
+| Featured toggle | `[role="switch"][aria-label*="featured"]` | Optional |
+| Logo upload | `input[type="file"]` | Optional |
+| Category select | `select[name="category"], [placeholder*="Category"]` | Required |
+| Subject name input | `input[name="name"], input[placeholder*="Subject Name"]` | Required |
+| Arabic name input | `input[name="nameAr"], input[placeholder*="Arabic"]` | Optional |
+| Description textarea | `textarea[name="description"]` | Optional |
+| Create Subject button modal | `[role="dialog"] button:has-text("Create Subject")` | Required |
 
----
+## User Flows
 
-# Create Subject Process
+### Flow 1: Create Subject
+1. Navigate to Subjects management
+2. Click "Create Subject"
+3. Upload logo (max 10 MB)
+4. Select category
+5. Fill Subject Name (max 32 chars): Mathematics
+6. Fill Arabic Name: الرياضيات
+7. Fill description (max 500 chars)
+8. Click "Create Subject"
+9. Subject appears in list
 
-1. Fill all required fields.
-2. Click on **Create Subject**.
-3. The subject will become publicly available across the platform.
+### Flow 2: Toggle Featured Subject
+1. Find subject in list
+2. Toggle Featured to ON
+3. Subject appears on landing page
+4. Toggle Featured to OFF
+5. Subject removed from featured section
 
----
+### Flow 3: Disable Subject
+1. Find subject
+2. Toggle Status to Disable
+3. Subject not visible in tutor profile selection or search filters
 
-# Functional & Public Visibility Checks
+## Requirements
+- REQ-01: Subject name max 32 characters
+- REQ-02: Logo upload max 10 MB
+- REQ-03: Description max 500 characters
+- REQ-04: Category selection required
+- REQ-05: Active subjects available on tutor profile, search, booking
+- REQ-06: Featured subjects appear on landing page
+- REQ-07: Arabic name used when language switched to Arabic
 
-After creating or updating a subject, verify the following:
+## Edge Cases
+| EC-01 | Subject name over 32 chars | Validation error |
+| EC-02 | Logo over 10 MB | Upload rejected |
+| EC-03 | Description over 500 chars | Validation error |
+| EC-04 | Disable subject in active use | Tutors with this subject retain it but new selection blocked |
+| EC-05 | Empty required fields | Validation error |
 
-## Tutor Side Checks
-- Tutors can select the subject during profile setup/edit
-- Subject appears properly in tutor profiles
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | Mathematics |
+| name | Physics |
+| name | Chemistry |
 
-## Student Side Checks
-- Students can view the subject properly
-
-## Slot Booking Checks
-- Subject appears during session slot booking
-
-## Tutor Search Checks
-- Subject appears in tutor search filters
-
-## Course & Enrollment Checks
-- Subject appears inside course modules
-- Subject appears after clicking the **Enroll** button
-
-## Landing Page Checks
-- Featured subjects appear correctly on the Landing Page
-- Disabled featured subjects do not appear
-
-## General Validation Checks
-- Search functionality works correctly
-- Active/Disable status works properly
-- Featured ON/OFF works correctly
-- Arabic language switching works properly
-- Image upload validation works correctly
-- Public visibility updates successfully
+### Invalid
+| Field | Value |
+|---|---|
+| name | empty_name |
+| name | name_over_thirtytwo_chars_invalid_test |

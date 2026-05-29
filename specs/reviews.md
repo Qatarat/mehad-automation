@@ -1,84 +1,70 @@
-```markdown
-# Reviews Management Process
+# Page: Reviews Management — Super Admin
 
-## Login Process
+**URL:** `https://dev.mehadedu.com/en/super-admin-login`
 
-1. Open the browser and go to:  
-   [Super Admin Dashboard](https://dev.mehadedu.com/ar/super-admin-login)
+## Description
+Super Admin reviews moderation dashboard. Shows all student reviews of tutors. Admin can search by student name, filter by status/rating/subject/date, and Approve, Reject, or Delete reviews.
 
-2. Login successfully using Super Admin credentials.
+## UI Elements
 
-3. After successful login, the dashboard interface will appear.
+| Element | Selector | Notes |
+|---|---|---|
+| Reviews link | `a:has-text("Reviews"), [data-testid="reviews-nav"]` | Required |
+| Reviews table | `table, [data-testid="reviews-table"]` | Required |
+| Search input | `input[placeholder*="Search"], input[placeholder*="student"]` | Optional |
+| Filter option | `button:has-text("Filter"), [data-testid="filter"]` | Optional |
+| Status filter | `select[aria-label*="Status"]` | Optional |
+| Rating filter | `select[aria-label*="Rating"]` | Optional |
+| Student name column | `th:has-text("Student")` | Required |
+| Review content column | `th:has-text("Review"), th:has-text("Comment")` | Required |
+| Status column | `th:has-text("Status")` | Required |
+| Approve button | `button:has-text("Approve")` | Conditional |
+| Reject button | `button:has-text("Reject")` | Conditional |
+| Delete button | `button:has-text("Delete")` | Conditional |
 
----
+## User Flows
 
-## Reviews Management
+### Flow 1: Moderate Reviews
+1. Login as super admin
+2. Navigate to Reviews
+3. Reviews table shows student name, tutor, review, rating, status
+4. Click "Approve" on a review
+5. Review becomes visible on tutor profile
 
-1. From the sidebar, click on the **Reviews** button.
+### Flow 2: Reject Review
+1. Find a review
+2. Click "Reject"
+3. Review no longer visible
 
-2. After clicking the Reviews button, the Reviews dashboard will appear.
+### Flow 3: Search and Filter Reviews
+1. Type student name in search
+2. Matching reviews shown
+3. Apply filter: 5 stars
+4. Only 5-star reviews shown
 
-3. The dashboard contains:
-   - Search Box
-   - Filter Option
-   - Reviews Information Table
+## Requirements
+- REQ-01: Reviews table shows student name, subject, review, status
+- REQ-02: Approve makes review visible on tutor profile
+- REQ-03: Reject hides review from public
+- REQ-04: Delete permanently removes review
+- REQ-05: Search by student name filters correctly
+- REQ-06: Filter by status, rating, subject, date works
 
----
+## Edge Cases
+| EC-01 | Search with no match | Empty state shown |
+| EC-02 | Filter shows no results | Empty state shown |
+| EC-03 | Delete already-deleted review | Error or button unavailable |
+| EC-04 | XSS in search input | Sanitized |
 
-## Search Functionality
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | 98976564 |
+| name | 123456 |
+| name | Test Student |
 
-1. Search reviews using the student's name.
-
-2. Verify that the system shows:
-   - Which tutor the student reviewed
-   - Review comments
-   - Given rating
-
-3. Verify that the search result displays correct information.
-
----
-
-## Filter Functionality
-
-1. Click on the **Filter** option.
-
-2. Verify filtering functionality by:
-   - Status
-   - Rating
-   - Subject
-   - Date
-
-3. Verify that filtered results display correct information on the board.
-
----
-
-## Reviews Table Information
-
-Verify that the dashboard displays:
-- Student Name
-- Subject
-- Review Content
-- Status
-- Action Button
-
----
-
-## Action Button Functionality
-
-Verify the following action buttons:
-- Approve
-- Reject
-- Delete
-
-### Approve Review
-1. Click the **Approve** button.
-2. Verify that the approved review is visible on the tutor's profile.
-
-### Reject Review
-1. Click the **Reject** button.
-2. Verify that the rejected review is not shown anywhere.
-
-### Delete Review
-1. Click the **Delete** button.
-2. Verify that the review is permanently removed and no longer visible anywhere.
-```
+### Invalid
+| Field | Value |
+|---|---|
+| name | <script>alert(1)</script> |

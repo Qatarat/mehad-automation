@@ -803,6 +803,13 @@ def _class_for_spec(compiled: dict, spec_name: str) -> str:
     page_name  = compiled.get("page", spec_name.replace("markopolo_", "").replace("_", " ").title())
     page_path  = compiled.get("path", "/")
     page_url   = compiled.get("url", BASE_URL)
+    # Strip the locale prefix from page_path if BASE_URL already ends with it
+    # e.g. BASE_URL="https://dev.mehadedu.com/en" + path="/en/dashboard/x" → "/en/en/dashboard/x"
+    _base_suffix = BASE_URL.rstrip("/").rsplit("/", 1)[-1]  # e.g. "en" or "ar"
+    if _base_suffix and page_path.startswith(f"/{_base_suffix}"):
+        stripped = page_path[len(f"/{_base_suffix}"):]
+        # Only strip if stripping leaves a valid sub-path (empty → homepage "/")
+        page_path = stripped if stripped else "/"
     sels       = compiled.get("selectors", {})
     flows      = compiled.get("flows", [])
     ecs        = compiled.get("edge_cases", [])
@@ -1247,48 +1254,61 @@ def generate_test_file(all_specs: list[tuple]) -> tuple[str, int, list[dict]]:
                     pg.wait_for_url(lambda u: "/login" not in u, timeout=30000)
                 else:
                     # WhatsApp OTP auth (Mehad-style)
-                    # Click the Login button to open the modal
-                    try:
-                        pg.locator('button[aria-label="Login"], button:has-text("Log In"), button:has-text("Login")').first.click()
-                        pg.wait_for_timeout(1000)
-                    except Exception:
-                        pass
-                    # Select country code if present
-                    try:
-                        cc_btn = pg.locator('[data-slot="select-trigger"], [role="combobox"]').first
-                        cc_btn.wait_for(state='visible', timeout=8000)
-                        cc_btn.click()
-                        pg.wait_for_timeout(500)
-                        pg.locator('[role="option"]:has-text("' + TEST_COUNTRY + '"), li:has-text("' + TEST_COUNTRY + '")').first.click()
-                        pg.wait_for_timeout(500)
-                    except Exception:
-                        pass
-                    # Enter phone number
-                    pg.locator('input[type="tel"], input[inputmode="numeric"], input[type="number"]').first.wait_for(state='visible', timeout=15000)
-                    pg.locator('input[type="tel"], input[inputmode="numeric"], input[type="number"]').first.fill(TEST_PHONE)
-                    # Click Send Code
-                    pg.locator('button:has-text("Send Code"), button:has-text("Send"), button[type="submit"]').first.click()
-                    pg.wait_for_timeout(1500)
-                    # Enter OTP
-                    pg.locator('input[type="tel"], input[inputmode="numeric"], input[maxlength="6"], input[maxlength="1"]').first.wait_for(state='visible', timeout=15000)
-                    otp_inputs = pg.locator('input[maxlength="1"]').all()
-                    if len(otp_inputs) >= 6:
-                        for i, digit in enumerate(TEST_OTP[:6]):
-                            otp_inputs[i].fill(digit)
-                    else:
-                        pg.locator('input[type="tel"], input[inputmode="numeric"]').first.fill(TEST_OTP)
+                    # Step 1: Click the visible Login button to open the modal
+                    # Two "Log In" buttons exist — one hidden (mobile, aria-label="Login"), one visible (desktop)
+                    # Target the visible one (no aria-label, just text)
+                    login_btn = pg.locator('button:not([aria-label]):has-text("Log In"), button:not([aria-label="Login"]):has-text("Login")').first
+                    login_btn.wait_for(state='visible', timeout=10000)
+                    login_btn.click()
+                    pg.wait_for_selector('[role="dialog"]', state='visible', timeout=10000)
+                    pg.wait_for_timeout(1000)
+
+                    # Step 2: Click the "Country code" button inside the dialog
+                    dialog = pg.locator('[role="dialog"]')
+                    cc_btn = dialog.locator('button[aria-label="Country code"], button:has-text("Country code")').first
+                    cc_btn.wait_for(state='visible', timeout=8000)
+                    cc_btn.click()
+                    pg.wait_for_timeout(700)
+
+                    # Step 3: Search for Bangladesh in the listbox search input
+                    search_input = pg.locator('[role="listbox"] input[placeholder*="Search"], input[placeholder="Search..."]').first
+                    search_input.wait_for(state='visible', timeout=5000)
+                    search_input.fill('Bangladesh')
+                    pg.wait_for_timeout(600)
+
+                    # Step 4: Click the Bangladesh +880 option
+                    pg.locator('[role="option"]:has-text("Bangladesh")').first.click()
+                    pg.wait_for_timeout(500)
+
+                    # Step 5: Fill phone number in the dialog (placeholder "50 123 4567")
+                    phone_input = dialog.locator('input[type="tel"], input[placeholder*="123"]').first
+                    phone_input.wait_for(state='visible', timeout=8000)
+                    phone_input.fill(TEST_PHONE)
+                    pg.wait_for_timeout(400)
+
+                    # Step 6: Click Send Code (becomes enabled after phone number entered)
+                    dialog.locator('button:has-text("Send Code")').first.click()
                     pg.wait_for_timeout(2000)
-                    # Confirm OTP if needed
-                    try:
-                        pg.locator('button:has-text("Verify"), button:has-text("Confirm"), button:has-text("Submit"), button[type="submit"]').first.click()
-                    except Exception:
-                        pass
-                    pg.wait_for_timeout(3000)
+
+                    # Step 7: Wait for OTP input to become enabled, then fill it
+                    otp_input = dialog.locator('input[placeholder="000000"]').first
+                    otp_input.wait_for(state='visible', timeout=15000)
+                    # Poll until OTP input is no longer disabled
+                    for _ in range(30):
+                        pg.wait_for_timeout(1000)
+                        if not otp_input.is_disabled():
+                            break
+                    otp_input.fill(TEST_OTP)
+                    pg.wait_for_timeout(800)
+
+                    # Step 8: Click Continue
+                    dialog.locator('button:has-text("Continue")').first.click()
+                    pg.wait_for_timeout(4000)
 
                 ctx.storage_state(path=str(sf))
             except Exception as exc:
                 ctx.close()
-                pytest.skip(f"Auth setup failed — tests require login: {{exc}}")
+                raise RuntimeError(f"Auth setup failed — tests require login: {{exc}}")
                 return
             ctx.close()
             yield str(sf)

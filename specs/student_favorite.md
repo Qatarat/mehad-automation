@@ -1,112 +1,76 @@
-Base URL
+# Page: Student Favorite Teachers
 
-https://dev.mehadedu.com/en/dashboard/favorites
+**URL:** `https://dev.mehadedu.com/en/dashboard/favorites`
 
-Objective
+## Description
+Student's saved favorite tutors list. Students add tutors via heart icon on tutor cards, view their favorites list, remove tutors, and quick-book from this page.
 
-Validate the Favorite Teachers module, including:
+## UI Elements
 
-Add/remove favorite tutors
-View favorite tutor list
-Book lesson from favorites
-Browse and search other tutors
-Base Steps (Given by User)
-Login as a student
-Click Profile icon from header
-Sidebar menu should open
-Click on Favorite Teachers
-Redirect to Favorite Teachers page
-View list of favorite tutors
-Click heart icon to remove a tutor from favorites
-Click heart icon again to re-add tutor
-Click Book Lesson button
-Redirect to booking flow
-Browse more tutors from button
-Search and view other tutors
-UI Structure Validation (From Screenshot)
-Sidebar Navigation
-My Bookings visible
-Messages visible
-Favorite Teachers highlighted (active state)
-Payments visible
-Reviews & Ratings visible
-Favorite Teachers Page Layout
-Page title: Favorite Teachers
-Tutor cards displayed properly
-Each tutor card includes:
-Profile image/avatar
-Tutor name (e.g., Test Tutor)
-Badge (Professional)
-Rating
-Number of lessons
-Language
-Hourly rate
-Book Lesson button
-Heart icon (favorite toggle)
-Functional Test Scenarios
-🔹 Add to Favorites
-Click heart icon on tutor card
-Expected:
-Tutor added to favorites list
-Heart becomes filled (active state)
-UI updates instantly
-🔹 Remove from Favorites
-Click filled heart icon
-Expected:
-Tutor removed from favorites
-Heart becomes empty
-Tutor disappears from list (or updates state)
-🔹 Toggle Favorite State
-Multiple click test on heart icon
-Expected:
-State should toggle correctly
-No duplicate entries
-No UI glitch
-🔹 Book Lesson Flow
-Click Book Lesson button
-Expected:
-Redirect to booking/session page
-Tutor selected automatically
-Booking flow starts correctly
-🔹 Browse More Tutors
-Click Browse more tutors button
-Expected:
-Redirect to tutor listing page
-All available tutors displayed
-User can search/select new tutors
-🔹 Navigation Validation
-Sidebar navigation works correctly
-Favorite Teachers page loads without errors
-URL matches /dashboard/favorites
-🔹 Data Consistency
-Favorite list persists after refresh
-Removed tutor does not reappear
-Added tutor stays in list
-Sync with backend maintained
-🔹 UI / UX Validation
-Heart icon clearly visible on card
-Active/inactive state distinguishable
-Book Lesson button accessible
-Card layout responsive
-Hover/click feedback smooth
-🔹 Error Handling
-Failed add/remove favorite → show error message
-Network failure → retry option
-Booking failure → proper fallback message
-🔹 Performance
-Favorite list loads within 3 seconds
-Toggle favorite action is instant
-No UI lag when updating state
-🔹 Security Validation
-Only logged-in users can modify favorites
-Unauthorized access redirects to login
-API should validate user ownership
-🔹 Cross Browser Testing
-Chrome supported
-Firefox supported
-Edge supported
-Mobile responsive behavior verified
-🔹 Accessibility
-Heart icon accessible via keyboard
-Proper aria-label for favorite toggle
-Book Lesson button screen-reader friendly
+| Element | Selector | Notes |
+|---|---|---|
+| Favorite Teachers heading | `h1:has-text("Favorite Teachers"), h2:has-text("Favorites")` | Required |
+| Tutor card | `.tutor-card, [data-testid="tutor-card"]` | Required |
+| Tutor name | `.tutor-name, [data-testid="name"]` | Required |
+| Heart/favorite icon | `button[aria-label*="favorite"], button[aria-label*="bookmark"]` | Required |
+| Book Lesson button | `button:has-text("Book Lesson")` | Required |
+| Browse more tutors | `button:has-text("Browse"), a:has-text("Browse more")` | Optional |
+| Empty state | `:has-text("No favorites"), :has-text("no favorite")` | Conditional |
+| Rating display | `.rating, [aria-label*="rating"]` | Optional |
+| Hourly rate | `.price, :has-text("per hour")` | Optional |
+
+## User Flows
+
+### Flow 1: View Favorite Tutors
+1. Navigate to https://dev.mehadedu.com/en/dashboard/favorites
+2. Page shows list of saved tutors
+3. Each card shows profile, name, badge, rating, language, rate
+→ Expected: Favorites list displayed correctly
+
+### Flow 2: Remove Tutor from Favorites
+1. Navigate to favorites page
+2. Click heart/bookmark icon on tutor card (filled = active)
+3. Confirmation or immediate removal
+→ Expected: Tutor removed, heart icon toggles to empty
+
+### Flow 3: Book Lesson from Favorites
+1. Navigate to favorites
+2. Click "Book Lesson" on tutor card
+3. Redirects to tutor profile/booking flow
+→ Expected: Booking flow starts for that tutor
+
+### Flow 4: Toggle Favorite State
+1. Click heart to add tutor
+2. Heart becomes filled
+3. Click again to remove
+4. Heart becomes empty
+→ Expected: State toggles correctly, no duplicates
+
+## Requirements
+- REQ-01: Favorites page accessible to authenticated students at /dashboard/favorites
+- REQ-02: Saved tutors listed with name, rating, rate, languages
+- REQ-03: Heart icon toggles favorite state
+- REQ-04: Removed tutor disappears from list
+- REQ-05: Favorite state persists after page refresh
+- REQ-06: Book Lesson initiates booking flow
+- REQ-07: Empty state shows when no tutors saved
+- REQ-08: Browse more tutors links to find-tutors page
+
+## Edge Cases
+| EC-01 | No favorites saved | Empty state message shown |
+| EC-02 | Toggle heart rapidly | No duplicate entries, state correct |
+| EC-03 | Remove last favorite | Empty state shown |
+| EC-04 | Unauthenticated access | Redirects to login |
+| EC-05 | Tutor becomes inactive | Card shows appropriate state |
+
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | 98976564 |
+| name | 123456 |
+
+### Invalid
+| Field | Value |
+|---|---|
+| name | 000000 |

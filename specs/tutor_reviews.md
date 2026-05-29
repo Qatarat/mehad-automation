@@ -1,33 +1,68 @@
-# Tutor Login and Reviews Feature Guide
+# Page: Tutor Reviews
 
-## 1. Tutor Login Process
-- Visit `mehadedu.com`.
-- Click on the "Become a Tutor" button in the header.
-- Scroll down and select the "Apply Now" button.
-- A login modal will appear. Choose the country code, enter a valid 12-digit number, and submit OTP for verification.
+**URL:** `https://dev.mehadedu.com/en/dashboard/reviews`
 
-## 2. Access Dashboard
-- After login, you will arrive at the dashboard.
-- In the side menu, locate and click on the "Reviews" button.
+## Description
+Tutor's reviews and ratings overview. Shows overall average rating, total review count, star distribution, and individual student reviews. Filterable by student name and star rating.
 
-## 3. Reviews Overview
-- Upon clicking "Reviews," you will see:
-  - Your overall rating (average rating from all students).
-  - Total number of reviews received.
-  - Count of 5-star reviews and their percentage (displayed in three distinct cards).
+## UI Elements
 
-## 4. Filtering Reviews
-- Scroll down to find a filter box.
-- The filter box allows you to filter reviews by student name (search for specific student reviewers).
-- To the right, there is a star-based filter dropdown.
-- You can select a rating from 1 to 5 stars.
-- Based on your selection, you will see the distribution of ratings and which students gave which star ratings.
+| Element | Selector | Notes |
+|---|---|---|
+| Reviews heading | `h1:has-text("Reviews"), h2:has-text("Reviews")` | Required |
+| Average rating display | `.average-rating, [data-testid="avg-rating"]` | Required |
+| Total reviews count | `:has-text("Total Reviews"), .total-reviews` | Required |
+| Five star count | `:has-text("5 star"), .five-star-count` | Optional |
+| Student name filter | `input[placeholder*="student"], input[placeholder*="Search"]` | Optional |
+| Star rating filter | `select[aria-label*="star"], [placeholder*="Star"]` | Optional |
+| Review item | `.review-item, [data-testid="review"]` | Conditional |
+| Reviewer name | `.reviewer-name` | Optional |
+| Review text | `.review-text, .feedback` | Optional |
+| Star display | `.star-rating, [aria-label*="stars"]` | Optional |
 
-## 5. Validation Steps
-- Verify that the average rating is correctly calculated.
-- Check that the total number of reviews accurately counts all submitted reviews.
-- Ensure the 5-star count and percentage are correct.
-- Test the student name filter to see if it accurately narrows down reviews by reviewer.
-- Test the star rating filter to confirm that each rating category displays the correct distribution.
+## User Flows
 
-Ensure each step is verified and working as expected before using this feature live!
+### Flow 1: View Reviews Overview
+1. Log in as tutor
+2. Navigate to Reviews in sidebar
+3. Page shows average rating, total reviews, 5-star count
+→ Expected: Review statistics displayed correctly
+
+### Flow 2: Filter Reviews by Student Name
+1. Navigate to Reviews page
+2. Type student name in search/filter input
+3. Reviews filtered to show only that student's reviews
+→ Expected: Filtered results shown
+
+### Flow 3: Filter Reviews by Star Rating
+1. Navigate to Reviews
+2. Select "5 stars" from rating dropdown
+3. Only 5-star reviews shown
+→ Expected: Rating-filtered results
+
+## Requirements
+- REQ-01: Reviews page shows overall average rating
+- REQ-02: Total review count is accurate
+- REQ-03: 5-star count and percentage displayed
+- REQ-04: Filter by student name narrows results
+- REQ-05: Star rating filter shows correct distribution
+- REQ-06: Average rating calculated correctly from all reviews
+
+## Edge Cases
+| EC-01 | No reviews yet | Empty state or zero values shown |
+| EC-02 | Filter with no matches | Empty state shown |
+| EC-03 | Long student name in filter | Handles gracefully |
+| EC-04 | XSS in filter input | Sanitized |
+
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | 98976564 |
+| name | 123456 |
+| name | Test Student |
+
+### Invalid
+| Field | Value |
+|---|---|
+| name | <script>alert(1)</script> |

@@ -1,32 +1,88 @@
-# Instructor Profile Guide
+# Page: Tutor Instructor Profile
 
-## Step-by-Step Process
+**URL:** `https://dev.mehadedu.com/en/dashboard/instructor-profile`
 
-1. **Tutor Login**
-   - Go to the Tutor Login page on the platform.
-   - Select the country code, enter your 12-digit number, and verify OTP.
-   - Once logged in, you will be taken to the dashboard.
+## Description
+Tutor's public instructor profile management. Three sections: Personal Information, Certificates, and Teaching Subjects. Updates require admin approval before becoming publicly visible.
 
-2. **Access Instructor Profile**
-   - From the dashboard, click on the "Instructor Profile" option in the side menu.
-   - In the profile section, you will see three models inside the dashboard.
+## UI Elements
 
-3. **Personal Information**
-   - This section contains personal information that you added during signup.
-   - You can add or remove details if needed.
+| Element | Selector | Notes |
+|---|---|---|
+| Instructor Profile link | `a:has-text("Instructor Profile"), [data-testid="instructor-profile"]` | Required |
+| Personal Info tab | `[role="tab"]:has-text("Personal Information"), button:has-text("Personal")` | Required |
+| Certificates tab | `[role="tab"]:has-text("Certificates"), button:has-text("Certificate")` | Required |
+| Teaching Subjects tab | `[role="tab"]:has-text("Teaching Subjects"), button:has-text("Subject")` | Required |
+| Bio textarea | `textarea[name="bio"], textarea[placeholder*="bio"]` | Required |
+| Add Certificate button | `button:has-text("Add Certificate")` | Optional |
+| Degree input | `input[name="degree"], input[placeholder*="Degree"]` | Optional |
+| University input | `input[name="university"]` | Optional |
+| Graduation year input | `input[name="graduationYear"], input[placeholder*="Year"]` | Optional |
+| Subject select | `select[name="subject"], [placeholder*="Subject"]` | Optional |
+| Hourly rate input | `input[name="hourlyRate"], input[placeholder*="rate"]` | Optional |
+| About subject textarea | `textarea[name="aboutSubject"]` | Optional |
+| Experience select | `select[name="experience"]` | Optional |
+| Teaching level select | `select[name="teachingLevel"]` | Optional |
+| Save/Update button | `button:has-text("Save"), button:has-text("Update")` | Required |
+| Pending status | `:has-text("Pending"), .pending-badge` | Conditional |
 
-4. **Certificates**
-   - In this section, you can add or remove certificate information, such as degree, institute, graduation year, and certificate.
+## User Flows
 
-5. **Teaching Subjects**
-   - In this section, you specify which subjects you teach.
-   - You can add details such as the subject, about the subject, teaching level, experience, and hourly rate.
-   - Users (tutors) can update, delete, or modify these details.
+### Flow 1: Update Personal Information
+1. Navigate to Instructor Profile
+2. Click "Personal Information" tab
+3. Update bio (max 500 chars)
+4. Click Save
+→ Expected: Saved, set to pending admin approval
 
-## Validation Rules
+### Flow 2: Add Certificate
+1. Click "Certificates" tab
+2. Click "Add Certificate"
+3. Fill degree, university, graduation year
+4. Upload certificate file (max 10MB)
+5. Click Save
+→ Expected: Certificate saved, pending review
 
-- **About Subject**: Maximum 500 characters.
-- **Experience**: Maximum 1000 characters.
-- **Personal Information Bio**: Maximum 500 characters.
+### Flow 3: Update Teaching Subjects
+1. Click "Teaching Subjects" tab
+2. Select subject from dropdown
+3. Set hourly rate (0-10000)
+4. Fill about subject (max 500 chars)
+5. Select experience (1-10 years)
+6. Select teaching level
+7. Click Save
+→ Expected: Subject info saved, pending approval
 
-Each user will be able to check, update, or delete these fields. Once updated, they will be set to a pending review state. After admin approval, the changes will be publicly visible. Until then, the fields will remain in pending status, and previously shown profiles will continue as they were.
+## Requirements
+- REQ-01: Instructor profile has Personal Info, Certificates, and Teaching Subjects sections
+- REQ-02: Bio maximum 500 characters
+- REQ-03: Experience field maximum 1000 characters
+- REQ-04: About Subject maximum 500 characters
+- REQ-05: Hourly rate between 0 and 10000
+- REQ-06: Certificate upload maximum 10 MB
+- REQ-07: Changes set to pending status until admin approves
+- REQ-08: Graduation year must be 4-digit number
+
+## Edge Cases
+| EC-01 | Bio over 500 chars | Field truncated or validation error |
+| EC-02 | Hourly rate over 10000 | Validation error shown |
+| EC-03 | Certificate file over 10 MB | Upload rejected |
+| EC-04 | Graduation year non-numeric | Validation error |
+| EC-05 | Empty required subject fields | Validation error on save |
+
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | 98976564 |
+| name | 123456 |
+| name | Experienced math teacher with 3 years online |
+| name | 50 |
+| name | 2020 |
+
+### Invalid
+| Field | Value |
+|---|---|
+| name | 99999 |
+| name | A (500+ chars) |
+| name | abcd |

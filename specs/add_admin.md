@@ -1,120 +1,85 @@
-Admin Management Process
-Open Admin Dashboard
-Open browser and go to:
-Admin Dashboard
-Login using valid Super Admin credentials
-Verify:
-Dashboard appears successfully after login
-Open Admin Section
-From sidebar menu click:
-Admin Section
-Verify:
-Admin list page opens successfully
-All Admin users are visible
-Check displayed information:
-Name
-Email
-Phone Number
-Role
-Status
-Created Date
-Last Login
-Add Admin Process
-Click:
-Add Admin Button
-Verify:
-Add Admin modal/form appears properly
-First Name Validation
-Enter First Name
-Verify:
-Maximum limit is 32 characters
-Empty field validation works properly
-Invalid input validation works properly
-Last Name Validation
-Enter Last Name
-Verify:
-Maximum limit is 32 characters
-Empty field validation works properly
-Invalid input validation works properly
-Email Validation
-Enter Email Address
-Verify:
-Email format validation works
-Invalid email is not accepted
-Duplicate email validation works
-Email must be unique
-Phone Number Validation
-Select country code from dropdown
-Enter valid phone number
-Verify:
-Invalid number is not accepted
-Empty field validation works properly
-Country-wise validation works properly
-Time Zone Validation
-Select Time Zone
-Verify:
-Timezone dropdown works properly
-Selected timezone saves correctly
-Create Admin
-Click:
-Create Button
-Verify:
-Admin creates successfully
-Success message appears
-Newly created Admin appears in Admin list
-Admin Role & Access Verification
-Verify created Admin permissions
-Check:
-Admin can access admin-related sections
-Admin profile details are viewable
-Admin create/delete functionality works based on assigned role
-Assigned role displays correctly
-Role restrictions work properly
-Admin List Verification
-Verify newly created Admin appears in dashboard list
-Check:
-Correct Name
-Correct Email
-Correct Phone Number
-Correct Role
-Status is Active
-Created Date is accurate
-Last Login displays if Admin logged in
-Admin Actions Verification
-Click:
-Three Dot Menu from Action column
-Verify available options:
-View
-Copy Email
-Delete
-View Admin Profile
-Click:
-View Option
-Verify profile information:
-First Name
-Last Name
-Email
-Phone Number
-Role
-Status
-Time Zone
-Other related information
-Verify:
-All information matches created Admin data
-Copy Email Functionality
-Click:
-Copy Email Option
-Verify:
-Email copies successfully
-Copied email matches actual Admin email
-Delete Admin Process
-Click:
-Delete Option
-Verify:
-Confirmation modal appears
-Confirm deletion
-Verify:
-Admin deletes successfully
-Deleted Admin no longer appears in list
-Success message appears
-Deleted Admin cannot login anymore
+# Page: Add Admin — Super Admin Dashboard
+
+**URL:** `https://dev.mehadedu.com/en/super-admin-login`
+
+## Description
+Admin management page in the Super Admin dashboard. Super admins can view, add, and delete admin users. Includes name, email, phone, role, and status management.
+
+## UI Elements
+
+| Element | Selector | Notes |
+|---|---|---|
+| Admin section link | `a:has-text("Admin"), [data-testid="admin-nav"]` | Required |
+| Admin list table | `table, [data-testid="admin-list"]` | Required |
+| Add Admin button | `button:has-text("Add Admin")` | Required |
+| First name input | `input[name="firstName"], input[placeholder*="First Name"]` | Required |
+| Last name input | `input[name="lastName"], input[placeholder*="Last Name"]` | Required |
+| Email input | `input[type="email"]` | Required |
+| Phone input | `input[type="tel"]` | Required |
+| Country code selector | `[aria-label="Country code"], button:has-text("+")` | Required |
+| Timezone selector | `select[name="timezone"], [placeholder*="Time Zone"]` | Required |
+| Create button | `button:has-text("Create")` | Required |
+| Three dot menu | `button[aria-label*="actions"], button:has-text("...")` | Required |
+| View option | `[role="menuitem"]:has-text("View")` | Optional |
+| Delete option | `[role="menuitem"]:has-text("Delete")` | Optional |
+| Delete confirmation | `[role="dialog"] button:has-text("Confirm"), [role="dialog"] button:has-text("Delete")` | Conditional |
+
+## User Flows
+
+### Flow 1: Add New Admin
+1. Navigate to Super Admin Dashboard
+2. Click "Admin" in sidebar
+3. Click "Add Admin"
+4. Fill First Name (max 32 chars)
+5. Fill Last Name (max 32 chars)
+6. Fill valid Email
+7. Select country code and fill Phone
+8. Select Timezone
+9. Click "Create"
+→ Expected: Admin created, appears in list with success message
+
+### Flow 2: View Admin Profile
+1. Find admin in list
+2. Click three-dot action menu
+3. Click "View"
+4. Profile details shown
+→ Expected: All admin details displayed correctly
+
+### Flow 3: Delete Admin
+1. Find admin in list
+2. Click three-dot menu
+3. Click "Delete"
+4. Confirmation modal appears
+5. Click "Confirm"
+→ Expected: Admin deleted, removed from list
+
+## Requirements
+- REQ-01: Admin list shows all admins with name, email, phone, role, status, dates
+- REQ-02: First name and last name max 32 characters each
+- REQ-03: Email must be valid format and unique
+- REQ-04: Phone number validates by country code
+- REQ-05: Create button creates admin and shows success
+- REQ-06: Delete requires confirmation modal
+- REQ-07: Deleted admin cannot login
+
+## Edge Cases
+| EC-01 | First name over 32 chars | Validation error shown |
+| EC-02 | Duplicate email | Error: email already exists |
+| EC-03 | Invalid email format | Validation error |
+| EC-04 | Empty required fields | Validation errors shown |
+| EC-05 | Delete own super admin account | Should be prevented |
+
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | Test |
+| name | Admin |
+| name | testadmin@mehadedu.com |
+| name | 98976564 |
+
+### Invalid
+| Field | Value |
+|---|---|
+| name | notanemail |
+| name | AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA (over 32) |

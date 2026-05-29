@@ -1,27 +1,64 @@
-# Language Switcher Process - MehaEdu
+# Page: Language Switcher
 
-## Steps to Reproduce Language Switcher Flow
+**URL:** `https://dev.mehadedu.com/en`
 
-### 1. Navigate to Website
-- Open the MehaEdu website in your browser.
+## Description
+Bilingual language switcher between English (/en) and Arabic (/ar). Toggle buttons in the header switch the full interface between LTR English and RTL Arabic.
 
-### 2. Student Login
-- Log in as a student using valid credentials.
+## UI Elements
 
-### 3. Access Language Switcher
-- After login, look at the header section of the site.
-- You will see a language switcher option.
+| Element | Selector | Notes |
+|---|---|---|
+| English language button | `button[aria-label="English"], button:has-text("EN")` | Required |
+| Arabic language button | `button[aria-label="العربية"], button:has-text("AR")` | Required |
+| Active language indicator | `button[aria-current="true"], .lang-btn.active` | Optional |
+| Page heading (EN) | `h1:has-text("Learn with the Best")` | Required in EN |
+| HTML dir attribute | `html[dir="rtl"]` | Required in AR |
 
-### 4. Select Language
-- Click on the language switcher.
-- Choose between available languages, such as Arabic or English.
+## User Flows
 
-### 5. Confirm Language Change
-- After selecting the language, the page will reload or update with the new language.
-- Verify that all text and interface elements are shown in the selected language.
+### Flow 1: Switch to Arabic
+1. Navigate to https://dev.mehadedu.com/en
+2. Click "AR" language button in header
+3. Page reloads/navigates to /ar
+4. All content displays in Arabic RTL
+→ Expected: URL changes to /ar, content in Arabic, dir="rtl"
 
----
+### Flow 2: Switch Back to English
+1. Navigate to https://dev.mehadedu.com/ar
+2. Click "EN" language button
+3. Page navigates to /en
+4. Content in English LTR
+→ Expected: URL changes to /en, content in English
 
-## Notes
-- Ensure that all site features are accessible and work properly after the language switch.
-- Validate that the language change persists across different pages and user sessions.
+### Flow 3: Language Persists Across Navigation
+1. Switch to Arabic
+2. Navigate to another page (e.g., /ar/find-tutors)
+3. Language remains Arabic
+→ Expected: Arabic locale maintained
+
+## Requirements
+- REQ-01: EN and AR language toggle buttons visible in header
+- REQ-02: Clicking AR navigates to /ar locale
+- REQ-03: Arabic locale sets dir="rtl" on HTML element
+- REQ-04: Clicking EN navigates to /en locale
+- REQ-05: Active language button is visually indicated
+- REQ-06: All page content translates to selected language
+
+## Edge Cases
+| EC-01 | Click active language button | No change or page reloads same locale |
+| EC-02 | Direct navigation to /ar | Full Arabic interface shown |
+| EC-03 | Arabic with login modal | Modal renders in Arabic |
+| EC-04 | Language switch while logged in | Session maintained |
+
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | English |
+| name | Arabic |
+
+### Invalid
+| Field | Value |
+|---|---|
+| name | unsupported_language |

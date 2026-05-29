@@ -1,152 +1,82 @@
-# Promo Code Management
+# Page: Promo Code Management
 
-## Overview
+**URL:** `https://dev.mehadedu.com/en/dashboard/promo-codes`
 
-The Promo Code section is managed by the Super Admin.
+## Description
+Super Admin manages promo codes for student discounts. Codes offer percentage or fixed discounts with usage limits and expiry dates. Active codes usable at checkout; disabled codes cannot be applied.
 
-Promo codes are used to provide discounts to students during:
-- Package purchase
-- Course enrollment
-- Session booking (if applicable)
+## UI Elements
 
-These promo codes are applied at checkout and directly affect the final payable amount.
+| Element | Selector | Notes |
+|---|---|---|
+| Promo Codes heading | `h1:has-text("Promo Code"), h2:has-text("Promo")` | Required |
+| Create Promo Code button | `button:has-text("Create Promo Code")` | Required |
+| Search input | `input[placeholder*="Search"], input[placeholder*="Promo Code"]` | Optional |
+| Promo code table | `table, [data-testid="promo-list"]` | Required |
+| Code name | `.code-name, [data-testid="code"]` | Required |
+| Status toggle | `[role="switch"], input[type="checkbox"]` | Required |
+| Action button | `button[aria-label*="actions"]` | Required |
+| Edit option | `[role="menuitem"]:has-text("Edit")` | Optional |
+| Delete option | `[role="menuitem"]:has-text("Delete")` | Optional |
+| Code name input | `input[name="code"], input[placeholder*="Promo Code Name"]` | Required in modal |
+| Discount type select | `select[name="discountType"], [placeholder*="Discount Type"]` | Required |
+| Discount value input | `input[name="discountValue"], input[placeholder*="Discount Value"]` | Required |
+| Usage limit input | `input[name="usageLimit"]` | Optional |
+| Expiry date picker | `input[type="date"], [placeholder*="Expiry"]` | Optional |
+| Create button | `button:has-text("Create")` | Required |
 
----
+## User Flows
 
-# Open Promo Code Dashboard
+### Flow 1: Create Promo Code
+1. Navigate to Promo Codes
+2. Click "Create Promo Code"
+3. Fill Promo Code Name: SAVE10
+4. Select Discount Type: Percentage
+5. Enter Discount Value: 10
+6. Set Usage Limit: 100
+7. Set Expiry Date
+8. Toggle Status: Active
+9. Click "Create"
+→ Expected: Code created, appears in list
 
-1. Login as Super Admin.
-2. Open the **Sidebar**.
-3. Go to **Account Settings**.
-4. Click on **Promo Codes**.
-5. The Promo Code Dashboard will open.
+### Flow 2: Apply Promo Code at Checkout
+1. Student at checkout
+2. Enter promo code: SAVE10
+3. Click "Apply"
+→ Expected: Discount applied to final price
 
----
+### Flow 3: Disable Promo Code
+1. Find promo code in list
+2. Toggle status to Disable
+→ Expected: Code no longer usable by students
 
-# Search Promo Code
+## Requirements
+- REQ-01: Create Promo Code button opens creation modal
+- REQ-02: Code name must be unique
+- REQ-03: Discount type: Percentage or Fixed Amount
+- REQ-04: Active codes apply discount at checkout
+- REQ-05: Disabled codes cannot be used
+- REQ-06: Expired codes are blocked
+- REQ-07: Code stops working after usage limit reached
 
-1. Use the search input field.
-2. Enter:
-   - Promo Code Name
-   - Promo Code ID
-3. Matching results will be displayed.
+## Edge Cases
+| EC-01 | Invalid promo code at checkout | Error: invalid code |
+| EC-02 | Expired promo code | Error: code expired |
+| EC-03 | Disabled code at checkout | Error: code not active |
+| EC-04 | Code used past usage limit | Error: limit reached |
+| EC-05 | Percentage over 100% | Validation error |
+| EC-06 | Negative discount value | Validation error |
 
----
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | SAVE10 |
+| name | DISCOUNT20 |
+| name | PROMO5 |
 
-# Promo Code Status
-
-## Active
-- If status is **Active**, the promo code can be used by students.
-
-## Disable
-- If status is **Disable**, the promo code cannot be used.
-
----
-
-# Promo Code Types
-
-## Percentage Discount
-- Applies discount based on percentage (e.g., 10%, 20%)
-
-## Fixed Discount
-- Applies fixed amount discount (e.g., $5, $10)
-
----
-
-# Create Promo Code
-
-1. Click on **Create Promo Code** button.
-2. A modal will open.
-
----
-
-## Fields
-
-### Promo Code Name
-- Enter unique promo code.
-
-### Discount Type
-- Select:
-  - Percentage
-  - Fixed Amount
-
-### Discount Value
-- Enter discount value based on selected type.
-
-### Usage Limit
-- Define how many times the promo code can be used.
-
-### Expiry Date
-- Set expiration date for the promo code.
-
-### Status Toggle
-- Active / Disable
-
----
-
-# Create Process
-
-1. Fill all required fields.
-2. Click on **Create**.
-3. Promo code will be created successfully.
-4. It becomes available for student usage based on status.
-
----
-
-# Edit Promo Code
-
-1. Click on **Action Button**.
-2. Select **Edit**.
-3. Update:
-   - Discount value
-   - Expiry date
-   - Usage limit
-   - Status
-4. Click **Save**.
-
----
-
-# Delete Promo Code
-
-1. Click on **Action Button**.
-2. Select **Delete**.
-3. Confirm deletion.
-
----
-
-# Student Side Usage Check
-
-1. Go to checkout (package/course/session booking).
-2. Enter promo code.
-3. Apply code.
-
-## Expected Behavior
-- Valid promo code applies discount correctly
-- Invalid promo code shows error
-- Expired promo code does not work
-- Disabled promo code cannot be used
-
----
-
-# Functional & Validation Checks
-
-## Search
-- Search works by name and ID
-
-## Status
-- Active codes are usable
-- Disabled codes are not usable
-
-## Discount Logic
-- Percentage discount calculates correctly
-- Fixed discount deducts properly
-
-## Usage Limit
-- Code stops working after limit is reached
-
-## Expiry
-- Expired codes are blocked
-
-## Student Flow
-- Promo code applies correctly in checkout
-- Discount reflects in final price
+### Invalid
+| Field | Value |
+|---|---|
+| name | empty_code |
+| name | negative_discount |

@@ -1,51 +1,69 @@
-# Hero Section Search Process - MehaEdu
+# Page: Student Hero Section — Homepage Search
 
-## Steps to Reproduce Hero Section Search Flow
+**URL:** `https://dev.mehadedu.com/en`
 
-### 1. Navigate to Website
-- Open the MehaEdu website in your browser.
+## Description
+The homepage hero section provides quick tutor search filters. Students select subject, level, available time, and price range, then click "Find a Teacher" to navigate to filtered tutor listing.
 
-### 2. Student Login
-- Log in as a student using valid credentials.
+## UI Elements
 
-### 3. Navigate to Landing Page
-- After login, you will be directed to the landing page.
+| Element | Selector | Notes |
+|---|---|---|
+| Hero heading | `h1:has-text("Learn with the Best")` | Required |
+| Subject dropdown | `select[aria-label*="subject"], [placeholder="Select subject"]` | Optional |
+| Level dropdown | `select[aria-label*="level"], [placeholder="Select Level"]` | Optional |
+| Availability dropdown | `select[aria-label*="availability"], [placeholder="Select availability"]` | Optional |
+| Price range dropdown | `select[aria-label*="price"], [placeholder="Select Price Range"]` | Optional |
+| Find a Teacher button | `button:has-text("Find a Teacher")` | Required |
+| Stats badge | `:has-text("1,200 Certified Teachers")` | Optional |
+| Top tutors section | `:has-text("Our Top Teachers")` | Optional |
+| Subject badge | `.subject-badge, :has-text("Most Requested Subjects")` | Optional |
 
-### 4. Identify Hero Section
-- The hero section acts as a filter for finding tutors.
-- It focuses on one-to-one private sessions.
+## User Flows
 
-### 5. Select Subject
-- In the hero section, select the subject you want to study (e.g., Math, Science, etc.).
+### Flow 1: Find Tutor via Hero Search
+1. Navigate to https://dev.mehadedu.com/en
+2. Select subject: Math
+3. Select level: High School
+4. Select available time
+5. Select price range
+6. Click "Find a Teacher"
+→ Expected: Navigates to /en/find-tutors with applied filters
 
-### 6. Choose Tutor Level
-- Select the tutor level based on your needs:
-  - Primary
-  - Middle School
-  - High School
-  - Evening/University
+### Flow 2: Search Without Filters
+1. Navigate to homepage
+2. Click "Find a Teacher" without selecting any filter
+→ Expected: Navigates to /en/find-tutors showing all tutors
 
-### 7. Choose Available Time
-- Select the available time slot for your tutor session.
+### Flow 3: Click Subject Badge
+1. Navigate to homepage
+2. Scroll to "Most Requested Subjects"
+3. Click "Math" subject badge
+→ Expected: Navigates to /en/find-tutors?subjectId=X
 
-### 8. Set Price Range
-- Define your desired price range per hour for the tutor.
+## Requirements
+- REQ-01: Hero section is visible on homepage
+- REQ-02: Subject, Level, Availability, Price Range dropdowns are present
+- REQ-03: Find a Teacher button navigates to /en/find-tutors
+- REQ-04: Applied filters pass as query parameters to find-tutors
+- REQ-05: No login required to use hero search
+- REQ-06: Subject badges in STUDY SUBJECTS section link to filtered results
 
-### 9. Find Tutor
-- After setting all filters, click on the "Find a Teacher" button.
-- The system will display tutors based on your selected criteria.
+## Edge Cases
+| EC-01 | Click Find a Teacher with no filters | All tutors shown |
+| EC-02 | Select conflicting filters | Results shown or empty state |
+| EC-03 | Page loads without JavaScript | Graceful degradation |
+| EC-04 | Direct navigation to /en | Hero section visible |
 
-### 10. Select Tutor from Search Results
-- Browse the list of tutors.
-- Check their courses, prices, and available times.
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | Math |
+| name | Physics |
+| name | Algebra |
 
-### 11. Book Lesson
-- Click on "Book Lesson" or "Book Trial Lesson."
-- Proceed to the payment gateway to purchase the course.
-
----
-
-## Notes
-- Validate that each filter works correctly and updates the search results accordingly.
-- Ensure tutor details, availability, and pricing are accurately displayed.
-- Test the booking process and ensure that the payment step functions smoothly.
+### Invalid
+| Field | Value |
+|---|---|
+| name | empty_filter |

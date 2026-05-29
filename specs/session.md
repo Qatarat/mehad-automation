@@ -1,148 +1,80 @@
-# Session Management Process
+# Page: Session — Join Classroom
 
-## Open Super Admin Dashboard
+**URL:** `https://dev.mehadedu.com/en/dashboard/sessions`
 
-* Open browser
+## Description
+Session management for both tutors and students. Shows session details, join classroom workflow at scheduled time, and session history. Auto-closes when session end time is reached.
 
-* Go to:
+## UI Elements
 
-  * [Super Admin Login](https://dev.mehadedu.com/ar/super-admin-login?utm_source=chatgpt.com)
+| Element | Selector | Notes |
+|---|---|---|
+| Sessions heading | `h1:has-text("Sessions"), h2:has-text("Session")` | Required |
+| Upcoming sessions | `:has-text("Upcoming"), [data-tab="upcoming"]` | Required |
+| Session card | `.session-card, [data-testid="session-card"]` | Required |
+| Tutor name in card | `.tutor-name, [data-testid="tutor-name"]` | Required |
+| Student name in card | `.student-name, [data-testid="student-name"]` | Required |
+| Session type badge | `.session-type, :has-text("1-to-1"), :has-text("Group")` | Required |
+| Session date-time | `time, .session-time, [data-testid="session-time"]` | Required |
+| Join Classroom button | `button:has-text("Join Classroom")` | Conditional — at session time |
+| Join modal | `[role="dialog"]:has-text("Join Classroom")` | Conditional |
+| Join Classroom confirm | `[role="dialog"] button:has-text("Join Classroom")` | Conditional |
+| Session status | `.status-badge, [data-testid="status"]` | Required |
+| Search box | `input[placeholder*="Search"], input[type="search"]` | Optional |
+| Status filter | `select[aria-label*="Status"], [placeholder*="All Status"]` | Optional |
+| Type filter | `select[aria-label*="Type"], [placeholder*="All Types"]` | Optional |
 
-* Login using valid Super Admin credentials
+## User Flows
 
-* Verify:
+### Flow 1: Join Classroom at Session Time
+1. Navigate to /en/dashboard/sessions or My Bookings
+2. Find session with current scheduled time
+3. "Join Classroom" button appears
+4. Click "Join Classroom"
+5. Confirmation modal opens
+6. Click "Join Classroom" in modal
+→ Expected: Classroom starts, participants can interact
 
-  * Dashboard loads successfully after login
+### Flow 2: Session Auto-Closes at End Time
+1. Join a classroom session
+2. Wait for session end time
+3. Classroom auto-closes
+→ Expected: Session marked as completed
 
----
+### Flow 3: View Completed Sessions (History)
+1. Navigate to session history
+2. View past sessions with status
+→ Expected: Completed sessions listed with details
 
-## Open Session Section
+## Requirements
+- REQ-01: Sessions page shows upcoming and past sessions
+- REQ-02: Each session shows tutor name, student name, subject, type, status, price, date-time
+- REQ-03: Join Classroom button appears only at scheduled session time
+- REQ-04: Clicking Join Classroom opens confirmation modal
+- REQ-05: Session automatically closes when end time is reached
+- REQ-06: Completed sessions appear in session history
+- REQ-07: Search functionality filters by tutor/student/subject name
+- REQ-08: Status filter shows Pending, Completed, Cancelled
+- REQ-09: Type filter shows 1-to-1 and Group Session options
 
-* From sidebar menu click:
+## Edge Cases
+| EC-01 | Join before session time | Join button not visible |
+| EC-02 | Session end time reached | Auto-close triggers |
+| EC-03 | Search with invalid name | Empty results shown |
+| EC-04 | Filter Cancelled sessions | Only cancelled sessions shown |
+| EC-05 | Filter Group sessions | Only group sessions shown |
+| EC-06 | Session cancelled mid-join | Error handled gracefully |
 
-  * Session Section
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | 98976564 |
+| name | 123456 |
+| name | group |
+| name | 1-to-1 |
 
-* Verify:
-
-  * Session history page opens successfully
-  * All session records are visible properly
-
-* Check session information:
-
-  * Tutor Name
-  * Student Name
-  * Subject
-  * Session Type
-  * Session Status
-  * Session Price
-  * Session Date & Time
-
----
-
-## Search Functionality Verification
-
-* Locate:
-
-  * Search Box
-
-* Search using:
-
-  * Tutor Name
-  * Student Name
-  * Subject Name
-
-* Verify:
-
-  * Correct session records appear
-  * Search results load properly
-  * Invalid search shows empty/no result properly
-
----
-
-## Status Filter Verification
-
-* Locate:
-
-  * All Status Filter
-
-* Verify filters:
-
-  * Pending
-  * Completed
-  * Cancelled
-  * Other available statuses
-
-* Verify:
-
-  * Selected status shows correct sessions only
-  * Filter works properly
-
----
-
-## Session Type Filter Verification
-
-* Locate:
-
-  * All Types Filter
-
-* Verify filters:
-
-  * One-to-One
-  * Group Session
-
-* Verify:
-
-  * Correct session types appear
-  * Filter works properly
-
----
-
-## Session Actions Verification
-
-* From session row click:
-
-  * Three Dot Action Menu
-
-* Verify available options:
-
-  * View Case File
-  * Cancel Session
-
----
-
-## View Case File
-
-* Click:
-
-  * View Case File Option
-
-* Verify:
-
-  * Full session details appear properly
-  * Tutor information displays correctly
-  * Student information displays correctly
-  * Subject information displays correctly
-  * Session status displays correctly
-  * Session price displays correctly
-  * Session timeline/details display correctly
-
----
-
-## Cancel Session Process
-
-* Click:
-
-  * Cancel Session Option
-
-* Verify:
-
-  * Confirmation modal appears properly
-
-* Confirm cancellation
-
-* Verify:
-
-  * Session cancels successfully
-  * Session status updates properly
-  * Session is cancelled from both Tutor and Student side
-  * Success message appears properly
+### Invalid
+| Field | Value |
+|---|---|
+| name | <script>alert(1)</script> |

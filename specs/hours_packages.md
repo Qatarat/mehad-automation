@@ -1,106 +1,82 @@
-# Packages Management
+# Page: Hours Packages Management
 
-## Overview
+**URL:** `https://dev.mehadedu.com/en/dashboard/packages`
 
-The Packages section is managed by the Super Admin.  
-These packages are publicly shown to students and are used during the **1-to-1 session booking process**.  
-Students must purchase a package before booking a session slot.
+## Description
+Super Admin manages hour packages for 1-to-1 session booking. Packages define duration (hours), discount percentage, and active/disabled visibility. Students must purchase a package before booking 1-to-1 slots.
 
-The Super Admin can:
-- Create packages
-- Edit packages
-- Control package visibility
-- Set duration
-- Set discount percentage
+## UI Elements
 
----
+| Element | Selector | Notes |
+|---|---|---|
+| Packages heading | `h1:has-text("Packages"), h2:has-text("Packages")` | Required |
+| Create Package button | `button:has-text("Create Package")` | Required |
+| Search Package input | `input[placeholder*="Search Package"], input[placeholder*="Search"]` | Optional |
+| Package list table | `table, [data-testid="package-list"]` | Required |
+| Package name | `.package-name, [data-testid="package-name"]` | Required |
+| Package status toggle | `[role="switch"], input[type="checkbox"]` | Required |
+| Action button | `button[aria-label*="actions"], button:has-text("Action")` | Required |
+| Edit Package option | `[role="menuitem"]:has-text("Edit Package")` | Optional |
+| Package name input | `input[name="name"], input[placeholder*="Package Name"]` | Required in modal |
+| Duration select | `select[name="duration"], [placeholder*="Duration"]` | Required in modal |
+| Percentage input | `input[name="percentage"], input[placeholder*="Percentage"]` | Required in modal |
+| Create/Save button | `button:has-text("Create Package"), button:has-text("Save")` | Required |
 
-# Open Packages Dashboard
+## User Flows
 
-1. Login as Super Admin.
-2. Open the **Sidebar**.
-3. Go to **Settings**.
-4. Click on **Packages**.
-5. The Packages Dashboard will be displayed.
+### Flow 1: Create a Package
+1. Navigate to Packages management
+2. Click "Create Package"
+3. Fill Package Name (max 100 chars): Starter Pack
+4. Select Duration: 5 hours
+5. Enter Percentage discount: 10
+6. Click "Create Package"
+→ Expected: Package created, visible to students
 
----
+### Flow 2: Edit a Package
+1. Find package in list
+2. Click "Action" button
+3. Click "Edit Package"
+4. Update duration or percentage
+5. Click "Save"
+→ Expected: Package updated publicly
 
-# Search Package
+### Flow 3: Toggle Package Visibility
+1. Find package in list
+2. Click status toggle to change Active/Disable
+→ Expected: Package visibility changes immediately
 
-1. Use the **Search Package** input field.
-2. Enter the package name.
-3. Matching packages should be displayed in the list.
+### Flow 4: Search Package
+1. Type package name in search input
+2. Matching packages shown
+→ Expected: Filtered list displayed
 
----
+## Requirements
+- REQ-01: Packages page accessible from Admin Settings
+- REQ-02: Package name max 100 characters
+- REQ-03: Active packages visible to students
+- REQ-04: Disabled packages hidden from students
+- REQ-05: Edit saves duration and discount correctly
+- REQ-06: Search returns correct matching packages
+- REQ-07: Students can purchase active packages
 
-# Package Status Management
+## Edge Cases
+| EC-01 | Package name over 100 chars | Validation error |
+| EC-02 | Percentage over 100 | Validation error |
+| EC-03 | Negative percentage | Validation error |
+| EC-04 | Disable active package | Students cannot see it |
+| EC-05 | Search with no match | Empty state shown |
 
-Each package contains a status option.
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | Starter Pack |
+| name | Premium Pack |
+| name | Basic Pack |
 
-## Active Status
-- If the package status is **Active**, the package will be publicly visible to students.
-
-## Disable Status
-- If the package status is **Disable**, the package will not be publicly visible.
-
----
-
-# Edit Package
-
-1. Click on the **Action** button.
-2. Select **Edit Package**.
-3. Update package information:
-   - Duration
-   - Discount Percentage
-4. Click on **Save**.
-5. Updated information should be publicly reflected for students.
-
----
-
-# Create Package
-
-1. Click on the **Create Package** button from the right side.
-2. A modal will open.
-
-## Package Creation Fields
-
-### Package Name
-- Enter package name.
-- Validation:
-  - Maximum 100 characters allowed.
-
-### Duration
-- Select package duration in hours.
-- Define how many hours the package includes.
-
-### Percentage
-- Enter discount percentage.
-- The entered percentage will be shown publicly with the package.
-
----
-
-# Create Package Process
-
-1. Fill all required fields.
-2. Click on **Create Package**.
-3. The package will become publicly available.
-4. Students will be able to:
-   - Purchase the package
-   - Book session slots using the purchased package
-
----
-
-# Validation & Functional Checks
-
-The following points must be verified properly:
-
-- Package creation works successfully
-- Package edit functionality works properly
-- Search functionality returns correct results
-- Status Active/Disable works correctly
-- Public visibility updates correctly
-- Duration updates properly
-- Discount percentage updates properly
-- Students can purchase packages successfully
-- Students can book slots after purchasing packages
-- All changes reflect publicly without issues
+### Invalid
+| Field | Value |
+|---|---|
+| name | empty_name |
+| name | negative_percentage |

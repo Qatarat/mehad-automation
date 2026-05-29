@@ -1,104 +1,61 @@
-# Platform Fee Management
+# Page: Platform Fee Management
 
-## Overview
+**URL:** `https://dev.mehadedu.com/en/dashboard/account-settings`
 
-The Platform Fee is managed by the Super Admin from the Account Settings.
+## Description
+Super Admin manages the platform fee percentage deducted from tutor earnings per session. Fee updated from Account Settings. Applies globally to all tutors.
 
-This fee is applied to all tutor earnings when a student books and completes a session.
+## UI Elements
 
-### How it works:
-- Platform Fee is deducted from tutor earnings per session.
-- Remaining amount is added to tutor earnings.
-- Platform Fee is collected by the Admin.
+| Element | Selector | Notes |
+|---|---|---|
+| Account Settings link | `a:has-text("Account Settings"), [data-testid="account-settings"]` | Required |
+| Platform Fee card | `:has-text("Platform Fee"), [data-testid="platform-fee-card"]` | Required |
+| New Platform Fee input | `input[name="platformFee"], input[placeholder*="Platform Fee"]` | Required |
+| Save Changes button | `button:has-text("Save Changes"), button:has-text("Save")` | Required |
+| Success message | `:has-text("Platform Fee Updated Successfully")` | Conditional |
 
----
+## User Flows
 
-# Open Platform Fee Settings
+### Flow 1: Update Platform Fee
+1. Login as super admin
+2. Open sidebar
+3. Navigate to Account Settings
+4. Click "Platform Fee" card
+5. Modal opens with New Platform Fee field
+6. Enter new fee value (e.g., 10)
+7. Click "Save Changes"
+→ Expected: Success message, fee applied globally
 
-1. Login as Super Admin.
-2. Open the **Sidebar**.
-3. Go to **Account Settings**.
-4. Click on **Platform Fee** card.
+### Flow 2: Verify Fee Deduction
+1. Student books a session
+2. Session completed
+3. Navigate to tutor earnings
+4. Platform fee deducted from session earning
+→ Expected: Tutor earning = session price - platform fee
 
----
+## Requirements
+- REQ-01: Platform fee configurable from Account Settings
+- REQ-02: Fee applies globally to all tutors
+- REQ-03: Fee deducted from tutor earnings per session
+- REQ-04: Save shows "Platform Fee Updated Successfully"
+- REQ-05: Updated fee visible in tutor earnings breakdown
 
-# Update Platform Fee
+## Edge Cases
+| EC-01 | Fee value negative | Validation error |
+| EC-02 | Fee value over 100% | Validation error |
+| EC-03 | Empty fee field | Validation error |
+| EC-04 | Fee = 0 | Allowed, tutor gets full amount |
 
-1. A modal will open after clicking the Platform Fee card.
-2. Inside the modal, there will be a field:
-   - **New Platform Fee**
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | platform_fee_10 |
+| name | platform_fee_15 |
 
----
-
-## Update Process
-
-1. Enter the desired platform fee amount.
-2. Click on **Save Changes** button.
-3. A success message should appear:
-   - "Platform Fee Updated Successfully"
-
----
-
-## Expected Result
-
-- The updated platform fee will be applied globally.
-- It will affect all tutors automatically.
-
----
-
-# Platform Fee Calculation Logic
-
-When a student books a session:
-
-1. Total session earning is calculated.
-2. Platform Fee is deducted from tutor earning.
-3. Remaining amount is added to tutor wallet/earning.
-4. Platform Fee amount is assigned to Admin.
-
----
-
-# Verification & Testing
-
-## Student Enrollment Flow
-
-1. Student enrolls in a tutor session/course.
-2. System calculates platform fee deduction.
-3. Student completes payment.
-
-### Expected Check:
-- Platform fee is correctly deducted
-- Tutor earning is updated correctly
-- Admin receives platform fee amount
-
----
-
-## Admin Verification
-
-1. Go to Admin Panel.
-2. Open **Instructor / Tutor Profile View**.
-3. Check tutor earnings breakdown.
-4. Verify:
-   - Platform fee deduction is correct
-   - Final earning is accurate
-
----
-
-## Tutor Profile Check
-
-1. Tutor logs into profile.
-2. Navigate to earnings section.
-3. Verify:
-   - Session earnings
-   - Deducted platform fee
-   - Final payable amount
-
----
-
-# Functional Checks
-
-- Platform fee update works correctly
-- Value updates globally for all tutors
-- Earnings calculation is accurate
-- Admin receives correct fee
-- Tutor sees correct deduction
-- No mismatch in session-wise calculation
+### Invalid
+| Field | Value |
+|---|---|
+| name | negative_fee |
+| name | over_100_fee |

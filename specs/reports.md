@@ -1,104 +1,79 @@
-```markdown
-# Reports Management Process
+# Page: Reports Management — Super Admin
 
-## Login Process
+**URL:** `https://dev.mehadedu.com/en/super-admin-login`
 
-1. Open the browser and go to:  
-   [Super Admin Dashboard](https://dev.mehadedu.com/ar/super-admin-login)
+## Description
+Super Admin reports dashboard. Shows Total, Pending, Under Review, Resolved, and Dismissed reports. Admin can start review, resolve, or dismiss reports submitted by students after sessions.
 
-2. Login successfully using Super Admin credentials.
+## UI Elements
 
-3. After successful login, the dashboard interface will appear.
+| Element | Selector | Notes |
+|---|---|---|
+| Reports link | `a:has-text("Reports"), [data-testid="reports-nav"]` | Required |
+| Total Reports card | `:has-text("Total Reports"), [data-testid="total-reports"]` | Required |
+| Pending Reports card | `:has-text("Pending"), [data-testid="pending-reports"]` | Required |
+| Under Review card | `:has-text("Under Review"), [data-testid="under-review"]` | Required |
+| Resolved card | `:has-text("Resolved"), [data-testid="resolved"]` | Optional |
+| Reports table | `table, [data-testid="reports-table"]` | Required |
+| Student name column | `th:has-text("Student")` | Required |
+| Status column | `th:has-text("Status")` | Required |
+| View button | `button[aria-label*="view"], button:has-text("View")` | Optional |
+| Start Review button | `button:has-text("Start Review")` | Conditional |
+| Mark as Resolved button | `button:has-text("Mark as Resolved")` | Conditional |
+| Dismiss Report button | `button:has-text("Dismiss")` | Conditional |
+| Status filter | `select[aria-label*="Status"], [placeholder*="All"]` | Optional |
+| Search input | `input[placeholder*="Search"]` | Optional |
 
----
+## User Flows
 
-## Reports Management
+### Flow 1: View Reports Dashboard
+1. Login as super admin
+2. Click "Reports" in sidebar
+3. Dashboard shows report statistics and table
+4. Verify student name, date, topic, status shown
+5. Apply status filter: Pending
+6. Only pending reports shown
+7. Search by student name
+8. Correct results displayed
 
-1. From the sidebar menu, click on the **Reports** button.
+### Flow 2: Start Review and Resolve
+1. Find pending report
+2. Click "Start Review"
+3. Status changes to "Under Review"
+4. Click "Mark as Resolved"
+5. Status changes to "Resolved"
 
-2. After clicking the Reports button, the Reports Management dashboard will appear.
+### Flow 3: Dismiss Report
+1. Find a report
+2. Click "Dismiss"
+3. Report dismissed
+4. Status shows Dismissed
 
-3. Verify that the dashboard displays:
-   - Total Reports
-   - Pending Reports
-   - Reports Under Review
-   - Resolved Reports
-   - Dismissed Reports
+## Requirements
+- REQ-01: Reports page shows all report statistics cards
+- REQ-02: Reports table shows student name, date, topic, status
+- REQ-03: Start Review changes status to Under Review
+- REQ-04: Mark as Resolved changes status to Resolved
+- REQ-05: Dismiss Report dismisses the report
+- REQ-06: Filter by All, Pending, Under Review, Resolved, Dismissed
+- REQ-07: Search by student name or subject
 
----
+## Edge Cases
+| EC-01 | No reports exist | Empty state shown |
+| EC-02 | Search with no match | Empty results |
+| EC-03 | Dismiss already-dismissed report | Error or button disabled |
+| EC-04 | Filter shows no results | Empty state shown |
+| EC-05 | XSS in search input | Sanitized |
 
-## Report Creation Scenario
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | 98976564 |
+| name | 123456 |
+| name | Test Student |
 
-1. Login as a student.
-
-2. Complete an upcoming session.
-
-3. Click on the **Complete Session** button.
-
-4. Submit feedback/report after session completion.
-
-5. Verify that the submitted report is added to the Reports Management dashboard.
-
-6. Verify that the report status is displayed correctly.
-
----
-
-## Reports Table Verification
-
-Verify that the following information is displayed correctly:
-- Student Name
-- Date
-- Report Topic
-- Status
-- Visibility Button
-- Action Button
-
----
-
-## Visibility Button Functionality
-
-1. Click on the visibility/view button.
-
-2. Verify that the full report details are displayed correctly.
-
----
-
-## Action Button Functionality
-
-Verify the following actions:
-
-### Start Review
-1. Click on the **Start Review** button.
-2. Verify that the report status changes to **Under Review**.
-
-### Mark as Resolved
-1. Click on the **Mark as Resolved** button.
-2. Verify that the report status changes to **Resolved**.
-
-### Dismiss Report
-1. Click on the **Dismiss Report** button.
-2. Verify that the report is dismissed successfully.
-
----
-
-## Filter Functionality
-
-1. Verify filter options:
-   - All
-   - Pending
-   - Under Review
-   - Resolved
-   - Dismissed
-
-2. Apply each filter and verify that correct reports are displayed.
-
----
-
-## Search Functionality
-
-1. Search using:
-   - Student Name
-   - Subject Name
-
-2. Verify that the correct report data appears in the search result.
-```
+### Invalid
+| Field | Value |
+|---|---|
+| name | <script>alert(1)</script> |

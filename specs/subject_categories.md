@@ -1,161 +1,73 @@
-# Subject Categories Management
+# Page: Subject Categories Management
 
-## Overview
+**URL:** `https://dev.mehadedu.com/en/dashboard/subject-categories`
 
-The Subject Categories section is managed by the Super Admin.
+## Description
+Super Admin manages subject categories used when creating subjects. Categories have Active/Disable status. Active categories appear in subject creation dropdowns. Categories can be reordered via drag toggle.
 
-These categories are used inside the **Subjects** section.  
-When creating a subject, the Super Admin must select a category from the available subject categories.
+## UI Elements
 
-Subject Categories are publicly reflected across the platform wherever subject categorization is required.
+| Element | Selector | Notes |
+|---|---|---|
+| Subject Categories heading | `h1:has-text("Subject Categories"), h2:has-text("Categories")` | Required |
+| Create Categories button | `button:has-text("Create Categories"), button:has-text("Create Category")` | Required |
+| Search input | `input[placeholder*="Search"]` | Optional |
+| Status filter | `select[aria-label*="Status"], [placeholder*="Active"]` | Optional |
+| Category list | `table, [data-testid="categories-list"]` | Required |
+| Category name | `.category-name, [data-testid="name"]` | Required |
+| Status toggle | `[role="switch"], input[type="checkbox"]` | Required |
+| Drag/sort toggle | `[data-testid="sort-handle"], button[aria-label*="sort"]` | Optional |
+| Category name input | `input[name="name"], input[placeholder*="Category Name"]` | Required |
+| Icon upload | `input[type="file"]` | Optional |
+| Description textarea | `textarea[name="description"]` | Optional |
+| Active toggle in form | `[role="switch"]` | Optional |
+| Create Category button | `button:has-text("Create Category")` | Required |
 
----
+## User Flows
 
-# Open Subject Categories Dashboard
+### Flow 1: Create Subject Category
+1. Navigate to Subject Categories
+2. Click "Create Categories"
+3. Fill Category Name (max 40 chars): Science
+4. Upload icon (max 2 MB)
+5. Fill description (max 500 chars)
+6. Toggle Active
+7. Click "Create Category"
+8. Category appears in list
 
-1. Login as Super Admin.
-2. Open the **Sidebar**.
-3. Go to **Account Settings**.
-4. Click on **Subject Categories**.
-5. The Subject Categories Dashboard will open.
+### Flow 2: Disable Category
+1. Find category in list
+2. Toggle status to Disable
+3. Category no longer visible in Subject selection
 
----
+### Flow 3: Reorder Categories
+1. Use drag toggle to reorder
+2. Updated order reflects in Subject creation dropdown
 
-# Search Subject Categories
+## Requirements
+- REQ-01: Category name max 40 characters
+- REQ-02: Icon upload max 2 MB
+- REQ-03: Description max 500 characters
+- REQ-04: Active categories appear in Subject creation
+- REQ-05: Disabled categories hidden from Subject selection
+- REQ-06: Sorting reflects in public order
 
-1. Use the search box.
-2. Enter:
-   - Category Name
-   - Category ID
-3. Matching category results should appear properly.
+## Edge Cases
+| EC-01 | Name over 40 chars | Validation error |
+| EC-02 | Icon file over 2 MB | Upload rejected |
+| EC-03 | Description over 500 chars | Validation error |
+| EC-04 | Disable used category | Subject still exists but category hidden |
 
----
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | Science |
+| name | Mathematics |
+| name | Literature |
 
-# Status Filter
-
-The filter contains:
-- Active
-- Disable
-
-## Active Status
-- If a category status is **Active**, it will appear inside the Subject creation section.
-
-## Disable Status
-- If a category status is **Disable**, it will not appear publicly or inside Subject selection.
-
----
-
-# Sorting Feature
-
-1. A toggle/drag button is available on the left side.
-2. Using the toggle/drag option, categories can be reordered:
-   - Move Up
-   - Move Down
-3. Updated sorting should reflect properly where categories are displayed publicly.
-
----
-
-# Create Category
-
-1. Click on the **Create Categories** button.
-2. A modal/form will open.
-
----
-
-# Category Creation Fields
-
-## Category Name
-
-1. Enter category name.
-
-### Validation
-- Maximum length: **40 characters**
-
----
-
-## Upload Icon / Logo
-
-1. Click on the upload option.
-2. Upload image/icon from local storage.
-3. File upload can also support link-based upload if available.
-
-### Validation
-- Maximum file size: **2 MB**
-
----
-
-## Category Description
-
-1. Enter category description.
-
-### Validation
-- Maximum length: **500 characters**
-
----
-
-## Active Toggle
-
-1. Toggle status:
-   - Active
-   - Disable
-
-## Active
-- Category will be publicly visible.
-
-## Disable
-- Category will not be publicly visible.
-
----
-
-# Create Category Process
-
-1. Fill all required fields.
-2. Click on **Create Category**.
-3. The category will be added successfully.
-
----
-
-# Subject Integration Check
-
-After creating a Subject Category:
-
-1. Go to **Account Settings**.
-2. Open the **Subjects** card.
-3. Click on **Create Subject**.
-4. Check the Category dropdown field.
-
-## Verification Points
-- Newly created category appears properly
-- Disabled category does not appear
-- Active category appears correctly
-- Sorting order reflects properly
-- Public visibility works correctly
-
----
-
-# Functional & Validation Checks
-
-## Search Checks
-- Search by category name works properly
-- Search by ID works correctly
-
-## Status Checks
-- Active status shows publicly
-- Disable status hides publicly
-
-## Sorting Checks
-- Drag/Toggle sorting works correctly
-- Updated order reflects publicly
-
-## Upload Checks
-- Valid image upload works
-- File size validation works properly
-
-## Subject Integration Checks
-- Categories appear inside Subject creation
-- Subject can be created using the selected category
-
-## General Checks
-- Create Category functionality works properly
-- Public visibility updates successfully
-- Validation messages appear correctly
+### Invalid
+| Field | Value |
+|---|---|
+| name | empty_name |
+| name | name_over_forty_characters_long_invalid |

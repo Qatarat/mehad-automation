@@ -1,55 +1,92 @@
-# Find Group Course Process - MehaEdu
+# Page: Student Find Group Course and Enroll
 
-## Steps to Reproduce Group Course Search and Enrollment Flow
+**URL:** `https://dev.mehadedu.com/en/find-tutors?session=group`
 
-### 1. Navigate to Website
-- Open the MehaEdu website: [https://dev.mehadedu.com/en]
+## Description
+Group course search and enrollment workflow. Students find group sessions via Find Tutors > Group Session dropdown, filter by subject/price/time, and enroll with payment.
 
-### 2. Student Login
-- Log in as a student using valid credentials.
+## UI Elements
 
-### 3. Access Find Tutors
-- After login, go to the header section of the website.
-- Click on the "Find Tutors" button.
+| Element | Selector | Notes |
+|---|---|---|
+| Find Tutors button | `button:has-text("Find Tutors")` | Required |
+| Group Session menu item | `[role="menuitem"]:has-text("Group Session")` | Required |
+| Group session heading | `h1:has-text("Find your perfect tutor"), h1:has-text("group")` | Required |
+| Subject filter | `select, [placeholder*="All Subjects"], [aria-label*="Subject"]` | Optional |
+| Price filter | `[placeholder*="Any price"], [aria-label*="price"]` | Optional |
+| Time filter | `[placeholder*="Any time"], [aria-label*="time"]` | Optional |
+| Tutor name search | `input[placeholder*="Search"]` | Optional |
+| Course card | `.course-card, [data-testid="course-card"]` | Required |
+| Enroll Now button | `button:has-text("Enroll Now")` | Required |
+| Course name | `.course-name, h3:has-text("course")` | Required |
+| Course price | `.price, [data-testid="price"]` | Required |
+| Booking modal | `[role="dialog"]:has-text("Book Group Session")` | Conditional |
+| Continue button | `[role="dialog"] button:has-text("Continue")` | Required |
+| Confirm and Pay button | `button:has-text("Confirm & Pay")` | Required |
 
-### 4. Select Group Session
-- In the dropdown menu that appears, select the "Group Session" option.
+## User Flows
 
-### 5. Filter Courses
-- You will see a list of group courses displayed.
-- Use the filter section titled "Find your perfect tutor for group session" to refine your search.
+### Flow 1: Enroll in Group Session
+1. Navigate to https://dev.mehadedu.com/en
+2. Login as student (phone 98976564, OTP 123456)
+3. Click "Find Tutors" in header
+4. Click "Group Session" from dropdown
+5. Filter by subject (e.g., Math)
+6. Browse group session cards
+7. Click "Enroll Now" on desired session
+8. "Book Group Session" modal opens
+9. Click "Continue"
+10. Click "Confirm & Pay"
+11. Fill payment: 4111 1111 1111 1111, 05/28, CVV 100
+12. Click "Pay Now"
+13. Click "Submit" in confirmation modal
+→ Expected: Enrolled, redirect to My Bookings
 
-### 6. Apply Filters
-- Select the subject you are interested in.
-- Choose the price per lesson range you prefer.
-- Select the available times that suit you.
-- Alternatively, you can also filter by the tutor’s first name.
+### Flow 2: Filter Group Sessions
+1. Navigate to group sessions page
+2. Select subject: Math
+3. Select price range
+4. Sessions filtered accordingly
+→ Expected: Only matching sessions shown
 
-### 7. Review Search Results
-- After applying filters, the courses matching your criteria will be listed.
-- Each course will display the tutor’s details, course information, price, and timing.
+### Flow 3: Prevent Duplicate Enrollment
+1. Enroll in a group session
+2. Navigate back to group sessions
+3. Find the same session
+4. Try to enroll again
+→ Expected: System prevents duplicate enrollment
 
-### 8. Enroll in Course
-- Click on the "Enroll Now" button next to the course you want.
-- This will redirect you to the payment gateway.
+## Requirements
+- REQ-01: Group Session accessible from Find Tutors dropdown
+- REQ-02: Group sessions page shows available courses
+- REQ-03: Subject, price, and time filters work correctly
+- REQ-04: Each course card shows tutor details and session info
+- REQ-05: Enroll Now opens booking modal
+- REQ-06: Booking modal has Continue and Confirm & Pay steps
+- REQ-07: Payment completes enrollment
+- REQ-08: Enrolled course appears in My Bookings
+- REQ-09: Duplicate enrollment is prevented
+- REQ-10: Fully booked sessions show enrollment disabled
 
-### 9. Complete Payment
-- Enter your payment information:
-  - Cardholder Name
-  - Card Number
-  - Expiry Date
-  - Security Code (CVV)
-- Click the "Pay Now" button to complete the transaction.
+## Edge Cases
+| EC-01 | Duplicate enrollment attempt | Error: already enrolled |
+| EC-02 | Session fully booked | Enroll Now disabled |
+| EC-03 | No sessions match filters | Empty state shown |
+| EC-04 | Payment fails | Enrollment not confirmed |
+| EC-05 | Close booking modal before payment | Enrollment not created |
 
-### 10. Verify Enrollment in My Bookings
-- After payment, go to the "My Bookings" section.
-- You will see the enrolled course listed.
-- Check the course timing and ensure it aligns with your current time.
-- Join the course at the scheduled time for each class and participate in the group sessions.
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | 98976564 |
+| name | 123456 |
+| name | 4111 1111 1111 1111 |
+| name | 05/28 |
+| name | 100 |
 
----
-
-## Notes
-- Verify that the course enrollment correctly appears in the "My Bookings" section.
-- Ensure that the class times are accurate and match your current time to avoid missed sessions.
-- Test that all booking and payment details persist correctly.
+### Invalid
+| Field | Value |
+|---|---|
+| name | 0000 0000 0000 0000 |
+| name | 000000 |

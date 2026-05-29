@@ -1,39 +1,85 @@
-# Tutor Group Session Guide
+# Page: Tutor Group Session Management
 
-## Step-by-Step Process
+**URL:** `https://dev.mehadedu.com/en/dashboard/group-sessions`
 
-1. **Go to the Website**
-   - Visit the website: `mehadedu.com`.
+## Description
+Tutor's group session management page. Shows all created group sessions with Manage and Edit options. Tutors can view enrollment, attendance, and revenue. Edit is only available before any student enrolls.
 
-2. **Access the Tutor Section**
-   - In the header section, find and click the button labeled "Become a Tutor".
-   - Scroll down, and you will see the "Apply Now" button—click it.
+## UI Elements
 
-3. **Login Process**
-   - Select your country code from the dropdown list.
-   - Enter a valid phone number.
-   - Click the "Send Code" button; you will receive an OTP.
-   - Enter the OTP (e.g., 123456) for verification.
-   - Click the "Continue" button to complete the login process.
-   - After logging in, you will be taken to the dashboard.
+| Element | Selector | Notes |
+|---|---|---|
+| Group Sessions heading | `h1:has-text("Group"), h2:has-text("Group Session")` | Required |
+| Session card | `.session-card, [data-testid="session-card"]` | Required — per session |
+| Manage button | `button:has-text("Manage")` | Required — per session |
+| Edit button | `button:has-text("Edit")` | Conditional — only before enrollment |
+| Class tab | `[role="tab"]:has-text("Class")` | Required in manage view |
+| Student tab | `[role="tab"]:has-text("Student")` | Required in manage view |
+| Session schedule | `:has-text("Schedule"), .schedule-info` | Required |
+| Enrolled students count | `:has-text("Students"), .student-count` | Required |
+| Available seats | `:has-text("seats"), .seats-available` | Required |
+| Revenue section | `:has-text("Revenue"), .revenue-info` | Conditional |
+| Join Classroom button | `button:has-text("Join Classroom")` | Conditional — at session time |
 
-4. **Access Group Sessions**
-   - From the dashboard, click on the "Group Session" button.
-   - Once clicked, all the group sessions you created will appear.
+## User Flows
 
-5. **Verify Details**
-   - Review all details—ensure that the timings and dates are correct.
-   - Each session will have "Manage" and "Edit" buttons.
+### Flow 1: View Group Sessions List
+1. Navigate to https://dev.mehadedu.com/en/dashboard/group-sessions
+2. Page shows list of created group sessions
+3. Each session shows course name, schedule, enrolled count
+→ Expected: All group sessions listed correctly
 
-6. **Editing Sessions**
-   - The "Edit" button can only be used if no student has enrolled yet (i.e., if it is still free, you can edit it).
+### Flow 2: Manage a Group Session
+1. Click "Manage" button on a session card
+2. Session details page opens
+3. Click "Class" tab to see schedule
+4. Click "Student" tab to see enrolled students
+→ Expected: Session details and student list shown
 
-7. **Managing Details**
-   - Click on "Manage" to view all course details: whether the class is completed, if students have enrolled, how many seats are left, average attendance, and revenue (if any enrollments occur, revenue will be displayed).
+### Flow 3: Edit a Group Session (Before Enrollment)
+1. Find a session with 0 enrollments
+2. Click "Edit" button
+3. Update session details
+4. Save changes
+→ Expected: Session updated successfully
 
-8. **Details Sections**
-   - Within the details page, you will find two sections: "Class" and "Student".
-   - In the "Class" section, you will see the schedule (when the class is taking place).
-   - In the "Student" section, you will see which students have enrolled along with their attendance records.
+### Flow 4: Join Classroom at Session Time
+1. Navigate to group sessions
+2. Wait until scheduled session time
+3. "Join Classroom" button appears
+4. Click "Join Classroom"
+5. Confirmation modal opens
+6. Click "Join Classroom" in modal
+→ Expected: Classroom opens, session starts
 
-Ensure you carefully verify all details at each step!
+## Requirements
+- REQ-01: Group sessions page shows all created sessions
+- REQ-02: Each session card has Manage and Edit buttons
+- REQ-03: Edit button is disabled or hidden after student enrollment
+- REQ-04: Manage view shows Class and Student tabs
+- REQ-05: Class tab shows session schedule
+- REQ-06: Student tab shows enrolled students and attendance
+- REQ-07: Join Classroom button appears only at scheduled session time
+- REQ-08: Session automatically closes at end time
+- REQ-09: Revenue displayed after student enrollment
+
+## Edge Cases
+| EC-01 | Edit session with enrolled students | Edit button disabled or hidden |
+| EC-02 | Manage session with 0 students | Empty student list shown |
+| EC-03 | Join Classroom before session time | Button not visible or disabled |
+| EC-04 | Session at end time | Auto-closes classroom |
+| EC-05 | Click Join twice | Only one classroom session created |
+
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | 98976564 |
+| name | 123456 |
+| name | Basic Math course |
+
+### Invalid
+| Field | Value |
+|---|---|
+| name | -10 |
+| name | 0 |
