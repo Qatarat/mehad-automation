@@ -1421,114 +1421,363 @@ def write_html_report(audits: list[dict], test_count: int,
     errors  = rr.get("errors",  0)
     skipped = rr.get("skipped", 0)
     total_ran = passed + failed + errors
-    pass_rate = f"{passed/max(total_ran,1):.0%}"
+    pass_pct  = int(passed / max(total_ran, 1) * 100)
+    pass_rate = f"{pass_pct}%"
+    pass_color = "#22c55e" if pass_pct >= 80 else ("#eab308" if pass_pct >= 50 else "#ef4444")
 
-    quality_colors = {"GOOD": "#27ae60", "WARN": "#e67e22", "POOR": "#e74c3c"}
+    good_count = sum(1 for a in audits if a["quality"] == "GOOD")
+    warn_count = sum(1 for a in audits if a["quality"] == "WARN")
+    poor_count = sum(1 for a in audits if a["quality"] == "POOR")
+    total_sels  = sum(a["selectors"]    for a in audits)
+    total_flows = sum(a["flows"]        for a in audits)
+    total_ecs   = sum(a["edge_cases"]   for a in audits)
+    total_reqs  = sum(a["requirements"] for a in audits)
+
+    # Quality bar widths (relative to total specs)
+    ns = max(len(audits), 1)
+    good_w = round(good_count / ns * 100, 1)
+    warn_w = round(warn_count / ns * 100, 1)
+    poor_w = round(poor_count / ns * 100, 1)
+
+    # Build spec rows
     spec_rows = ""
     for a in audits:
-        qcolor = quality_colors.get(a["quality"], "#888")
-        issues = ", ".join(a["issues"]) if a["issues"] else "—"
+        q = a["quality"]
+        if q == "GOOD":
+            badge = '<span class="badge badge-success">GOOD</span>'
+        elif q == "WARN":
+            badge = '<span class="badge badge-warn">WARN</span>'
+        else:
+            badge = '<span class="badge badge-fail">POOR</span>'
+        issues = a["issues"]
+        issues_html = ""
+        for iss in issues:
+            issues_html += f'<span class="issue-tag">{iss}</span>'
+        if not issues_html:
+            issues_html = '<span style="color:#475569">—</span>'
+        # Mini bar for selectors (max ~100)
+        sel_pct = min(a["selectors"] / max(total_sels / max(ns, 1) * 2, 1) * 100, 100)
         spec_rows += f"""
         <tr>
-          <td><strong>{a['spec']}</strong></td>
-          <td>{a['selectors']}</td>
-          <td>{a['flows']}</td>
-          <td>{a['edge_cases']}</td>
-          <td>{a['requirements']}</td>
-          <td>{a['valid_td']}v / {a['invalid_td']}i</td>
-          <td style="color:{qcolor}"><strong>{a['quality']}</strong></td>
-          <td style="font-size:0.85em">{issues}</td>
+          <td class="spec-name">
+            <span class="spec-file">{a['spec']}</span>
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div class="mini-bar"><div class="mini-fill" style="width:{sel_pct:.0f}%"></div></div>
+              <span class="mono">{a['selectors']}</span>
+            </div>
+          </td>
+          <td class="mono">{a['flows']}</td>
+          <td class="mono">{a['edge_cases']}</td>
+          <td class="mono">{a['requirements']}</td>
+          <td class="mono">{a['valid_td']}v&nbsp;/&nbsp;{a['invalid_td']}i</td>
+          <td>{badge}</td>
+          <td>{issues_html}</td>
         </tr>"""
+
+    # Run results section
+    run_section = ""
+    if run_results:
+        dur = run_results.get("duration_s", "—")
+        ec  = run_results.get("exit_code", "—")
+        run_section = f"""
+<div class="card">
+  <div class="card-header">
+    <span class="card-icon">▶</span>
+    <span class="card-title">Test Run Results</span>
+    <span class="card-sub">{dur}s · exit {ec}</span>
+  </div>
+  <div class="run-grid">
+    <div class="run-cell pass"><div class="run-num">{passed}</div><div class="run-lbl">Passed</div></div>
+    <div class="run-cell fail"><div class="run-num">{failed + errors}</div><div class="run-lbl">Failed</div></div>
+    <div class="run-cell skip"><div class="run-num">{skipped}</div><div class="run-lbl">Skipped</div></div>
+    <div class="run-cell rate" style="--rate-color:{pass_color}"><div class="run-num" style="color:{pass_color}">{pass_rate}</div><div class="run-lbl">Pass Rate</div></div>
+  </div>
+  <div class="pass-bar-wrap">
+    <div class="pass-bar-label">
+      <span style="color:#22c55e">■ {passed} passed</span>
+      <span style="color:#ef4444">■ {failed+errors} failed</span>
+      <span style="color:#64748b">■ {skipped} skipped</span>
+    </div>
+    <div class="pass-bar-track">
+      <div style="width:{pass_pct}%;background:#22c55e;height:100%;border-radius:4px 0 0 4px;display:inline-block;"></div>
+      <div style="width:{min(int((failed+errors)/max(total_ran,1)*100),100-pass_pct)}%;background:#ef4444;height:100%;display:inline-block;"></div>
+    </div>
+  </div>
+</div>"""
+
+    generated_ts = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Fagun Spec Validation Report</title>
-  <style>
-    body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-           background:#0f0f0f; color:#e0e0e0; margin:0; padding:20px; }}
-    .header {{ background:linear-gradient(135deg,#6c3483,#1a5276);
-               padding:30px; border-radius:12px; margin-bottom:24px; }}
-    h1 {{ margin:0 0 8px; font-size:1.8em; }}
-    .subtitle {{ opacity:0.8; font-size:0.95em; }}
-    .stats {{ display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
-              gap:16px; margin-bottom:24px; }}
-    .stat {{ background:#1a1a2e; border-radius:10px; padding:18px; text-align:center;
-             border:1px solid #333; }}
-    .stat-num {{ font-size:2.2em; font-weight:700; }}
-    .stat-label {{ font-size:0.8em; opacity:0.7; margin-top:4px; }}
-    .green {{ color:#2ecc71; }} .red {{ color:#e74c3c; }}
-    .yellow {{ color:#f39c12; }} .blue {{ color:#3498db; }} .purple {{ color:#9b59b6; }}
-    table {{ width:100%; border-collapse:collapse; background:#1a1a2e;
-             border-radius:10px; overflow:hidden; }}
-    th {{ background:#2c2c54; padding:12px 16px; text-align:left; font-size:0.85em;
-          text-transform:uppercase; letter-spacing:0.5px; color:#aaa; }}
-    td {{ padding:11px 16px; border-bottom:1px solid #2a2a2a; font-size:0.9em; }}
-    tr:hover {{ background:#222240; }}
-    .section {{ background:#1a1a2e; border-radius:10px; padding:20px;
-                margin-bottom:20px; border:1px solid #333; }}
-    .section h2 {{ margin:0 0 16px; font-size:1.15em; color:#9b59b6; }}
-    pre {{ background:#0d1117; padding:16px; border-radius:8px; font-size:0.82em;
-           overflow-x:auto; color:#c9d1d9; white-space:pre-wrap; }}
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Fagun QA Report — {len(audits)} Specs</title>
+<style>
+*,*::before,*::after{{box-sizing:border-box;margin:0;padding:0;}}
+body{{
+  background:#0f172a;color:#e2e8f0;
+  font-family:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  font-size:14px;line-height:1.5;overflow-x:hidden;
+}}
+::-webkit-scrollbar{{width:6px;height:6px;}}
+::-webkit-scrollbar-track{{background:#0f172a;}}
+::-webkit-scrollbar-thumb{{background:#334155;border-radius:3px;}}
+
+/* ── header ── */
+#hdr{{
+  background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%);
+  border-bottom:1px solid #334155;
+  padding:16px 24px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+}}
+#hdr h1{{font-size:18px;font-weight:700;letter-spacing:-0.3px;display:flex;align-items:center;gap:10px;}}
+.hdr-right{{display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:12px;color:#64748b;}}
+.hdr-right span{{color:#94a3b8;}}
+.hdr-right .mono{{font-family:'JetBrains Mono','Fira Code',monospace;color:#e2e8f0;}}
+
+/* ── main layout ── */
+#main{{max-width:1400px;margin:0 auto;padding:24px;}}
+
+/* ── summary kpi row ── */
+.kpi-row{{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+  gap:12px;margin-bottom:24px;
+}}
+.kpi{{
+  background:#1e293b;border:1px solid #334155;border-radius:10px;
+  padding:16px 14px;text-align:center;
+  transition:border-color .15s,transform .1s;
+}}
+.kpi:hover{{border-color:#475569;transform:translateY(-1px);}}
+.kpi-num{{font-size:2em;font-weight:700;line-height:1;}}
+.kpi-lbl{{font-size:11px;color:#64748b;margin-top:6px;text-transform:uppercase;letter-spacing:.04em;}}
+.c-purple{{color:#a855f7;}} .c-blue{{color:#3b82f6;}} .c-green{{color:#22c55e;}}
+.c-red{{color:#ef4444;}} .c-yellow{{color:#eab308;}} .c-teal{{color:#14b8a6;}}
+
+/* ── quality bar ── */
+.qual-bar-section{{background:#1e293b;border:1px solid #334155;border-radius:10px;padding:16px 20px;margin-bottom:24px;}}
+.qual-bar-title{{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:10px;}}
+.qual-bar-track{{display:flex;height:10px;border-radius:5px;overflow:hidden;gap:2px;}}
+.qual-bar-track div{{height:100%;border-radius:3px;transition:width .4s;}}
+.qual-legend{{display:flex;gap:16px;margin-top:8px;font-size:12px;}}
+.qual-legend span{{display:flex;align-items:center;gap:5px;}}
+.ql-dot{{width:8px;height:8px;border-radius:2px;display:inline-block;}}
+
+/* ── stat grid (secondary) ── */
+.stat-grid{{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:24px;}}
+.stat-chip{{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:12px;text-align:center;}}
+.stat-chip-num{{font-size:1.35em;font-weight:700;}}
+.stat-chip-lbl{{font-size:10px;color:#64748b;margin-top:3px;text-transform:uppercase;letter-spacing:.04em;}}
+
+/* ── card ── */
+.card{{background:#1e293b;border:1px solid #334155;border-radius:10px;margin-bottom:20px;overflow:hidden;}}
+.card-header{{
+  padding:14px 18px;border-bottom:1px solid #334155;
+  display:flex;align-items:center;gap:8px;
+  background:#0f172a;
+}}
+.card-icon{{font-size:14px;}}
+.card-title{{font-weight:600;font-size:14px;}}
+.card-sub{{font-size:12px;color:#64748b;margin-left:auto;}}
+.card-body{{padding:0;}}
+
+/* ── table ── */
+table{{width:100%;border-collapse:collapse;}}
+thead th{{
+  background:#0f172a;padding:10px 14px;
+  text-align:left;font-size:11px;font-weight:600;
+  text-transform:uppercase;letter-spacing:.06em;color:#64748b;
+  border-bottom:1px solid #334155;position:sticky;top:0;z-index:1;
+}}
+tbody td{{padding:10px 14px;border-bottom:1px solid #1e293b;font-size:13px;vertical-align:middle;}}
+tbody tr:last-child td{{border-bottom:none;}}
+tbody tr:hover{{background:rgba(51,65,85,.35);}}
+.spec-name{{max-width:220px;}}
+.spec-file{{font-family:'JetBrains Mono','Fira Code',monospace;font-size:12px;color:#94a3b8;word-break:break-all;}}
+.mono{{font-family:'JetBrains Mono','Fira Code',monospace;font-size:12px;}}
+
+/* ── badges ── */
+.badge{{
+  display:inline-flex;align-items:center;
+  padding:2px 9px;border-radius:9999px;font-size:11px;font-weight:600;letter-spacing:.03em;
+}}
+.badge-success{{background:#15803d;color:#dcfce7;}}
+.badge-warn{{background:#a16207;color:#fef9c3;}}
+.badge-fail{{background:#991b1b;color:#fee2e2;}}
+.badge-info{{background:#1d4ed8;color:#dbeafe;}}
+.issue-tag{{
+  display:inline-block;background:#1e293b;border:1px solid #334155;
+  color:#94a3b8;font-size:10px;padding:1px 6px;border-radius:4px;margin:1px;
+}}
+
+/* ── mini bar ── */
+.mini-bar{{width:50px;height:4px;background:#334155;border-radius:2px;overflow:hidden;flex-shrink:0;}}
+.mini-fill{{height:100%;background:#3b82f6;border-radius:2px;}}
+
+/* ── pass bar ── */
+.pass-bar-wrap{{padding:14px 18px;}}
+.pass-bar-label{{display:flex;gap:16px;font-size:11px;margin-bottom:6px;color:#94a3b8;}}
+.pass-bar-track{{height:8px;background:#0f172a;border-radius:4px;overflow:hidden;display:flex;}}
+
+/* ── run grid ── */
+.run-grid{{display:grid;grid-template-columns:repeat(4,1fr);}}
+.run-cell{{padding:16px;text-align:center;border-right:1px solid #334155;}}
+.run-cell:last-child{{border-right:none;}}
+.run-num{{font-size:1.8em;font-weight:700;line-height:1;}}
+.run-lbl{{font-size:11px;color:#64748b;margin-top:4px;text-transform:uppercase;letter-spacing:.04em;}}
+.run-cell.pass .run-num{{color:#22c55e;}}
+.run-cell.fail .run-num{{color:#ef4444;}}
+.run-cell.skip .run-num{{color:#64748b;}}
+
+/* ── search bar ── */
+.search-bar{{padding:12px 18px;border-bottom:1px solid #334155;background:#0f172a;}}
+.search-bar input{{
+  width:100%;background:#1e293b;border:1px solid #334155;border-radius:6px;
+  color:#e2e8f0;padding:7px 12px;font-size:13px;outline:none;
+  transition:border-color .15s;
+}}
+.search-bar input:focus{{border-color:#3b82f6;}}
+.search-bar input::placeholder{{color:#475569;}}
+
+/* ── test-types table ── */
+.type-badge{{display:inline-block;background:#1e293b;border:1px solid #334155;color:#94a3b8;font-size:11px;padding:2px 8px;border-radius:4px;font-family:'JetBrains Mono','Fira Code',monospace;}}
+
+/* ── footer ── */
+#footer{{
+  border-top:1px solid #1e293b;padding:16px 24px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;
+  font-size:12px;color:#475569;
+}}
+</style>
 </head>
 <body>
-<div class="header">
-  <h1>Fagun Spec Validation Report</h1>
-  <div class="subtitle">
-    {datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")} UTC &nbsp;|&nbsp;
-    Target: {BASE_URL} &nbsp;|&nbsp;
-    {len(audits)} specs processed
+
+<!-- HEADER -->
+<div id="hdr">
+  <h1>
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#a855f7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Fagun Autonomous QA Platform
+    <span style="font-weight:400;color:#64748b;font-size:14px;">/ Spec Validation Report</span>
+  </h1>
+  <div class="hdr-right">
+    <span>Generated: <span class="mono">{generated_ts}</span></span>
+    <span>Target: <span class="mono">{BASE_URL}</span></span>
+    <span class="badge badge-info">{len(audits)} specs</span>
   </div>
 </div>
 
-<div class="stats">
-  <div class="stat"><div class="stat-num purple">{len(audits)}</div><div class="stat-label">Specs Parsed</div></div>
-  <div class="stat"><div class="stat-num blue">{test_count}</div><div class="stat-label">Tests Generated</div></div>
-  <div class="stat"><div class="stat-num green">{passed}</div><div class="stat-label">Passed</div></div>
-  <div class="stat"><div class="stat-num red">{failed + errors}</div><div class="stat-label">Failed</div></div>
-  <div class="stat"><div class="stat-num yellow">{skipped}</div><div class="stat-label">Skipped</div></div>
-  <div class="stat"><div class="stat-num {'green' if int(pass_rate[:-1])>=80 else 'red'}">{pass_rate}</div><div class="stat-label">Pass Rate</div></div>
+<div id="main">
+
+<!-- KPI ROW -->
+<div class="kpi-row">
+  <div class="kpi"><div class="kpi-num c-purple">{len(audits)}</div><div class="kpi-lbl">Specs Parsed</div></div>
+  <div class="kpi"><div class="kpi-num c-blue">{test_count}</div><div class="kpi-lbl">Tests Generated</div></div>
+  <div class="kpi"><div class="kpi-num c-green">{good_count}</div><div class="kpi-lbl">GOOD Quality</div></div>
+  <div class="kpi"><div class="kpi-num c-yellow">{warn_count}</div><div class="kpi-lbl">WARN Quality</div></div>
+  <div class="kpi"><div class="kpi-num c-red">{poor_count}</div><div class="kpi-lbl">POOR Quality</div></div>
+  <div class="kpi"><div class="kpi-num c-teal">{total_sels}</div><div class="kpi-lbl">Selectors</div></div>
+  <div class="kpi"><div class="kpi-num c-blue">{total_flows}</div><div class="kpi-lbl">Flows</div></div>
+  <div class="kpi"><div class="kpi-num c-purple">{total_reqs}</div><div class="kpi-lbl">Requirements</div></div>
+  <div class="kpi"><div class="kpi-num c-yellow">{total_ecs}</div><div class="kpi-lbl">Edge Cases</div></div>
 </div>
 
-<div class="section">
-  <h2>Spec Coverage Audit</h2>
-  <table>
+<!-- QUALITY BAR -->
+<div class="qual-bar-section">
+  <div class="qual-bar-title">Spec Quality Distribution</div>
+  <div class="qual-bar-track">
+    <div style="width:{good_w}%;background:#15803d;"></div>
+    <div style="width:{warn_w}%;background:#a16207;"></div>
+    <div style="width:{poor_w}%;background:#991b1b;"></div>
+  </div>
+  <div class="qual-legend">
+    <span><span class="ql-dot" style="background:#22c55e;"></span>GOOD: {good_count} ({good_w:.0f}%)</span>
+    <span><span class="ql-dot" style="background:#eab308;"></span>WARN: {warn_count} ({warn_w:.0f}%)</span>
+    <span><span class="ql-dot" style="background:#ef4444;"></span>POOR: {poor_count} ({poor_w:.0f}%)</span>
+  </div>
+</div>
+
+{run_section}
+
+<!-- SPEC AUDIT TABLE -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-icon">📋</span>
+    <span class="card-title">Spec Coverage Audit</span>
+    <span class="card-sub">{len(audits)} specs · {test_count} tests generated</span>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="spec-search" placeholder="Filter specs..." onkeyup="filterSpecs()" autocomplete="off"/>
+  </div>
+  <div class="card-body">
+  <table id="spec-table">
     <thead>
       <tr>
-        <th>Spec File</th><th>Selectors</th><th>Flows</th><th>Edge Cases</th>
-        <th>Requirements</th><th>Test Data</th><th>Quality</th><th>Issues</th>
+        <th>Spec File</th>
+        <th>Selectors</th>
+        <th>Flows</th>
+        <th>Edge Cases</th>
+        <th>Requirements</th>
+        <th>Test Data</th>
+        <th>Quality</th>
+        <th>Issues</th>
       </tr>
     </thead>
-    <tbody>{spec_rows}</tbody>
-  </table>
-</div>
-
-<div class="section">
-  <h2>Test Types Generated per Spec</h2>
-  <table>
-    <thead><tr><th>Type</th><th>Description</th><th>Source</th></tr></thead>
     <tbody>
-      <tr><td>smoke</td><td>Page loads without 404/500</td><td>Auto — every spec</td></tr>
-      <tr><td>requirement</td><td>One test per REQ- statement (up to 8)</td><td>## Requirements section</td></tr>
-      <tr><td>functional</td><td>Selector presence + fill with valid data</td><td>## UI Elements table</td></tr>
-      <tr><td>negative</td><td>Invalid emails, spec invalid_td</td><td>## Test Data + payloads/invalid_email.txt</td></tr>
-      <tr><td>boundary</td><td>Empty, 1-char, 255-char, whitespace, null</td><td>Auto — text input fields</td></tr>
-      <tr><td>security/XSS</td><td>6 XSS payloads in first input field</td><td>payloads/xss.txt</td></tr>
-      <tr><td>security/SQLi</td><td>6 SQLi payloads, checks for DB error keywords</td><td>payloads/sqli.txt</td></tr>
-      <tr><td>security/SSTI</td><td>4 SSTI payloads, verifies 49 not rendered</td><td>payloads/ssti.txt</td></tr>
-      <tr><td>edge_case</td><td>One test per EC from spec (up to 8)</td><td>## Edge Cases section</td></tr>
-      <tr><td>performance</td><td>Page load time &lt; 10 seconds</td><td>Auto — every spec</td></tr>
+{spec_rows}
     </tbody>
   </table>
+  </div>
 </div>
 
-{f'''<div class="section">
-  <h2>Test Run Results</h2>
-  <pre>{json.dumps(run_results, indent=2)}</pre>
-</div>''' if run_results else ""}
+<!-- TEST TYPES CARD -->
+<div class="card">
+  <div class="card-header">
+    <span class="card-icon">⚡</span>
+    <span class="card-title">Test Types Generated per Spec</span>
+  </div>
+  <div class="card-body">
+  <table>
+    <thead>
+      <tr><th>Type</th><th>Description</th><th>Source</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><span class="type-badge">smoke</span></td><td>Page loads without 404/500</td><td style="color:#64748b">Auto — every spec</td></tr>
+      <tr><td><span class="type-badge">requirement</span></td><td>One test per REQ- statement (up to 8)</td><td style="color:#64748b">## Requirements section</td></tr>
+      <tr><td><span class="type-badge">functional</span></td><td>Selector presence + fill with valid data</td><td style="color:#64748b">## UI Elements table</td></tr>
+      <tr><td><span class="type-badge">negative</span></td><td>Invalid inputs, spec invalid test data</td><td style="color:#64748b">## Test Data (Invalid)</td></tr>
+      <tr><td><span class="type-badge">boundary</span></td><td>Empty, 1-char, 255-char, whitespace, null</td><td style="color:#64748b">Auto — text input fields</td></tr>
+      <tr><td><span class="type-badge">security/XSS</span></td><td>6 XSS payloads in first input field</td><td style="color:#64748b">payloads/xss.txt</td></tr>
+      <tr><td><span class="type-badge">security/SQLi</span></td><td>6 SQLi payloads, checks for DB error keywords</td><td style="color:#64748b">payloads/sqli.txt</td></tr>
+      <tr><td><span class="type-badge">security/SSTI</span></td><td>4 SSTI payloads, verifies 49 not rendered</td><td style="color:#64748b">payloads/ssti.txt</td></tr>
+      <tr><td><span class="type-badge">edge_case</span></td><td>One test per EC- from spec (up to 8)</td><td style="color:#64748b">## Edge Cases section</td></tr>
+      <tr><td><span class="type-badge">performance</span></td><td>Page load time &lt; threshold (default 20s)</td><td style="color:#64748b">Auto — every spec</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
 
+</div><!-- /main -->
+
+<!-- FOOTER -->
+<div id="footer">
+  <span>Fagun Autonomous QA Platform · <a href="https://github.com/Qatarat/mehad-automation" style="color:#3b82f6;text-decoration:none;">mehad-automation</a></span>
+  <span>Built by Mejbaur Bahar Fagun · Senior Software Engineer QA (IV)</span>
+</div>
+
+<script>
+function filterSpecs() {{
+  var q = document.getElementById('spec-search').value.toLowerCase();
+  var rows = document.querySelectorAll('#spec-table tbody tr');
+  rows.forEach(function(r) {{
+    var txt = r.textContent.toLowerCase();
+    r.style.display = (!q || txt.includes(q)) ? '' : 'none';
+  }});
+}}
+</script>
 </body>
 </html>"""
 
