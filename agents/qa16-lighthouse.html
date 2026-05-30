@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA Bug Report — 2026-05-29 22:40:06</title>
+<title>Mehad QA Bug Report — 2026-05-30 02:37:29</title>
 <style>
 /* ── Reset & base ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -590,7 +590,7 @@ tr:hover td{background:#1c2333}
       </div>
     </div>
     <div class="hdr-meta">
-      <div><b>Date:</b> 2026-05-29 22:40:06</div>
+      <div><b>Date:</b> 2026-05-30 02:37:29</div>
       <div><b>Target:</b> https://dev.mehadedu.com/en</div>
       <div><b>AI Model:</b> unknown (local · no API key)</div>
       <div><b>Browser:</b> Chromium (headless)</div>
@@ -654,7 +654,7 @@ tr:hover td{background:#1c2333}
     <span class="badge MEDIUM">MEDIUM</span>
     <span class="badge P2">P2</span>
     <span class="cluster-count">1× affected</span>
-    <span class="recurrence-badge">14× consecutive runs</span>
+    <span class="recurrence-badge">15× consecutive runs</span>
   </div>
   <div class="cluster-title">Performance: TTFB over budget</div>
   <div class="cluster-tickets"><a href="#QA-16 -001" class="cluster-bug-link">QA-16 -001</a></div>
@@ -705,8 +705,8 @@ tr:hover td{background:#1c2333}
       <div class="bug-meta">
         <span>🔗 <a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span>🧪 <code>test_qa16_core_web_vitals</code></span>
-        <span>🕐 2026-05-29 22:40:05</span>
-        <span>⏱ 5.50s</span>
+        <span>🕐 2026-05-30 02:37:28</span>
+        <span>⏱ 4.24s</span>
         
         
       </div>
@@ -767,14 +767,14 @@ experience. Logs all values so the team sees actuals even on pass — verified a
 <div class="err-body" id="err-1">
   <pre style="margin-top:8px"><strong style="color:var(--c-critical)">    assert not violations, (
 E   AssertionError: find_tutors: 1 Core Web Vitals violation(s):
-E       TTFB 2599ms &gt; budget 1500ms
-E   assert not ['TTFB 2599ms &gt; budget 1500ms']</strong>
+E       TTFB 1598ms &gt; budget 1500ms
+E   assert not ['TTFB 1598ms &gt; budget 1500ms']</strong>
 
 tests/test_qa_comprehensive.py:3056: in test_qa16_core_web_vitals
     assert not violations, (
 E   AssertionError: find_tutors: 1 Core Web Vitals violation(s):
-E       TTFB 2599ms &gt; budget 1500ms
-E   assert not ['TTFB 2599ms &gt; budget 1500ms']</pre>
+E       TTFB 1598ms &gt; budget 1500ms
+E   assert not ['TTFB 1598ms &gt; budget 1500ms']</pre>
 </div>
     
     <div style="margin-top:16px"></div>
@@ -840,11 +840,11 @@ E   assert not ['TTFB 2599ms &gt; budget 1500ms']</pre>
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa16_core_web_vitals</span>
     <span class="trow-params">homepage_en, https://dev.mehadedu.com/en</span>
-    <span class="trow-dur">4.39s</span>
+    <span class="trow-dur">4.42s</span>
   </summary>
   <div class="trow-details">
     <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Core Web Vitals must all be within budget for a passing user
-experience. Logs all values so the team sees actuals even on pass.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">homepage_en, https://dev.mehadedu.com/en</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.39s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa16_core_web_vitals</code></span></div>
+experience. Logs all values so the team sees actuals even on pass.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">homepage_en, https://dev.mehadedu.com/en</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.42s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa16_core_web_vitals</code></span></div>
   </div>
 </details>
 
@@ -853,11 +853,11 @@ experience. Logs all values so the team sees actuals even on pass.</span></div><
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa16_core_web_vitals</span>
     <span class="trow-params">become_tutor, https://dev.mehadedu.com/en/become, tutor</span>
-    <span class="trow-dur">2.91s</span>
+    <span class="trow-dur">2.81s</span>
   </summary>
   <div class="trow-details">
     <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Core Web Vitals must all be within budget for a passing user
-experience. Logs all values so the team sees actuals even on pass.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">become_tutor, https://dev.mehadedu.com/en/become, tutor</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.91s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa16_core_web_vitals</code></span></div>
+experience. Logs all values so the team sees actuals even on pass.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">become_tutor, https://dev.mehadedu.com/en/become, tutor</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.81s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa16_core_web_vitals</code></span></div>
   </div>
 </details>
 
