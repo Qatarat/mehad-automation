@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA Bug Report — 2026-05-31 04:20:38</title>
+<title>Mehad QA Bug Report — 2026-06-01 04:21:15</title>
 <style>
 /* ── Reset & base ── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -590,7 +590,7 @@ tr:hover td{background:#1c2333}
       </div>
     </div>
     <div class="hdr-meta">
-      <div><b>Date:</b> 2026-05-31 04:20:38</div>
+      <div><b>Date:</b> 2026-06-01 04:21:15</div>
       <div><b>Target:</b> https://dev.mehadedu.com/en</div>
       <div><b>AI Model:</b> unknown (local · no API key)</div>
       <div><b>Browser:</b> Chromium (headless)</div>
@@ -654,7 +654,7 @@ tr:hover td{background:#1c2333}
     <span class="badge MEDIUM">MEDIUM</span>
     <span class="badge P2">P2</span>
     <span class="cluster-count">1× affected</span>
-    <span class="recurrence-badge">16× consecutive runs</span>
+    <span class="recurrence-badge">17× consecutive runs</span>
   </div>
   <div class="cluster-title">Accessibility: required attribute missing</div>
   <div class="cluster-tickets"><a href="#QA-04 -001" class="cluster-bug-link">QA-04 -001</a></div>
@@ -705,8 +705,8 @@ tr:hover td{background:#1c2333}
       <div class="bug-meta">
         <span>🔗 <a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span>🧪 <code>test_qa04_no_memory_leak_multiple_modal_opens</code></span>
-        <span>🕐 2026-05-31 04:20:37</span>
-        <span>⏱ 16.34s</span>
+        <span>🕐 2026-06-01 04:21:14</span>
+        <span>⏱ 17.54s</span>
         
         
       </div>
@@ -758,7 +758,7 @@ tr:hover td{background:#1c2333}
   <pre style="margin-top:8px"><strong style="color:var(--c-critical)">E   playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 15000ms exceeded.
 E   Call log:
 E     - waiting for locator(&quot;button:has-text(\&quot;Log In\&quot;), button:has-text(\&quot;تسجيل الدخول\&quot;)&quot;).first to be visible
-E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot; aria-label=&quot;Login&quot; data-size=&quot;default&quot; data-variant=&quot;default&quot; class=&quot;justify-center whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 sh</strong>
+E       31 × locator resolved to hidden &lt;button data-slot=&quot;button&quot; aria-label=&quot;Login&quot; data-size=&quot;default&quot; data-variant=&quot;default&quot; class=&quot;justify-center whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 sh</strong>
 
 tests/test_qa_comprehensive.py:1472: in test_qa04_no_memory_leak_multiple_modal_opens
     btn.wait_for(state=&quot;visible&quot;, timeout=15000)
@@ -775,7 +775,7 @@ tests/test_qa_comprehensive.py:1472: in test_qa04_no_memory_leak_multiple_modal_
 E   playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 15000ms exceeded.
 E   Call log:
 E     - waiting for locator(&quot;button:has-text(\&quot;Log In\&quot;), button:has-text(\&quot;تسجيل الدخول\&quot;)&quot;).first to be visible
-E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot; aria-label=&quot;Login&quot; data-size=&quot;default&quot; data-variant=&quot;default&quot; class=&quot;justify-center whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive py-[9px] has-[&gt;svg]:px-3 md:hidden flex ite…&gt;…&lt;/button&gt;</pre>
+E       31 × locator resolved to hidden &lt;button data-slot=&quot;button&quot; aria-label=&quot;Login&quot; data-size=&quot;default&quot; data-variant=&quot;default&quot; class=&quot;justify-center whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive py-[9px] has-[&gt;svg]:px-3 md:hidden flex ite…&gt;…&lt;/button&gt;</pre>
 </div>
     
     <div style="margin-top:16px"></div>
@@ -841,10 +841,10 @@ E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot;
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_homepage_loads_under_5s</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">4.44s</span>
+    <span class="trow-dur">1.27s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must reach domcontentloaded within 5 seconds.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.44s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_homepage_loads_under_5s</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must reach domcontentloaded within 5 seconds.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.27s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_homepage_loads_under_5s</code></span></div>
   </div>
 </details>
 
@@ -853,10 +853,10 @@ E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot;
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_ttfb_under_1000ms</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">1.59s</span>
+    <span class="trow-dur">1.13s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Time To First Byte must be below 1000ms for the Mehad staging env.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.59s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_ttfb_under_1000ms</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Time To First Byte must be below 1000ms for the Mehad staging env.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.13s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_ttfb_under_1000ms</code></span></div>
   </div>
 </details>
 
@@ -865,10 +865,10 @@ E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot;
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_dom_content_loaded_under_3s</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">1.27s</span>
+    <span class="trow-dur">1.34s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">DOMContentLoaded must fire within 3 seconds on homepage.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.27s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_dom_content_loaded_under_3s</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">DOMContentLoaded must fire within 3 seconds on homepage.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.34s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_dom_content_loaded_under_3s</code></span></div>
   </div>
 </details>
 
@@ -877,10 +877,10 @@ E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot;
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_no_js_errors_on_homepage_load</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">2.20s</span>
+    <span class="trow-dur">2.81s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must load without JavaScript console errors.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.20s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_no_js_errors_on_homepage_load</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must load without JavaScript console errors.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.81s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_no_js_errors_on_homepage_load</code></span></div>
   </div>
 </details>
 
@@ -889,14 +889,14 @@ E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot;
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_no_js_errors_opening_modal</span>
     
-    <span class="trow-dur">4.76s</span>
+    <span class="trow-dur">4.04s</span>
   </summary>
   <div class="trow-details">
     <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Opening and closing the login modal must not trigger runtime JS errors.
 
 Filters out: browser-extension noise, favicon 404, and known
 Radix/shadcn dev-mode a11y warnings (DialogTitle / aria-describedby) —
-these are component-library lints, not runtime failures.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.76s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_no_js_errors_opening_modal</code></span></div>
+these are component-library lints, not runtime failures.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">4.04s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_no_js_errors_opening_modal</code></span></div>
   </div>
 </details>
 
@@ -905,10 +905,10 @@ these are component-library lints, not runtime failures.</span></div><div class=
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_no_js_errors_language_toggle</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">5.33s</span>
+    <span class="trow-dur">2.65s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Language toggle must not produce JS errors.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">5.33s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_no_js_errors_language_toggle</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Language toggle must not produce JS errors.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.65s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_no_js_errors_language_toggle</code></span></div>
   </div>
 </details>
 
@@ -917,10 +917,10 @@ these are component-library lints, not runtime failures.</span></div><div class=
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_find_tutors_loads_under_5s</span>
     
-    <span class="trow-dur">1.40s</span>
+    <span class="trow-dur">1.44s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Find-tutors page must load within 5 seconds.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.40s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_find_tutors_loads_under_5s</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Find-tutors page must load within 5 seconds.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.44s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_find_tutors_loads_under_5s</code></span></div>
   </div>
 </details>
 
@@ -929,10 +929,10 @@ these are component-library lints, not runtime failures.</span></div><div class=
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_no_js_errors_on_find_tutors</span>
     
-    <span class="trow-dur">3.41s</span>
+    <span class="trow-dur">2.63s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Find-tutors page must not have JS errors on load.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">3.41s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_no_js_errors_on_find_tutors</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Find-tutors page must not have JS errors on load.</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.63s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_no_js_errors_on_find_tutors</code></span></div>
   </div>
 </details>
 
@@ -941,10 +941,10 @@ these are component-library lints, not runtime failures.</span></div><div class=
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_responsive_no_js_errors</span>
     <span class="trow-params">[vp0] · BASE_URL</span>
-    <span class="trow-dur">2.26s</span>
+    <span class="trow-dur">1.61s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must load without JS errors across all viewports.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">[vp0] · BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.26s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_responsive_no_js_errors</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must load without JS errors across all viewports.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">[vp0] · BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.61s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_responsive_no_js_errors</code></span></div>
   </div>
 </details>
 
@@ -953,10 +953,10 @@ these are component-library lints, not runtime failures.</span></div><div class=
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_no_broken_images_on_homepage</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">2.67s</span>
+    <span class="trow-dur">3.22s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">No img tags on homepage must have a broken src (natural width = 0).</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.67s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_no_broken_images_on_homepage</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">No img tags on homepage must have a broken src (natural width = 0).</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">3.22s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_no_broken_images_on_homepage</code></span></div>
   </div>
 </details>
 
@@ -965,10 +965,10 @@ these are component-library lints, not runtime failures.</span></div><div class=
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_modal_renders_within_2s</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">2.80s</span>
+    <span class="trow-dur">2.98s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Login modal must appear within 2 seconds of clicking Log In.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.80s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_modal_renders_within_2s</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Login modal must appear within 2 seconds of clicking Log In.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.98s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_modal_renders_within_2s</code></span></div>
   </div>
 </details>
 
@@ -977,10 +977,10 @@ these are component-library lints, not runtime failures.</span></div><div class=
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_performance_resource_timing_available</span>
     <span class="trow-params">BASE_URL</span>
-    <span class="trow-dur">1.62s</span>
+    <span class="trow-dur">1.40s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">window.performance.timing API must be available on the page.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.62s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_performance_resource_timing_available</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">window.performance.timing API must be available on the page.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.40s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_performance_resource_timing_available</code></span></div>
   </div>
 </details>
 
@@ -989,10 +989,10 @@ these are component-library lints, not runtime failures.</span></div><div class=
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_responsive_no_js_errors</span>
     <span class="trow-params">[vp1] · BASE_URL</span>
-    <span class="trow-dur">1.55s</span>
+    <span class="trow-dur">1.79s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must load without JS errors across all viewports.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">[vp1] · BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.55s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_responsive_no_js_errors</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must load without JS errors across all viewports.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">[vp1] · BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.79s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_responsive_no_js_errors</code></span></div>
   </div>
 </details>
 
@@ -1001,10 +1001,10 @@ these are component-library lints, not runtime failures.</span></div><div class=
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_responsive_no_js_errors</span>
     <span class="trow-params">[vp2] · BASE_URL</span>
-    <span class="trow-dur">1.64s</span>
+    <span class="trow-dur">1.86s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must load without JS errors across all viewports.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">[vp2] · BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.64s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_responsive_no_js_errors</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must load without JS errors across all viewports.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">[vp2] · BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.86s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_responsive_no_js_errors</code></span></div>
   </div>
 </details>
 
@@ -1013,10 +1013,10 @@ these are component-library lints, not runtime failures.</span></div><div class=
     <span class="t-chip pass">✅ PASSED</span>
     <span class="trow-name">test_qa04_responsive_no_js_errors</span>
     <span class="trow-params">[vp3] · BASE_URL</span>
-    <span class="trow-dur">2.16s</span>
+    <span class="trow-dur">1.75s</span>
   </summary>
   <div class="trow-details">
-    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must load without JS errors across all viewports.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">[vp3] · BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">2.16s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_responsive_no_js_errors</code></span></div>
+    <div class="td-row"><span class="td-lbl">What this test checks:</span><span class="td-val">Homepage must load without JS errors across all viewports.</span></div><div class="td-row"><span class="td-lbl">Test data used:</span><span class="td-val td-data">[vp3] · BASE_URL</span></div><div class="td-row"><span class="td-lbl">Duration:</span><span class="td-val">1.75s</span></div><div class="td-row"><span class="td-lbl">Test function:</span><span class="td-val"><code>test_qa04_responsive_no_js_errors</code></span></div>
   </div>
 </details>
 
