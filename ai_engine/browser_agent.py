@@ -71,6 +71,11 @@ def _available() -> bool:
     """Check if browser-use and at least one compatible LLM backend are installed."""
     if not _BU_INSTALLED:
         return False
+    # In CI (GitHub Actions) browser-use can't connect to CDP within its 30s
+    # window because Chromium launch is too slow — each failed attempt wastes
+    # ~35s per spec. Skip entirely; test generation falls back to templates.
+    if os.getenv("GITHUB_ACTIONS") or os.getenv("CI_SKIP_BROWSER_USE"):
+        return False
     return _BU_OLLAMA or _BU_OPENAI
 
 

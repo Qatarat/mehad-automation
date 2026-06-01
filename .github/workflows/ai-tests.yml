@@ -49,9 +49,9 @@ jobs:
       AI_MODEL:              ${{ github.event.inputs.ai_model  || 'qwen2.5-coder:7b' }}
       AI_TIMEOUT:            "120"      # seconds per ollama.chat() call before giving up (7b needs more time)
       MAX_FIX_RETRIES:       "1"        # self-heal rounds in CI (reduce from 3 to save time)
-      BROWSER_USE_ENABLED:   "true"
+      BROWSER_USE_ENABLED:   "false"
       BROWSER_USE_MODEL:     "qwen2.5-coder:7b"
-      BROWSER_USE_TIMEOUT:   "90"
+      BROWSER_USE_TIMEOUT:   "30"
       OPENAI_API_KEY:        "ollama"
       OPENAI_BASE_URL:       "http://localhost:11434/v1"
 

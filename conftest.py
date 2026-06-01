@@ -348,21 +348,24 @@ def pytest_runtest_makereport(item, call):
         # something into <body> before capture. We also wait for fonts to
         # load so text isn't mid-FOUT.
         try:
-            page.wait_for_function(
-                "() => document.body && "
-                "(document.body.innerText.trim().length > 0 || "
-                " document.querySelectorAll('img, svg, canvas').length > 0)",
-                timeout=3000,
-            )
+            if not page.is_closed():
+                page.wait_for_function(
+                    "() => document.body && "
+                    "(document.body.innerText.trim().length > 0 || "
+                    " document.querySelectorAll('img, svg, canvas').length > 0)",
+                    timeout=3000,
+                )
         except Exception:
             pass  # if even 3s wasn't enough, capture whatever we have
         try:
-            page.evaluate("() => document.fonts && document.fonts.ready")
+            if not page.is_closed():
+                page.evaluate("() => document.fonts && document.fonts.ready")
         except Exception:
             pass
         # Brief settle so any animation/transition has finished a frame
         try:
-            page.wait_for_timeout(250)
+            if not page.is_closed():
+                page.wait_for_timeout(250)
         except Exception:
             pass
         # Try to scroll the failing element (if any) into view so the

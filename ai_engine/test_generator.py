@@ -62,7 +62,7 @@ def _rules(spec: "ParsedSpec") -> str:
 PLAYWRIGHT PYTHON STRICT RULES (violating ANY rule = test cannot run):
 - Output ONLY def test_...() function bodies + their decorators. NO imports. NO module code.
 - Signature MUST be: def test_NAME(page: Page): OR def test_NAME(page: Page, param):
-- Navigation: page.goto(URL, wait_until="domcontentloaded", timeout=15000)
+- Navigation: page.goto(URL, wait_until="domcontentloaded", timeout=30000)
   NEVER use page.wait_for_load_state("networkidle") — SPAs never reach networkidle.
 - Selector priority: get_by_role > get_by_label > get_by_placeholder > locator('input[type=...]')
 - For elements that may have hidden duplicates (e.g. mobile-menu vs desktop-header),
@@ -193,7 +193,7 @@ VALID TEST INPUTS:
 {valid_data or _valid_fallback}
 
 PATTERN (use exactly):
-1. page.goto(URL, wait_until="domcontentloaded", timeout=15000)
+1. page.goto(URL, wait_until="domcontentloaded", timeout=30000)
 2. page.wait_for_timeout(800)  # SPA hydration
 3. Fill the field with the test value
 4. Submit (button[type='submit'] or get_by_role('button', name='...'))
@@ -381,7 +381,7 @@ def test_boundary(page: Page, name, value, desc, expect):
     \"\"\"Boundary input handling.
     # TEST_DATA: name=<name>  value=<value>  desc=<desc>  expect=<expect>
     \"\"\"
-    page.goto("{spec.url}", wait_until="domcontentloaded", timeout=15000)
+    page.goto("{spec.url}", wait_until="domcontentloaded", timeout=30000)
     page.wait_for_timeout(800)
     # Pick the FIRST visible text-or-email input on the page (spec-agnostic
     # so this works for any spec without inventing field names)
@@ -444,7 +444,7 @@ def test_combo(page: Page, shape, value, vp_w, vp_h, vp_name):
     # TEST_DATA: shape=<shape> value=<value> viewport=<vp_w>x<vp_h>
     \"\"\"
     page.set_viewport_size({{"width": vp_w, "height": vp_h}})
-    page.goto("{spec.url}", wait_until="domcontentloaded", timeout=15000)
+    page.goto("{spec.url}", wait_until="domcontentloaded", timeout=30000)
     page.wait_for_timeout(800)
     field = page.locator('input[type="email"], input[type="text"]').filter(visible=True).first
     if field.count() == 0:
@@ -1337,7 +1337,7 @@ LOCALE URLs (parametrize across exactly these — do NOT add or remove):
 Tests to write (one parametrized test per behaviour):
 
 1. test_locale_page_loads(page, locale, url):
-   - page.goto(url, wait_until="domcontentloaded", timeout=15000)
+   - page.goto(url, wait_until="domcontentloaded", timeout=30000)
    - page.wait_for_timeout(1500)  # SPA hydration
    - assert page.url.startswith(url[:60]) — no error redirect
    - body = page.inner_text("body")
@@ -1471,7 +1471,7 @@ ALL_TYPES = [
 # Returns: code BLOCK (no imports, no module code) — same shape AI returns.
 # ─────────────────────────────────────────────────────────────────────────────
 
-_NAV = 'wait_until="domcontentloaded", timeout=15000'
+_NAV = 'wait_until="domcontentloaded", timeout=30000'
 
 
 def _fb_smoke(spec: ParsedSpec) -> str:
