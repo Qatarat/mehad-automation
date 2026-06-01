@@ -383,209 +383,356 @@ def _build_index_html(summary: dict, history: list[tuple[int, Path]]) -> str:
     history_html = _history_table(history, ts_map)
     trend_html   = _trend_chart_html(trends)
 
+    pass_rate_f = 0.0
+    try:
+        pass_rate_f = float(str(rate).rstrip("%")) if rate and rate != "—" else 0.0
+    except (ValueError, TypeError):
+        pass
+    ring_r = 18
+    circ = round(2 * 3.14159 * ring_r, 1)
+    ring_offset = round(circ * (1 - pass_rate_f / 100), 2)
+    ring_color = ("oklch(0.85 0.14 155)" if pass_rate_f >= 80
+                  else "oklch(0.92 0.14 85)" if pass_rate_f >= 50
+                  else "oklch(0.85 0.18 25)")
+
     return f"""<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <title>Mehad QA — Run #{RUN_NUMBER}</title>
-<link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48dGV4dCB5PSIuOWVtIiBmb250LXNpemU9IjkwIj7wn6SWPC90ZXh0Pjwvc3ZnPg=="/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
 <style>
-  * {{ box-sizing:border-box }}
-  body {{
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
-    background:#0d1117; color:#e6edf3; margin:0; padding:0; line-height:1.5;
-  }}
-  .hero {{
-    background:linear-gradient(135deg,#1f6feb 0%,#7c3aed 100%);
-    padding:48px 32px; border-bottom:1px solid #30363d;
-  }}
-  .hero-inner {{ max-width:1100px; margin:0 auto }}
-  .hero h1 {{ margin:0 0 8px; font-size:32px; font-weight:700; letter-spacing:-.5px }}
-  .hero .sub {{ color:#cdd9e5; font-size:15px; margin-top:6px }}
-  .hero .meta {{ color:rgba(255,255,255,.85); font-size:13px; margin-top:18px;
-                 display:flex; flex-wrap:wrap; gap:18px }}
-  .hero .meta a {{ color:#fff; text-decoration:underline }}
-  .wrap {{ max-width:1100px; margin:0 auto; padding:32px }}
-  .stats {{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-    gap:14px; margin-bottom:36px;
-  }}
-  .stat {{
-    background:#161b22; border:1px solid #30363d; border-radius:8px;
-    padding:18px 20px; position:relative;
-    /* clickable card (when rendered as <a>) */
-    text-decoration:none; color:inherit; display:block; cursor:pointer;
-    transition:transform .12s, border-color .12s, background .12s, box-shadow .12s;
-  }}
-  a.stat:hover {{ border-color:#58a6ff; background:#1c2333;
-                  transform:translateY(-2px);
-                  box-shadow:0 4px 16px rgba(88,166,255,.12) }}
-  a.stat::after {{
-    content:"→"; position:absolute; right:14px; top:14px;
-    color:#58a6ff; font-size:14px; font-weight:700;
-    opacity:0; transition:opacity .15s, transform .15s;
-  }}
-  a.stat:hover::after {{ opacity:1; transform:translateX(2px) }}
-  .stat .lbl {{ font-size:11px; text-transform:uppercase; letter-spacing:.6px;
-              color:#8b949e; font-weight:600 }}
-  .stat .val {{ font-size:30px; font-weight:700; margin-top:4px }}
-  .stat.pass .val {{ color:#3fb950 }}
-  .stat.fail .val {{ color:#f85149 }}
-  .stat.warn .val {{ color:#d29922 }}
-  .stat.ok .val   {{ color:#3fb950 }}
-  .stat.total .val{{ color:#58a6ff }}
-  h2 {{ font-size:18px; margin:32px 0 16px; padding-bottom:10px;
-        border-bottom:1px solid #30363d }}
-  .primary-cta {{
-    display:block; padding:24px 30px; background:#1f6feb;
-    border-radius:10px; color:#fff; text-decoration:none; font-size:16px;
-    font-weight:600; margin-bottom:36px; transition:background .15s;
-  }}
-  .primary-cta:hover {{ background:#388bfd }}
-  .primary-cta .cta-sub {{ font-size:12px; font-weight:400; opacity:.9;
-                          margin-top:4px }}
-  .agent-grid {{
-    display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-    gap:14px;
-  }}
-  .agent-card {{
-    background:#161b22; border:1px solid #30363d; border-radius:8px;
-    padding:20px; text-decoration:none; color:#e6edf3; display:block;
-    transition:transform .12s,border-color .12s,background .12s;
-  }}
-  .agent-card:hover {{ border-color:#58a6ff; background:#1c2333; transform:translateY(-2px) }}
-  .agent-card.disabled {{ opacity:.55; cursor:not-allowed }}
-  .agent-card .emoji {{ font-size:28px; margin-bottom:8px }}
-  .agent-card .lbl   {{ font-weight:600; font-size:14px; margin-bottom:4px }}
-  .agent-card .cta   {{ font-size:12px; color:#58a6ff }}
-  .agent-card .cta.muted {{ color:#8b949e }}
-  .history-table {{
-    width:100%; border-collapse:collapse; background:#161b22;
-    border-radius:8px; overflow:hidden;
-  }}
-  .history-table th, .history-table td {{
-    padding:11px 18px; text-align:left; border-bottom:1px solid #30363d;
-    font-size:13px;
-  }}
-  .history-table th {{ background:#0d1117; font-size:11px;
-                       text-transform:uppercase; letter-spacing:.5px;
-                       color:#8b949e }}
-  .history-table tr:last-child td {{ border-bottom:none }}
-  .history-table tr:hover td {{ background:#1c2333 }}
-  .history-table a {{ color:#58a6ff; text-decoration:none }}
-  .history-table a:hover {{ text-decoration:underline }}
-  .footer {{ margin-top:44px; padding:24px 20px; text-align:center;
-             color:#8b949e; font-size:12px; border-top:1px solid #30363d }}
-  .footer .contact-card {{
-    display:inline-flex; flex-direction:column; align-items:center;
-    gap:6px; padding:18px 28px; margin:14px auto 0;
-    background:#161b22; border:1px solid #30363d; border-radius:10px;
-  }}
-  .footer .contact-card .name  {{ font-weight:700; font-size:15px; color:#e6edf3 }}
-  .footer .contact-card .title {{ font-size:12px; color:#8b949e }}
-  .footer .contact-card .links a {{
-    display:inline-block; color:#58a6ff; text-decoration:none;
-    font-size:12px; padding:5px 14px; margin-top:8px;
-    border:1px solid #30363d; border-radius:6px; background:#0d1117;
-    transition:background .15s, border-color .15s;
-  }}
-  .footer .contact-card .links a:hover {{
-    background:#1c2333; border-color:#58a6ff;
-  }}
+:root{{
+  --bg-0:#07080b;--bg-1:#0c0e13;--bg-2:#11141b;--bg-3:#181c26;
+  --ink-0:#f6f7fa;--ink-1:#cdd1de;--ink-2:#9aa0b4;--ink-3:#626880;--ink-4:#3a4154;
+  --accent:oklch(0.85 0.18 95);
+  --ok:oklch(0.78 0.16 155);--bad:oklch(0.72 0.20 25);--warn:oklch(0.82 0.14 70);
+  --font:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Instrument Serif',Georgia,serif;
+}}
+*,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
+html{{scroll-behavior:smooth;overflow-x:clip}}
+body{{
+  background:var(--bg-0);color:var(--ink-1);font-family:var(--font);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(ellipse 900px 460px at 14% -10%,oklch(0.85 0.18 95 / 0.06),transparent 60%),
+    radial-gradient(ellipse 700px 500px at 92% 6%,oklch(0.72 0.18 295 / 0.06),transparent 65%);
+  background-attachment:fixed;
+}}
+a{{color:var(--accent);text-decoration:none}}
+a:hover{{text-decoration:underline}}
 
-  /* Responsive — tablet + mobile breakpoints */
-  @media (max-width:768px) {{
-    .hero {{ padding:30px 18px }}
-    .hero h1 {{ font-size:24px }}
-    .hero .meta {{ flex-direction:column; gap:8px; font-size:12px }}
-    .wrap {{ padding:18px 14px }}
-    .stats {{ grid-template-columns:repeat(2,1fr); gap:8px }}
-    .stat {{ padding:14px }}
-    .stat .val {{ font-size:22px }}
-    h2 {{ font-size:16px }}
-    .agent-grid {{ grid-template-columns:1fr; gap:10px }}
-    .agent-card {{ padding:14px }}
-    .primary-cta {{ padding:16px 18px; font-size:14px }}
-    .trend-summary {{ grid-template-columns:repeat(2,1fr); gap:10px }}
-    .trend-value {{ font-size:18px }}
-    .history-table th, .history-table td {{ padding:8px 12px; font-size:11px }}
-  }}
-  @media (max-width:480px) {{
-    .stats {{ grid-template-columns:1fr; gap:6px }}
-    .hero h1 {{ font-size:20px }}
-    .footer .contact-card {{ padding:14px 18px }}
-  }}
-  /* Trend chart */
-  .trend-card {{ background:#161b22; border:1px solid #30363d; border-radius:8px;
-                padding:18px 22px; margin:24px 0 }}
-  .trend-summary {{ display:grid;
-                   grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
-                   gap:16px; margin-bottom:14px }}
-  .trend-label {{ font-size:11px; color:#8b949e; text-transform:uppercase;
-                 letter-spacing:.5px }}
-  .trend-value {{ font-size:24px; font-weight:700; margin-top:2px }}
-  .trend-svg   {{ width:100%; height:120px; display:block }}
-  .trend-alerts{{ margin-top:14px; padding:12px 16px;
-                 background:#2d1b1b; border-left:3px solid #f85149;
-                 border-radius:6px }}
-  .trend-alerts-title {{ font-weight:700; color:#f85149; margin-bottom:6px;
-                        font-size:13px }}
-  .trend-alerts ul {{ margin:0; padding-left:18px; color:#e6edf3; font-size:12px }}
-  .trend-alerts li {{ margin:3px 0 }}
+/* ── Nav ── */
+.nav{{
+  position:sticky;top:0;z-index:100;
+  background:rgba(7,8,11,0.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--ink-4);
+  padding:0 28px;display:flex;align-items:center;gap:16px;height:52px;
+}}
+.mark{{
+  width:28px;height:28px;border-radius:7px;flex-shrink:0;
+  background:conic-gradient(from 135deg,oklch(0.85 0.18 95),oklch(0.78 0.16 155),oklch(0.72 0.20 25),oklch(0.85 0.18 95));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:12px;color:#07080b;font-family:var(--mono);
+}}
+.nav-title{{font-size:14px;font-weight:600;color:var(--ink-0);flex:1}}
+.nav-sub{{font-family:var(--mono);font-size:11px;color:var(--ink-3)}}
+.btn{{
+  border:1px solid var(--ink-4);background:var(--bg-2);color:var(--ink-1);
+  padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;
+  font-family:var(--font);transition:background .15s;text-decoration:none;
+  display:inline-flex;align-items:center;gap:6px;
+}}
+.btn:hover{{background:var(--bg-3);border-color:var(--ink-2);text-decoration:none}}
+.btn.primary{{background:var(--accent);color:var(--bg-0);border-color:var(--accent);font-weight:600}}
+.btn.primary:hover{{background:oklch(0.9 0.18 95)}}
+
+/* ── Wrap ── */
+.wrap{{max-width:1200px;margin:0 auto;padding:32px 28px 80px}}
+
+/* ── Run header ── */
+.run-header{{
+  display:grid;grid-template-columns:1fr auto;gap:32px;
+  padding-bottom:28px;border-bottom:1px solid var(--ink-4);margin-bottom:28px;
+  align-items:start;
+}}
+.pill{{
+  display:inline-flex;align-items:center;gap:6px;padding:3px 10px;
+  border-radius:999px;font-family:var(--mono);font-size:11px;font-weight:500;
+  border:1px solid var(--ink-4);background:var(--bg-2);color:var(--ink-1);
+}}
+.pill.run{{background:var(--accent);color:var(--bg-0);border-color:var(--accent);font-weight:700}}
+.pill.ok{{background:oklch(0.78 0.16 155 / .15);border-color:oklch(0.78 0.16 155 / .4);color:oklch(0.85 0.14 155)}}
+.pill.fail{{background:oklch(0.72 0.20 25 / .15);border-color:oklch(0.72 0.20 25 / .4);color:oklch(0.85 0.18 25)}}
+.badge-row{{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}}
+.run-header h1{{
+  font-family:var(--serif);font-style:italic;font-size:34px;font-weight:400;
+  letter-spacing:-.02em;line-height:1.2;color:var(--ink-0);margin:0;
+}}
+.run-meta{{
+  display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;
+  font-family:var(--mono);font-size:12px;color:var(--ink-3);
+}}
+.run-meta a{{color:var(--ink-2)}}
+.stamp{{
+  border:1.5px solid oklch(0.72 0.20 25 / .6);border-radius:14px;
+  padding:16px 20px;min-width:190px;text-align:right;
+  background:linear-gradient(180deg,oklch(0.72 0.20 25 / .14),oklch(0.72 0.20 25 / .04));
+  position:relative;overflow:hidden;
+}}
+.stamp.pass-stamp{{
+  border-color:oklch(0.78 0.16 155 / .6);
+  background:linear-gradient(180deg,oklch(0.78 0.16 155 / .14),oklch(0.78 0.16 155 / .04));
+}}
+.stamp .k{{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:oklch(0.85 0.16 25);font-weight:600}}
+.stamp.pass-stamp .k{{color:oklch(0.85 0.14 155)}}
+.stamp .v{{font-family:var(--serif);font-style:italic;font-size:36px;line-height:1.1;color:oklch(0.88 0.18 25);margin-top:4px}}
+.stamp.pass-stamp .v{{color:oklch(0.85 0.14 155)}}
+.stamp .sub{{font-size:12px;color:var(--ink-2);margin-top:4px;font-family:var(--mono)}}
+
+/* ── Stats row ── */
+.stats{{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;margin-bottom:28px;
+}}
+.stat{{
+  background:var(--bg-1);border:1px solid var(--ink-4);border-radius:12px;
+  padding:18px 16px;position:relative;
+  text-decoration:none;color:inherit;display:block;
+  transition:transform .12s,border-color .12s,background .12s;
+}}
+a.stat:hover{{border-color:var(--accent);background:var(--bg-2);transform:translateY(-2px)}}
+.stat .lbl{{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:8px}}
+.stat .val{{font-family:var(--serif);font-style:italic;font-size:34px;font-weight:400;line-height:1;color:var(--ink-0)}}
+.stat.pass .val{{color:oklch(0.85 0.14 155)}}
+.stat.fail .val{{color:oklch(0.85 0.18 25)}}
+.stat.warn .val{{color:oklch(0.92 0.14 85)}}
+.stat.ok .val{{color:oklch(0.85 0.14 155)}}
+.stat.total .val{{color:var(--accent)}}
+
+/* ── CTA ── */
+.primary-cta{{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px;background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:14px;color:var(--ink-0);text-decoration:none;font-size:15px;
+  font-weight:600;margin-bottom:28px;transition:background .15s,border-color .15s;
+  gap:16px;
+}}
+.primary-cta:hover{{background:var(--bg-2);border-color:var(--accent);text-decoration:none}}
+.primary-cta .cta-label{{display:flex;align-items:center;gap:12px}}
+.primary-cta .cta-sub{{font-size:12px;font-weight:400;color:var(--ink-2);margin-top:3px}}
+.primary-cta .cta-arrow{{font-size:20px;color:var(--accent);flex-shrink:0}}
+
+/* ── Section headers ── */
+.sec-h{{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;margin:32px 0 14px;
+  display:flex;align-items:center;gap:12px;
+}}
+.sec-h::after{{content:"";flex:1;height:1px;background:var(--ink-4)}}
+
+/* ── Ring ── */
+.ring-wrap{{
+  background:var(--bg-1);border:1px solid var(--ink-4);border-radius:14px;
+  padding:20px 24px;margin-bottom:28px;
+  display:flex;align-items:center;gap:20px;
+}}
+.ring{{flex-shrink:0}}
+.ring-info .big{{font-family:var(--serif);font-style:italic;font-size:20px;color:var(--ink-0);letter-spacing:-.01em}}
+.ring-info .sm{{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:4px}}
+
+/* ── Agent grid ── */
+.agent-grid{{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;
+}}
+.agent-card{{
+  background:var(--bg-1);border:1px solid var(--ink-4);border-radius:12px;
+  padding:18px;text-decoration:none;color:var(--ink-1);display:block;
+  transition:transform .12s,border-color .12s,background .12s;
+}}
+.agent-card:hover{{border-color:var(--accent);background:var(--bg-2);transform:translateY(-2px);text-decoration:none}}
+.agent-card.disabled{{opacity:.45;cursor:not-allowed}}
+.agent-card .emoji{{font-size:26px;margin-bottom:8px}}
+.agent-card .lbl{{font-weight:600;font-size:13.5px;color:var(--ink-0);margin-bottom:4px}}
+.agent-card .cta{{font-family:var(--mono);font-size:11px;color:var(--accent)}}
+.agent-card .cta.muted{{color:var(--ink-4)}}
+
+/* ── Trend card ── */
+.trend-card{{background:var(--bg-1);border:1px solid var(--ink-4);border-radius:12px;padding:18px 22px;margin:0 0 28px}}
+.trend-summary{{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px;margin-bottom:14px}}
+.trend-label{{font-family:var(--mono);font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em}}
+.trend-value{{font-family:var(--serif);font-style:italic;font-size:26px;font-weight:400;color:var(--ink-0);margin-top:2px}}
+.trend-svg{{width:100%;height:120px;display:block}}
+.trend-alerts{{margin-top:14px;padding:12px 16px;background:oklch(0.72 0.20 25 / .12);border-left:3px solid oklch(0.85 0.18 25);border-radius:6px}}
+.trend-alerts-title{{font-weight:700;color:oklch(0.85 0.18 25);margin-bottom:6px;font-size:13px}}
+.trend-alerts ul{{margin:0;padding-left:18px;color:var(--ink-1);font-size:12px}}
+.trend-alerts li{{margin:3px 0}}
+
+/* ── History table ── */
+.history-table{{width:100%;border-collapse:collapse;background:var(--bg-1);border:1px solid var(--ink-4);border-radius:12px;overflow:hidden}}
+.history-table th,.history-table td{{padding:11px 18px;text-align:left;border-bottom:1px solid var(--ink-4);font-size:13px}}
+.history-table th{{background:var(--bg-2);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)}}
+.history-table tr:last-child td{{border-bottom:none}}
+.history-table tr:hover td{{background:var(--bg-2)}}
+.history-table a{{color:var(--accent)}}
+
+/* ── Footer ── */
+.brand-foot{{
+  margin-top:56px;padding-top:32px;border-top:1px solid var(--ink-4);
+  display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px;
+  color:var(--ink-2);font-size:12.5px;
+}}
+.brand-foot h5{{margin:0 0 12px;color:var(--ink-3);font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;font-weight:500}}
+.brand-foot .who b{{color:var(--ink-0);font-weight:600;display:block;font-size:15px}}
+.brand-foot .who span{{display:block;margin-top:2px}}
+.brand-foot .who p{{margin:12px 0 0;color:var(--ink-3);max-width:44ch;font-size:12px;line-height:1.6}}
+.brand-foot .links{{display:flex;flex-direction:column;gap:10px}}
+.brand-foot .links a{{color:var(--ink-2);transition:120ms ease}}
+.brand-foot .links a:hover{{color:var(--ink-0)}}
+
+/* ── Responsive ── */
+@media (max-width:900px){{
+  .brand-foot{{grid-template-columns:1fr 1fr;gap:32px}}
+  .run-header{{grid-template-columns:1fr}}
+  .stamp{{justify-self:start;min-width:0;width:100%;text-align:left}}
+}}
+@media (max-width:680px){{
+  .wrap{{padding:18px 14px 60px}}
+  .nav{{padding:0 14px}}
+  .stats{{grid-template-columns:repeat(2,1fr);gap:8px}}
+  .stat .val{{font-size:26px}}
+  .run-header h1{{font-size:26px}}
+  .agent-grid{{grid-template-columns:1fr}}
+  .brand-foot{{grid-template-columns:1fr;gap:24px;margin-top:40px}}
+  .primary-cta{{flex-direction:column;gap:8px}}
+  .trend-summary{{grid-template-columns:repeat(2,1fr)}}
+}}
+@media (max-width:420px){{
+  .stats{{grid-template-columns:1fr}}
+  .history-table th,.history-table td{{padding:8px 12px;font-size:11px}}
+}}
 </style>
 </head>
 <body>
 
-<div class="hero">
-  <div class="hero-inner">
-    <h1>🤖 Mehad Autonomous QA Report</h1>
-    <div class="sub">{len(AGENT_REPORTS)} AI agents · {t or '—'} tests · auto-generated bug tickets · zero API cost</div>
-    <div class="meta">
-      <span><b>Run:</b> #{RUN_NUMBER}</span>
-      <span><b>Commit:</b> <a href="https://github.com/{os.getenv('GITHUB_REPOSITORY','')}/commit/{os.getenv('GITHUB_SHA','')}">{COMMIT_SHA}</a></span>
-      <span><b>Target:</b> {base_url or '—'}</span>
-      <span><b>Generated:</b> {when_short}</span>
-      <span><a href="{RUN_URL}">View CI run on GitHub →</a></span>
-    </div>
-  </div>
-</div>
+<!-- Nav -->
+<nav class="nav">
+  <div class="mark">M</div>
+  <div class="nav-title">Mehad QA</div>
+  <span class="nav-sub">Run #{RUN_NUMBER} · {when_short or 'latest'}</span>
+  <a class="btn primary" href="report.html">Full Report →</a>
+</nav>
 
 <div class="wrap">
 
-  <div class="stats">{stats_html}</div>
-
-  <a class="primary-cta" href="report.html">
-    📊 View the full master bug report →
-    <div class="cta-sub">Every test, every bug, with screenshots and friendly explanations</div>
-  </a>
-
-  {trend_html}
-
-  <h2>📂 Per-Agent Reports</h2>
-  <p style="color:#8b949e;font-size:13px;margin:0 0 16px">
-    Each QA agent produces its own pytest-html report. Click a card to see
-    just that agent's results.
-  </p>
-  <div class="agent-grid">{agent_grid}</div>
-
-  <h2>🕐 History</h2>
-  <p style="color:#8b949e;font-size:13px;margin:0 0 16px">
-    Past runs are archived — click to compare against earlier baselines.
-  </p>
-  {history_html}
-
-  <div class="footer">
-    <div style="margin-bottom:6px">Built by Mejbaur Bahar Fagun</div>
-    <div class="contact-card">
-      <div class="name">Mejbaur Bahar Fagun</div>
-      <div class="title">Senior Software Engineer QA (IV) · Markopolo.ai</div>
-      <div class="links"><a href="https://www.linkedin.com/in/mejbaur/" target="_blank" rel="noopener">💼 LinkedIn</a></div>
+<!-- Run header -->
+<div class="run-header">
+  <div>
+    <div class="badge-row">
+      <span class="pill run">Run #{RUN_NUMBER}</span>
+      <span class="pill {'ok' if pass_rate_f >= 80 else 'fail'}">{'Ready' if pass_rate_f >= 95 else 'Review' if f == 0 else 'Needs attention'}</span>
+    </div>
+    <h1>{'All tests passing' if f == 0 and t > 0 else (str(rate) + ' pass rate') if t > 0 else 'Mehad Autonomous QA'}</h1>
+    <div class="run-meta">
+      <span>Target: <a href="{base_url}" target="_blank" rel="noopener">{base_url or '—'}</a></span>
+      <span>Commit: <a href="https://github.com/{os.getenv('GITHUB_REPOSITORY','')}/commit/{os.getenv('GITHUB_SHA','')}">{COMMIT_SHA or '—'}</a></span>
+      <span>Generated: {when_short or '—'}</span>
+      <span><a href="{RUN_URL}">CI run ↗</a></span>
     </div>
   </div>
-
+  <div class="stamp {'pass-stamp' if pass_rate_f >= 80 else ''}">
+    <div class="k">QA Verdict</div>
+    <div class="v">{'Ready' if f == 0 and t > 0 else 'Review' if pass_rate_f >= 80 else 'No-Go'}</div>
+    <div class="sub">{rate} pass rate · {bugs} bug(s)</div>
+  </div>
 </div>
 
+<!-- Stats -->
+<div class="stats">{stats_html}</div>
+
+<!-- Ring + CTA -->
+<div class="ring-wrap">
+  <div class="ring">
+    <svg width="80" height="80" viewBox="0 0 44 44">
+      <circle cx="22" cy="22" r="{ring_r}" fill="none" stroke="var(--bg-3)" stroke-width="5"/>
+      <circle cx="22" cy="22" r="{ring_r}" fill="none" stroke="{ring_color}" stroke-width="5"
+        stroke-dasharray="{circ}" stroke-dashoffset="{ring_offset}"
+        stroke-linecap="round" transform="rotate(-90 22 22)"/>
+      <text x="22" y="25" text-anchor="middle" font-size="8" font-weight="700"
+        fill="{ring_color}" font-family="'JetBrains Mono',monospace">{rate}</text>
+    </svg>
+  </div>
+  <div class="ring-info">
+    <div class="big">{p} / {t} tests passed</div>
+    <div class="sm">{f} failure(s) · {bugs} bug ticket(s) · {len(sources)} source(s)</div>
+  </div>
+  <a class="btn primary" href="report.html" style="margin-left:auto">View full report →</a>
+</div>
+
+<a class="primary-cta" href="report.html">
+  <div class="cta-label">
+    <span style="font-size:22px">📊</span>
+    <div>
+      Full bug report
+      <div class="cta-sub">Every test · every bug · screenshots · friendly explanations</div>
+    </div>
+  </div>
+  <span class="cta-arrow">→</span>
+</a>
+
+{trend_html}
+
+<div class="sec-h">Per-Agent Reports</div>
+<p style="color:var(--ink-3);font-family:var(--mono);font-size:12px;margin:0 0 16px">
+  {len(AGENT_REPORTS)} specialised AI agents · click any card to see that agent's results
+</p>
+<div class="agent-grid">{agent_grid}</div>
+
+<div class="sec-h">History</div>
+<p style="color:var(--ink-3);font-family:var(--mono);font-size:12px;margin:0 0 14px">
+  Past runs are archived — compare against earlier baselines
+</p>
+{history_html}
+
+<!-- Footer -->
+<footer class="brand-foot">
+  <div class="who">
+    <h5>Built by</h5>
+    <b>Mejbaur Bahar Fagun</b>
+    <span style="color:var(--ink-1)">Senior Software Engineer QA (IV) · Markopolo.ai</span>
+    <p>Mehad Autonomous QA Platform · {len(AGENT_REPORTS)} specialised agents · AI-driven intent-based testing · Playwright + local LLM inference.</p>
+  </div>
+  <div>
+    <h5>Report</h5>
+    <div class="links">
+      <a href="report.html">Full bug report</a>
+      <a href="report.html#bugs">Bug tickets</a>
+      <a href="report.html#tests">All tests</a>
+    </div>
+  </div>
+  <div>
+    <h5>Run #{RUN_NUMBER}</h5>
+    <div class="links">
+      <a href="{RUN_URL}" target="_blank" rel="noreferrer">CI run ↗</a>
+      <a href="history/index.html">All history</a>
+      {f'<a href="{base_url}" target="_blank" rel="noreferrer">Target app ↗</a>' if base_url else ''}
+    </div>
+  </div>
+  <div>
+    <h5>Connect</h5>
+    <div class="links">
+      <a href="https://www.linkedin.com/in/mejbaur/" target="_blank" rel="noreferrer">LinkedIn ↗</a>
+      <a href="mailto:mejbaur@markopolo.ai">Email ↗</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /wrap -->
 </body></html>"""
 
 

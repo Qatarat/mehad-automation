@@ -1,16 +1,30 @@
 """
-Generates a fully self-contained HTML bug report.
-All screenshots are embedded as base64 — one file, ready to email to the dev team.
+Generates a fully self-contained HTML QA report (Commit Report design).
+All screenshots are embedded as base64 — one file, ready to share.
 """
 
-import ast, json, re
+import ast, json, os, re
 from pathlib import Path
 from datetime import datetime
 
 REPORTS_DIR = Path("reports")
 
 # ─────────────────────────────────────────────────────────────────────────────
-# HTML skeleton
+# HTML escape helper (defined first so _PAGE builder functions can use it)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _esc(s) -> str:
+    if not s:
+        return ""
+    s = str(s)
+    return (s.replace("&", "&amp;")
+             .replace("<", "&lt;")
+             .replace(">", "&gt;")
+             .replace('"', "&quot;"))
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HTML skeleton  — ALL CSS braces must be {{ }} except Python placeholders
 # ─────────────────────────────────────────────────────────────────────────────
 
 _PAGE = """<!DOCTYPE html>
@@ -18,883 +32,1077 @@ _PAGE = """<!DOCTYPE html>
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA Bug Report — {run_date}</title>
+<title>Mehad QA — Run #{run_num} · {run_date}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
 <style>
-/* ── Reset & base ── */
-*,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
+/* ── Design tokens ── */
 :root{{
-  --bg:#0d1117;--surface:#161b22;--border:#30363d;--text:#e6edf3;
-  --muted:#8b949e;--c-critical:#f85149;--c-high:#f0883e;
-  --c-medium:#e3b341;--c-low:#58a6ff;--c-pass:#3fb950;
-  --c-critical-bg:#3d0e0e;--c-high-bg:#3d1e0e;
-  --c-medium-bg:#3d2e0e;--c-low-bg:#0e1e3d;
-  --c-pass-bg:#0e2d1a;--radius:10px;--font:'Inter',system-ui,sans-serif
+  --bg-0:#07080b;
+  --bg-1:#0c0e13;
+  --bg-2:#11141b;
+  --bg-3:#181c26;
+  --ink-0:#f6f7fa;
+  --ink-1:#cdd1de;
+  --ink-2:#9aa0b4;
+  --ink-3:#626880;
+  --ink-4:#3a4154;
+  --accent:oklch(0.85 0.18 95);
+  --ok:oklch(0.78 0.16 155);
+  --bad:oklch(0.72 0.20 25);
+  --warn:oklch(0.82 0.14 70);
+  --accent-dim:oklch(0.85 0.18 95 / 0.15);
+  --ok-dim:oklch(0.78 0.16 155 / 0.15);
+  --bad-dim:oklch(0.72 0.20 25 / 0.15);
+  --warn-dim:oklch(0.82 0.14 70 / 0.15);
+  --radius:10px;
+  --font:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Instrument Serif',Georgia,serif;
 }}
+
+/* ── Reset ── */
+*,*::before,*::after{{box-sizing:border-box;margin:0;padding:0}}
 html{{scroll-behavior:smooth}}
-body{{background:var(--bg);color:var(--text);font-family:var(--font);
-     font-size:14px;line-height:1.6;padding:0}}
-a{{color:var(--c-low);text-decoration:none}}
+body{{background:var(--bg-0);color:var(--ink-1);font-family:var(--font);font-size:14px;line-height:1.6}}
+a{{color:var(--accent);text-decoration:none}}
 a:hover{{text-decoration:underline}}
-code,pre{{font-family:'JetBrains Mono','Fira Code',monospace;font-size:12px}}
-pre{{background:#0d1117;border:1px solid var(--border);border-radius:6px;
-    padding:12px;overflow-x:auto;white-space:pre-wrap;word-break:break-word}}
+code,pre{{font-family:var(--mono);font-size:12px}}
+pre{{background:var(--bg-1);border:1px solid var(--ink-4);border-radius:6px;
+     padding:12px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--ink-1)}}
 
-/* ── Layout ── */
-.wrap{{max-width:1100px;margin:0 auto;padding:24px 20px}}
-
-/* ── Header ── */
-.hdr{{background:linear-gradient(135deg,#1c2333 0%,#161b22 100%);
-     border-bottom:1px solid var(--border);padding:28px 0;margin-bottom:32px}}
-.hdr-inner{{max-width:1100px;margin:0 auto;padding:0 20px;
-           display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}}
-.hdr-left h1{{font-size:22px;font-weight:700;letter-spacing:-0.3px}}
-.hdr-left h1 span{{color:var(--c-critical);}}
-.hdr-meta{{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted);text-align:right}}
-.hdr-meta b{{color:var(--text)}}
-.print-btn{{background:#21262d;border:1px solid var(--border);color:var(--text);
-           padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;
-           transition:background .15s}}
-.print-btn:hover{{background:#30363d}}
-
-/* ── Stats bar ── */
-.stats{{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;
-       margin-bottom:36px}}
-.stat{{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-      padding:18px 16px;
-      /* clickable stat cards */
-      text-decoration:none;color:inherit;display:block;cursor:pointer;
-      transition:transform .12s,border-color .12s,background .12s,box-shadow .12s}}
-.stat:hover{{border-color:#58a6ff;background:#1c2333;
-            transform:translateY(-2px);box-shadow:0 4px 16px rgba(88,166,255,.12)}}
-.stat::after{{content:"→";position:absolute;opacity:0;transition:opacity .15s,transform .15s;
-             right:14px;top:14px;color:#58a6ff;font-size:14px;font-weight:700}}
-.stat{{position:relative}}
-.stat:hover::after{{opacity:1;transform:translateX(2px)}}
-.stat .label{{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px}}
-.stat .val{{font-size:34px;font-weight:700;line-height:1}}
-.stat.critical .val{{color:var(--c-critical)}}
-.stat.high     .val{{color:var(--c-high)}}
-.stat.medium   .val{{color:var(--c-medium)}}
-.stat.low      .val{{color:var(--c-low)}}
-.stat.pass     .val{{color:var(--c-pass)}}
-.stat.fail     .val{{color:var(--c-critical)}}
-.stat.total    .val{{color:#a371f7}}
-
-/* ── Filter bar (used above bug list and test list) ── */
-.filter-bar{{display:flex;gap:8px;align-items:center;flex-wrap:wrap;
-            background:var(--surface);border:1px solid var(--border);
-            border-radius:var(--radius);padding:10px 14px;margin-bottom:14px}}
-.filter-lbl{{font-size:11px;text-transform:uppercase;letter-spacing:.6px;
-            color:var(--muted);font-weight:600;margin-right:6px}}
-.fbtn{{background:#0d1117;color:var(--muted);border:1px solid var(--border);
-      border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;
-      cursor:pointer;transition:background .12s,border-color .12s,color .12s}}
-.fbtn:hover{{background:#1c2333;color:var(--text);border-color:#58a6ff}}
-.fbtn.active{{background:#1f6feb;color:#fff;border-color:#1f6feb}}
-.fbtn-pass.active{{background:var(--c-pass);border-color:var(--c-pass)}}
-.fbtn-fail.active{{background:var(--c-critical);border-color:var(--c-critical)}}
-.fbtn-critical.active{{background:var(--c-critical);border-color:var(--c-critical)}}
-.fbtn-high.active{{background:var(--c-high);border-color:var(--c-high)}}
-.fbtn-medium.active{{background:var(--c-medium);border-color:var(--c-medium);color:#000}}
-.fbtn-low.active{{background:var(--c-low);border-color:var(--c-low);color:#000}}
-.fbtn-search{{flex:1;min-width:180px;background:#0d1117;color:var(--text);
-             border:1px solid var(--border);border-radius:6px;padding:6px 12px;
-             font-size:12px;font-family:inherit;outline:none}}
-.fbtn-search:focus{{border-color:#58a6ff}}
-.fbtn-action{{background:#0d1117;color:var(--c-low);border:1px solid var(--border);
-             border-radius:6px;padding:6px 10px;font-size:11px;font-weight:600;
-             cursor:pointer;transition:background .12s,color .12s}}
-.fbtn-action:hover{{background:#1c2333;color:var(--text)}}
-
-/* When filter is active, hide non-matching items via attribute selectors */
-.bug-card[data-hidden="1"]{{display:none}}
-.spec-blk[data-hidden="1"]{{display:none}}
-.trow[data-hidden="1"]{{display:none}}
-
-/* ── Root-cause cluster summary banner ──────────────────────────────────── */
-.cluster-summary{{margin:24px 0 16px}}
-.cluster-headline{{font-size:14px;color:var(--muted);margin-bottom:14px}}
-.cluster-headline strong{{color:#a371f7}}
-.cluster-list{{display:flex;flex-direction:column;gap:8px}}
-.cluster-row{{background:var(--surface);border:1px solid var(--border);
-             border-radius:8px;padding:14px 18px;
-             display:grid;grid-template-columns:auto 1fr auto;
-             gap:14px;align-items:center}}
-.cluster-row:hover{{border-color:#58a6ff}}
-.cluster-meta{{display:flex;gap:6px;align-items:center;flex-wrap:wrap}}
-.cluster-count{{font-size:11px;color:var(--muted);background:#0d1117;
-               border:1px solid var(--border);border-radius:4px;
-               padding:3px 8px;font-weight:600}}
-.cluster-title{{font-size:13px;color:var(--text);font-weight:600}}
-.cluster-tickets{{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;
-                 max-width:300px}}
-.cluster-bug-link{{font-size:10px;font-family:'SF Mono',monospace;color:#58a6ff;
-                  text-decoration:none;background:#0d1117;border:1px solid var(--border);
-                  padding:2px 6px;border-radius:4px}}
-.cluster-bug-link:hover{{border-color:#58a6ff;background:#1c2333}}
-.recurrence-badge{{background:#2d1b1b;color:#f85149;border:1px solid #f85149;
-                  border-radius:4px;padding:2px 8px;font-size:10px;
-                  font-weight:700;text-transform:uppercase;letter-spacing:.4px}}
-.cluster-help{{font-size:11px;color:var(--muted);margin-top:12px;
-              padding:8px 12px;background:#0d1117;border-radius:6px;
-              border-left:3px solid #a371f7}}
-
-/* ── Cross-spec inconsistency section ──────────────────────────────────── */
-.ci-summary{{margin:24px 0 16px}}
-.ci-headline{{font-size:13px;color:var(--muted);margin-bottom:14px}}
-.ci-headline strong{{color:var(--c-medium)}}
-.ci-list{{display:flex;flex-direction:column;gap:10px}}
-.ci-row{{background:var(--surface);border:1px solid var(--border);
-        border-radius:8px;padding:12px 16px}}
-.ci-cat{{font-weight:600;color:var(--text);font-size:13px;margin-bottom:8px}}
-.ci-table{{width:100%;border-collapse:collapse;font-size:12px}}
-.ci-table th{{background:#0d1117;color:var(--muted);font-size:10px;
-             text-transform:uppercase;letter-spacing:.5px;
-             padding:6px 12px;text-align:left;border:1px solid var(--border)}}
-.ci-table td{{padding:6px 12px;border:1px solid var(--border)}}
-.ci-value code{{color:var(--c-medium);font-weight:600}}
-.ci-spec-chip{{display:inline-block;font-size:10px;font-family:'SF Mono',monospace;
-              background:#0d1117;color:#a371f7;border:1px solid var(--border);
-              border-radius:4px;padding:2px 6px;margin:2px 3px}}
-
-/* ── Test quality audit section ─────────────────────────────────────────── */
-.tq-summary{{margin:24px 0 16px}}
-.tq-headline{{font-size:13px;color:var(--muted);margin-bottom:14px}}
-.tq-headline strong{{color:var(--c-medium)}}
-.tq-table{{width:100%;border-collapse:collapse;font-size:12px;
-          background:var(--surface);border:1px solid var(--border);
-          border-radius:8px;overflow:hidden}}
-.tq-table th{{background:#0d1117;color:var(--muted);font-size:10px;
-             text-transform:uppercase;letter-spacing:.5px;
-             padding:10px 14px;text-align:left}}
-.tq-table td{{padding:9px 14px;border-top:1px solid var(--border)}}
-.tq-table tr:hover td{{background:#1c2333}}
-.tq-help{{font-size:11px;color:var(--muted);margin-top:12px;
-         padding:8px 12px;background:#0d1117;border-radius:6px;
-         border-left:3px solid var(--c-medium)}}
-
-/* ── Test data viewer (expandable) ──────────────────────────────────────── */
-.td-summary{{margin:24px 0 16px}}
-.td-headline{{font-size:13px;color:var(--muted);margin-bottom:14px}}
-.td-list{{display:flex;flex-direction:column;gap:8px}}
-.td-spec-row, .td-type-row{{
-  background:var(--surface);border:1px solid var(--border);border-radius:8px;
-  overflow:hidden
+/* ── Nav ── */
+.nav{{
+  position:sticky;top:0;z-index:100;
+  background:rgba(7,8,11,0.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--ink-4);
+  padding:0 24px;
+  display:flex;align-items:center;gap:16px;height:52px;
 }}
-.td-type-row{{margin-top:6px;background:#0d1117}}
-.td-spec-row > summary, .td-type-row > summary{{
-  list-style:none;cursor:pointer;padding:11px 16px;
-  display:flex;align-items:center;gap:14px;font-size:13px;
-  user-select:none;transition:background .12s
+.mark{{
+  width:28px;height:28px;border-radius:7px;flex-shrink:0;
+  background:conic-gradient(from 135deg,oklch(0.85 0.18 95),oklch(0.78 0.16 155),oklch(0.72 0.20 25),oklch(0.85 0.18 95));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;color:#07080b;font-family:var(--mono);
 }}
-.td-spec-row > summary::-webkit-details-marker,
-.td-type-row > summary::-webkit-details-marker{{display:none}}
-.td-spec-row > summary::before, .td-type-row > summary::before{{
-  content:"▶";color:var(--muted);font-size:9px;width:12px;flex-shrink:0
+.crumbs{{font-size:13px;color:var(--ink-3);display:flex;align-items:center;gap:6px;flex:1}}
+.crumbs a{{color:var(--ink-2);}}
+.crumbs a:hover{{color:var(--ink-0)}}
+.crumbs .sep{{color:var(--ink-4)}}
+.crumbs .current{{color:var(--ink-0);font-weight:600}}
+.btn{{
+  border:1px solid var(--ink-4);background:var(--bg-2);color:var(--ink-1);
+  padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;
+  font-family:var(--font);transition:background .15s,border-color .15s;
 }}
-.td-spec-row[open] > summary::before, .td-type-row[open] > summary::before{{
-  content:"▼"
+.btn:hover{{background:var(--bg-3);border-color:var(--ink-2)}}
+.btn.primary{{background:var(--accent);color:#07080b;border-color:var(--accent);font-weight:700}}
+.btn.primary:hover{{opacity:.9}}
+
+/* ── Page wrap ── */
+.wrap{{max-width:1200px;margin:0 auto;padding:28px 24px}}
+
+/* ── Commit / run header section ── */
+.commit{{
+  background:linear-gradient(160deg,var(--bg-2) 0%,var(--bg-1) 100%);
+  border:1px solid var(--ink-4);border-radius:14px;
+  padding:28px 32px;margin-bottom:24px;
 }}
-.td-spec-row > summary:hover, .td-type-row > summary:hover{{background:#1c2333}}
-.td-spec-name{{font-weight:600;color:var(--text);flex:1}}
-.td-type-name{{font-family:'SF Mono',monospace;color:var(--c-low);
-              font-size:12px;flex:1}}
-.td-count{{font-size:11px;color:var(--muted);background:#0d1117;
-          border:1px solid var(--border);border-radius:4px;padding:2px 8px}}
-.td-data-count{{font-size:11px;color:#a371f7;background:rgba(163,113,247,.10);
-               border-radius:4px;padding:2px 8px;font-weight:600}}
-.td-spec-body, .td-type-body{{
-  padding:12px 18px;border-top:1px solid var(--border)
+.badge-row{{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}}
+.pill{{
+  display:inline-flex;align-items:center;gap:6px;
+  border-radius:99px;padding:4px 12px;font-size:12px;font-weight:600;
+  border:1px solid var(--ink-4);background:var(--bg-3);color:var(--ink-2);
 }}
-.td-help{{font-size:11px;color:var(--muted);margin-bottom:10px;
-         padding:6px 10px;background:#0d1117;border-radius:5px;
-         border-left:3px solid #a371f7}}
-.td-data-list{{margin:8px 0;padding-left:20px;color:var(--text);font-size:12px}}
-.td-data-list li{{padding:3px 0;line-height:1.5}}
-.td-data-list code{{background:#0d1117;border:1px solid var(--border);
-                    border-radius:3px;padding:1px 6px;font-size:11px;
-                    color:#a371f7}}
-.td-src{{color:#58a6ff;font-family:'SF Mono',monospace;font-size:11px}}
-.td-empty{{color:var(--muted);font-style:italic;font-size:12px;padding:8px 0}}
-.td-truncated{{font-size:11px;color:var(--muted);margin-top:6px;
-              padding:6px 10px;background:#0d1117;border-radius:4px}}
+.pill.run{{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}}
+.pill.ok{{background:var(--ok-dim);border-color:var(--ok);color:var(--ok)}}
+.pill.fail{{background:var(--bad-dim);border-color:var(--bad);color:var(--bad)}}
+.commit h1{{
+  font-size:clamp(20px,3vw,28px);font-weight:700;color:var(--ink-0);
+  letter-spacing:-0.5px;margin-bottom:10px;
+}}
+.commit h1 em{{font-family:var(--serif);font-style:italic;color:var(--accent)}}
+.commit-meta{{font-size:13px;color:var(--ink-2);display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px}}
+.commit-meta b{{color:var(--ink-1)}}
+.stamp{{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  padding:5px 14px;border-radius:99px;
+  border:1px solid var(--bad);color:var(--bad);background:var(--bad-dim);
+}}
+.stamp.pass-stamp{{border-color:var(--ok);color:var(--ok);background:var(--ok-dim)}}
 
-/* ── Section titles ── */
-.sec-title{{font-size:16px;font-weight:600;border-bottom:1px solid var(--border);
-           padding-bottom:10px;margin:40px 0 20px}}
-.sec-title .count{{background:var(--border);color:var(--muted);
-                  font-size:11px;padding:2px 8px;border-radius:99px;margin-left:8px;font-weight:400}}
+/* ── Card ── */
+.card{{
+  background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:12px;margin-bottom:20px;overflow:hidden;
+}}
+.card-head{{
+  padding:14px 20px;border-bottom:1px solid var(--ink-4);
+  display:flex;align-items:center;justify-content:space-between;
+}}
+.card-head h4{{font-size:13px;font-weight:700;color:var(--ink-0);letter-spacing:.3px;text-transform:uppercase}}
+.card-body{{padding:20px}}
 
-/* ── Severity badge ── */
-.badge{{display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;
-       font-weight:600;letter-spacing:.4px;text-transform:uppercase}}
-.badge.CRITICAL{{background:var(--c-critical-bg);color:var(--c-critical);border:1px solid var(--c-critical)}}
-.badge.HIGH    {{background:var(--c-high-bg);    color:var(--c-high);    border:1px solid var(--c-high)}}
-.badge.MEDIUM  {{background:var(--c-medium-bg);  color:var(--c-medium);  border:1px solid var(--c-medium)}}
-.badge.LOW     {{background:var(--c-low-bg);     color:var(--c-low);     border:1px solid var(--c-low)}}
-.badge.PASS    {{background:var(--c-pass-bg);    color:var(--c-pass);    border:1px solid var(--c-pass)}}
-.badge.FAIL    {{background:var(--c-critical-bg);color:var(--c-critical);border:1px solid var(--c-critical)}}
-.badge.gen-fail{{background:#3d2000;color:#fb923c;border:1px solid #fb923c}}
-.badge.P0{{background:#450a0a;color:#fca5a5;border:1px solid #f85149}}
-.badge.P1{{background:#3d1a0a;color:#fdba74;border:1px solid #f0883e}}
-.badge.P2{{background:#1a2e0a;color:#86efac;border:1px solid #3fb950}}
-.badge.P3{{background:#0a1a2e;color:#93c5fd;border:1px solid #58a6ff}}
+/* ── Quality diff strip ── */
+.diff-rows{{display:flex;flex-direction:column;gap:2px}}
+.diff-row{{
+  display:grid;grid-template-columns:20px 1fr auto;
+  gap:10px;align-items:center;padding:10px 16px;
+  border-radius:6px;font-size:13px;
+}}
+.diff-row .sym{{font-weight:700;font-family:var(--mono);font-size:13px}}
+.diff-row .lbl{{color:var(--ink-1)}}
+.diff-row .val{{font-weight:700;font-family:var(--mono);font-size:14px}}
+.diff-row.add{{background:var(--bad-dim)}}
+.diff-row.add .sym{{color:var(--bad)}}
+.diff-row.add .val{{color:var(--bad)}}
+.diff-row.up{{background:var(--ok-dim)}}
+.diff-row.up .sym{{color:var(--ok)}}
+.diff-row.up .val{{color:var(--ok)}}
+.diff-row.neutral{{background:var(--bg-2)}}
+.diff-row.neutral .sym{{color:var(--ink-3)}}
+.diff-row.neutral .val{{color:var(--ink-2)}}
 
-/* ── Priority framework strip ── */
-.priority-strip{{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:28px}}
-.pstrip-item{{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-            padding:14px 16px;cursor:pointer;transition:transform .12s,border-color .12s,background .12s;
-            text-align:center}}
-.pstrip-item:hover{{background:#1c2333;transform:translateY(-2px)}}
-.pstrip-label{{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}}
-.pstrip-val{{font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}}
-.pstrip-sla{{font-size:10px;color:var(--muted);margin-top:4px}}
-.pstrip-item.p0{{border-top:3px solid var(--c-critical)}}
-.pstrip-item.p0 .pstrip-label,.pstrip-item.p0 .pstrip-val{{color:var(--c-critical)}}
-.pstrip-item.p1{{border-top:3px solid var(--c-high)}}
-.pstrip-item.p1 .pstrip-label,.pstrip-item.p1 .pstrip-val{{color:var(--c-high)}}
-.pstrip-item.p2{{border-top:3px solid var(--c-medium)}}
-.pstrip-item.p2 .pstrip-label,.pstrip-item.p2 .pstrip-val{{color:var(--c-medium)}}
-.pstrip-item.p3{{border-top:3px solid var(--c-low)}}
-.pstrip-item.p3 .pstrip-label,.pstrip-item.p3 .pstrip-val{{color:var(--c-low)}}
-@media(max-width:768px){{.priority-strip{{grid-template-columns:repeat(2,1fr)}}}}
-@media(max-width:480px){{.priority-strip{{grid-template-columns:1fr 1fr}}}}
+/* ── Two-column layout ── */
+.layout{{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}}
 
-/* ── Board section chip ── */
-.board-chip{{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 8px;
-           border-radius:4px;text-transform:uppercase;display:inline-block}}
-.board-chip.expedite{{background:#450a0a;color:#fca5a5;border:1px solid #f85149}}
-.board-chip.else{{background:#0a1628;color:#93c5fd;border:1px solid #3b82f6}}
+/* ── Trace (spec waterfall) ── */
+.trace-axis{{padding:14px 20px 6px;display:flex;justify-content:space-between;
+            font-size:10px;color:var(--ink-4);text-transform:uppercase;letter-spacing:.5px}}
+.trace-row{{
+  display:grid;grid-template-columns:180px 1fr;
+  gap:12px;align-items:center;padding:6px 16px;
+}}
+.trace-row:hover{{background:var(--bg-2)}}
+.trace-row .nm{{font-size:12px;color:var(--ink-2);font-family:var(--mono);
+               white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+.trace-row .lane{{height:22px;background:var(--bg-3);border-radius:4px;overflow:hidden;position:relative}}
+.trace-bar{{
+  height:100%;border-radius:4px;display:flex;align-items:center;
+  padding:0 8px;font-size:10px;font-weight:700;color:#07080b;
+  white-space:nowrap;overflow:hidden;min-width:4%;
+  transition:width .4s ease;
+}}
+.trace-bar.pass{{background:var(--ok)}}
+.trace-bar.fail{{background:var(--bad)}}
 
-/* ── BIZ-ESCALATE badge ── */
-.biz-badge{{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 8px;
-          border-radius:4px;background:#2d1b55;color:#d8b4fe;border:1px solid #7c3aed;
-          display:inline-block;animation:biz-pulse 2s ease-in-out infinite}}
-@keyframes biz-pulse{{0%,100%{{opacity:1}} 50%{{opacity:.7}}}}
+/* ── Tests section ── */
+.section h5{{
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--ink-3);padding:14px 20px 10px;border-bottom:1px solid var(--ink-4);
+}}
+.tests-tools{{
+  padding:12px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  border-bottom:1px solid var(--ink-4);background:var(--bg-2);
+}}
+.chip{{
+  padding:5px 12px;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;
+  border:1px solid var(--ink-4);color:var(--ink-2);background:var(--bg-3);
+  transition:all .15s;user-select:none;
+}}
+.chip:hover{{border-color:var(--ink-2);color:var(--ink-1)}}
+.chip.active{{background:var(--bg-3);border-color:var(--ink-1);color:var(--ink-0)}}
+.chip.fail.active{{background:var(--bad-dim);border-color:var(--bad);color:var(--bad)}}
+.chip.pass.active{{background:var(--ok-dim);border-color:var(--ok);color:var(--ok)}}
+#testSearch{{
+  flex:1;min-width:160px;background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:99px;padding:5px 14px;font-size:12px;color:var(--ink-1);
+  font-family:var(--font);outline:none;transition:border-color .15s;
+}}
+#testSearch:focus{{border-color:var(--accent)}}
+#testSearch::placeholder{{color:var(--ink-4)}}
 
-/* ── SLA chip ── */
-.sla-chip{{font-size:10px;color:var(--muted);background:#0d1117;border:1px solid var(--border);
-         border-radius:4px;padding:2px 8px;display:inline-block}}
+/* ── Group (spec accordion) ── */
+.group{{border-bottom:1px solid var(--ink-4)}}
+.group:last-child{{border-bottom:none}}
+.group-head{{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;
+  user-select:none;transition:background .12s;
+}}
+.group-head:hover{{background:var(--bg-2)}}
+.group-head .chev{{font-size:10px;color:var(--ink-3);transition:transform .2s;width:12px;flex-shrink:0}}
+.group.open .group-head .chev{{transform:rotate(90deg)}}
+.group-head .gtag{{font-size:13px;font-weight:600;color:var(--ink-0);font-family:var(--mono);flex:1}}
+.group-head .count{{font-size:11px;color:var(--ink-3);white-space:nowrap}}
+.group-body{{display:none;background:var(--bg-0)}}
+.group.open .group-body{{display:block}}
 
-/* ── Priority rationale info block ── */
-.info-block.priority{{background:#0a1822;border-left:3px solid #60a5fa}}
-.info-block.priority .ib-label{{color:#60a5fa}}
+/* ── Individual test row ── */
+.test{{border-bottom:1px solid var(--ink-4)}}
+.test:last-child{{border-bottom:none}}
+.test-row{{
+  display:flex;align-items:center;gap:10px;padding:9px 28px;cursor:pointer;
+  transition:background .12s;font-size:13px;
+}}
+.test:not(.open) .test-row:hover{{background:var(--bg-2)}}
+.test.open .test-row{{background:var(--bg-2)}}
+.test-row .chev{{font-size:9px;color:var(--ink-4);transition:transform .2s;width:10px;flex-shrink:0}}
+.test.open .test-row .chev{{transform:rotate(90deg)}}
+.statdot{{
+  width:18px;height:18px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:800;
+}}
+.statdot.pass{{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}}
+.statdot.fail{{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}}
+.name-cell{{flex:1;min-width:0;overflow:hidden}}
+.tname{{font-family:var(--mono);font-size:12px;color:var(--ink-1);
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis}}
+.tag{{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0}}
+.tag.p0{{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}}
+.tag.p1{{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}}
+.tag.p2{{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}}
+.tag.p3{{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}}
 
-/* ── Bug ticket card ── */
-.bug-card{{background:var(--surface);border:1px solid var(--border);
-          border-radius:var(--radius);margin-bottom:28px;overflow:hidden}}
-.bug-card-hdr{{padding:16px 20px;display:flex;align-items:flex-start;
-              justify-content:space-between;flex-wrap:wrap;gap:8px;
-              border-bottom:1px solid var(--border)}}
+/* ── Test expanded body ── */
+.test-body{{display:none;padding:14px 28px 18px 56px;background:var(--bg-0);border-top:1px solid var(--ink-4)}}
+.test.open .test-body{{display:block}}
+.pass-body{{display:none;padding:14px 28px 18px 56px;background:var(--bg-0);border-top:1px solid var(--ink-4)}}
+.test.open .pass-body{{display:block}}
+.pass-fields{{display:flex;flex-direction:column;gap:6px}}
+.pass-fields dt{{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);font-weight:600;margin-top:6px}}
+.pass-fields dd{{font-size:13px;color:var(--ink-1);font-family:var(--mono);padding-left:12px}}
+
+/* ── Meta grid (inside test body) ── */
+.meta-grid{{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}}
+.meta-cell{{background:var(--bg-2);border-radius:7px;padding:10px 12px}}
+.meta-cell .k{{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);font-weight:600;margin-bottom:3px}}
+.meta-cell .v{{font-size:13px;color:var(--ink-1);font-family:var(--mono)}}
+
+/* ── Er grid (expected/actual) ── */
+.er-grid{{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}}
+.er-card{{border-radius:8px;padding:12px 14px;border:1px solid}}
+.er-card.ok{{background:var(--ok-dim);border-color:var(--ok)}}
+.er-card.ok .k{{color:var(--ok)}}
+.er-card.bad{{background:var(--bad-dim);border-color:var(--bad)}}
+.er-card.bad .k{{color:var(--bad)}}
+.er-card .k{{font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px}}
+.er-card .v{{font-size:12px;color:var(--ink-1)}}
+
+/* ── Code box ── */
+.codebox{{
+  background:var(--bg-2);border:1px solid var(--ink-4);border-radius:7px;
+  padding:12px;font-family:var(--mono);font-size:11px;color:var(--ink-2);
+  overflow-x:auto;white-space:pre-wrap;word-break:break-word;margin-top:8px;
+}}
+
+/* ── Traceback toggle ── */
+.trace-toggle{{
+  width:100%;background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:6px;padding:8px 14px;color:var(--bad);font-family:var(--mono);
+  font-size:11px;cursor:pointer;text-align:left;display:flex;
+  justify-content:space-between;align-items:center;margin-top:12px;
+  font-family:var(--font);
+}}
+.trace-toggle:hover{{background:var(--bg-2)}}
+.trace-toggle .arr{{color:var(--ink-3);font-size:10px}}
+
+/* ── Sidebar ── */
+.side{{position:sticky;top:70px}}
+.side-head{{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-3);margin-bottom:10px}}
+.ringwrap{{display:flex;align-items:center;justify-content:center;padding:20px 16px}}
+.ring{{width:120px;height:120px}}
+
+/* ── Mini-stats row ── */
+.mini-stats{{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 16px}}
+.ms{{background:var(--bg-2);border-radius:8px;padding:10px 12px;border:1px solid var(--ink-4)}}
+.ms .ms-v{{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1}}
+.ms .ms-l{{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}}
+.ms.bad .ms-v{{color:var(--bad)}}
+.ms.warn .ms-v{{color:var(--warn)}}
+.ms.ok .ms-v{{color:var(--ok)}}
+
+/* ── Run metadata DL ── */
+.run-dl{{padding:14px 18px;display:flex;flex-direction:column;gap:0}}
+.run-dl dt{{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);
+           font-weight:600;margin-top:10px}}
+.run-dl dt:first-child{{margin-top:0}}
+.run-dl dd{{font-size:13px;color:var(--ink-1);font-family:var(--mono)}}
+
+/* ── Bug cards ── */
+.bug-card{{
+  background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:12px;margin-bottom:20px;overflow:hidden;
+}}
+.bug-card-hdr{{
+  padding:16px 20px;display:flex;align-items:flex-start;
+  justify-content:space-between;flex-wrap:wrap;gap:8px;
+  border-bottom:1px solid var(--ink-4);background:var(--bg-2);
+}}
 .bug-card-hdr .left{{display:flex;align-items:center;gap:10px;flex-wrap:wrap}}
-.bug-id{{font-size:12px;font-weight:700;color:var(--muted);
-        font-family:monospace;background:#0d1117;border:1px solid var(--border);
-        padding:2px 8px;border-radius:4px}}
-.bug-title{{font-size:15px;font-weight:600;color:var(--text);margin-top:2px}}
-.bug-meta{{font-size:12px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;margin-top:6px}}
+.bug-id{{
+  font-size:11px;font-weight:700;color:var(--ink-3);
+  font-family:var(--mono);background:var(--bg-0);
+  border:1px solid var(--ink-4);padding:2px 8px;border-radius:4px;
+}}
+.bug-title{{font-size:15px;font-weight:600;color:var(--ink-0);margin-top:4px}}
+.bug-meta{{font-size:12px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;margin-top:6px}}
 .bug-meta span{{display:flex;align-items:center;gap:4px}}
 .bug-body{{padding:20px}}
 
-/* ── Two-col grid ── */
+/* ── Badge / severity ── */
+.badge{{
+  display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;
+  font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+}}
+.badge.CRITICAL{{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}}
+.badge.HIGH{{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}}
+.badge.MEDIUM{{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}}
+.badge.LOW{{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}}
+.badge.PASS{{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}}
+.badge.FAIL{{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}}
+.badge.gen-fail{{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}}
+.badge.P0{{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}}
+.badge.P1{{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}}
+.badge.P2{{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}}
+.badge.P3{{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}}
+
+/* ── Info blocks ── */
+.info-block{{border-radius:8px;padding:14px 16px;margin-bottom:12px}}
+.info-block .ib-label{{font-size:11px;font-weight:700;text-transform:uppercase;
+                       letter-spacing:.6px;margin-bottom:8px}}
+.info-block.expected{{background:var(--ok-dim);border-left:3px solid var(--ok)}}
+.info-block.expected .ib-label{{color:var(--ok)}}
+.info-block.actual{{background:var(--bad-dim);border-left:3px solid var(--bad)}}
+.info-block.actual .ib-label{{color:var(--bad)}}
+.info-block.analysis{{background:var(--bg-3);border-left:3px solid var(--accent)}}
+.info-block.analysis .ib-label{{color:var(--accent)}}
+.info-block.fix{{background:var(--ok-dim);border-left:3px solid var(--ok)}}
+.info-block.fix .ib-label{{color:var(--ok)}}
+.info-block.rootcause{{background:var(--warn-dim);border-left:3px solid var(--warn)}}
+.info-block.rootcause .ib-label{{color:var(--warn)}}
+.info-block.priority{{background:var(--bg-3);border-left:3px solid var(--accent)}}
+.info-block.priority .ib-label{{color:var(--accent)}}
+
+/* ── Two-col for info blocks ── */
 .two-col{{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}}
 @media(max-width:640px){{.two-col{{grid-template-columns:1fr}}}}
 
-/* ── Info blocks ── */
-.info-block{{border-radius:8px;padding:14px 16px}}
-.info-block .ib-label{{font-size:11px;font-weight:600;text-transform:uppercase;
-                      letter-spacing:.6px;margin-bottom:8px}}
-.info-block.expected{{background:#0d2818;border-left:3px solid var(--c-pass)}}
-.info-block.expected .ib-label{{color:var(--c-pass)}}
-.info-block.actual  {{background:var(--c-critical-bg);border-left:3px solid var(--c-critical)}}
-.info-block.actual .ib-label{{color:var(--c-critical)}}
-.info-block.analysis{{background:#1c1a2e;border-left:3px solid #a371f7}}
-.info-block.analysis .ib-label{{color:#a371f7}}
-.info-block.fix     {{background:#0a2218;border-left:3px solid var(--c-pass)}}
-.info-block.fix .ib-label{{color:var(--c-pass)}}
-.info-block.rootcause{{background:#1c1200;border-left:3px solid var(--c-medium)}}
-.info-block.rootcause .ib-label{{color:var(--c-medium)}}
-
-/* ── Steps list ── */
-ol.steps{{padding-left:20px;color:var(--text)}}
+/* ── Steps ── */
+ol.steps{{padding-left:20px;color:var(--ink-1)}}
 ol.steps li{{margin-bottom:5px}}
 
 /* ── Screenshot ── */
 .shot-wrap{{margin-top:16px}}
-.shot-label{{font-size:11px;font-weight:600;text-transform:uppercase;
-            letter-spacing:.6px;color:var(--muted);margin-bottom:8px;
-            display:flex;align-items:center;gap:6px}}
-.shot-label::before{{content:"📸"}}
-.screenshot{{width:100%;border:1px solid var(--border);border-radius:8px;
-            cursor:zoom-in;transition:opacity .2s}}
+.shot-label{{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+            color:var(--ink-3);margin-bottom:8px;display:flex;align-items:center;gap:6px}}
+.screenshot{{width:100%;border:1px solid var(--ink-4);border-radius:8px;cursor:zoom-in;transition:opacity .2s}}
 .screenshot:hover{{opacity:.9}}
-.no-shot{{background:#0d1117;border:1px dashed var(--border);border-radius:8px;
-         padding:20px;text-align:center;color:var(--muted);font-size:12px}}
+.no-shot{{background:var(--bg-2);border:1px dashed var(--ink-4);border-radius:8px;
+         padding:20px;text-align:center;color:var(--ink-3);font-size:12px}}
 
-/* ── Video PoC ── */
+/* ── Video ── */
 .video-wrap{{margin-top:16px}}
-.video-label{{font-size:11px;font-weight:600;text-transform:uppercase;
-             letter-spacing:.6px;color:var(--muted);margin-bottom:8px;
-             display:flex;align-items:center;gap:6px}}
-.video-label::before{{content:"🎬"}}
-.poc-video{{width:100%;max-height:540px;border:1px solid var(--border);
-           border-radius:8px;background:#000}}
-.video-cta{{display:inline-block;margin-top:6px;font-size:11px;color:#58a6ff;
-           text-decoration:none}}
-.video-cta:hover{{text-decoration:underline}}
+.video-label{{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+             color:var(--ink-3);margin-bottom:8px;display:flex;align-items:center;gap:6px}}
+.poc-video{{width:100%;max-height:540px;border:1px solid var(--ink-4);border-radius:8px;background:#000}}
 
-/* ── Sticky back button (top of report) ── */
-.back-bar{{position:sticky;top:0;z-index:50;background:#0d1117ee;
-          border-bottom:1px solid var(--border);padding:8px 0;
-          backdrop-filter:blur(8px)}}
-.back-bar-inner{{max-width:1100px;margin:0 auto;padding:0 20px;
-                 display:flex;align-items:center;gap:14px;font-size:12px}}
-.back-link{{color:#58a6ff;text-decoration:none;display:inline-flex;
-            align-items:center;gap:6px;font-weight:600;
-            padding:6px 12px;border:1px solid var(--border);border-radius:6px;
-            background:#161b22;transition:background .15s,border-color .15s}}
-.back-link:hover{{background:#1c2333;border-color:#58a6ff}}
-.back-bar-spacer{{flex:1}}
-.back-bar-quick{{color:var(--muted);font-size:11px}}
-.back-bar-quick a{{color:#58a6ff;text-decoration:none;margin-left:8px}}
-.back-bar-quick a:hover{{text-decoration:underline}}
-
-/* ── Footer + contact card ── */
-.footer-wrap{{margin-top:60px;padding:24px 20px;border-top:1px solid var(--border);
-             text-align:center}}
-.contact-card{{display:inline-flex;flex-direction:column;align-items:center;
-              gap:6px;padding:18px 28px;background:var(--surface);
-              border:1px solid var(--border);border-radius:10px;
-              margin:14px auto 18px}}
-.contact-card .name{{font-weight:700;font-size:15px;color:var(--text)}}
-.contact-card .title{{font-size:12px;color:var(--muted)}}
-.contact-card .links{{display:flex;gap:14px;margin-top:8px;flex-wrap:wrap;
-                     justify-content:center}}
-.contact-card .links a{{color:#58a6ff;text-decoration:none;font-size:12px;
-                       padding:5px 10px;border:1px solid var(--border);
-                       border-radius:6px;background:#0d1117;
-                       transition:background .15s,border-color .15s}}
-.contact-card .links a:hover{{background:#1c2333;border-color:#58a6ff}}
-
-/* ── Error/traceback collapsible ── */
-.err-toggle{{width:100%;background:#0d1117;border:1px solid var(--border);
-            border-radius:6px;padding:10px 14px;color:var(--c-critical);
-            font-family:monospace;font-size:12px;cursor:pointer;text-align:left;
-            display:flex;justify-content:space-between;align-items:center;
-            margin-top:14px}}
-.err-toggle:hover{{background:#161b22}}
+/* ── Error toggle ── */
+.err-toggle{{
+  width:100%;background:var(--bg-2);border:1px solid var(--ink-4);
+  border-radius:6px;padding:10px 14px;color:var(--bad);font-size:12px;
+  cursor:pointer;text-align:left;display:flex;justify-content:space-between;
+  align-items:center;margin-top:14px;font-family:var(--font);
+}}
+.err-toggle:hover{{background:var(--bg-3)}}
 .err-body{{display:none;margin-top:1px}}
 .err-body.open{{display:block}}
 
-/* ── Env strip ── */
-.env-strip{{font-size:11px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap;
-           margin-top:14px;padding-top:14px;border-top:1px solid var(--border)}}
-.env-strip span{{display:flex;gap:4px}}
-.env-strip b{{color:var(--text)}}
-
-/* ── Results table ── */
-table{{width:100%;border-collapse:collapse;background:var(--surface);
-      border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}}
-th{{background:#0d1117;color:var(--muted);font-size:11px;text-transform:uppercase;
-   letter-spacing:.5px;padding:10px 16px;text-align:left}}
-td{{padding:10px 16px;border-top:1px solid var(--border);font-size:13px}}
-tr:hover td{{background:#1c2333}}
-
-/* ── Gaps block ── */
-.gap-block{{background:var(--surface);border:1px solid var(--border);
-           border-radius:var(--radius);padding:20px;margin-bottom:20px}}
-.gap-block h3{{color:#a371f7;font-size:14px;margin-bottom:12px}}
-.gap-block p,.gap-block li{{color:var(--muted);font-size:13px;margin-bottom:4px}}
-
 /* ── Evidence panels ── */
-.ev-toggle{{width:100%;background:#0a1628;border:1px solid var(--border);border-radius:6px;
-           padding:9px 14px;color:var(--c-low);font-family:monospace;font-size:12px;
-           cursor:pointer;text-align:left;display:flex;justify-content:space-between;
-           align-items:center;margin-top:10px}}
-.ev-toggle:hover{{background:#0e1e38}}
+.ev-toggle{{
+  width:100%;background:var(--bg-2);border:1px solid var(--ink-4);border-radius:6px;
+  padding:9px 14px;color:var(--accent);font-size:12px;cursor:pointer;
+  text-align:left;display:flex;justify-content:space-between;align-items:center;
+  margin-top:10px;font-family:var(--font);
+}}
+.ev-toggle:hover{{background:var(--bg-3)}}
 .ev-body{{display:none;margin-top:1px}}
 .ev-body.open{{display:block}}
 .ev-table{{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}}
-.ev-table th{{background:#0d1117;color:var(--muted);padding:5px 10px;text-align:left;font-weight:600}}
-.ev-table td{{padding:4px 10px;border-top:1px solid #21262d;color:var(--text);
-             word-break:break-all;max-width:400px}}
-.ev-table tr:nth-child(even) td{{background:#0d1117}}
+.ev-table th{{background:var(--bg-0);color:var(--ink-3);padding:5px 10px;text-align:left;font-weight:600;border:1px solid var(--ink-4)}}
+.ev-table td{{padding:4px 10px;border:1px solid var(--ink-4);color:var(--ink-1);word-break:break-all;max-width:400px}}
 .perf-grid{{display:flex;gap:16px;flex-wrap:wrap;margin-top:4px}}
-.perf-stat{{background:#0d1117;border:1px solid var(--border);border-radius:6px;
-           padding:10px 16px;min-width:120px;text-align:center}}
-.perf-stat .pval{{font-size:22px;font-weight:700;color:var(--c-low)}}
-.perf-stat .plbl{{font-size:10px;color:var(--muted);text-transform:uppercase;
-                 letter-spacing:.5px;margin-top:4px}}
-.pval.warn{{color:var(--c-medium)}}
-.pval.bad{{color:var(--c-critical)}}
+.perf-stat{{background:var(--bg-2);border:1px solid var(--ink-4);border-radius:6px;padding:10px 16px;min-width:120px;text-align:center}}
+.perf-stat .pval{{font-size:22px;font-weight:700;color:var(--accent)}}
+.perf-stat .plbl{{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}}
+.pval.warn{{color:var(--warn)}}
+.pval.bad{{color:var(--bad)}}
 
-/* ── Per-spec test detail blocks ── */
-.spec-blk{{background:var(--surface);border:1px solid var(--border);
-          border-radius:var(--radius);margin-bottom:16px;overflow:hidden}}
-.spec-blk-hdr{{padding:14px 20px;display:flex;align-items:center;
-              justify-content:space-between;cursor:pointer;user-select:none}}
-.spec-blk-hdr:hover{{background:#1c2333}}
-.spec-blk-title{{font-size:14px;font-weight:600;display:flex;align-items:center;gap:10px}}
-.spec-blk-toggle{{font-size:12px;color:var(--muted)}}
-.spec-blk-body{{display:none}}
-.spec-blk-body.open{{display:block}}
-.test-table{{width:100%;border-collapse:collapse;font-size:12px}}
-.test-table th{{background:#0d1117;color:var(--muted);font-size:10px;
-               text-transform:uppercase;letter-spacing:.5px;padding:8px 14px;text-align:left}}
-.test-table td{{padding:9px 14px;border-top:1px solid var(--border);vertical-align:top}}
-.test-table tr:hover td{{background:#1c2333}}
-.test-row-pass td:first-child{{border-left:3px solid var(--c-pass)}}
-.test-row-fail td:first-child{{border-left:3px solid var(--c-critical)}}
-.test-row-skip td:first-child{{border-left:3px solid var(--muted)}}
-.tname{{font-family:monospace;color:var(--c-low);font-size:12px}}
-.tname-title{{color:var(--text);font-weight:500;margin-bottom:2px}}
-.twhat{{color:var(--muted);font-size:12px}}
-.tdata{{font-family:monospace;color:#a371f7;font-size:11px}}
-.tdata-empty{{color:var(--muted);font-size:11px;font-style:italic}}
+/* ── Console ── */
+.console-err{{background:var(--bad-dim);border-left:3px solid var(--bad);padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;font-family:var(--mono);color:var(--bad)}}
+.console-warn{{background:var(--warn-dim);border-left:3px solid var(--warn);padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;font-family:var(--mono);color:var(--warn)}}
 
-/* ── Expandable per-test rows (uses native <details>) ───────────────────── */
-.trow-help{{padding:10px 16px;font-size:11px;color:var(--muted);
-           border-bottom:1px solid var(--border);background:#0d1117}}
-.trow{{border-bottom:1px solid var(--border)}}
-.trow:last-child{{border-bottom:none}}
-.trow > summary{{
-  list-style:none;cursor:pointer;padding:11px 16px;display:flex;
-  align-items:center;gap:14px;font-size:13px;user-select:none;
-  transition:background .12s
+/* ── Env strip ── */
+.env-strip{{font-size:11px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;
+           margin-top:14px;padding-top:14px;border-top:1px solid var(--ink-4)}}
+.env-strip b{{color:var(--ink-1)}}
+
+/* ── Board/SLA chips ── */
+.board-chip{{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 8px;
+           border-radius:4px;text-transform:uppercase;display:inline-block}}
+.board-chip.expedite{{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}}
+.board-chip.else{{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}}
+.biz-badge{{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 8px;
+          border-radius:4px;background:var(--warn-dim);color:var(--warn);
+          border:1px solid var(--warn);display:inline-block;animation:biz-pulse 2s ease-in-out infinite}}
+@keyframes biz-pulse{{0%,100%{{opacity:1}} 50%{{opacity:.7}}}}
+.sla-chip{{font-size:10px;color:var(--ink-3);background:var(--bg-2);
+         border:1px solid var(--ink-4);border-radius:4px;padding:2px 8px;display:inline-block}}
+
+/* ── Cluster summary ── */
+.cluster-summary{{margin:0 0 20px}}
+.cluster-headline{{font-size:14px;color:var(--ink-2);margin-bottom:14px}}
+.cluster-headline strong{{color:var(--accent)}}
+.cluster-list{{display:flex;flex-direction:column;gap:8px}}
+.cluster-row{{background:var(--bg-2);border:1px solid var(--ink-4);border-radius:8px;
+             padding:14px 18px;display:grid;grid-template-columns:auto 1fr auto;
+             gap:14px;align-items:center}}
+.cluster-row:hover{{border-color:var(--accent)}}
+.cluster-meta{{display:flex;gap:6px;align-items:center;flex-wrap:wrap}}
+.cluster-count{{font-size:11px;color:var(--ink-3);background:var(--bg-0);
+               border:1px solid var(--ink-4);border-radius:4px;padding:3px 8px;font-weight:600}}
+.cluster-title{{font-size:13px;color:var(--ink-0);font-weight:600}}
+.cluster-tickets{{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:300px}}
+.cluster-bug-link{{font-size:10px;font-family:var(--mono);color:var(--accent);
+                  text-decoration:none;background:var(--bg-0);border:1px solid var(--ink-4);
+                  padding:2px 6px;border-radius:4px}}
+.cluster-bug-link:hover{{border-color:var(--accent);background:var(--accent-dim)}}
+.recurrence-badge{{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad);
+                  border-radius:4px;padding:2px 8px;font-size:10px;
+                  font-weight:700;text-transform:uppercase;letter-spacing:.4px}}
+.cluster-help{{font-size:11px;color:var(--ink-3);margin-top:12px;
+              padding:8px 12px;background:var(--bg-2);border-radius:6px;
+              border-left:3px solid var(--accent)}}
+
+/* ── Gap block ── */
+.gap-block{{background:var(--bg-2);border:1px solid var(--ink-4);
+           border-radius:var(--radius);padding:20px;margin-bottom:16px}}
+.gap-block h3{{color:var(--accent);font-size:14px;margin-bottom:12px}}
+.gap-block p,.gap-block li{{color:var(--ink-2);font-size:13px;margin-bottom:4px}}
+
+/* ── Priority strip ── */
+.priority-strip{{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}}
+.pstrip-item{{background:var(--bg-2);border:1px solid var(--ink-4);border-radius:var(--radius);
+             padding:14px 16px;text-align:center;transition:transform .12s,border-color .12s}}
+.pstrip-item:hover{{transform:translateY(-2px)}}
+.pstrip-label{{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}}
+.pstrip-val{{font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}}
+.pstrip-sla{{font-size:10px;color:var(--ink-3);margin-top:4px}}
+.pstrip-item.p0{{border-top:3px solid var(--bad)}}
+.pstrip-item.p0 .pstrip-label,.pstrip-item.p0 .pstrip-val{{color:var(--bad)}}
+.pstrip-item.p1{{border-top:3px solid var(--warn)}}
+.pstrip-item.p1 .pstrip-label,.pstrip-item.p1 .pstrip-val{{color:var(--warn)}}
+.pstrip-item.p2{{border-top:3px solid var(--ok)}}
+.pstrip-item.p2 .pstrip-label,.pstrip-item.p2 .pstrip-val{{color:var(--ok)}}
+.pstrip-item.p3{{border-top:3px solid var(--accent)}}
+.pstrip-item.p3 .pstrip-label,.pstrip-item.p3 .pstrip-val{{color:var(--accent)}}
+
+/* ── Brand footer ── */
+.brand-foot{{
+  margin-top:48px;padding:36px 24px;border-top:1px solid var(--ink-4);
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;
 }}
-.trow > summary::-webkit-details-marker{{display:none}}
-.trow > summary::before{{
-  content:"▶";color:var(--muted);font-size:9px;width:12px;flex-shrink:0
-}}
-.trow[open] > summary::before{{content:"▼"}}
-.trow > summary:hover{{background:#1c2333}}
-.trow.pass{{border-left:3px solid var(--c-pass)}}
-.trow.fail{{border-left:3px solid var(--c-critical);background:#1f1414}}
-.trow.skip{{border-left:3px solid var(--muted)}}
-.trow.fail > summary{{background:#1f1414}}
-.trow.fail > summary:hover{{background:#2a1a1a}}
-
-.t-chip{{font-size:10px;font-weight:700;letter-spacing:.5px;padding:3px 8px;
-        border-radius:4px;font-family:'SF Mono',monospace;flex-shrink:0;
-        min-width:88px;text-align:center}}
-.t-chip.pass{{background:rgba(63,185,80,.16);color:var(--c-pass);border:1px solid var(--c-pass)}}
-.t-chip.fail{{background:rgba(248,81,73,.16);color:var(--c-critical);border:1px solid var(--c-critical)}}
-.t-chip.skip{{background:rgba(139,148,158,.16);color:var(--muted);border:1px solid var(--muted)}}
-.t-chip.unknown{{background:#1c2333;color:var(--muted);border:1px solid var(--border)}}
-.trow-name{{font-family:'SF Mono',monospace;color:var(--text);font-size:12px;
-           overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1}}
-.trow-params{{font-family:'SF Mono',monospace;color:#a371f7;font-size:11px;
-             padding:2px 8px;background:rgba(163,113,247,.10);
-             border-radius:4px;flex-shrink:0;max-width:240px;
-             overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
-.trow-dur{{color:var(--muted);font-size:11px;flex-shrink:0;min-width:48px;text-align:right}}
-
-.trow-details{{padding:14px 18px 18px 42px;background:#0d1117;
-              border-top:1px solid var(--border)}}
-.td-row{{display:flex;gap:12px;align-items:flex-start;padding:5px 0;
-        font-size:13px;line-height:1.6}}
-.td-lbl{{font-weight:600;color:var(--muted);min-width:160px;flex-shrink:0;
-       font-size:11px;text-transform:uppercase;letter-spacing:.5px}}
-.td-lbl.exp{{color:var(--c-pass)}}
-.td-lbl.act{{color:var(--c-critical)}}
-.td-val{{color:var(--text);flex:1}}
-.td-val.td-data{{font-family:'SF Mono',monospace;color:#a371f7;font-size:12px}}
-.td-val.td-empty{{color:var(--muted);font-style:italic}}
-.td-val a{{color:#58a6ff;text-decoration:none}}
-.td-val a:hover{{text-decoration:underline}}
-
-.console-err{{background:var(--c-critical-bg);border-left:3px solid var(--c-critical);
-             padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;
-             font-family:monospace;color:var(--c-critical)}}
-.console-warn{{background:var(--c-medium-bg);border-left:3px solid var(--c-medium);
-              padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;
-              font-family:monospace;color:var(--c-medium)}}
+.brand-foot .who{{display:flex;flex-direction:column;gap:6px}}
+.brand-foot .who .logo-row{{display:flex;align-items:center;gap:10px;margin-bottom:4px}}
+.brand-foot .who .bname{{font-weight:700;font-size:15px;color:var(--ink-0)}}
+.brand-foot .who .btitle{{font-size:12px;color:var(--ink-3)}}
+.brand-foot .links{{display:flex;flex-direction:column;gap:8px}}
+.brand-foot .links a{{font-size:13px;color:var(--ink-2)}}
+.brand-foot .links a:hover{{color:var(--ink-0)}}
+.brand-foot .col-head{{font-size:11px;font-weight:700;text-transform:uppercase;
+                       letter-spacing:.6px;color:var(--ink-3);margin-bottom:12px}}
 
 /* ── Lightbox ── */
-#lb{{display:none;position:fixed;inset:0;background:rgba(0,0,0,.9);
+#lb{{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);
     z-index:1000;cursor:zoom-out;justify-content:center;align-items:center}}
 #lb.show{{display:flex}}
-#lb img{{max-width:95vw;max-height:92vh;border-radius:8px;border:2px solid var(--border)}}
+#lb img{{max-width:95vw;max-height:92vh;border-radius:10px;border:1px solid var(--ink-4)}}
 
-/* ── Responsive — tablet + mobile breakpoints ─────────────────────────── */
-@media (max-width:1024px) {{
-  .wrap{{padding:16px 14px}}
-  .hdr-inner{{flex-direction:column;align-items:flex-start;gap:12px}}
-  .hdr-meta{{flex-direction:row;flex-wrap:wrap;gap:10px}}
-  .stats{{grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px}}
-  .stat .val{{font-size:26px}}
-  .two-col{{grid-template-columns:1fr}}
+/* ── Section heading h5 in cards ── */
+.sec-title{{font-size:15px;font-weight:700;color:var(--ink-0);
+           border-bottom:1px solid var(--ink-4);padding-bottom:12px;margin:0 0 18px}}
+.sec-title .count{{background:var(--bg-3);color:var(--ink-3);font-size:11px;
+                  padding:2px 8px;border-radius:99px;margin-left:8px;font-weight:400}}
+
+/* ── Responsive breakpoints ── */
+@media(max-width:1100px){{
+  .layout{{grid-template-columns:1fr}}
+  .side{{position:static}}
+  .brand-foot{{grid-template-columns:1fr 1fr}}
 }}
-@media (max-width:768px) {{
-  .wrap{{padding:12px 10px}}
-  .hdr h1{{font-size:22px}}
-  .hdr-meta{{font-size:12px}}
-  .stats{{grid-template-columns:repeat(2,1fr);gap:8px}}
-  .stat{{padding:14px 12px}}
-  .stat .val{{font-size:22px}}
-  .stat .label{{font-size:10px}}
-  .filter-bar{{flex-direction:column;align-items:stretch}}
-  .filter-bar .fbtn,.filter-bar .fbtn-action,.filter-bar .fbtn-search{{width:100%}}
-  .trow > summary{{flex-wrap:wrap;gap:8px}}
-  .trow-name{{font-size:11px}}
-  .trow-params{{max-width:100%;font-size:10px}}
-  .trow-details{{padding:12px 12px 14px 28px}}
-  .td-row{{flex-direction:column;gap:2px}}
-  .td-lbl{{min-width:auto}}
-  table,.test-table{{font-size:11px;display:block;overflow-x:auto}}
-  .bug-card-hdr{{padding:14px}}
-  .bug-title{{font-size:14px}}
-  .bug-body{{padding:14px}}
+@media(max-width:880px){{
+  .commit{{padding:20px}}
+  .trace-row{{grid-template-columns:120px 1fr}}
+  .priority-strip{{grid-template-columns:repeat(2,1fr)}}
+}}
+@media(max-width:680px){{
+  .wrap{{padding:16px 12px}}
+  .brand-foot{{grid-template-columns:1fr}}
+  .commit h1{{font-size:20px}}
+  .commit-meta{{gap:10px}}
+  .meta-grid{{grid-template-columns:1fr}}
+  .er-grid{{grid-template-columns:1fr}}
+  .two-col{{grid-template-columns:1fr}}
+  .mini-stats{{grid-template-columns:1fr 1fr}}
   .cluster-row{{grid-template-columns:1fr;gap:8px}}
   .cluster-tickets{{justify-content:flex-start;max-width:100%}}
-  .ci-table{{font-size:10px}}
-  .tq-table{{font-size:10px}}
-  .ev-table{{display:block;overflow-x:auto}}
+  .priority-strip{{grid-template-columns:1fr 1fr}}
   .perf-grid{{flex-wrap:wrap}}
-  .perf-stat{{min-width:90px;flex:1}}
-  .back-bar-inner{{flex-direction:column;align-items:flex-start;gap:6px;padding:0 12px}}
-  .back-bar-quick{{font-size:10px}}
 }}
-@media (max-width:480px) {{
-  .stats{{grid-template-columns:1fr 1fr;gap:6px}}
-  .hdr h1{{font-size:18px}}
-  .sec-title{{font-size:14px}}
-  .footer-wrap{{padding:18px 12px}}
-  .contact-card{{padding:14px 18px}}
-  .contact-card .links{{flex-direction:column;gap:6px}}
-}}
-
-/* ── Print ── */
 @media print{{
-  .hdr-meta .print-btn,.err-toggle{{display:none}}
-  .err-body{{display:block!important}}
+  .nav{{display:none}}
   body{{background:#fff;color:#000}}
-  .bug-card{{border:1px solid #ccc;break-inside:avoid}}
-  .back-bar{{display:none}}
+  .bug-card,.card{{border:1px solid #ccc;break-inside:avoid}}
 }}
 </style>
 </head>
 <body>
 
-<!-- Sticky back-button bar — visible on all reports so users can return
-     to the dashboard regardless of which #anchor they opened. -->
-<div class="back-bar">
-  <div class="back-bar-inner">
-    <a href="{back_link_path}" class="back-link">← Back to Dashboard</a>
-    <span class="back-bar-spacer"></span>
-    <span class="back-bar-quick">
-      Jump:
-      <a href="#bugs">🐛 Bugs</a>
-      <a href="#tests">🧪 Tests</a>
-      <a href="#summary-table">📊 Summary</a>
-    </span>
+<!-- Nav -->
+<nav class="nav">
+  <div class="mark">M</div>
+  <div class="crumbs">
+    <a href="index.html">Mehad QA</a>
+    <span class="sep">/</span>
+    <span class="current">Run #{run_num}</span>
   </div>
-</div>
+  <button class="btn primary" onclick="window.print()">Export PDF</button>
+</nav>
 
 <!-- Lightbox -->
 <div id="lb" onclick="this.classList.remove('show')">
   <img id="lb-img" src="" alt="Screenshot"/>
 </div>
 
-<!-- Header -->
-<div class="hdr">
-  <div class="hdr-inner">
-    <div class="hdr-left">
-      <h1>Mehad <span>QA</span> Bug Report</h1>
-      <div style="font-size:13px;color:var(--muted);margin-top:4px">
-        AI-generated · autonomous · intent-based testing
-      </div>
-    </div>
-    <div class="hdr-meta">
-      <div><b>Date:</b> {run_date}</div>
-      <div><b>Target:</b> {base_url}</div>
-      <div><b>AI Model:</b> {model} (local · no API key)</div>
-      <div><b>Browser:</b> Chromium (headless)</div>
-      <button class="print-btn" onclick="window.print()">Print / Save PDF</button>
-    </div>
-  </div>
-</div>
-
 <div class="wrap">
 
-<!-- Stats — every card is clickable; jumps to a filtered section -->
-<div class="stats">
-  <a href="#bugs"        class="stat critical" data-filter="bugs"     title="Show CRITICAL bug tickets"><div class="label">Critical</div><div class="val">{cnt_critical}</div></a>
-  <a href="#bugs"        class="stat high"     data-filter="bugs"     title="Show HIGH bug tickets"><div class="label">High</div>    <div class="val">{cnt_high}</div></a>
-  <a href="#bugs"        class="stat medium"   data-filter="bugs"     title="Show MEDIUM bug tickets"><div class="label">Medium</div>  <div class="val">{cnt_medium}</div></a>
-  <a href="#bugs"        class="stat low"      data-filter="bugs"     title="Show LOW bug tickets"><div class="label">Low</div>     <div class="val">{cnt_low}</div></a>
-  <a href="#tests"       class="stat pass"     data-filter="passed"   title="Show only PASSED tests"><div class="label">Passed</div>  <div class="val">{total_passed}</div></a>
-  <a href="#tests"       class="stat fail"     data-filter="failed"   title="Show only FAILED tests"><div class="label">Failed</div>  <div class="val">{total_failed}</div></a>
-  <a href="#tests"       class="stat total"    data-filter="all"      title="Show all tests"><div class="label">Total Tests</div><div class="val">{total_tests}</div></a>
-</div>
-
-<!-- Priority breakdown — click to filter bug list by priority level -->
-<div class="priority-strip">
-  <div class="pstrip-item p0" onclick="applyBugFilter('P0')"
-       title="P0 Highest · 24h SLA · Expedite section — hotfix immediately">
-    <div class="pstrip-label">P0 · Highest</div>
-    <div class="pstrip-val">{cnt_p0}</div>
-    <div class="pstrip-sla">⏱ 24h SLA &nbsp;·&nbsp; 🎯 Expedite</div>
+<!-- ── Run header ── -->
+<section class="commit">
+  <div class="badge-row">
+    <span class="pill run">Run #{run_num}</span>
+    <span class="pill">{base_url_short}</span>
+    <span class="pill {verdict_pill_cls}">{verdict_pill}</span>
   </div>
-  <div class="pstrip-item p1" onclick="applyBugFilter('P1')"
-       title="P1 High · 2–3 working days · Expedite section">
-    <div class="pstrip-label">P1 · High</div>
-    <div class="pstrip-val">{cnt_p1}</div>
-    <div class="pstrip-sla">⏱ 2–3 working days &nbsp;·&nbsp; 🎯 Expedite</div>
+  <h1>{run_summary_title}</h1>
+  <div class="commit-meta">
+    <span><b>Date:</b> {run_date}</span>
+    <span><b>Model:</b> {model}</span>
+    <span><b>Specs:</b> {total_specs}</span>
+    <span><b>Tests:</b> {total_tests}</span>
   </div>
-  <div class="pstrip-item p2" onclick="applyBugFilter('P2')"
-       title="P2 Medium · Current or next sprint · Everything Else">
-    <div class="pstrip-label">P2 · Medium</div>
-    <div class="pstrip-val">{cnt_p2}</div>
-    <div class="pstrip-sla">⏱ Current sprint &nbsp;·&nbsp; 📋 Everything Else</div>
+  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">{run_description}</p>
+  <span class="stamp {stamp_cls}">{verdict_label}</span>
+</section>
+
+<!-- ── Quality overview ── -->
+<section class="card">
+  <div class="card-head">
+    <h4>Quality Overview</h4>
+    <span style="font-size:12px;color:var(--ink-3)">{total_passed}/{total_tests} passing</span>
   </div>
-  <div class="pstrip-item p3" onclick="applyBugFilter('P3')"
-       title="P3 Low · Backlog · Everything Else">
-    <div class="pstrip-label">P3 · Low</div>
-    <div class="pstrip-val">{cnt_p3}</div>
-    <div class="pstrip-sla">⏱ Backlog &nbsp;·&nbsp; 📋 Everything Else</div>
-  </div>
-</div>
-
-<!-- Cluster summary — groups bugs by root cause (e.g. 6 missing-headers
-     finding share '1 root cause: security headers') -->
-{cluster_summary}
-
-<!-- Extra section: cross-spec inconsistencies, etc. -->
-{extra_section_html}
-
-<!-- Bug Tickets -->
-<div class="sec-title" id="bugs">
-  Bug Tickets <span class="count">{total_bugs}</span>
-</div>
-
-<!-- Bug-tickets filters — by severity or by priority level -->
-<div class="filter-bar bug-filter-bar" id="bug-filter-bar">
-  <span class="filter-lbl">Severity:</span>
-  <button class="fbtn active" data-bug-filter="all">All ({total_bugs})</button>
-  <button class="fbtn fbtn-critical" data-bug-filter="CRITICAL">Critical ({cnt_critical})</button>
-  <button class="fbtn fbtn-high"     data-bug-filter="HIGH">High ({cnt_high})</button>
-  <button class="fbtn fbtn-medium"   data-bug-filter="MEDIUM">Medium ({cnt_medium})</button>
-  <button class="fbtn fbtn-low"      data-bug-filter="LOW">Low ({cnt_low})</button>
-</div>
-<div class="filter-bar" style="margin-top:6px">
-  <span class="filter-lbl">Priority:</span>
-  <button class="fbtn" data-bug-filter="P0" title="P0 Highest — 24h SLA — Expedite">P0 Highest ({cnt_p0})</button>
-  <button class="fbtn" data-bug-filter="P1" title="P1 High — 2-3 days — Expedite">P1 High ({cnt_p1})</button>
-  <button class="fbtn" data-bug-filter="P2" title="P2 Medium — This sprint">P2 Medium ({cnt_p2})</button>
-  <button class="fbtn" data-bug-filter="P3" title="P3 Low — Backlog">P3 Low ({cnt_p3})</button>
-</div>
-
-<div id="bug-list">
-{bug_tickets_html}
-</div>
-
-<!-- Summary Table -->
-<div class="sec-title" id="summary-table">All Test Results</div>
-<table>
-  <thead>
-    <tr>
-      <th>Page</th><th>Status</th><th>Passed</th><th>Failed</th><th>Total</th><th>Bugs</th>
-    </tr>
-  </thead>
-  <tbody>
-    {results_rows}
-  </tbody>
-</table>
-
-<!-- Per-Spec Test Details — pass/fail filter -->
-<div class="sec-title" id="tests" style="margin-top:40px">
-  Per-Test Breakdown
-  <span class="count">click any row to expand · test data + duration shown</span>
-</div>
-<div class="filter-bar test-filter-bar">
-  <span class="filter-lbl">Show:</span>
-  <button class="fbtn active" data-test-filter="all">All ({total_tests})</button>
-  <button class="fbtn fbtn-pass" data-test-filter="passed">✅ Passed ({total_passed})</button>
-  <button class="fbtn fbtn-fail" data-test-filter="failed">❌ Failed ({total_failed})</button>
-  <input type="text" class="fbtn-search" placeholder="🔍 Search by test name..." data-search="">
-  <button class="fbtn-action" data-action="expand-all">⬇ Expand all</button>
-  <button class="fbtn-action" data-action="collapse-all">⬆ Collapse all</button>
-</div>
-<div id="spec-details">
-{spec_details_html}
-</div>
-
-<!-- Coverage Gaps -->
-<div class="sec-title" style="margin-top:40px">Coverage Gaps <span class="count">AI Analysis</span></div>
-{gaps_html}
-
-<!-- Footer with author/contact card -->
-<div class="footer-wrap">
-  <div style="color:var(--muted);font-size:12px;margin-bottom:6px">
-    Built by Mejbaur Bahar Fagun
-  </div>
-  <div class="contact-card">
-    <div class="name">Mejbaur Bahar Fagun</div>
-    <div class="title">Senior Software Engineer QA (IV) · Markopolo.ai</div>
-    <div class="links">
-      <a href="https://www.linkedin.com/in/mejbaur/" target="_blank" rel="noopener">💼 LinkedIn</a>
+  <div class="card-body">
+    <div class="diff-rows">
+      <div class="diff-row {pass_rate_cls}">
+        <span class="sym">{pass_rate_sym}</span>
+        <span class="lbl">Pass rate</span>
+        <span class="val">{pass_rate}%</span>
+      </div>
+      <div class="diff-row {fail_cls}">
+        <span class="sym">{fail_sym}</span>
+        <span class="lbl">Failing tests</span>
+        <span class="val">{total_failed}</span>
+      </div>
+      <div class="diff-row {p0_cls}">
+        <span class="sym">{p0_sym}</span>
+        <span class="lbl">P0 critical bugs</span>
+        <span class="val">{p0_label}</span>
+      </div>
+      <div class="diff-row {p1_cls}">
+        <span class="sym">{p1_sym}</span>
+        <span class="lbl">P1 high bugs</span>
+        <span class="val">{p1_label}</span>
+      </div>
     </div>
   </div>
+</section>
+
+<!-- ── Priority strip ── -->
+<div class="priority-strip">
+  <div class="pstrip-item p0">
+    <div class="pstrip-label">P0 Highest</div>
+    <div class="pstrip-val">{cnt_p0}</div>
+    <div class="pstrip-sla">24h SLA · Expedite</div>
+  </div>
+  <div class="pstrip-item p1">
+    <div class="pstrip-label">P1 High</div>
+    <div class="pstrip-val">{cnt_p1}</div>
+    <div class="pstrip-sla">2–3 days · Expedite</div>
+  </div>
+  <div class="pstrip-item p2">
+    <div class="pstrip-label">P2 Medium</div>
+    <div class="pstrip-val">{cnt_p2}</div>
+    <div class="pstrip-sla">Current sprint</div>
+  </div>
+  <div class="pstrip-item p3">
+    <div class="pstrip-label">P3 Low</div>
+    <div class="pstrip-val">{cnt_p3}</div>
+    <div class="pstrip-sla">Backlog</div>
+  </div>
 </div>
+
+<!-- ── Two-column layout ── -->
+<div class="layout">
+
+<main>
+
+<!-- ── Spec trace waterfall ── -->
+<section class="card">
+  <div class="card-head"><h4>Spec Trace</h4><span style="font-size:12px;color:var(--ink-3)">{passed_specs}/{total_specs} specs clean</span></div>
+  <div class="trace-axis"><span>Spec</span><span>Tests run</span></div>
+  {spec_trace_rows}
+</section>
+
+<!-- ── All tests ── -->
+<section class="card">
+  <div class="card-head"><h4>All Tests</h4><span style="font-size:12px;color:var(--ink-3)">{total_tests} total</span></div>
+  <div class="tests-tools">
+    <span class="chip active" data-tf="all">All ({total_tests})</span>
+    <span class="chip fail" data-tf="failed">Failed ({total_failed})</span>
+    <span class="chip pass" data-tf="passed">Passed ({total_passed})</span>
+    <span class="chip" data-tf="p0">P0</span>
+    <span class="chip" data-tf="p1">P1</span>
+    <input id="testSearch" type="text" placeholder="Search tests…"/>
+  </div>
+  <div id="tests-body">
+    {tests_body_html}
+  </div>
+</section>
+
+<!-- ── Bug tickets ── -->
+{bug_section_html}
+
+<!-- ── Coverage gaps ── -->
+{gaps_section_html}
+
+<!-- ── Extra section (cross-spec etc.) ── -->
+{extra_section_html}
+
+</main>
+
+<!-- ── Sidebar ── -->
+<aside class="side">
+  <!-- Ring gauge -->
+  <div class="card" style="margin-bottom:16px">
+    <div style="padding:14px 18px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-3)">Pass Rate</div>
+    <div class="ringwrap">
+      <svg class="ring" viewBox="0 0 44 44">
+        <circle cx="22" cy="22" r="18" fill="none" stroke="var(--bg-3)" stroke-width="5"/>
+        <circle cx="22" cy="22" r="18" fill="none" stroke="{ring_color}" stroke-width="5"
+          stroke-dasharray="113.1" stroke-dashoffset="{ring_offset}"
+          stroke-linecap="round" transform="rotate(-90 22 22)"/>
+        <text x="22" y="25" text-anchor="middle" font-size="8" font-weight="700"
+          fill="{ring_color}" font-family="'JetBrains Mono',monospace">{pass_rate}%</text>
+      </svg>
+    </div>
+    <div class="mini-stats">
+      <div class="ms {p0_ms_cls}">
+        <div class="ms-v">{cnt_p0}</div>
+        <div class="ms-l">P0 bugs</div>
+      </div>
+      <div class="ms {p1_ms_cls}">
+        <div class="ms-v">{cnt_p1}</div>
+        <div class="ms-l">P1 bugs</div>
+      </div>
+      <div class="ms {p2_ms_cls}">
+        <div class="ms-v">{cnt_p2}</div>
+        <div class="ms-l">P2 bugs</div>
+      </div>
+      <div class="ms">
+        <div class="ms-v">{cnt_p3}</div>
+        <div class="ms-l">P3 bugs</div>
+      </div>
+    </div>
+  </div>
+  <!-- Run metadata -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-head"><h4>Run Info</h4></div>
+    <dl class="run-dl">
+      <dt>Run #</dt><dd>{run_num}</dd>
+      <dt>Date</dt><dd>{run_date}</dd>
+      <dt>Target URL</dt><dd style="word-break:break-all">{base_url}</dd>
+      <dt>AI Model</dt><dd>{model}</dd>
+      <dt>Browser</dt><dd>Chromium (headless)</dd>
+    </dl>
+  </div>
+  <!-- Priority breakdown -->
+  <div class="card">
+    <div class="card-head"><h4>Priority Breakdown</h4></div>
+    <dl class="run-dl">
+      <dt>Critical (P0)</dt><dd style="color:var(--bad)">{cnt_p0} · 24h SLA</dd>
+      <dt>High (P1)</dt><dd style="color:var(--warn)">{cnt_p1} · 2–3 days</dd>
+      <dt>Medium (P2)</dt><dd style="color:var(--ok)">{cnt_p2} · current sprint</dd>
+      <dt>Low (P3)</dt><dd style="color:var(--accent)">{cnt_p3} · backlog</dd>
+      <dt>Severity: Critical</dt><dd style="color:var(--bad)">{cnt_critical}</dd>
+      <dt>Severity: High</dt><dd style="color:var(--warn)">{cnt_high}</dd>
+      <dt>Severity: Medium</dt><dd style="color:var(--accent)">{cnt_medium}</dd>
+      <dt>Severity: Low</dt><dd style="color:var(--ok)">{cnt_low}</dd>
+    </dl>
+  </div>
+</aside>
+
+</div><!-- /layout -->
+
+<!-- ── Footer ── -->
+<footer class="brand-foot">
+  <div class="who">
+    <div class="logo-row">
+      <div class="mark">M</div>
+      <span class="bname">Mehad QA</span>
+    </div>
+    <span class="btitle">AI-driven spec validation · autonomous · intent-based</span>
+    <span style="font-size:12px;color:var(--ink-3);margin-top:8px">Built by Mejbaur Bahar Fagun</span>
+    <span style="font-size:12px;color:var(--ink-3)">Senior Software Engineer QA (IV) · Markopolo.ai</span>
+  </div>
+  <div>
+    <div class="col-head">Links</div>
+    <div class="links">
+      <a href="https://www.linkedin.com/in/mejbaur/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="{base_url}" target="_blank" rel="noopener">Target App</a>
+    </div>
+  </div>
+  <div>
+    <div class="col-head">Report</div>
+    <div class="links">
+      <a href="#" onclick="window.print();return false">Export PDF</a>
+    </div>
+  </div>
+  <div>
+    <div class="col-head">Run #{run_num}</div>
+    <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
+      {run_date}<br/>
+      {total_tests} tests<br/>
+      {total_specs} specs<br/>
+      {pass_rate}% pass rate
+    </div>
+  </div>
+</footer>
 
 </div><!-- /wrap -->
 
 <script>
-function toggleSpec(id){{
-  var body=document.getElementById(id);
-  var btn=body.previousElementSibling;
-  var arrow=btn.querySelector('.spec-blk-toggle');
-  if(body.classList.contains('open')){{
-    body.classList.remove('open');arrow.textContent='▶ Show tests';
-  }}else{{
-    body.classList.add('open');arrow.textContent='▼ Hide tests';
-  }}
-}}
-function toggleErr(id){{
-  var el=document.getElementById(id);
-  var btn=el.previousElementSibling;
-  if(el.classList.contains('open')){{el.classList.remove('open');btn.querySelector('span').textContent='▶ Show error details';}}
-  else{{el.classList.add('open');btn.querySelector('span').textContent='▼ Hide error details';}}
-}}
-function toggleEv(id){{
-  var el=document.getElementById(id);
-  var btn=el.previousElementSibling;
-  var arrow=btn.querySelectorAll('span')[1];
-  if(el.classList.contains('open')){{el.classList.remove('open');arrow.textContent='▶ Show';}}
-  else{{el.classList.add('open');arrow.textContent='▼ Hide';}}
-}}
-function openShot(src){{document.getElementById('lb-img').src=src;document.getElementById('lb').classList.add('show');}}
-document.addEventListener('keydown',function(e){{if(e.key==='Escape')document.getElementById('lb').classList.remove('show');}});
-
-// ── Filter state & DOM wiring ─────────────────────────────────────────────
-function applyTestFilter(mode){{
-  // mode = "all" | "passed" | "failed"
-  var rows = document.querySelectorAll('#spec-details .trow');
-  rows.forEach(function(r){{
-    var isPass = r.classList.contains('pass');
-    var isFail = r.classList.contains('fail');
-    var match  = (mode === 'all') ||
-                 (mode === 'passed' && isPass) ||
-                 (mode === 'failed' && isFail);
-    r.dataset.hidden = match ? '0' : '1';
+(function(){{
+  // Group toggle
+  document.querySelectorAll('.group-head').forEach(function(gh){{
+    gh.addEventListener('click', function(){{
+      gh.closest('.group').classList.toggle('open');
+    }});
   }});
-  // Also hide spec-blk wrappers that have no visible rows
-  document.querySelectorAll('.spec-blk').forEach(function(blk){{
-    var visible = blk.querySelectorAll('.trow:not([data-hidden="1"])').length;
-    blk.dataset.hidden = visible === 0 ? '1' : '0';
-    if(visible > 0 && blk.querySelector('.spec-blk-body')){{
-      blk.querySelector('.spec-blk-body').classList.add('open');
-      var t = blk.querySelector('.spec-blk-toggle');
-      if(t) t.textContent = '▼ Hide tests';
+  // Test row toggle
+  document.querySelectorAll('.test-row').forEach(function(tr){{
+    tr.addEventListener('click', function(){{
+      tr.closest('.test').classList.toggle('open');
+    }});
+  }});
+  // Chip filter
+  var chips = document.querySelectorAll('[data-tf]');
+  var searchEl = document.getElementById('testSearch');
+  var currentMode = 'all';
+  chips.forEach(function(chip){{
+    chip.addEventListener('click', function(){{
+      chips.forEach(function(c){{c.classList.remove('active')}});
+      chip.classList.add('active');
+      currentMode = chip.dataset.tf;
+      doFilter();
+    }});
+  }});
+  if(searchEl) searchEl.addEventListener('input', doFilter);
+  function doFilter(){{
+    var q = searchEl ? searchEl.value.toLowerCase().trim() : '';
+    document.querySelectorAll('.test').forEach(function(t){{
+      var out = t.dataset.outcome || '';
+      var pri = (t.dataset.pri || '').toLowerCase();
+      var nm = (t.querySelector('.tname')||{{}}).textContent||'';
+      var mOk = currentMode==='all'||
+        (currentMode==='failed'&&out==='fail')||
+        (currentMode==='passed'&&out==='pass')||
+        (currentMode==='p0'&&pri==='p0')||
+        (currentMode==='p1'&&pri==='p1');
+      var qOk = !q||nm.toLowerCase().includes(q);
+      t.style.display=(mOk&&qOk)?'':'none';
+    }});
+    document.querySelectorAll('.group').forEach(function(g){{
+      var vis=Array.from(g.querySelectorAll('.test')).some(function(t){{return t.style.display!=='none'}});
+      g.style.display=vis?'':'none';
+    }});
+  }}
+  // Traceback toggles
+  document.querySelectorAll('.trace-toggle').forEach(function(btn){{
+    btn.addEventListener('click',function(){{
+      var wrap=btn.nextElementSibling;
+      if(wrap){{wrap.style.display=wrap.style.display==='block'?'none':'block'}}
+      btn.querySelector('.arr').textContent=btn.nextElementSibling&&btn.nextElementSibling.style.display==='block'?'▼':'▶';
+    }});
+  }});
+  // Error toggle
+  function toggleErr(id){{
+    var el=document.getElementById(id);
+    var btn=el.previousElementSibling;
+    if(el.classList.contains('open')){{el.classList.remove('open');btn.querySelector('span').textContent='▶ Show error details';}}
+    else{{el.classList.add('open');btn.querySelector('span').textContent='▼ Hide error details';}}
+  }}
+  window.toggleErr = toggleErr;
+  // Evidence toggle
+  function toggleEv(id){{
+    var el=document.getElementById(id);
+    var btn=el.previousElementSibling;
+    var arrow=btn.querySelectorAll('span')[1];
+    if(el.classList.contains('open')){{el.classList.remove('open');if(arrow)arrow.textContent='▶ Show';}}
+    else{{el.classList.add('open');if(arrow)arrow.textContent='▼ Hide';}}
+  }}
+  window.toggleEv = toggleEv;
+  // Bug filter
+  function applyBugFilter(sev){{
+    document.querySelectorAll('.bug-card').forEach(function(c){{
+      if(sev==='all'){{c.style.display='';return;}}
+      var match;
+      if(/^P[0-3]$/.test(sev)){{match=c.dataset.priority===sev;}}
+      else{{match=c.querySelector('.badge.'+sev)!==null;}}
+      c.style.display=match?'':'none';
+    }});
+  }}
+  window.applyBugFilter = applyBugFilter;
+  // Lightbox
+  document.addEventListener('click',function(e){{
+    if(e.target.matches('.poc img,.screenshot')){{
+      document.getElementById('lb-img').src=e.target.src;
+      document.getElementById('lb').classList.add('show');
     }}
   }});
-  // Update active button
-  document.querySelectorAll('[data-test-filter]').forEach(function(b){{
-    b.classList.toggle('active', b.dataset.testFilter === mode);
+  document.addEventListener('keydown',function(e){{
+    if(e.key==='Escape') document.getElementById('lb').classList.remove('show');
   }});
-}}
-
-function applyTestSearch(q){{
-  q = (q || '').toLowerCase().trim();
-  document.querySelectorAll('#spec-details .trow').forEach(function(r){{
-    if(!q){{ r.dataset.hidden = '0'; return; }}
-    var nm = (r.querySelector('.trow-name') || {{}}).textContent || '';
-    var match = nm.toLowerCase().indexOf(q) !== -1;
-    r.dataset.hidden = match ? '0' : '1';
-  }});
-  document.querySelectorAll('.spec-blk').forEach(function(blk){{
-    var visible = blk.querySelectorAll('.trow:not([data-hidden="1"])').length;
-    blk.dataset.hidden = visible === 0 ? '1' : '0';
-    if(q && visible > 0 && blk.querySelector('.spec-blk-body')){{
-      blk.querySelector('.spec-blk-body').classList.add('open');
-    }}
-  }});
-}}
-
-function applyBugFilter(sev){{
-  // sev = "all" | "CRITICAL"|"HIGH"|"MEDIUM"|"LOW" (severity)
-  //       | "P0"|"P1"|"P2"|"P3" (priority)
-  document.querySelectorAll('#bug-list .bug-card').forEach(function(c){{
-    if(sev === 'all'){{ c.dataset.hidden = '0'; return; }}
-    var match;
-    if(/^P[0-3]$/.test(sev)){{
-      // Priority filter — uses data-priority attribute on the card
-      match = c.dataset.priority === sev;
-    }} else {{
-      // Severity filter — looks for a matching badge class
-      match = c.querySelector('.badge.' + sev) !== null;
-    }}
-    c.dataset.hidden = match ? '0' : '1';
-  }});
-  document.querySelectorAll('[data-bug-filter]').forEach(function(b){{
-    b.classList.toggle('active', b.dataset.bugFilter === sev);
-  }});
-}}
-
-function expandAllTests(open){{
-  document.querySelectorAll('#spec-details .trow').forEach(function(d){{
-    if(open) d.setAttribute('open',''); else d.removeAttribute('open');
-  }});
-  document.querySelectorAll('#spec-details .spec-blk-body').forEach(function(b){{
-    b.classList.toggle('open', !!open);
-    var arrow = b.previousElementSibling && b.previousElementSibling.querySelector('.spec-blk-toggle');
-    if(arrow) arrow.textContent = open ? '▼ Hide tests' : '▶ Show tests';
-  }});
-}}
-
-function handleHash(){{
-  var h = (location.hash || '').toLowerCase();
-  if(h === '#passed') applyTestFilter('passed');
-  else if(h === '#failed') applyTestFilter('failed');
-  else if(h === '#all-tests' || h === '#tests') applyTestFilter('all');
-  else if(h === '#bugs') applyBugFilter('all');
-  else if(h.startsWith('#bug-')){{
-    var sev = h.replace('#bug-','').toUpperCase();
-    applyBugFilter(sev);
-  }}
-}}
-
-// Wire up clicks on any `.stat[data-filter]` card to set the appropriate filter
-document.addEventListener('click', function(e){{
-  var stat = e.target.closest('.stat[data-filter]');
-  if(stat){{
-    var f = stat.dataset.filter;
-    if(f === 'passed' || f === 'failed' || f === 'all'){{
-      applyTestFilter(f);
-      // Open spec blocks so the filtered tests are visible
-      document.querySelectorAll('.spec-blk-body').forEach(function(b){{
-        b.classList.add('open');
-        var ar=b.previousElementSibling && b.previousElementSibling.querySelector('.spec-blk-toggle');
-        if(ar) ar.textContent='▼ Hide tests';
-      }});
-    }}
-    if(f === 'bugs') applyBugFilter('all');
-  }}
-  var fbtn = e.target.closest('[data-test-filter]');
-  if(fbtn){{ applyTestFilter(fbtn.dataset.testFilter); }}
-  var bbtn = e.target.closest('[data-bug-filter]');
-  if(bbtn){{ applyBugFilter(bbtn.dataset.bugFilter); }}
-  var act = e.target.closest('[data-action]');
-  if(act){{
-    if(act.dataset.action === 'expand-all')   expandAllTests(true);
-    if(act.dataset.action === 'collapse-all') expandAllTests(false);
-  }}
-}});
-
-document.addEventListener('input', function(e){{
-  var s = e.target.closest('[data-search]');
-  if(s){{ applyTestSearch(s.value); }}
-}});
-
-window.addEventListener('hashchange', handleHash);
-window.addEventListener('DOMContentLoaded', handleHash);
+}})();
 </script>
 </body>
 </html>"""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Bug ticket HTML template
+# Helper: parse test source for docstrings
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _parse_test_file(path: Path) -> dict:
+    """Return {fn_name: {title, docstring, test_data}} by AST-parsing the generated test file."""
+    info = {}
+    if not path.exists():
+        return info
+    try:
+        source = path.read_text(encoding="utf-8")
+        tree   = ast.parse(source)
+        lines  = source.splitlines()
+        for node in ast.walk(tree):
+            if not (isinstance(node, ast.FunctionDef) and node.name.startswith("test_")):
+                continue
+            doc  = ast.get_docstring(node) or ""
+            data = ""
+            for ln in range(node.lineno, min(node.lineno + 8, len(lines))):
+                if "# TEST_DATA:" in lines[ln]:
+                    data = lines[ln].split("# TEST_DATA:", 1)[-1].strip()
+                    break
+            raw_title = node.name[5:]
+            title = raw_title.replace("_", " ").title()
+            info[node.name] = {"title": title, "docstring": doc, "test_data": data}
+    except Exception:
+        pass
+    return info
+
+
+def _load_pytest_outcomes(json_report_path) -> dict:
+    """Return {fn_name: outcome} from a pytest JSON report file."""
+    outcomes = {}
+    if not json_report_path:
+        return outcomes
+    p = Path(json_report_path)
+    if not p.exists():
+        return outcomes
+    try:
+        data = json.loads(p.read_text(encoding="utf-8"))
+        for t in data.get("tests", []):
+            nodeid  = t.get("nodeid", "")
+            fn_name = nodeid.split("::")[-1].split("[")[0]
+            outcomes[fn_name] = t.get("outcome", "unknown")
+    except Exception:
+        pass
+    return outcomes
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Spec trace waterfall
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _build_spec_trace(all_results: dict) -> str:
+    if not all_results:
+        return ""
+    max_total = max((r.get("total", 0) for r in all_results.values()), default=1) or 1
+    rows = []
+    for name, r in all_results.items():
+        total  = r.get("total", 0)
+        failed = r.get("failed", 0)
+        bar_pct = max(4, round(total / max_total * 100))
+        bar_cls = "trace-bar pass" if failed == 0 else "trace-bar fail"
+        count_text = str(total) if bar_pct >= 20 else ""
+        rows.append(
+            f'<div class="trace-row">'
+            f'<span class="nm" title="{_esc(name)}">{_esc(name)}</span>'
+            f'<div class="lane">'
+            f'<div class="{bar_cls}" style="width:{bar_pct}%">{_esc(count_text)}</div>'
+            f'</div>'
+            f'</div>'
+        )
+    return "\n".join(rows)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Tests body (grouped by spec)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _build_tests_body(all_results: dict) -> str:
+    if not all_results:
+        return '<p style="color:var(--ink-3);padding:20px">No test data available.</p>'
+
+    groups = []
+    for spec_name, r in all_results.items():
+        bug_recs: list = r.get("bugs", []) or []
+        passed_recs: list = r.get("passed_tests", []) or []
+
+        # Legacy fallback: if no passed_tests, derive from pytest outcomes
+        if not passed_recs:
+            json_report = r.get("json_report")
+            outcomes    = _load_pytest_outcomes(json_report) if json_report else {}
+            tests_dir   = Path("tests")
+            test_file   = tests_dir / f"test_{spec_name.replace('-', '_')}.py"
+            test_info   = _parse_test_file(test_file) if test_file.exists() else {}
+            bug_names   = {b.get("test_name", "") for b in bug_recs}
+            for fn, info in test_info.items():
+                if outcomes.get(fn, "unknown") == "passed" and fn not in bug_names:
+                    passed_recs.append({
+                        "name":      fn,
+                        "docstring": info.get("docstring", ""),
+                        "params":    info.get("test_data", ""),
+                        "duration":  0.0,
+                    })
+
+        n_pass = len(passed_recs)
+        n_fail = len(bug_recs)
+        count_str = f"{n_pass} pass · {n_fail} fail"
+
+        test_rows = []
+
+        # Failed tests
+        for bug in bug_recs:
+            pri   = bug.get("priority", "P2").lower()
+            tname = _esc(bug.get("test_name", "unknown"))
+            desc  = _esc(bug.get("description", ""))
+            exp   = _esc(bug.get("expected", ""))
+            act   = _esc(bug.get("actual", ""))
+            tb    = _esc(bug.get("traceback", ""))
+            err   = _esc(bug.get("error_message", ""))
+            bug_id = _esc(bug.get("id", ""))
+            url   = _esc(bug.get("page_url", ""))
+            ts    = _esc(bug.get("timestamp", "")[:19].replace("T", " "))
+
+            meta_grid = (
+                f'<div class="meta-grid">'
+                f'<div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">{url or "—"}</div></div>'
+                f'<div class="meta-cell"><div class="k">Timestamp</div><div class="v">{ts or "—"}</div></div>'
+                f'<div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#{bug_id}">{bug_id}</a></div></div>'
+                f'<div class="meta-cell"><div class="k">Priority</div><div class="v">{_esc(bug.get("priority","P2"))}</div></div>'
+                f'</div>'
+            )
+            er_grid = (
+                f'<div class="er-grid">'
+                f'<div class="er-card ok"><div class="k">Expected</div><div class="v">{exp or "—"}</div></div>'
+                f'<div class="er-card bad"><div class="k">Actual</div><div class="v">{act or "—"}</div></div>'
+                f'</div>'
+            ) if (exp or act) else ""
+
+            tb_id = f"tb-{bug_id}"
+            tb_html = ""
+            if tb or err:
+                tb_html = (
+                    f'<button class="trace-toggle" onclick="'
+                    f'var w=this.nextElementSibling;w.style.display=w.style.display===\'block\'?\'none\':\'block\';'
+                    f'this.querySelector(\'.arr\').textContent=w.style.display===\'block\'?\'▼\':\'▶\';">'
+                    f'<span>Traceback / Error</span><span class="arr">▶</span></button>'
+                    f'<div style="display:none"><div class="codebox">{err}\n\n{tb}</div></div>'
+                )
+
+            desc_html = f'<p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">{desc}</p>' if desc else ""
+
+            test_rows.append(
+                f'<div class="test" data-outcome="fail" data-pri="{_esc(pri)}">'
+                f'<div class="test-row">'
+                f'<span class="chev">▶</span>'
+                f'<div class="statdot fail">✗</div>'
+                f'<div class="name-cell"><div class="tname">{tname}</div></div>'
+                f'<span class="tag {_esc(pri)}">{_esc(bug.get("priority","P2"))}</span>'
+                f'</div>'
+                f'<div class="test-body">'
+                f'{meta_grid}'
+                f'{desc_html}'
+                f'{er_grid}'
+                f'{tb_html}'
+                f'</div>'
+                f'</div>'
+            )
+
+        # Passed tests
+        for rec in passed_recs:
+            tname = _esc(rec.get("name", "unknown"))
+            doc   = _esc((rec.get("docstring") or "").strip())
+            params = _esc(rec.get("params", "") or "")
+            dur   = rec.get("duration", 0.0)
+            dur_s = f"{dur:.2f}s" if dur else "—"
+            test_rows.append(
+                f'<div class="test" data-outcome="pass">'
+                f'<div class="test-row">'
+                f'<span class="chev">▶</span>'
+                f'<div class="statdot pass">✓</div>'
+                f'<div class="name-cell"><div class="tname">{tname}</div></div>'
+                f'</div>'
+                f'<div class="pass-body">'
+                f'<dl class="pass-fields">'
+                f'<dt>Test function</dt><dd>{tname}</dd>'
+                + (f'<dt>What it checks</dt><dd>{doc}</dd>' if doc else '')
+                + (f'<dt>Test data</dt><dd>{params}</dd>' if params else '')
+                + f'<dt>Duration</dt><dd>{dur_s}</dd>'
+                f'</dl>'
+                f'</div>'
+                f'</div>'
+            )
+
+        if not test_rows:
+            continue
+
+        groups.append(
+            f'<div class="group" data-spec="{_esc(spec_name)}">'
+            f'<div class="group-head">'
+            f'<span class="chev">▶</span>'
+            f'<span class="gtag">{_esc(spec_name)}</span>'
+            f'<span class="count">{count_str}</span>'
+            f'</div>'
+            f'<div class="group-body">{"".join(test_rows)}</div>'
+            f'</div>'
+        )
+
+    return "".join(groups) if groups else '<p style="color:var(--ink-3);padding:20px">No test results.</p>'
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Bug ticket card
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _bug_ticket(bug: dict, idx: int) -> str:
@@ -914,56 +1122,54 @@ def _bug_ticket(bug: dict, idx: int) -> str:
     err   = _esc(bug.get("error_message", ""))
     tb    = _esc(bug.get("traceback", ""))
     shot  = bug.get("screenshot_b64", "")
-    video = bug.get("video_path", "")  # relative path under reports/
+    video = bug.get("video_path", "")
     tdata = bug.get("test_data", "")
-    bug_id= bug.get("id", f"BUG-{idx:03d}")
+    bug_id = bug.get("id", f"BUG-{idx:03d}")
     env_b = bug.get("browser", "Chromium")
-    env_v = bug.get("viewport", "1280×720")
+    env_v = bug.get("viewport", "1280x720")
     env_e = bug.get("env", "Staging")
 
-    # ── Prioritization framework fields ──────────────────────────────────────
-    priority_label    = bug.get("priority_label", "")
-    sla               = bug.get("sla", "")
-    board_section     = bug.get("board_section", "")
-    priority_rationale= bug.get("priority_rationale", "")
-    priority_action   = bug.get("priority_action", "")
-    biz_escalate      = bug.get("biz_escalate", False)
+    priority_label     = bug.get("priority_label", "")
+    sla                = bug.get("sla", "")
+    board_section      = bug.get("board_section", "")
+    priority_rationale = bug.get("priority_rationale", "")
+    priority_action    = bug.get("priority_action", "")
+    biz_escalate       = bug.get("biz_escalate", False)
 
     board_cls = "expedite" if board_section == "Expedite" else "else"
     biz_html  = '<span class="biz-badge">[BIZ-ESCALATE]</span>' if biz_escalate else ""
     pri_label_html = f" · {priority_label}" if priority_label else ""
 
-    # Steps list
+    # Steps
     steps_html = ""
     if steps:
         items = "".join(f"<li>{_esc(s)}</li>" for s in steps)
         steps_html = f"""
 <div style="margin-bottom:16px">
   <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
-              color:var(--muted);margin-bottom:8px">Steps to Reproduce</div>
+              color:var(--ink-3);margin-bottom:8px">Steps to Reproduce</div>
   <ol class="steps">{items}</ol>
 </div>"""
 
-    # Expected / Actual — labels worded for non-engineers
+    # Expected/Actual
     exp_act = f"""
 <div class="two-col">
   <div class="info-block expected">
-    <div class="ib-label">✓ What should happen</div>
-    <div>{_esc(exp) or "<em style='color:var(--muted)'>Not specified</em>"}</div>
+    <div class="ib-label">What should happen</div>
+    <div>{_esc(exp) or "<em style='color:var(--ink-3)'>Not specified</em>"}</div>
   </div>
   <div class="info-block actual">
-    <div class="ib-label">✗ What actually happened</div>
-    <div>{_esc(act) or "<em style='color:var(--muted)'>See error below</em>"}</div>
+    <div class="ib-label">What actually happened</div>
+    <div>{_esc(act) or "<em style='color:var(--ink-3)'>See error below</em>"}</div>
   </div>
 </div>"""
 
-    # Screenshot PoC — annotated with red banner showing the error
+    # Screenshot
     if shot:
         shot_html = f"""
 <div class="shot-wrap">
-  <div class="shot-label">Proof of Concept — Screenshot (annotated with bug)</div>
-  <img class="screenshot" src="{shot}" alt="Test failure screenshot"
-       onclick="openShot(this.src)" title="Click to enlarge"/>
+  <div class="shot-label">Proof of Concept — Screenshot</div>
+  <img class="screenshot" src="{shot}" alt="Test failure screenshot" title="Click to enlarge"/>
 </div>"""
     else:
         shot_html = """
@@ -972,32 +1178,27 @@ def _bug_ticket(bug: dict, idx: int) -> str:
   <div class="no-shot">No screenshot captured (test may have failed before page loaded)</div>
 </div>"""
 
-    # Video PoC — Playwright recording. Helps reviewers see the exact
-    # sequence of actions that led to the failure.
+    # Video
     if video:
         video_html = f"""
 <div class="video-wrap">
   <div class="video-label">Proof of Concept — Screen Recording</div>
-  <video class="poc-video" controls preload="metadata"
-         src="{_esc(video)}" type="video/webm">
+  <video class="poc-video" controls preload="metadata" src="{_esc(video)}" type="video/webm">
     Your browser does not support embedded video.
   </video>
-  <div><a class="video-cta" href="{_esc(video)}" download>⬇ Download .webm</a></div>
+  <div><a href="{_esc(video)}" download style="font-size:11px;color:var(--accent)">Download .webm</a></div>
 </div>"""
     else:
         video_html = ""
 
-    # Test data row — what data was actually used (if any)
+    # Test data
+    td_html = ""
     if tdata:
         td_html = f"""
 <div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">🧪 Test data used</div>
-  <div style="font-family:'SF Mono',monospace;color:#a371f7;font-size:12px">
-    {_esc(tdata)}
-  </div>
+  <div class="ib-label">Test data used</div>
+  <div style="font-family:var(--mono);color:var(--accent);font-size:12px">{_esc(tdata)}</div>
 </div>"""
-    else:
-        td_html = ""
 
     # Error collapsible
     err_id = f"err-{idx}"
@@ -1005,21 +1206,20 @@ def _bug_ticket(bug: dict, idx: int) -> str:
         err_section = f"""
 <button class="err-toggle" onclick="toggleErr('{err_id}')">
   <span>▶ Show error details</span>
-  <span style="font-size:11px;color:var(--muted)">AssertionError / Traceback</span>
+  <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
 <div class="err-body" id="{err_id}">
-  <pre style="margin-top:8px"><strong style="color:var(--c-critical)">{err}</strong>
+  <pre style="margin-top:8px"><strong style="color:var(--bad)">{err}</strong>
 
 {tb}</pre>
 </div>"""
     else:
         err_section = ""
 
-    # ── Evidence panels ──────────────────────────────────────────────────────
+    # Evidence panels
     ev_html = ""
-    ev_idx = idx  # reuse the ticket index as panel id
+    ev_idx  = idx
 
-    # Performance panel
     perf = bug.get("performance", {})
     if perf:
         def _perf_class(ms, warn=1500, bad=3000):
@@ -1031,8 +1231,8 @@ def _bug_ticket(bug: dict, idx: int) -> str:
         ttfb_ms = perf.get("ttfb_ms",      0)
         ev_html += f"""
 <button class="ev-toggle" onclick="toggleEv('perf-{ev_idx}')">
-  <span>⚡ Performance Timing</span>
-  <span style="font-size:11px;color:var(--muted)">▶ Show</span>
+  <span>Performance Timing</span>
+  <span style="font-size:11px;color:var(--ink-3)">▶ Show</span>
 </button>
 <div class="ev-body" id="perf-{ev_idx}">
   <div class="perf-grid" style="margin:8px 0">
@@ -1045,7 +1245,6 @@ def _bug_ticket(bug: dict, idx: int) -> str:
   </div>
 </div>"""
 
-    # Console errors panel
     errs = bug.get("error_log", [])
     if errs:
         items = "".join(
@@ -1054,38 +1253,36 @@ def _bug_ticket(bug: dict, idx: int) -> str:
             for e in errs[:10]
         )
         ev_html += f"""
-<button class="ev-toggle" onclick="toggleEv('console-{ev_idx}')" style="border-color:var(--c-critical);color:var(--c-critical)">
-  <span>🔴 Console Errors ({len(errs)})</span>
-  <span style="font-size:11px;color:var(--muted)">▶ Show</span>
+<button class="ev-toggle" onclick="toggleEv('console-{ev_idx}')" style="border-color:var(--bad);color:var(--bad)">
+  <span>Console Errors ({len(errs)})</span>
+  <span style="font-size:11px;color:var(--ink-3)">▶ Show</span>
 </button>
 <div class="ev-body" id="console-{ev_idx}">
   <div style="margin:8px 0">{items}</div>
 </div>"""
 
-    # Network log panel (show only API calls)
-    net_log = [n for n in bug.get("network_log", []) if "/api/" in n.get("url","")]
+    net_log = [n for n in bug.get("network_log", []) if "/api/" in n.get("url", "")]
     if net_log:
-        rows = "".join(
+        rows_net = "".join(
             f'<tr><td>{_esc(n.get("method",""))}</td>'
-            f'<td style="color:{"var(--c-pass)" if 200<=n.get("status",0)<300 else "var(--c-critical)"}"">'
+            f'<td style="color:{"var(--ok)" if 200<=n.get("status",0)<300 else "var(--bad)"}">'\
             f'{n.get("status","")}</td>'
             f'<td>{_esc(n.get("url","")[-80:])}</td></tr>'
             for n in net_log[:15] if n.get("type") == "response"
         )
-        if rows:
+        if rows_net:
             ev_html += f"""
 <button class="ev-toggle" onclick="toggleEv('net-{ev_idx}')">
-  <span>🌐 Network Log ({len(net_log)} API calls)</span>
-  <span style="font-size:11px;color:var(--muted)">▶ Show</span>
+  <span>Network Log ({len(net_log)} API calls)</span>
+  <span style="font-size:11px;color:var(--ink-3)">▶ Show</span>
 </button>
 <div class="ev-body" id="net-{ev_idx}">
   <table class="ev-table" style="margin:8px 0">
     <thead><tr><th>Method</th><th>Status</th><th>URL</th></tr></thead>
-    <tbody>{rows}</tbody>
+    <tbody>{rows_net}</tbody>
   </table>
 </div>"""
 
-    # Root cause + fix
     analysis_fix = ""
     if root:
         analysis_fix += f"""
@@ -1100,21 +1297,21 @@ def _bug_ticket(bug: dict, idx: int) -> str:
   <div>{_esc(fix)}</div>
 </div>"""
 
-    # Description — labeled for non-engineers
-    desc_html = f"""
+    desc_html = ""
+    if desc:
+        desc_html = f"""
 <div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">📋 What this test was checking</div>
-  <div>{_esc(desc) or "<em style='color:var(--muted)'>See error details below</em>"}</div>
-</div>""" if desc else ""
+  <div class="ib-label">What this test was checking</div>
+  <div>{_esc(desc)}</div>
+</div>"""
 
-    # Priority rationale block (framework decision tree output)
     priority_html = ""
     if priority_rationale:
-        action_line = (f'<div style="margin-top:6px;font-size:11px;color:var(--muted)">'
+        action_line = (f'<div style="margin-top:6px;font-size:11px;color:var(--ink-3)">'
                        f'Action: {_esc(priority_action)}</div>') if priority_action else ""
         priority_html = f"""
 <div class="info-block priority" style="margin-bottom:16px">
-  <div class="ib-label">🎯 Priority Rationale</div>
+  <div class="ib-label">Priority Rationale</div>
   <div>{_esc(priority_rationale)}</div>
   {action_line}
 </div>"""
@@ -1131,11 +1328,11 @@ def _bug_ticket(bug: dict, idx: int) -> str:
       </div>
       <div class="bug-title">{_esc(title)}</div>
       <div class="bug-meta">
-        <span>🔗 <a href="{_esc(url)}" target="_blank">{_esc(url)}</a></span>
-        <span>🧪 <code>{_esc(test)}</code></span>
-        <span>🕐 {ts}</span>
-        {'<span>⏱ ' + dur + '</span>' if dur else ''}
-        {f'<span><span class="sla-chip">⏱ SLA: {_esc(sla)}</span></span>' if sla else ''}
+        <span><a href="{_esc(url)}" target="_blank">{_esc(url)}</a></span>
+        <span><code>{_esc(test)}</code></span>
+        <span>{ts}</span>
+        {'<span>' + dur + '</span>' if dur else ''}
+        {f'<span><span class="sla-chip">SLA: {_esc(sla)}</span></span>' if sla else ''}
         {f'<span><span class="board-chip {board_cls}">{_esc(board_section)}</span></span>' if board_section else ''}
       </div>
     </div>
@@ -1155,43 +1352,13 @@ def _bug_ticket(bug: dict, idx: int) -> str:
       <span><b>Browser:</b> {env_b}</span>
       <span><b>Viewport:</b> {env_v}</span>
       <span><b>Env:</b> {env_e}</span>
-      <span><b>Spec:</b> <a href="{_esc(url)}" target="_blank">View page</a></span>
     </div>
   </div>
 </div>"""
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# Results row
-# ─────────────────────────────────────────────────────────────────────────────
-
-def _result_row(name: str, r: dict) -> str:
-    status = r.get("status", "unknown")
-    bugs   = r.get("bugs", [])
-    if status == "generation_failed":
-        badge = '<span class="badge gen-fail">GEN FAILED</span>'
-    elif r.get("failed", 1) == 0:
-        badge = '<span class="badge PASS">PASSED</span>'
-    else:
-        badge = '<span class="badge FAIL">FAILED</span>'
-
-    bug_links = " ".join(
-        f'<a href="#{b["id"]}" class="badge {b["severity"]}">{b["id"]}</a>'
-        for b in bugs
-    )
-
-    return f"""<tr>
-      <td><strong>{_esc(name)}</strong></td>
-      <td>{badge}</td>
-      <td style="color:var(--c-pass)">{r.get('passed', 0)}</td>
-      <td style="color:var(--c-critical)">{r.get('failed', 0)}</td>
-      <td>{r.get('total', 0)}</td>
-      <td>{bug_links or '<span style="color:var(--muted)">—</span>'}</td>
-    </tr>"""
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Gaps HTML
+# Gaps block
 # ─────────────────────────────────────────────────────────────────────────────
 
 def _gaps_block(name: str, gaps: str) -> str:
@@ -1205,261 +1372,13 @@ def _gaps_block(name: str, gaps: str) -> str:
 
 
 # ─────────────────────────────────────────────────────────────────────────────
-# HTML escape
+# Root-cause cluster summary
 # ─────────────────────────────────────────────────────────────────────────────
 
-def _esc(s: str) -> str:
-    if not s:
-        return ""
-    return (s.replace("&", "&amp;")
-             .replace("<", "&lt;")
-             .replace(">", "&gt;")
-             .replace('"', "&quot;"))
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Per-spec test detail helpers
-# ─────────────────────────────────────────────────────────────────────────────
-
-def _parse_test_file(path: Path) -> dict:
-    """Return {fn_name: {title, docstring, test_data}} by AST-parsing the generated test file."""
-    info = {}
-    if not path.exists():
-        return info
-    try:
-        source = path.read_text(encoding="utf-8")
-        tree   = ast.parse(source)
-        lines  = source.splitlines()
-        for node in ast.walk(tree):
-            if not (isinstance(node, ast.FunctionDef) and node.name.startswith("test_")):
-                continue
-            doc   = ast.get_docstring(node) or ""
-            # Scan first 8 lines of function body for a TEST_DATA comment
-            data  = ""
-            for ln in range(node.lineno, min(node.lineno + 8, len(lines))):
-                if "# TEST_DATA:" in lines[ln]:
-                    data = lines[ln].split("# TEST_DATA:", 1)[-1].strip()
-                    break
-            # Human title: strip "test_" prefix + spec slug prefix, title-case
-            raw_title = node.name[5:]  # remove leading "test_"
-            title = raw_title.replace("_", " ").title()
-            info[node.name] = {"title": title, "docstring": doc, "test_data": data}
-    except Exception:
-        pass
-    return info
-
-
-def _load_pytest_outcomes(json_report_path: str | None) -> dict:
-    """Return {fn_name: outcome} from a pytest JSON report file."""
-    outcomes = {}
-    if not json_report_path:
-        return outcomes
-    p = Path(json_report_path)
-    if not p.exists():
-        return outcomes
-    try:
-        data = json.loads(p.read_text(encoding="utf-8"))
-        for t in data.get("tests", []):
-            nodeid  = t.get("nodeid", "")
-            fn_name = nodeid.split("::")[-1].split("[")[0]
-            outcomes[fn_name] = t.get("outcome", "unknown")
-    except Exception:
-        pass
-    return outcomes
-
-
-def _outcome_badge(outcome: str) -> str:
-    mapping = {
-        "passed":  ('<span class="badge PASS">PASS</span>',  "test-row-pass"),
-        "failed":  ('<span class="badge FAIL">FAIL</span>',  "test-row-fail"),
-        "error":   ('<span class="badge FAIL">ERROR</span>', "test-row-fail"),
-        "skipped": ('<span style="color:var(--muted)">⏭ SKIP</span>', "test-row-skip"),
-    }
-    return mapping.get(outcome, (f'<span style="color:var(--muted)">— {_esc(outcome)}</span>', ""))
-
-
-def _spec_detail_block(spec_name: str, result: dict, block_idx: int) -> str:
-    """Build a collapsible per-spec block listing every test (passed AND failed)
-    with click-to-expand details: docstring, parametrize values, duration."""
-    json_report = result.get("json_report")
-    outcomes    = _load_pytest_outcomes(json_report) if json_report else {}
-
-    tests_dir  = Path("tests")
-    test_file  = tests_dir / f"test_{spec_name.replace('-', '_')}.py"
-    test_info  = _parse_test_file(test_file) if test_file.exists() else {}
-
-    # Pull pre-built passed/failed records from the consolidator if present.
-    passed_recs: list[dict] = result.get("passed_tests", []) or []
-    bug_recs:    list[dict] = result.get("bugs", []) or []
-
-    # Build a unified list of {name, outcome, docstring, params, duration, friendly_*}
-    rows: list[dict] = []
-
-    # PASSED tests — from consolidator's passed_tests array (preferred)
-    for rec in passed_recs:
-        rows.append({
-            "name":      rec.get("name", "unknown"),
-            "outcome":   "passed",
-            "docstring": rec.get("docstring") or test_info.get(rec.get("name", ""), {}).get("docstring", ""),
-            "params":    rec.get("params", ""),
-            "duration":  rec.get("duration", 0.0),
-            "friendly_actual":   "",
-            "friendly_expected": "",
-        })
-
-    # FAILED tests — from bug list
-    for bug in bug_recs:
-        rows.append({
-            "name":      bug.get("test_name", "unknown"),
-            "outcome":   "failed",
-            "docstring": bug.get("docstring", "") or test_info.get(bug.get("test_name", ""), {}).get("docstring", ""),
-            "params":    bug.get("test_data", ""),
-            "duration":  0.0,
-            "friendly_actual":   bug.get("actual", ""),
-            "friendly_expected": bug.get("expected", ""),
-            "bug_id":            bug.get("id", ""),
-        })
-
-    # Legacy path — if no consolidator data, fall back to raw outcomes + AST info
-    if not rows and (outcomes or test_info):
-        for fn in dict.fromkeys(list(test_info.keys()) + list(outcomes.keys())):
-            info = test_info.get(fn, {})
-            rows.append({
-                "name":      fn,
-                "outcome":   outcomes.get(fn, "unknown"),
-                "docstring": info.get("docstring", ""),
-                "params":    info.get("test_data", ""),
-                "duration":  0.0,
-                "friendly_actual":   "",
-                "friendly_expected": "",
-            })
-
-    if not rows:
-        return ""
-
-    total   = len(rows)
-    n_pass  = sum(1 for r in rows if r["outcome"] == "passed")
-    n_fail  = total - n_pass
-    icon    = "✅" if n_fail == 0 else "❌"
-    body_id = f"spec-detail-{block_idx}"
-
-    # Render each test as an expandable row. The `details` element gives us
-    # click-to-expand for free with no JS, and the styled <summary> looks
-    # like a clickable list item.
-    test_rows = []
-    for i, r in enumerate(rows):
-        nm     = _esc(r["name"])
-        out    = r["outcome"]
-        ds     = _esc((r.get("docstring") or "").strip())
-        params = _esc(r.get("params") or "")
-        dur    = r.get("duration", 0.0)
-        dur_s  = f"{dur:.2f}s" if dur else "—"
-
-        if out == "passed":
-            status_chip = '<span class="t-chip pass">✅ PASSED</span>'
-            row_cls     = "trow pass"
-        elif out in ("failed", "error"):
-            status_chip = f'<span class="t-chip fail">❌ FAILED</span>'
-            row_cls     = "trow fail"
-        elif out == "skipped":
-            status_chip = '<span class="t-chip skip">⏭ SKIPPED</span>'
-            row_cls     = "trow skip"
-        else:
-            status_chip = f'<span class="t-chip unknown">— {_esc(out)}</span>'
-            row_cls     = "trow unknown"
-
-        # Build the expanded body: docstring (what the test verifies), params
-        # (test data), duration, and for failed tests the friendly explanation.
-        details_html_parts = []
-        if ds:
-            details_html_parts.append(
-                f'<div class="td-row"><span class="td-lbl">What this test checks:</span>'
-                f'<span class="td-val">{ds}</span></div>')
-        else:
-            details_html_parts.append(
-                f'<div class="td-row"><span class="td-lbl">What this test checks:</span>'
-                f'<span class="td-val td-empty">(no docstring — see test source)</span></div>')
-        if params:
-            details_html_parts.append(
-                f'<div class="td-row"><span class="td-lbl">Test data used:</span>'
-                f'<span class="td-val td-data">{params}</span></div>')
-        details_html_parts.append(
-            f'<div class="td-row"><span class="td-lbl">Duration:</span>'
-            f'<span class="td-val">{dur_s}</span></div>')
-        details_html_parts.append(
-            f'<div class="td-row"><span class="td-lbl">Test function:</span>'
-            f'<span class="td-val"><code>{nm}</code></span></div>')
-
-        if out in ("failed", "error"):
-            fa = _esc(r.get("friendly_actual", "") or "")
-            fe = _esc(r.get("friendly_expected", "") or "")
-            bug_id = r.get("bug_id", "")
-            if fe:
-                details_html_parts.append(
-                    f'<div class="td-row"><span class="td-lbl exp">Expected:</span>'
-                    f'<span class="td-val">{fe}</span></div>')
-            if fa:
-                details_html_parts.append(
-                    f'<div class="td-row"><span class="td-lbl act">What happened:</span>'
-                    f'<span class="td-val">{fa}</span></div>')
-            if bug_id:
-                details_html_parts.append(
-                    f'<div class="td-row"><span class="td-lbl">Bug ticket:</span>'
-                    f'<span class="td-val"><a href="#{bug_id}">{bug_id}</a> — '
-                    f'see full details below</span></div>')
-
-        details_html = "".join(details_html_parts)
-        # Use <details>/<summary> for native click-to-expand, no JS needed
-        test_rows.append(f"""
-<details class="{row_cls}">
-  <summary>
-    {status_chip}
-    <span class="trow-name">{nm}</span>
-    {f'<span class="trow-params">{params}</span>' if params else ''}
-    <span class="trow-dur">{dur_s}</span>
-  </summary>
-  <div class="trow-details">
-    {details_html}
-  </div>
-</details>""")
-
-    rows_html = "\n".join(test_rows)
-    label = (f"{icon} <code>{_esc(spec_name)}</code> — "
-             f"<span style='color:var(--c-pass)'>{n_pass} passed</span> · "
-             f"<span style='color:var(--c-critical)'>{n_fail} failed</span> · "
-             f"{total} total")
-
-    return f"""
-<div class="spec-blk">
-  <div class="spec-blk-hdr" onclick="toggleSpec('{body_id}')">
-    <span class="spec-blk-title">{label}</span>
-    <span class="spec-blk-toggle">▶ Show tests</span>
-  </div>
-  <div class="spec-blk-body" id="{body_id}">
-    <div class="trow-help">
-      Click any test row below to expand and see what was verified, the test
-      data used, and (for failures) what went wrong in plain English.
-    </div>
-    {rows_html}
-  </div>
-</div>"""
-
-
-# ─────────────────────────────────────────────────────────────────────────────
-# Public entry point
-# ─────────────────────────────────────────────────────────────────────────────
-
-def _build_cluster_summary(all_bugs: list[dict]) -> str:
-    """Render a top-of-report banner showing root-cause clusters.
-
-    Each bug is expected to have `fingerprint` + `category_title` keys
-    (set by scripts/consolidate_reports.py via cluster_bugs()). This
-    function aggregates them into a clickable summary that links to
-    the individual bug tickets below."""
+def _build_cluster_summary(all_bugs: list) -> str:
     if not all_bugs:
         return ""
-    # Group by fingerprint
-    by_fp: dict[str, dict] = {}
+    by_fp: dict = {}
     for bug in all_bugs:
         fp = bug.get("fingerprint", "")
         if not fp:
@@ -1473,7 +1392,6 @@ def _build_cluster_summary(all_bugs: list[dict]) -> str:
                 "recurrence": bug.get("recurrence_count", 1),
             }
         by_fp[fp]["bugs"].append(bug)
-        # Promote to most-severe in cluster
         sev_order = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}
         if sev_order.get(bug.get("severity", "MEDIUM"), 9) < \
            sev_order.get(by_fp[fp]["severity"], 9):
@@ -1483,7 +1401,6 @@ def _build_cluster_summary(all_bugs: list[dict]) -> str:
     if not by_fp:
         return ""
 
-    # Sort: severity desc → cluster size desc
     sev_order = {"CRITICAL": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3}
     sorted_clusters = sorted(
         by_fp.items(),
@@ -1498,21 +1415,19 @@ def _build_cluster_summary(all_bugs: list[dict]) -> str:
         n      = len(bugs)
         recur  = c["recurrence"]
         title  = _esc(c["title"])
-        # Anchors to the affected bug tickets
         bug_links = " ".join(
             f'<a href="#{_esc(b.get("id",""))}" class="cluster-bug-link">'
             f'{_esc(b.get("id",""))}</a>'
             for b in bugs
         )
-        recur_badge = (f'<span class="recurrence-badge">'
-                       f'{recur}× consecutive runs</span>'
+        recur_badge = (f'<span class="recurrence-badge">{recur}x consecutive</span>'
                        if recur >= 3 else "")
         rows_html.append(f"""
 <div class="cluster-row">
   <div class="cluster-meta">
     <span class="badge {sev}">{sev}</span>
     <span class="badge {pri}">{pri}</span>
-    <span class="cluster-count">{n}× affected</span>
+    <span class="cluster-count">{n}x affected</span>
     {recur_badge}
   </div>
   <div class="cluster-title">{title}</div>
@@ -1521,42 +1436,44 @@ def _build_cluster_summary(all_bugs: list[dict]) -> str:
 
     n_clusters = len(by_fp)
     n_bugs     = sum(len(c["bugs"]) for c in by_fp.values())
-    headline = (f"{n_bugs} bug ticket(s) → "
-                f"<strong>{n_clusters} unique root cause(s)</strong>")
+    headline   = (f"{n_bugs} bug ticket(s) → "
+                  f"<strong>{n_clusters} unique root cause(s)</strong>")
 
     return f"""
-<div class="cluster-summary" id="clusters">
-  <div class="sec-title" style="margin:24px 0 12px">
-    🎯 Root-Cause Summary <span class="count">{n_clusters} clusters</span>
+<section class="card">
+  <div class="card-head"><h4>Root-Cause Summary</h4><span style="font-size:12px;color:var(--ink-3)">{n_clusters} clusters</span></div>
+  <div class="card-body">
+    <div class="cluster-headline">{headline}</div>
+    <div class="cluster-list">{"".join(rows_html)}</div>
+    <div class="cluster-help">
+      Bugs sharing a root cause are grouped here. Click any ticket ID to jump to its full bug card.
+    </div>
   </div>
-  <div class="cluster-headline">{headline}</div>
-  <div class="cluster-list">{"".join(rows_html)}</div>
-  <div class="cluster-help">
-    Bugs sharing a root cause are grouped here so you fix one thing
-    instead of N. Click any ticket ID to jump to its full bug card below.
-  </div>
-</div>"""
+</section>"""
 
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Public entry point
+# ─────────────────────────────────────────────────────────────────────────────
 
 def generate_report(all_results: dict, base_url: str, model: str,
                     output_filename: str = "bug-report.html",
                     extra_section_html: str = "",
                     base_path_prefix: str = "") -> Path:
-    """Render the master or per-agent report.
+    """Render the master or per-agent HTML report with the new Commit Report design."""
 
-    base_path_prefix:
-      ""    — report lives at site root (e.g. /report.html).
-              `index.html` is correct.
-      "../" — report lives in /agents/ subdir. `../index.html` needed
-              so 'Back to Dashboard' navigates correctly.
-    """
+    run_num = os.environ.get("GITHUB_RUN_NUMBER") or os.environ.get("CI_RUN_NUMBER") or "latest"
+    run_date = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
     all_bugs = [b for r in all_results.values() for b in r.get("bugs", [])]
 
     total_passed = sum(r.get("passed", 0) for r in all_results.values())
     total_failed = sum(r.get("failed", 0) for r in all_results.values())
     total_tests  = sum(r.get("total",  0) for r in all_results.values())
+    total_specs  = len(all_results)
+    passed_specs = sum(1 for r in all_results.values() if r.get("failed", 0) == 0)
 
-    cnt = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
+    cnt     = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
     pri_cnt = {"P0": 0, "P1": 0, "P2": 0, "P3": 0}
     for b in all_bugs:
         sev = b.get("severity", "MEDIUM").upper()
@@ -1564,51 +1481,176 @@ def generate_report(all_results: dict, base_url: str, model: str,
         pri = b.get("priority", "P2")
         pri_cnt[pri] = pri_cnt.get(pri, 0) + 1
 
-    # ── Cluster summary banner ─────────────────────────────────────────────
-    # consolidate-reports.py adds 'fingerprint' + 'category_title' to each
-    # bug. Aggregate them into a top-of-report summary so users can grok
-    # the report at a glance: "8 bugs, 4 unique root causes".
-    cluster_summary = _build_cluster_summary(all_bugs)
+    cnt_p0 = pri_cnt["P0"]
+    cnt_p1 = pri_cnt["P1"]
+    cnt_p2 = pri_cnt["P2"]
+    cnt_p3 = pri_cnt["P3"]
 
-    bug_tickets_html = "".join(
-        _bug_ticket(b, i + 1) for i, b in enumerate(all_bugs)
-    ) or '<p style="color:var(--muted);text-align:center;padding:24px">No bugs detected — all tests passed.</p>'
+    # Pass rate
+    pass_rate = round(total_passed / total_tests * 100, 1) if total_tests > 0 else 0.0
 
-    results_rows = "".join(_result_row(name, r) for name, r in all_results.items())
+    # Ring gauge
+    ring_offset = round(113.1 * (1 - pass_rate / 100), 2)
+    if pass_rate >= 80:
+        ring_color = "oklch(0.85 0.14 155)"
+    elif pass_rate >= 50:
+        ring_color = "oklch(0.92 0.14 85)"
+    else:
+        ring_color = "oklch(0.85 0.18 25)"
 
-    spec_details_html = "".join(
-        _spec_detail_block(name, r, i)
-        for i, (name, r) in enumerate(all_results.items())
-    ) or '<p style="color:var(--muted)">No test detail data available.</p>'
+    # Verdict
+    if cnt_p0 > 0:
+        verdict_label    = "No-Go"
+        stamp_cls        = ""
+        verdict_pill_cls = "fail"
+        verdict_pill     = "No-Go for production"
+        verdict_sub      = f"{cnt_p0} critical · {cnt_p1} high"
+    elif total_failed > 0:
+        verdict_label    = "Review"
+        stamp_cls        = ""
+        verdict_pill_cls = "fail"
+        verdict_pill     = "Needs review"
+        verdict_sub      = f"{total_failed} failing"
+    else:
+        verdict_label    = "Ready"
+        stamp_cls        = "pass-stamp"
+        verdict_pill_cls = "ok"
+        verdict_pill     = "Ready for production"
+        verdict_sub      = "all passing"
 
-    gaps_html = "".join(
-        _gaps_block(name, r.get("gaps", ""))
-        for name, r in all_results.items()
-    ) or '<p style="color:var(--muted)">No gap analysis available.</p>'
+    # Summary title & description
+    if total_failed > 0:
+        run_summary_title = f"{pass_rate}% — {total_failed} test(s) need attention"
+        run_description   = (
+            f"AI-driven spec validation completed on {base_url}. "
+            f"{cnt_p0} critical, {cnt_p1} high, {cnt_p2} medium, {cnt_p3} low priority bugs "
+            f"found across {total_specs} spec(s)."
+        )
+    else:
+        run_summary_title = f"all {total_tests} tests passed"
+        run_description   = (
+            f"AI-driven spec validation completed successfully on {base_url}. "
+            f"All {total_tests} tests passed across {total_specs} spec(s)."
+        )
+
+    # Diff-row classes
+    if pass_rate > 80:
+        pass_rate_cls = "up"
+        pass_rate_sym = "+"
+    elif pass_rate > 50:
+        pass_rate_cls = "neutral"
+        pass_rate_sym = "·"
+    else:
+        pass_rate_cls = "add"
+        pass_rate_sym = "−"
+
+    fail_cls = "add" if total_failed > 0 else "neutral"
+    fail_sym = "+" if total_failed > 0 else "·"
+
+    p0_cls = "add" if cnt_p0 > 0 else "neutral"
+    p0_sym = "+" if cnt_p0 > 0 else "·"
+    p0_label = str(cnt_p0)
+
+    p1_cls = "add" if cnt_p1 > 0 else "neutral"
+    p1_sym = "+" if cnt_p1 > 0 else "·"
+    p1_label = str(cnt_p1)
+
+    # Mini-stat classes
+    p0_ms_cls = "bad" if cnt_p0 > 0 else ""
+    p1_ms_cls = "warn" if cnt_p1 > 0 else ""
+    p2_ms_cls = "ok" if cnt_p2 > 0 else ""
+
+    # URL short form
+    base_url_short = re.sub(r"^https?://", "", base_url).rstrip("/")
+
+    # Build HTML sections
+    spec_trace_rows = _build_spec_trace(all_results)
+    tests_body_html = _build_tests_body(all_results)
+
+    cluster_html = _build_cluster_summary(all_bugs)
+
+    if all_bugs:
+        bug_items = "".join(_bug_ticket(b, i + 1) for i, b in enumerate(all_bugs))
+        bug_section_html = (
+            f'<section class="card" id="bugs">'
+            f'<div class="card-head"><h4>Bug Tickets</h4>'
+            f'<span style="font-size:12px;color:var(--ink-3)">{len(all_bugs)} total</span></div>'
+            f'<div class="card-body" style="padding:0">'
+            f'{cluster_html}'
+            f'<div id="bug-list" style="padding:20px">{bug_items}</div>'
+            f'</div>'
+            f'</section>'
+        )
+    else:
+        bug_section_html = (
+            '<section class="card" id="bugs">'
+            '<div class="card-head"><h4>Bug Tickets</h4>'
+            '<span style="font-size:12px;color:var(--ok)">0 bugs found</span></div>'
+            '<div class="card-body" style="text-align:center;color:var(--ok);padding:32px">'
+            'No bugs detected — all tests passed.'
+            '</div></section>'
+        )
+
+    gaps_parts = [_gaps_block(name, r.get("gaps", "")) for name, r in all_results.items()]
+    gaps_inner = "".join(g for g in gaps_parts if g)
+    if gaps_inner:
+        gaps_section_html = (
+            '<section class="card" id="gaps">'
+            '<div class="card-head"><h4>Coverage Gaps</h4><span style="font-size:12px;color:var(--ink-3)">AI Analysis</span></div>'
+            f'<div class="card-body">{gaps_inner}</div>'
+            '</section>'
+        )
+    else:
+        gaps_section_html = ""
 
     html = _PAGE.format(
-        run_date     = datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        base_url     = _esc(base_url),
-        model        = _esc(model),
-        cnt_critical = cnt["CRITICAL"],
-        cnt_high     = cnt["HIGH"],
-        cnt_medium   = cnt["MEDIUM"],
-        cnt_low      = cnt["LOW"],
-        cnt_p0       = pri_cnt["P0"],
-        cnt_p1       = pri_cnt["P1"],
-        cnt_p2       = pri_cnt["P2"],
-        cnt_p3       = pri_cnt["P3"],
-        total_passed = total_passed,
-        total_failed = total_failed,
-        total_tests  = total_tests,
+        run_num          = run_num,
+        run_date         = run_date,
+        base_url         = _esc(base_url),
+        base_url_short   = _esc(base_url_short),
+        model            = _esc(model),
+        total_tests      = total_tests,
+        total_passed     = total_passed,
+        total_failed     = total_failed,
         total_bugs       = len(all_bugs),
-        cluster_summary  = cluster_summary,
+        total_specs      = total_specs,
+        passed_specs     = passed_specs,
+        pass_rate        = pass_rate,
+        cnt_p0           = cnt_p0,
+        cnt_p1           = cnt_p1,
+        cnt_p2           = cnt_p2,
+        cnt_p3           = cnt_p3,
+        cnt_critical     = cnt["CRITICAL"],
+        cnt_high         = cnt["HIGH"],
+        cnt_medium       = cnt["MEDIUM"],
+        cnt_low          = cnt["LOW"],
+        verdict_label    = verdict_label,
+        verdict_sub      = verdict_sub,
+        verdict_pill_cls = verdict_pill_cls,
+        verdict_pill     = verdict_pill,
+        stamp_cls        = stamp_cls,
+        pass_rate_cls    = pass_rate_cls,
+        pass_rate_sym    = pass_rate_sym,
+        fail_cls         = fail_cls,
+        fail_sym         = fail_sym,
+        p0_cls           = p0_cls,
+        p0_sym           = p0_sym,
+        p0_label         = p0_label,
+        p1_cls           = p1_cls,
+        p1_sym           = p1_sym,
+        p1_label         = p1_label,
+        run_summary_title= run_summary_title,
+        run_description  = run_description,
+        ring_offset      = ring_offset,
+        ring_color       = ring_color,
+        p0_ms_cls        = p0_ms_cls,
+        p1_ms_cls        = p1_ms_cls,
+        p2_ms_cls        = p2_ms_cls,
+        spec_trace_rows  = spec_trace_rows,
+        tests_body_html  = tests_body_html,
+        bug_section_html = bug_section_html,
+        gaps_section_html= gaps_section_html,
         extra_section_html = extra_section_html,
-        bug_tickets_html = bug_tickets_html,
-        results_rows     = results_rows,
-        spec_details_html= spec_details_html,
-        gaps_html        = gaps_html,
-        back_link_path   = f"{base_path_prefix}index.html",
     )
 
     REPORTS_DIR.mkdir(exist_ok=True)
