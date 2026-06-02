@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA — Run #45 · 2026-06-02 09:16:16</title>
+<title>Mehad QA — Run #46 · 2026-06-02 09:28:52</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
@@ -538,7 +538,7 @@ ol.steps li{margin-bottom:5px}
   <div class="crumbs">
     <a href="index.html">Mehad QA</a>
     <span class="sep">/</span>
-    <span class="current">Run #45</span>
+    <span class="current">Run #46</span>
   </div>
   <button class="btn primary" onclick="window.print()">Export PDF</button>
 </nav>
@@ -553,38 +553,38 @@ ol.steps li{margin-bottom:5px}
 <!-- ── Run header ── -->
 <section class="commit">
   <div class="badge-row">
-    <span class="pill run">Run #45</span>
+    <span class="pill run">Run #46</span>
     <span class="pill">dev.mehadedu.com/en</span>
-    <span class="pill fail">Needs review</span>
+    <span class="pill ok">Ready for production</span>
   </div>
-  <h1>93.8% — 1 test(s) need attention</h1>
+  <h1>all 16 tests passed</h1>
   <div class="commit-meta">
-    <span><b>Date:</b> 2026-06-02 09:16:16</span>
+    <span><b>Date:</b> 2026-06-02 09:28:52</span>
     <span><b>Model:</b> qwen2.5-coder:7b</span>
     <span><b>Specs:</b> 1</span>
     <span><b>Tests:</b> 16</span>
   </div>
-  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">AI-driven spec validation completed on https://dev.mehadedu.com/en. 0 critical, 0 high, 1 medium, 0 low priority bugs found across 1 spec(s).</p>
-  <span class="stamp ">Review</span>
+  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">AI-driven spec validation completed successfully on https://dev.mehadedu.com/en. All 16 tests passed across 1 spec(s).</p>
+  <span class="stamp pass-stamp">Ready</span>
 </section>
 
 <!-- ── Quality overview ── -->
 <section class="card">
   <div class="card-head">
     <h4>Quality Overview</h4>
-    <span style="font-size:12px;color:var(--ink-3)">15/16 passing</span>
+    <span style="font-size:12px;color:var(--ink-3)">16/16 passing</span>
   </div>
   <div class="card-body">
     <div class="diff-rows">
       <div class="diff-row up">
         <span class="sym">+</span>
         <span class="lbl">Pass rate</span>
-        <span class="val">93.8%</span>
+        <span class="val">100.0%</span>
       </div>
-      <div class="diff-row add">
-        <span class="sym">+</span>
+      <div class="diff-row neutral">
+        <span class="sym">·</span>
         <span class="lbl">Failing tests</span>
-        <span class="val">1</span>
+        <span class="val">0</span>
       </div>
       <div class="diff-row neutral">
         <span class="sym">·</span>
@@ -614,7 +614,7 @@ ol.steps li{margin-bottom:5px}
   </div>
   <div class="pstrip-item p2">
     <div class="pstrip-label">P2 Medium</div>
-    <div class="pstrip-val">1</div>
+    <div class="pstrip-val">0</div>
     <div class="pstrip-sla">Current sprint</div>
   </div>
   <div class="pstrip-item p3">
@@ -631,9 +631,9 @@ ol.steps li{margin-bottom:5px}
 
 <!-- ── Spec trace waterfall ── -->
 <section class="card">
-  <div class="card-head"><h4>Spec Trace</h4><span style="font-size:12px;color:var(--ink-3)">0/1 specs clean</span></div>
+  <div class="card-head"><h4>Spec Trace</h4><span style="font-size:12px;color:var(--ink-3)">1/1 specs clean</span></div>
   <div class="trace-axis"><span>Spec</span><span>Tests run</span></div>
-  <div class="trace-row"><span class="nm" title="qa04_performance">qa04_performance</span><div class="lane"><div class="trace-bar fail" style="width:100%">16</div></div></div>
+  <div class="trace-row"><span class="nm" title="qa04_performance">qa04_performance</span><div class="lane"><div class="trace-bar pass" style="width:100%">16</div></div></div>
 </section>
 
 <!-- ── All tests ── -->
@@ -641,155 +641,23 @@ ol.steps li{margin-bottom:5px}
   <div class="card-head"><h4>All Tests</h4><span style="font-size:12px;color:var(--ink-3)">16 total</span></div>
   <div class="tests-tools">
     <span class="chip active" data-tf="all">All (16)</span>
-    <span class="chip fail" data-tf="failed">Failed (1)</span>
-    <span class="chip pass" data-tf="passed">Passed (15)</span>
+    <span class="chip fail" data-tf="failed">Failed (0)</span>
+    <span class="chip pass" data-tf="passed">Passed (16)</span>
     <span class="chip" data-tf="p0">P0</span>
     <span class="chip" data-tf="p1">P1</span>
     <input id="testSearch" type="text" placeholder="Search tests…"/>
   </div>
   <div id="tests-body">
-    <div class="group" data-spec="qa04_performance"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa04_performance</span><span class="count">15 pass · 1 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa04_no_memory_leak_multiple_modal_opens</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-02 09:16:15</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-04 -001">QA-04 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Opening/closing modal 5× must not cause significant JS heap growth — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Opening/closing modal 5× must not cause significant JS heap growth.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test waited for an element to appear, but it never showed up within 15000ms. The element may not exist on the page, or the page is loading very slowly.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 15000ms exceeded.
-E   Call log:
-E     - waiting for locator(&quot;button:has-text(\&quot;Log In\&quot;), button:has-text(\&quot;تسجيل الدخول\&quot;)&quot;).first to be visible
-E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot; aria-label=&quot;Login&quot; data-size=&quot;default&quot; data-variant=&quot;default&quot; class=&quot;justify-center whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 sh
-
-tests/test_qa_comprehensive.py:1472: in test_qa04_no_memory_leak_multiple_modal_opens
-    btn.wait_for(state=&quot;visible&quot;, timeout=15000)
-/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py:20048: in wait_for
-    self._sync(
-/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_locator.py:741: in wait_for
-    await self._frame.wait_for_selector(
-/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_frame.py:372: in wait_for_selector
-    await self._channel.send(
-/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
-    return await self._connection.wrap_api_call(
-/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
-    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 15000ms exceeded.
-E   Call log:
-E     - waiting for locator(&quot;button:has-text(\&quot;Log In\&quot;), button:has-text(\&quot;تسجيل الدخول\&quot;)&quot;).first to be visible
-E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot; aria-label=&quot;Login&quot; data-size=&quot;default&quot; data-variant=&quot;default&quot; class=&quot;justify-center whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive py-[9px] has-[&gt;svg]:px-3 md:hidden flex ite…&gt;…&lt;/button&gt;</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_homepage_loads_under_5s</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_homepage_loads_under_5s</dd><dt>What it checks</dt><dd>Homepage must reach domcontentloaded within 5 seconds.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>1.65s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_ttfb_under_1000ms</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_ttfb_under_1000ms</dd><dt>What it checks</dt><dd>Time To First Byte must be below 1000ms for the Mehad staging env.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>1.40s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_dom_content_loaded_under_3s</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_dom_content_loaded_under_3s</dd><dt>What it checks</dt><dd>DOMContentLoaded must fire within 3 seconds on homepage.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.45s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_no_js_errors_on_homepage_load</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_no_js_errors_on_homepage_load</dd><dt>What it checks</dt><dd>Homepage must load without JavaScript console errors.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.95s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_no_js_errors_opening_modal</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_no_js_errors_opening_modal</dd><dt>What it checks</dt><dd>Opening and closing the login modal must not trigger runtime JS errors.
+    <div class="group" data-spec="qa04_performance"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa04_performance</span><span class="count">16 pass · 0 fail</span></div><div class="group-body"><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_homepage_loads_under_5s</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_homepage_loads_under_5s</dd><dt>What it checks</dt><dd>Homepage must reach domcontentloaded within 5 seconds.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.33s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_ttfb_under_1000ms</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_ttfb_under_1000ms</dd><dt>What it checks</dt><dd>Time To First Byte must be below 1000ms for the Mehad staging env.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.06s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_dom_content_loaded_under_3s</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_dom_content_loaded_under_3s</dd><dt>What it checks</dt><dd>DOMContentLoaded must fire within 3 seconds on homepage.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.65s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_no_js_errors_on_homepage_load</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_no_js_errors_on_homepage_load</dd><dt>What it checks</dt><dd>Homepage must load without JavaScript console errors.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>5.66s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_no_js_errors_opening_modal</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_no_js_errors_opening_modal</dd><dt>What it checks</dt><dd>Opening and closing the login modal must not trigger runtime JS errors.
 
 Filters out: browser-extension noise, favicon 404, and known
 Radix/shadcn dev-mode a11y warnings (DialogTitle / aria-describedby) —
-these are component-library lints, not runtime failures.</dd><dt>Duration</dt><dd>4.51s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_no_js_errors_language_toggle</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_no_js_errors_language_toggle</dd><dt>What it checks</dt><dd>Language toggle must not produce JS errors.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>5.10s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_find_tutors_loads_under_5s</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_find_tutors_loads_under_5s</dd><dt>What it checks</dt><dd>Find-tutors page must load within 5 seconds.</dd><dt>Duration</dt><dd>1.93s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_no_js_errors_on_find_tutors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_no_js_errors_on_find_tutors</dd><dt>What it checks</dt><dd>Find-tutors page must not have JS errors on load.</dd><dt>Duration</dt><dd>2.80s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_responsive_no_js_errors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_responsive_no_js_errors</dd><dt>What it checks</dt><dd>Homepage must load without JS errors across all viewports.</dd><dt>Test data</dt><dd>[vp0] · BASE_URL</dd><dt>Duration</dt><dd>1.69s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_no_broken_images_on_homepage</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_no_broken_images_on_homepage</dd><dt>What it checks</dt><dd>No img tags on homepage must have a broken src (natural width = 0).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>5.64s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_modal_renders_within_2s</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_modal_renders_within_2s</dd><dt>What it checks</dt><dd>Login modal must appear within 2 seconds of clicking Log In.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.33s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_performance_resource_timing_available</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_performance_resource_timing_available</dd><dt>What it checks</dt><dd>window.performance.timing API must be available on the page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>1.40s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_responsive_no_js_errors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_responsive_no_js_errors</dd><dt>What it checks</dt><dd>Homepage must load without JS errors across all viewports.</dd><dt>Test data</dt><dd>[vp1] · BASE_URL</dd><dt>Duration</dt><dd>2.11s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_responsive_no_js_errors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_responsive_no_js_errors</dd><dt>What it checks</dt><dd>Homepage must load without JS errors across all viewports.</dd><dt>Test data</dt><dd>[vp2] · BASE_URL</dd><dt>Duration</dt><dd>1.75s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_responsive_no_js_errors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_responsive_no_js_errors</dd><dt>What it checks</dt><dd>Homepage must load without JS errors across all viewports.</dd><dt>Test data</dt><dd>[vp3] · BASE_URL</dd><dt>Duration</dt><dd>1.97s</dd></dl></div></div></div></div>
+these are component-library lints, not runtime failures.</dd><dt>Duration</dt><dd>7.42s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_no_js_errors_language_toggle</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_no_js_errors_language_toggle</dd><dt>What it checks</dt><dd>Language toggle must not produce JS errors.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>5.07s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_find_tutors_loads_under_5s</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_find_tutors_loads_under_5s</dd><dt>What it checks</dt><dd>Find-tutors page must load within 5 seconds.</dd><dt>Duration</dt><dd>2.72s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_no_js_errors_on_find_tutors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_no_js_errors_on_find_tutors</dd><dt>What it checks</dt><dd>Find-tutors page must not have JS errors on load.</dd><dt>Duration</dt><dd>3.55s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_responsive_no_js_errors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_responsive_no_js_errors</dd><dt>What it checks</dt><dd>Homepage must load without JS errors across all viewports.</dd><dt>Test data</dt><dd>[vp0] · BASE_URL</dd><dt>Duration</dt><dd>5.83s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_no_broken_images_on_homepage</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_no_broken_images_on_homepage</dd><dt>What it checks</dt><dd>No img tags on homepage must have a broken src (natural width = 0).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>5.91s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_modal_renders_within_2s</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_modal_renders_within_2s</dd><dt>What it checks</dt><dd>Login modal must appear within 2 seconds of clicking Log In.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.77s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_no_memory_leak_multiple_modal_opens</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_no_memory_leak_multiple_modal_opens</dd><dt>What it checks</dt><dd>Opening/closing modal 5× must not cause significant JS heap growth.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>8.64s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_performance_resource_timing_available</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_performance_resource_timing_available</dd><dt>What it checks</dt><dd>window.performance.timing API must be available on the page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>1.28s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_responsive_no_js_errors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_responsive_no_js_errors</dd><dt>What it checks</dt><dd>Homepage must load without JS errors across all viewports.</dd><dt>Test data</dt><dd>[vp1] · BASE_URL</dd><dt>Duration</dt><dd>4.88s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_responsive_no_js_errors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_responsive_no_js_errors</dd><dt>What it checks</dt><dd>Homepage must load without JS errors across all viewports.</dd><dt>Test data</dt><dd>[vp2] · BASE_URL</dd><dt>Duration</dt><dd>5.28s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa04_responsive_no_js_errors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa04_responsive_no_js_errors</dd><dt>What it checks</dt><dd>Homepage must load without JS errors across all viewports.</dd><dt>Test data</dt><dd>[vp3] · BASE_URL</dd><dt>Duration</dt><dd>5.25s</dd></dl></div></div></div></div>
   </div>
 </section>
 
 <!-- ── Bug tickets ── -->
-<section class="card" id="bugs"><div class="card-head"><h4>Bug Tickets</h4><span style="font-size:12px;color:var(--ink-3)">1 total</span></div><div class="card-body" style="padding:0">
-<section class="card">
-  <div class="card-head"><h4>Root-Cause Summary</h4><span style="font-size:12px;color:var(--ink-3)">1 clusters</span></div>
-  <div class="card-body">
-    <div class="cluster-headline">1 bug ticket(s) → <strong>1 unique root cause(s)</strong></div>
-    <div class="cluster-list">
-<div class="cluster-row">
-  <div class="cluster-meta">
-    <span class="badge MEDIUM">MEDIUM</span>
-    <span class="badge P2">P2</span>
-    <span class="cluster-count">1x affected</span>
-    <span class="recurrence-badge">22x consecutive</span>
-  </div>
-  <div class="cluster-title">Accessibility: required attribute missing</div>
-  <div class="cluster-tickets"><a href="#QA-04 -001" class="cluster-bug-link">QA-04 -001</a></div>
-</div></div>
-    <div class="cluster-help">
-      Bugs sharing a root cause are grouped here. Click any ticket ID to jump to its full bug card.
-    </div>
-  </div>
-</section><div id="bug-list" style="padding:20px">
-<div class="bug-card" id="QA-04 -001" data-priority="P2">
-  <div class="bug-card-hdr">
-    <div>
-      <div class="left">
-        <span class="bug-id">QA-04 -001</span>
-        <span class="badge MEDIUM">MEDIUM</span>
-        <span class="badge P2">P2</span>
-        
-      </div>
-      <div class="bug-title">Failed: Test qa04 no memory leak multiple modal opens</div>
-      <div class="bug-meta">
-        <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
-        <span><code>test_qa04_no_memory_leak_multiple_modal_opens</code></span>
-        <span>2026-06-02 09:16:15</span>
-        <span>16.38s</span>
-        
-        
-      </div>
-    </div>
-  </div>
-  <div class="bug-body">
-    
-    
-<div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">What this test was checking</div>
-  <div>Opening/closing modal 5× must not cause significant JS heap growth — verified against https://dev.mehadedu.com/en.</div>
-</div>
-    
-<div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">Test data used</div>
-  <div style="font-family:var(--mono);color:var(--accent);font-size:12px">BASE_URL</div>
-</div>
-    
-<div style="margin-bottom:16px">
-  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
-              color:var(--ink-3);margin-bottom:8px">Steps to Reproduce</div>
-  <ol class="steps"><li>Open a browser and go to https://dev.mehadedu.com/en</li><li>Click the 'Log In' button in the page header</li><li>Observe the result: it does NOT match what the test expected (see Actual Behavior)</li></ol>
-</div>
-    
-<div class="two-col">
-  <div class="info-block expected">
-    <div class="ib-label">What should happen</div>
-    <div>Opening/closing modal 5× must not cause significant JS heap growth.</div>
-  </div>
-  <div class="info-block actual">
-    <div class="ib-label">What actually happened</div>
-    <div>The test waited for an element to appear, but it never showed up within 15000ms. The element may not exist on the page, or the page is loading very slowly.</div>
-  </div>
-</div>
-    
-<div class="shot-wrap">
-  <div class="shot-label">Proof of Concept — Screenshot</div>
-  <div class="no-shot">No screenshot captured (test may have failed before page loaded)</div>
-</div>
-    
-    
-<button class="err-toggle" onclick="toggleErr('err-1')">
-  <span>▶ Show error details</span>
-  <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
-</button>
-<div class="err-body" id="err-1">
-  <pre style="margin-top:8px"><strong style="color:var(--bad)">E   playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 15000ms exceeded.
-E   Call log:
-E     - waiting for locator(&quot;button:has-text(\&quot;Log In\&quot;), button:has-text(\&quot;تسجيل الدخول\&quot;)&quot;).first to be visible
-E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot; aria-label=&quot;Login&quot; data-size=&quot;default&quot; data-variant=&quot;default&quot; class=&quot;justify-center whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 sh</strong>
-
-tests/test_qa_comprehensive.py:1472: in test_qa04_no_memory_leak_multiple_modal_opens
-    btn.wait_for(state=&quot;visible&quot;, timeout=15000)
-/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py:20048: in wait_for
-    self._sync(
-/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_locator.py:741: in wait_for
-    await self._frame.wait_for_selector(
-/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_frame.py:372: in wait_for_selector
-    await self._channel.send(
-/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:69: in send
-    return await self._connection.wrap_api_call(
-/opt/hostedtoolcache/Python/3.12.13/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:559: in wrap_api_call
-    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 15000ms exceeded.
-E   Call log:
-E     - waiting for locator(&quot;button:has-text(\&quot;Log In\&quot;), button:has-text(\&quot;تسجيل الدخول\&quot;)&quot;).first to be visible
-E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot; aria-label=&quot;Login&quot; data-size=&quot;default&quot; data-variant=&quot;default&quot; class=&quot;justify-center whitespace-nowrap disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive py-[9px] has-[&gt;svg]:px-3 md:hidden flex ite…&gt;…&lt;/button&gt;</pre>
-</div>
-    
-    <div style="margin-top:16px"></div>
-    <div class="env-strip">
-      <span><b>Browser:</b> Chromium</span>
-      <span><b>Viewport:</b> 1280x720</span>
-      <span><b>Env:</b> Staging</span>
-    </div>
-  </div>
-</div></div></div></section>
+<section class="card" id="bugs"><div class="card-head"><h4>Bug Tickets</h4><span style="font-size:12px;color:var(--ok)">0 bugs found</span></div><div class="card-body" style="text-align:center;color:var(--ok);padding:32px">No bugs detected — all tests passed.</div></section>
 
 <!-- ── Coverage gaps ── -->
 
@@ -808,10 +676,10 @@ E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot;
       <svg class="ring" viewBox="0 0 44 44">
         <circle cx="22" cy="22" r="18" fill="none" stroke="var(--bg-3)" stroke-width="5"/>
         <circle cx="22" cy="22" r="18" fill="none" stroke="oklch(0.85 0.14 155)" stroke-width="5"
-          stroke-dasharray="113.1" stroke-dashoffset="7.01"
+          stroke-dasharray="113.1" stroke-dashoffset="0.0"
           stroke-linecap="round" transform="rotate(-90 22 22)"/>
         <text x="22" y="25" text-anchor="middle" font-size="8" font-weight="700"
-          fill="oklch(0.85 0.14 155)" font-family="'JetBrains Mono',monospace">93.8%</text>
+          fill="oklch(0.85 0.14 155)" font-family="'JetBrains Mono',monospace">100.0%</text>
       </svg>
     </div>
     <div class="mini-stats">
@@ -823,8 +691,8 @@ E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot;
         <div class="ms-v">0</div>
         <div class="ms-l">P1 bugs</div>
       </div>
-      <div class="ms ok">
-        <div class="ms-v">1</div>
+      <div class="ms ">
+        <div class="ms-v">0</div>
         <div class="ms-l">P2 bugs</div>
       </div>
       <div class="ms">
@@ -837,8 +705,8 @@ E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot;
   <div class="card" style="margin-bottom:16px">
     <div class="card-head"><h4>Run Info</h4></div>
     <dl class="run-dl">
-      <dt>Run #</dt><dd>45</dd>
-      <dt>Date</dt><dd>2026-06-02 09:16:16</dd>
+      <dt>Run #</dt><dd>46</dd>
+      <dt>Date</dt><dd>2026-06-02 09:28:52</dd>
       <dt>Target URL</dt><dd style="word-break:break-all">https://dev.mehadedu.com/en</dd>
       <dt>AI Model</dt><dd>qwen2.5-coder:7b</dd>
       <dt>Browser</dt><dd>Chromium (headless)</dd>
@@ -850,11 +718,11 @@ E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot;
     <dl class="run-dl">
       <dt>Critical (P0)</dt><dd style="color:var(--bad)">0 · 24h SLA</dd>
       <dt>High (P1)</dt><dd style="color:var(--warn)">0 · 2–3 days</dd>
-      <dt>Medium (P2)</dt><dd style="color:var(--ok)">1 · current sprint</dd>
+      <dt>Medium (P2)</dt><dd style="color:var(--ok)">0 · current sprint</dd>
       <dt>Low (P3)</dt><dd style="color:var(--accent)">0 · backlog</dd>
       <dt>Severity: Critical</dt><dd style="color:var(--bad)">0</dd>
       <dt>Severity: High</dt><dd style="color:var(--warn)">0</dd>
-      <dt>Severity: Medium</dt><dd style="color:var(--accent)">1</dd>
+      <dt>Severity: Medium</dt><dd style="color:var(--accent)">0</dd>
       <dt>Severity: Low</dt><dd style="color:var(--ok)">0</dd>
     </dl>
   </div>
@@ -887,12 +755,12 @@ E       29 × locator resolved to hidden &lt;button data-slot=&quot;button&quot;
     </div>
   </div>
   <div>
-    <div class="col-head">Run #45</div>
+    <div class="col-head">Run #46</div>
     <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
-      2026-06-02 09:16:16<br/>
+      2026-06-02 09:28:52<br/>
       16 tests<br/>
       1 specs<br/>
-      93.8% pass rate
+      100.0% pass rate
     </div>
   </div>
 </footer>
