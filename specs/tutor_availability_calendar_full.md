@@ -2,8 +2,11 @@
 
 **URL:** `/en/dashboard/availability`
 **Role:** Tutor (logged in via `/en/tutor-login`)
-**Last verified:** 2026-06-02
-**Credentials:** +880 98976564 / OTP 123456
+**Credentials:** +880 98976564 (staging) / OTP 123456 (staging) | production: PROD_TEST_PHONE + Twilio OTP
+
+> **Dynamic dates:** All dates in scenarios are computed at runtime by `tests/date_helpers.py`.
+> Tests use the **next available Monday/Tuesday/Wednesday** (≥ 2 days from today) so they
+> pass every month without any date changes.
 
 ---
 
@@ -67,8 +70,9 @@ And the dialog contains:
 #### Scenario 2: Set date range and select days
 ```
 Given the Add Availability dialog is open
-When the tutor sets "From" to "2026-06-08"
-And sets "To" to "2026-06-08"
+# date_helpers.availability_slot_monday() gives the next Monday ≥ 2 days from today
+When the tutor sets "From" to <next_monday_input>   # e.g. "2026-07-07" computed at runtime
+And sets "To" to <next_monday_input>                 # same date (single-day slot)
 And clicks the "M" day button (Monday)
 Then the "M" button becomes [active]
 And the "Apply" button becomes enabled
@@ -94,15 +98,16 @@ Given start time "10:00 AM" and end time "12:00 PM" are set with day M selected
 When the tutor clicks "Apply"
 Then the dialog closes
 And a success toast appears
-And the calendar cell for June 8 shows "10:00 AM - 12:00 PM" with an edit icon
+And the calendar cell for <next_monday_short> (e.g. "Jul 7")
+    shows "10:00 AM - 12:00 PM" with an edit icon
 ```
 
 #### Scenario 5: View slot details (Day Slots dialog)
 ```
-Given the calendar has a slot on a date
-When the tutor clicks the calendar cell for that date
+Given the calendar has a slot on <next_monday_short>
+When the tutor clicks that calendar cell
 Then a dialog opens showing:
-  - Date label: e.g., "Mon Jun 8 2026" with timezone (Asia/Dhaka)
+  - Date label: e.g., "Mon <next_monday_short> <year>" with timezone
   - Slot row: time range, type label "oneToOneShort"
   - Edit icon button (pencil)
   - Delete icon button (trash)
@@ -144,8 +149,12 @@ Then the slot is removed from the dialog and from the calendar cell
 
 ---
 
-## Observed Slots (June 2026)
-- June 8 (Mon): 10:00 AM – 12:00 PM
-- June 9 (Tue): 2:00 PM – 4:00 PM
-- June 10 (Wed): 6:00 PM – 8:00 PM
-- June 15 (Mon): 10:00 AM – 12:00 PM (group session slot)
+## Slot Pattern (all computed dynamically at runtime)
+| Slot | Day | Computed by | Start | End |
+|---|---|---|---|---|
+| 1-on-1 Mon  | Next Monday ≥ 2 days from today    | `availability_slot_monday()`    | 10:00 AM | 12:00 PM |
+| 1-on-1 Tue  | Next Tuesday ≥ 2 days from today   | `availability_slot_tuesday()`   | 2:00 PM  | 4:00 PM  |
+| 1-on-1 Wed  | Next Wednesday ≥ 2 days from today | `availability_slot_wednesday()` | 6:00 PM  | 8:00 PM  |
+| Group session Mon | Monday ≥ 8 days from today   | `group_session_date()`          | 10:00 AM | 12:00 PM |
+
+> Import helpers: `from tests.date_helpers import availability_slot_monday, group_session_date`

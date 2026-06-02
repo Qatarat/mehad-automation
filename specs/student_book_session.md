@@ -2,7 +2,8 @@
 
 **URLs:** `/en/find-tutors` → `/en/tutor/{id}` → `/en/payment`
 **Role:** Student (logged in via homepage modal)
-**Last verified:** 2026-06-02
+**Dynamic dates:** All calendar dates are computed at runtime by `tests/date_helpers.py`.
+Use `booking_slot()` (= `availability_slot_monday()`) for the next Monday ≥ 2 days ahead.
 **Credentials:** +880 98976564 / OTP 123456
 
 ---
@@ -89,36 +90,39 @@ Then the student is navigated to /en/tutor/89?week=YYYY-MM-DD
 
 ### BDD Scenarios
 
-#### Scenario 3: Calendar shows available slots on correct week
+#### Scenario 3: Navigate to the week that has availability slots
 ```
-Given the student is on /en/tutor/89?week=2026-05-31
-Then the calendar shows "No available slots" for May 31 – Jun 6
-When the student clicks "Next week"
-Then the calendar shows Jun 7 – Jun 13
-And slots are visible: Mon 08 has "10:00 AM", "2:00 PM", "6:00 PM", "10:30 AM", "2:30 PM", "6:30 PM", "11:00 AM", "3:00 PM", "7:00 PM", "11:30 AM", "3:30 PM", "7:30 PM"
+# The teacher adds slots on next_monday, next_tuesday, next_wednesday
+# computed by date_helpers — navigate to that week in the tutor profile
+Given the student is on /en/tutor/89
+When the student clicks "Next week" until the calendar week contains <next_monday_short>
+  # Use date_helpers.booking_slot()["date"] to know the target week
+Then the calendar column for Monday shows at least one available time slot
 ```
 
 #### Scenario 4: Open booking modal via Book Trial Lesson
 ```
-Given the student is on the tutor profile week Jun 7-13
+Given the student can see available Monday slots on the tutor profile calendar
 When the student clicks "Book Trial Lesson"
 Then a dialog "Book a Session" opens
 And shows Step 1 "Date & Time" and Step 2 "reviewAndDetails"
-And the modal calendar defaults to the previous week (May 31) with all days disabled
-When the student clicks "Next week" inside the modal
-Then the modal shows Jun 7-13 with Mon, Tue, Wed enabled (others disabled)
-And all time slot buttons are listed below the calendar
+And the modal calendar starts at the current week with days disabled
+When the student clicks "Next week" inside the modal until <next_monday_short> is visible
+Then Mon, Tue, Wed are enabled (matching the teacher's added slots)
+And all time slot buttons for Monday are listed below the calendar
 ```
 
 #### Scenario 5: Select date and time in booking modal
 ```
-Given the booking modal shows Jun 7-13
-When the student clicks date button "08" (Monday)
-Then button "08" becomes [active]
+# slot = date_helpers.booking_slot()  (next Monday ≥ 2 days from today)
+Given the booking modal shows the week containing <next_monday_short>
+When the student clicks the day button for <slot.day_num>   # e.g. "07" or "14"
+Then that day button becomes [active]
 And the message "Please select a time slot" appears
 When the student clicks time button "10:00 AM"
 Then button "10:00 AM" becomes [active]
-And a summary appears: "Selected time: June 8, 2026 • 10:00 AM - 10:30 AM"
+And a summary appears:
+  "Selected time: <slot.display_month_day> • 10:00 AM - 10:30 AM"
 And the "Continue" button becomes enabled
 ```
 
@@ -126,12 +130,13 @@ And the "Continue" button becomes enabled
 
 #### Scenario 6: Review and pay
 ```
-Given date June 8 at 10:00 AM is selected in the booking modal
+# slot = date_helpers.booking_slot()
+Given <slot.display> at 10:00 AM is selected in the booking modal
 When the student clicks "Continue"
 Then Step 2 "Review Your Booking" appears showing:
   - Teacher: Automations Tutor, Subject: Math
   - Duration: 30-minute Session
-  - Date: Monday, June 8, 2026
+  - Date: <slot.display>          # e.g. "Monday, July 7, 2026" — computed at runtime
   - Time: 10:00 AM - 10:30 AM
   - Platform Fee: 15 SAR
   - Session Fee: 50 SAR, Total: 50 SAR
@@ -139,7 +144,7 @@ Then Step 2 "Review Your Booking" appears showing:
   - Footer: Total Amount 50 SAR + "Confirm & Pay" button [active]
 When the student clicks "Confirm & Pay"
 Then the student is redirected to /en/payment with params:
-  - bookingNumber=DBK-{date}-{id}
+  - bookingNumber=DBK-{date}-{id}    # date part changes every run
   - gatewaySlug=paytabs
   - customerName=Automations%20Student
   - customerEmail=automationstudent%40gmail.com

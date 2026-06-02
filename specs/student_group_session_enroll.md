@@ -31,7 +31,8 @@ And the section heading "Group Courses" appears
 And a group session card is displayed showing:
   - Heading: "QA Math Group Session"
   - Price: "50 SAR per student"
-  - Timeframe: "Jun 15 - Jun 15" with calendar icon
+  - Timeframe: "<group_session_short> - <group_session_short>" with calendar icon
+  # computed by date_helpers.group_session_date() — next Monday ≥ 8 days from today
   - Sessions: "1 Sessions"
   - Enrollment: "0 / 10 Students" + "0% Filled"
   - Schedule: "Monday · 10:00 AM – 12:00 PM"
@@ -49,7 +50,8 @@ And Step 2 "Review Details" is inactive
 And the session card shows:
   - Thumbnail image
   - Heading: "QA Math Group Session"
-  - Dates: "Jun 15 - Jun 15, 2026"
+  - Dates: "<group_session_short> - <group_session_short>, <year>"
+  # computed by date_helpers.group_session_date() — next Monday ≥ 8 days from today
   - Time: "10:00 AM • 1 classes"
   - Day: "Mon"
   - Availability: "10 seats left (0/10)"
@@ -70,7 +72,8 @@ And the review screen shows:
   - Tutor card: Avatar + "Automations Tutor" + "Math"
   - Section: "Group Session Details"
     - Topic: "QA Math Group Session"
-    - Timeframe: "Jun 15, 2026 - Jun 15, 2026" + "Monday 10:00 AM - 12:00 PM"
+    - Timeframe: "<group_session_short>, <year> - <group_session_short>, <year>" + "Monday 10:00 AM - 12:00 PM"
+    # computed by date_helpers.group_session_date() — next Monday ≥ 8 days from today
     - Duration: "2 hours"
   - Info note: "After completing payment, you'll schedule all your 1 session with Automations Tutor at times that work for both of you."
   - Payment Summary section:
@@ -106,7 +109,7 @@ Then the student is redirected to /en/payment with params:
 |---|---|
 | Name | QA Math Group Session |
 | Price | 50 SAR per student |
-| Timeframe | Jun 15 - Jun 15, 2026 |
+| Timeframe | `<group_session_short> - <group_session_short>, <year>` (computed: next Monday ≥ 8 days) |
 | Day | Monday |
 | Time | 10:00 AM – 12:00 PM |
 | Duration | 2 hours |

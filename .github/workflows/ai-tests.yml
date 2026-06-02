@@ -54,6 +54,23 @@ jobs:
       BROWSER_USE_TIMEOUT:   "30"
       OPENAI_API_KEY:        "ollama"
       OPENAI_BASE_URL:       "http://localhost:11434/v1"
+      # ── Staging OTP (fixed) ──────────────────────────────────────────────
+      TEST_OTP:              ${{ secrets.TEST_OTP        || '123456' }}
+      TEST_PHONE:            ${{ secrets.TEST_PHONE      || '98976564' }}
+      TEST_COUNTRY:          ${{ secrets.TEST_COUNTRY    || '+880' }}
+      TEACHER_PHONE:         ${{ secrets.TEACHER_PHONE   || '98976564' }}
+      TEACHER_OTP:           ${{ secrets.TEACHER_OTP     || '123456' }}
+      STUDENT_PHONE:         ${{ secrets.STUDENT_PHONE   || '98976564' }}
+      STUDENT_OTP:           ${{ secrets.STUDENT_OTP     || '123456' }}
+      # ── Production OTP (Twilio) — only active when BASE_URL=mehadedu.com ─
+      PROD_OTP_BACKEND:      ${{ secrets.PROD_OTP_BACKEND }}
+      PROD_TEST_PHONE:       ${{ secrets.PROD_TEST_PHONE }}
+      PROD_STUDENT_PHONE:    ${{ secrets.PROD_STUDENT_PHONE }}
+      PROD_TEACHER_PHONE:    ${{ secrets.PROD_TEACHER_PHONE }}
+      PROD_COUNTRY_CODE:     ${{ secrets.PROD_COUNTRY_CODE || '+966' }}
+      TWILIO_ACCOUNT_SID:    ${{ secrets.TWILIO_ACCOUNT_SID }}
+      TWILIO_AUTH_TOKEN:     ${{ secrets.TWILIO_AUTH_TOKEN }}
+      TWILIO_WHATSAPP_NUMBER: ${{ secrets.TWILIO_WHATSAPP_NUMBER || '+14155238886' }}
 
     steps:
       # ── 1. Checkout ──────────────────────────────────────────────────────────

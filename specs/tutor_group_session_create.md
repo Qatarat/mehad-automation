@@ -2,7 +2,7 @@
 
 **URL:** `/en/dashboard/availability` (button in page header triggers creation)
 **Role:** Tutor
-**Last verified:** 2026-06-02
+**Dynamic dates:** All dates computed by `tests/date_helpers.group_session_date()` — always the next Monday that is ≥ 8 days away so it never conflicts with the 1-on-1 slot Monday.
 
 ---
 
@@ -80,9 +80,10 @@ Then the wizard advances to Step 2 (Schedule)
 
 #### Scenario 3: Fill Step 2 schedule
 ```
+# Use group_session_date() — next Monday ≥ 8 days from today
 Given the wizard is on Step 2
-When the tutor sets From date to "2026-06-15"
-And sets To date to "2026-06-15"
+When the tutor sets From date to <group_session_input>  # e.g. "2026-07-14", computed at runtime
+And sets To date to <group_session_input>               # same date (single-week session)
 And clicks the "M" day button to select Monday
 And selects Start Time "10:00 AM"
 And selects End Time "12:00 PM"
@@ -117,7 +118,7 @@ And there is no "Create" button on this page (creation only via Availability Cal
 |---|---|
 | Name | QA Math Group Session |
 | Subject | Math |
-| Timeframe | Jun 15 - Jun 15, 2026 |
+| Timeframe | <group_session_short> - <group_session_short>, <year>  (computed: next Monday ≥ 8 days) |
 | Day | Monday |
 | Time | 10:00 AM – 12:00 PM |
 | Duration | 2 hours |
