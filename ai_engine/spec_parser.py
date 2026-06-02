@@ -102,10 +102,32 @@ def parse(spec_path: Path) -> ParsedSpec:
         )
         for i, txt in enumerate(req_bullets[:15], 1):
             requirements.append(f"REQ-{i:02d}: {txt.strip()}")
+    # BDD format: extract "Then ..." assertions as requirements
+    # Handles both plain "Then ..." and bold "**Then** ..." formats
+    if not requirements:
+        then_lines: list[str] = []
+        for line in raw.splitlines():
+            stripped = line.strip()
+            if stripped in ("```", "```bdd", "```gherkin"):
+                continue
+            # Plain format
+            mp = re.match(r"^(?:Then|And)\s+(.{10,120})", stripped, re.IGNORECASE)
+            if mp:
+                then_lines.append(mp.group(1).strip())
+                continue
+            # Bold format
+            mb = re.match(r"^\*\*(?:Then|And)\*\*\s+(.{10,120})", stripped, re.IGNORECASE)
+            if mb:
+                then_lines.append(mb.group(1).strip())
+        for i, txt in enumerate(then_lines[:15], 1):
+            if txt and "<" not in txt:
+                requirements.append(f"REQ-{i:02d}: {txt}")
 
     # ── User flows ────────────────────────────────────────────────────────────
-    # Support both Markopolo format (## User Flows → ### Flow N)
-    # and Mehad format (## Steps to Reproduce... → numbered list)
+    # Support three formats:
+    #   1. Markopolo format: ## User Flows → ### Flow N → numbered steps
+    #   2. Mehad step format: ## Steps to Reproduce... → numbered list
+    #   3. BDD format: #### Scenario N: ... → Given/When/Then blocks
     flows_section = _between(raw, "## User Flows", ["## Validation", "## Edge", "## Expected", "## Test Data", "## API"])
     flow_blocks = re.split(r"###\s+Flow\s+\d+", flows_section, flags=re.IGNORECASE)
     flows = []
@@ -128,11 +150,38 @@ def parse(spec_path: Path) -> ParsedSpec:
             title = m.group(1).strip()[:60]
             block = m.group(2)
             steps = re.findall(r"\d+\.\s+(.+)", block)
-            # Also extract sub-steps from ### sections
             sub_steps = re.findall(r"###\s+\d+\.\s+(.+)", block)
             all_steps = (sub_steps or steps)[:10]
             if all_steps:
                 flows.append({"name": title, "steps": all_steps})
+
+    # BDD format: #### Scenario N: or ### XX-NN: blocks with Given/When/Then
+    if not flows:
+        scenario_blocks = re.finditer(
+            r"#{2,4}\s+(?:Scenario\s+\d+[:\s]+|[A-Z]{2,6}-\d+[:\s]+)([^\n]+)\n"
+            r"(.*?)(?=\n#{2,4}\s+(?:Scenario\s+\d+|[A-Z]{2,6}-\d+)|\n##\s|\Z)",
+            raw, re.DOTALL | re.IGNORECASE
+        )
+        for m in scenario_blocks:
+            title = m.group(1).strip()[:60]
+            block = m.group(2)
+            steps: list[str] = []
+            for line in block.splitlines():
+                stripped = line.strip()
+                if stripped in ("```", "```bdd", "```gherkin"):
+                    continue
+                # Plain: "Given/When/Then/And ..."
+                mp = re.match(r"^(Given|When|Then|And)\s+(.+)", stripped, re.IGNORECASE)
+                if mp:
+                    steps.append(" ".join(mp.group(0).split())[:100])
+                    continue
+                # Bold: "**Given** ..." / "**Then** ..."
+                mb = re.match(r"^\*\*(Given|When|Then|And)\*\*\s+(.+)", stripped, re.IGNORECASE)
+                if mb:
+                    steps.append(" ".join(f"{mb.group(1)} {mb.group(2)}".split())[:100])
+            steps = steps[:8]
+            if steps:
+                flows.append({"name": title, "steps": steps})
 
     # ── Edge cases (table) ────────────────────────────────────────────────────
     edge_cases = []
@@ -172,6 +221,19 @@ def parse(spec_path: Path) -> ParsedSpec:
     td_valid    = [l for l in _lines(valid_block)   if l.startswith(("email:", "password:", "name:", "username:"))]
     td_invalid  = [l for l in _lines(invalid_block) if l.startswith(("email:", "password:", "name:"))]
     td_security = [l for l in _lines(security_block) if l.startswith(("email:", "name:", "password:"))]
+
+    # BDD / phone-OTP specs: extract credentials from **Credentials:** line
+    if not td_valid:
+        cred_m = re.search(r"\*\*Credentials?:\*\*\s*([^\n]+)", raw, re.IGNORECASE)
+        if cred_m:
+            cred_raw = cred_m.group(1).strip()
+            # e.g. "+880 98976564 / OTP 123456"
+            phone_m = re.search(r"(\+?\d[\d\s]{7,14})", cred_raw)
+            if phone_m:
+                td_valid.append(f"phone: {phone_m.group(1).strip()}")
+            otp_m = re.search(r"OTP\s+(\d{4,8})", cred_raw, re.IGNORECASE)
+            if otp_m:
+                td_valid.append(f"otp: {otp_m.group(1)}")
 
     # ── API endpoints ─────────────────────────────────────────────────────────
     api_endpoints = []

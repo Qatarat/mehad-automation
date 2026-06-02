@@ -1352,6 +1352,106 @@ jobs:
           if-no-files-found: warn
 
   # ─────────────────────────────────────────────────────────────────────────────
+  # SPEC VALIDATION — Runs all 68 spec-driven tests (test_specs_all.py)
+  # Regenerates from scratch so specs added since last commit are always covered.
+  # Results written as individual per-spec JSON files for per-group reporting.
+  # ─────────────────────────────────────────────────────────────────────────────
+  qa-spec-validation:
+    name: "QA — Spec Validation (68 specs, 1200+ tests)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      BASE_URL:        ${{ github.event.inputs.base_url || 'https://dev.mehadedu.com/en' }}
+      TEST_OTP:        ${{ secrets.TEST_OTP        || '123456' }}
+      TEST_PHONE:      ${{ secrets.TEST_PHONE      || '98976564' }}
+      TEST_COUNTRY:    ${{ secrets.TEST_COUNTRY    || '+880' }}
+      TEACHER_PHONE:   ${{ secrets.TEACHER_PHONE   || '98976564' }}
+      TEACHER_OTP:     ${{ secrets.TEACHER_OTP     || '123456' }}
+      STUDENT_PHONE:   ${{ secrets.STUDENT_PHONE   || '98976564' }}
+      STUDENT_OTP:     ${{ secrets.STUDENT_OTP     || '123456' }}
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: "pip" }
+
+      - name: Install Python dependencies
+        run: |
+          pip install playwright pytest pytest-playwright pytest-html \
+                      pytest-timeout pytest-json-report Pillow
+
+      - name: Install Playwright Chromium
+        run: playwright install chromium --with-deps
+
+      - name: Prepare reports directory
+        run: mkdir -p reports reports/screenshots reports/evidence
+
+      - name: Regenerate test_specs_all.py from all 68 specs
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          echo "=== Regenerating tests from 68 spec files ==="
+          python3 scripts/validate_all_specs.py
+          echo "Test functions: $(grep -c '^    def test_' tests/test_specs_all.py || echo '?')"
+
+      - name: Verify generated test file syntax
+        run: python3 -m py_compile tests/test_specs_all.py && echo "✅ Syntax OK"
+
+      - name: Run all spec tests — Part A (first 35 spec classes)
+        continue-on-error: true
+        env:
+          BASE_URL:     ${{ env.BASE_URL }}
+          PYTHONPATH:   ${{ github.workspace }}
+        run: |
+          # Collect first 35 test classes alphabetically
+          CLASSES=$(python3 -c "
+          import re
+          src = open('tests/test_specs_all.py').read()
+          classes = re.findall(r'^class (TestSpec_\w+)', src, re.MULTILINE)
+          half = classes[:35]
+          print(' '.join(f'tests/test_specs_all.py::{c}' for c in half))
+          ")
+          python3 -m pytest $CLASSES \
+            --timeout=20 --timeout-method=thread \
+            --tb=line -q -p no:warnings \
+            --html=reports/spec-validation-a.html --self-contained-html \
+            --json-report --json-report-file=reports/qa21_spec_validation_a_results.json \
+            -p no:cacheprovider 2>&1 | tee reports/spec-validation-a.txt || true
+
+      - name: Run all spec tests — Part B (last 33 spec classes)
+        continue-on-error: true
+        env:
+          BASE_URL:     ${{ env.BASE_URL }}
+          PYTHONPATH:   ${{ github.workspace }}
+        run: |
+          CLASSES=$(python3 -c "
+          import re
+          src = open('tests/test_specs_all.py').read()
+          classes = re.findall(r'^class (TestSpec_\w+)', src, re.MULTILINE)
+          half = classes[35:]
+          print(' '.join(f'tests/test_specs_all.py::{c}' for c in half))
+          ")
+          python3 -m pytest $CLASSES \
+            --timeout=20 --timeout-method=thread \
+            --tb=line -q -p no:warnings \
+            --html=reports/spec-validation-b.html --self-contained-html \
+            --json-report --json-report-file=reports/qa21_spec_validation_b_results.json \
+            -p no:cacheprovider 2>&1 | tee reports/spec-validation-b.txt || true
+
+      - name: Upload Spec Validation Reports
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: qa-spec-validation-${{ github.run_number }}
+          path: |
+            reports/qa21_spec_validation*.json
+            reports/spec-validation*.html
+            reports/spec-validation*.txt
+            reports/screenshots/
+          retention-days: 30
+          if-no-files-found: warn
+
+  # ─────────────────────────────────────────────────────────────────────────────
   # CONSOLIDATE — Merges ALL QA agent results into one master bug-report.html
   # Runs after every other job completes (pass or fail).
   # ─────────────────────────────────────────────────────────────────────────────
@@ -1380,6 +1480,7 @@ jobs:
       - qa-agent-16-exploratory
       - qa-agent-17-fuzzing
       - qa-agent-18-vision-ui
+      - qa-spec-validation
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
@@ -1504,6 +1605,12 @@ jobs:
         with:
           name: qa-agent-18-reports-${{ github.run_number }}
           path: reports/agent-18/
+      - name: Download Spec Validation artifacts (all 68 specs)
+        uses: actions/download-artifact@v5
+        continue-on-error: true
+        with:
+          name: qa-spec-validation-${{ github.run_number }}
+          path: reports/spec-validation/
       - name: Download screenshots (for embedding in master report)
         uses: actions/download-artifact@v5
         continue-on-error: true
