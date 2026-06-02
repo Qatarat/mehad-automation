@@ -1,0 +1,18 @@
+{
+  "name": "mehad-whatsapp-otp-bridge",
+  "version": "1.0.0",
+  "description": "Free open-source WhatsApp OTP bridge for production test automation",
+  "main": "whatsapp_otp_server.js",
+  "scripts": {
+    "start": "node whatsapp_otp_server.js",
+    "setup": "npm install && echo 'Run: node whatsapp_otp_server.js — then scan the QR code'"
+  },
+  "dependencies": {
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.23.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "license": "MIT"
+}

@@ -12,10 +12,18 @@ Covers 8 test groups:
   QA-08  Mobile & Cross-Viewport Tests     (responsive layouts, touch targets)
 """
 
-import os, re, time, json
+import os, re, time, json, sys
 import pytest
 from pathlib import Path
 from playwright.sync_api import Page, expect
+
+sys.path.insert(0, str(Path(__file__).parent.parent))
+try:
+    from scripts.get_otp import fetch_otp as _fetch_otp  # type: ignore[import]
+    _HAS_OTP_FETCHER = True
+except Exception:
+    _fetch_otp = None  # type: ignore[assignment]
+    _HAS_OTP_FETCHER = False
 
 BASE_URL = os.getenv("BASE_URL", "https://dev.mehadedu.com/en")
 FIND_TUTORS_URL = f"{BASE_URL}/find-tutors"
@@ -24,10 +32,11 @@ AR_URL          = os.getenv("BASE_URL", "https://dev.mehadedu.com").rstrip("/en"
 # SPA-safe load state — SPAs never reach networkidle
 LOAD_STATE = "domcontentloaded"
 
-# Test credentials (staging only)
-TEST_COUNTRY_CODE = "+880"   # Bangladesh
-TEST_PHONE        = "98976564"
-TEST_OTP          = "123456"
+# Test credentials — read from env vars; set PROD_* + TWILIO_* for production runs
+_IS_PROD          = "mehadedu.com" in BASE_URL and "dev." not in BASE_URL
+TEST_COUNTRY_CODE = os.getenv("PROD_COUNTRY_CODE" if _IS_PROD else "TEST_COUNTRY", "+880")
+TEST_PHONE        = os.getenv("PROD_TEST_PHONE"    if _IS_PROD else "TEST_PHONE",   "98976564")
+TEST_OTP          = os.getenv("TEST_OTP", "123456")   # staging fallback; overridden at runtime on prod
 TEST_USER_NAME    = "Automations Student"
 
 PAYLOAD_DIR = Path(__file__).parent.parent / "payloads"
@@ -419,7 +428,7 @@ class TestQA01Functional:
         """Phone input must accept digit input."""
         _open_login_modal(page)
         phone_input = page.locator('input[type="tel"]').first
-        phone_input.fill("98976564")
+        phone_input.fill(TEST_PHONE)
         val = phone_input.input_value()
         assert val != "", "Phone field value is empty after fill"
         assert re.sub(r"\D", "", val) != "", "No digits stored in phone field"
@@ -466,6 +475,14 @@ class TestQA01Functional:
             pass
         send_btn.click()
 
+        # Fetch OTP dynamically on production; use fixed TEST_OTP on staging
+        _active_otp = TEST_OTP
+        if _HAS_OTP_FETCHER and os.environ.get("TWILIO_ACCOUNT_SID"):
+            try:
+                _active_otp = _fetch_otp(phone=TEST_PHONE, country=TEST_COUNTRY_CODE, max_wait=90)
+            except Exception as _e:
+                print(f"[OTP] Twilio fetch failed, using staging fallback: {_e}", flush=True)
+
         # Wait for OTP input to appear and become enabled (not just visible)
         otp_input = page.locator(
             'input[placeholder="000000"], '
@@ -485,7 +502,7 @@ class TestQA01Functional:
             )
         except Exception:
             pass
-        otp_input.fill(TEST_OTP)
+        otp_input.fill(_active_otp)
 
         continue_btn = page.locator('button:has-text("Continue")').first
         continue_btn.wait_for(state="visible", timeout=5000)

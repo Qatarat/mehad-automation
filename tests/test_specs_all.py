@@ -17,9 +17,19 @@ Test types per spec:
 """
 from __future__ import annotations
 import os as _os
+import sys as _sys
+import pathlib as _pathlib
 import time
 import pytest
 from playwright.sync_api import Page
+
+_sys.path.insert(0, str(_pathlib.Path(__file__).parent.parent))
+try:
+    from scripts.get_otp import fetch_otp as _fetch_otp  # type: ignore[import]
+    _HAS_OTP_FETCHER = True
+except Exception:
+    _fetch_otp = None  # type: ignore[assignment]
+    _HAS_OTP_FETCHER = False
 
 BASE_URL       = _os.getenv("BASE_URL",         "https://dev.mehadedu.com/en")
 TEST_EMAIL     = _os.getenv("TEST_EMAIL",       "")
@@ -29,7 +39,7 @@ TEACHER_PHONE  = _os.getenv("TEACHER_PHONE",   _os.getenv("TEST_PHONE", "9897656
 TEACHER_OTP    = _os.getenv("TEACHER_OTP",     _os.getenv("TEST_OTP",   "123456"))
 TEACHER_CTRY   = _os.getenv("TEACHER_COUNTRY", _os.getenv("TEST_COUNTRY", "+880"))
 # Student account — different real phone registered as student
-STUDENT_PHONE  = _os.getenv("STUDENT_PHONE",   "98765432")
+STUDENT_PHONE  = _os.getenv("STUDENT_PHONE",   _os.getenv("TEST_PHONE", "98976564"))
 STUDENT_OTP    = _os.getenv("STUDENT_OTP",     _os.getenv("TEST_OTP",   "123456"))
 STUDENT_CTRY   = _os.getenv("STUDENT_COUNTRY", _os.getenv("TEST_COUNTRY", "+880"))
 # Legacy fallbacks
@@ -76,6 +86,12 @@ def _otp_login(pg, phone: str, otp: str, country: str, tutor: bool = False):
     # Send Code
     container.locator('button:has-text("Send Code")').first.click()
     pg.wait_for_timeout(2000)
+    # On production (TWILIO_ACCOUNT_SID set), fetch the real OTP from Twilio
+    if _HAS_OTP_FETCHER and _os.environ.get("TWILIO_ACCOUNT_SID"):
+        try:
+            otp = _fetch_otp(phone=phone, country=country, max_wait=90)
+        except Exception as _e:
+            print(f"[OTP] Twilio fetch failed, using provided fallback: {_e}", flush=True)
     # OTP
     otp_input = container.locator('input[placeholder="000000"]').first
     otp_input.wait_for(state='visible', timeout=15000)
