@@ -588,6 +588,44 @@ def build_consolidated_results(base_url: str) -> dict:
                 }
                 break
 
+    # Fallback: scan REPORTS_DIR for any result_test_*.json not already loaded.
+    # This handles the case where summary.json["specs_tested"] is incomplete
+    # (e.g. partial run, failed download, or langgraph agent writing its own
+    # results without updating the main summary). We add any spec whose
+    # result file is on disk but not yet in all_results.
+    import re as _re
+    for result_file in sorted(REPORTS_DIR.rglob("result_test_*.json")):
+        m = _re.match(r"result_test_(.+)\.json$", result_file.name)
+        if not m:
+            continue
+        spec_key = m.group(1)
+        # Normalise to the same key format used above (hyphens → underscores)
+        spec_key = spec_key.replace("-", "_")
+        if spec_key in all_results:
+            continue
+        data = _load(result_file)
+        if not data:
+            continue
+        s      = data.get("summary", {})
+        passed = s.get("passed", 0)
+        failed = s.get("failed", 0) + s.get("error", 0)
+        total  = s.get("total",  passed + failed)
+        if total == 0:
+            continue
+        prefix = f"BUG-{spec_key[:4].upper()}"
+        all_results[spec_key] = {
+            "status":       "passed" if failed == 0 and total > 0 else "failed",
+            "passed":       passed,
+            "failed":       failed,
+            "total":        total,
+            "bugs":         _bugs_from_pytest_json(data, prefix, base_url),
+            "passed_tests": _passed_from_pytest_json(data),
+            "gaps":         "",
+            "group":        "AI Agent",
+            "source":       result_file.name,
+        }
+        print(f"  [CONSOLIDATE] disk-scan picked up {result_file.name}")
+
     # ── 2. Hand-crafted QA agent results ─────────────────────────────────────
     qa_groups = {
         "qa01_functional":    ("QA-01 Functional",      "QA01"),

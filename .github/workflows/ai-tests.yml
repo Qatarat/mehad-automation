@@ -1378,9 +1378,7 @@ jobs:
         continue-on-error: true
         with:
           name: full-reports-${{ github.run_number }}
-          path: |
-            reports/
-            !reports/videos/page@*.webm
+          path: reports/
       - name: Download QA Agent 1 artifacts
         uses: actions/download-artifact@v5
         continue-on-error: true
