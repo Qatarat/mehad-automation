@@ -443,14 +443,95 @@ The tool will poll the website every 5 seconds, waiting for the OTP to appear.
 
 ---
 
+### Option D — Manual OTP (Simplest · No setup at all)
+
+**The easiest way to test production.** You enter your own real phone number and type the OTP yourself when it arrives on WhatsApp. No Docker, no Node.js, no extra tools.
+
+> **This is how the production login was verified live** — phone `+8801316314566` received a real WhatsApp OTP and login completed successfully on `https://mehadedu.com/en`.
+
+#### How it works
+
+1. The test opens the Mehad login page in a browser
+2. It asks you: **"Enter your WhatsApp phone number"**
+3. You type your number (e.g. `+8801316314566`)
+4. Mehad sends a 6-digit OTP to your WhatsApp
+5. The test asks: **"Enter the OTP from your WhatsApp"**
+6. You type the 6 digits
+7. Login completes — test continues automatically from there
+
+#### D1 — Update your .env
+
+```
+BASE_URL=https://mehadedu.com/en
+PROD_OTP_BACKEND=manual
+```
+
+That is all you need in `.env`. No phone numbers, no tokens — you enter everything interactively at run time.
+
+#### D2 — Run the tests
+
+Open a Terminal in the project folder and run:
+
+```bash
+pytest tests/test_specs_all.py -v -s
+```
+
+> The `-s` flag is important — it lets you type your answers when the test asks for your phone number and OTP.
+
+#### D3 — What you will see
+
+When the test reaches the login step, it pauses and shows:
+
+```
+[PROD OTP] Enter your WhatsApp phone number (with country code, e.g. +8801316314566):
+```
+
+Type your number and press **Enter**.
+
+A few seconds later:
+
+```
+[PROD OTP] OTP sent to +8801316314566 — check your WhatsApp and enter the 6-digit code:
+```
+
+Open WhatsApp on your phone, find the message from Mehad, and type the 6 digits.
+
+Login completes and the rest of the tests run automatically.
+
+#### D4 — Running just the login test first
+
+If you want to verify login works before running all 1200+ tests:
+
+```bash
+pytest tests/test_specs_all.py::TestSpec_Login -v -s
+```
+
+Or run the full QA login test:
+
+```bash
+pytest tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_full_login_flow_success -v -s
+```
+
+#### Tips for manual OTP mode
+
+- **Have WhatsApp open** on your phone before running — the OTP arrives within a few seconds of "Send Code"
+- **You have ~60 seconds** to enter the OTP before it expires
+- If the OTP expires, just run the test again — a new code will be sent
+- This mode is perfect for a **one-off production check** or when you don't have Docker available
+- For **automated CI/CD** without manual input, use Option A (WAHA) instead
+
+---
+
 ## Which Option Should I Use?
 
 | My situation | Best option |
 |---|---|
 | Testing staging only (dev.mehadedu.com) | Just set `TEST_OTP=123456` in `.env` — no WhatsApp needed |
-| Testing production, comfortable with Docker | **Option A — WAHA** (most reliable) |
+| **Quick production check, any phone** | **Option D — Manual OTP** (zero setup, you type the OTP) |
+| Testing production, comfortable with Docker | **Option A — WAHA** (fully automatic, best for repeated runs) |
 | Testing production, no Docker | **Option B — whatsapp-web.js** (already installed) |
 | App sends SMS instead of WhatsApp | **Option C — free SMS receiver** (no install) |
+| Running tests in CI/CD automatically | **Option A — WAHA** with a self-hosted instance |
 
 ---
 

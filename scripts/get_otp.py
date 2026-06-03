@@ -403,10 +403,18 @@ def fetch_otp(
         raise RuntimeError("No fixed OTP. Set TEST_OTP or switch PROD_OTP_BACKEND.")
 
     if backend == "manual":
-        otp = input("Enter the OTP received on your test phone: ").strip()
-        if re.match(r"^\d{6}$", otp):
-            return otp
-        raise ValueError(f"OTP must be 6 digits, got: {otp!r}")
+        print("\n" + "─" * 60, flush=True)
+        print("[PROD OTP] A WhatsApp message with a 6-digit code has been", flush=True)
+        print("           sent to your phone by Mehad.", flush=True)
+        print("           Open WhatsApp and look for a message from Mehad.", flush=True)
+        print("─" * 60, flush=True)
+        for attempt in range(3):
+            otp = input("[PROD OTP] Enter the 6-digit OTP from your WhatsApp: ").strip()
+            if re.match(r"^\d{6}$", otp):
+                print(f"[PROD OTP] OTP accepted: {otp}", flush=True)
+                return otp
+            print(f"[PROD OTP] That doesn't look right — need exactly 6 digits (got: {otp!r}). Try again.", flush=True)
+        raise ValueError("Manual OTP: 3 failed attempts. Aborting.")
 
     raise RuntimeError(f"Unknown PROD_OTP_BACKEND: {backend!r}")
 

@@ -47,8 +47,39 @@ TEST_PHONE     = TEACHER_PHONE
 TEST_OTP       = TEACHER_OTP
 TEST_COUNTRY   = TEACHER_CTRY
 
+def _parse_phone_number(full: str, default_country: str = "+880") -> tuple[str, str]:
+    """Split a full number like +8801316314566 into ('+880', '1316314566')."""
+    full = full.strip()
+    if not full.startswith("+"):
+        return default_country, full
+    digits = full[1:]
+    for cc_digits, cc_str in [("880", "+880"), ("966", "+966"), ("971", "+971"),
+                               ("91", "+91"), ("44", "+44"), ("1", "+1")]:
+        if digits.startswith(cc_digits):
+            return cc_str, digits[len(cc_digits):]
+    return default_country, digits
+
+
 def _otp_login(pg, phone: str, otp: str, country: str, tutor: bool = False):
     """Shared OTP login helper. tutor=True navigates to /en/tutor-login."""
+    _backend = _os.environ.get("PROD_OTP_BACKEND", "")
+
+    # Manual mode: prompt for phone number interactively if not provided via env
+    if _backend == "manual":
+        _env_phone = (_os.environ.get("PROD_TEST_PHONE") or "").strip()
+        if _env_phone:
+            phone = _env_phone
+            country = _os.environ.get("PROD_COUNTRY_CODE", country)
+        else:
+            print("\n" + "─" * 60, flush=True)
+            raw = input(
+                "[PROD OTP] Enter your WhatsApp phone number "
+                "(with country code, e.g. +8801316314566): "
+            ).strip()
+            country, phone = _parse_phone_number(raw, default_country=country)
+            print(f"[PROD OTP] Using country={country} phone={phone}", flush=True)
+            print("─" * 60, flush=True)
+
     login_url = _os.getenv("LOGIN_URL", BASE_URL)
     if tutor:
         login_url = BASE_URL.rstrip("/").rsplit("/en", 1)[0] + "/en/tutor-login" if "/en" in BASE_URL else BASE_URL + "/tutor-login"
@@ -86,12 +117,12 @@ def _otp_login(pg, phone: str, otp: str, country: str, tutor: bool = False):
     # Send Code
     container.locator('button:has-text("Send Code")').first.click()
     pg.wait_for_timeout(2000)
-    # On production (TWILIO_ACCOUNT_SID set), fetch the real OTP from Twilio
-    if _HAS_OTP_FETCHER and _os.environ.get("TWILIO_ACCOUNT_SID"):
+    # Fetch OTP via configured backend (manual, waha, receivesmsfast, twilio, etc.)
+    if _HAS_OTP_FETCHER and (_backend or _os.environ.get("TWILIO_ACCOUNT_SID")):
         try:
             otp = _fetch_otp(phone=phone, country=country, max_wait=90)
         except Exception as _e:
-            print(f"[OTP] Twilio fetch failed, using provided fallback: {_e}", flush=True)
+            print(f"[OTP] fetch failed, using provided fallback: {_e}", flush=True)
     # OTP
     otp_input = container.locator('input[placeholder="000000"]').first
     otp_input.wait_for(state='visible', timeout=15000)
