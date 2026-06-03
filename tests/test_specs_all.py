@@ -63,6 +63,11 @@ def _parse_phone_number(full: str, default_country: str = "+880") -> tuple[str, 
 def _otp_login(pg, phone: str, otp: str, country: str, tutor: bool = False):
     """Shared OTP login helper. tutor=True navigates to /en/tutor-login."""
     _backend = _os.environ.get("PROD_OTP_BACKEND", "")
+    _is_prod = "mehadedu.com" in BASE_URL and "dev." not in BASE_URL
+
+    # On production with no explicit backend, default to interactive manual entry
+    if _is_prod and not _backend:
+        _backend = "manual"
 
     # Manual mode: prompt for phone number interactively if not provided via env
     if _backend == "manual":

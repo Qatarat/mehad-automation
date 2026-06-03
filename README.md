@@ -463,10 +463,9 @@ The tool will poll the website every 5 seconds, waiting for the OTP to appear.
 
 ```
 BASE_URL=https://mehadedu.com/en
-PROD_OTP_BACKEND=manual
 ```
 
-That is all you need in `.env`. No phone numbers, no tokens — you enter everything interactively at run time.
+That is all you need. When `BASE_URL` points to production (`mehadedu.com`), the test automatically switches to interactive mode — no extra variables required. For dev/staging (`dev.mehadedu.com`) it uses the fixed test OTP automatically with no prompts.
 
 #### D2 — Run the tests
 
@@ -526,7 +525,7 @@ pytest tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_full_login_
 
 | My situation | Best option |
 |---|---|
-| Testing staging only (dev.mehadedu.com) | Just set `TEST_OTP=123456` in `.env` — no WhatsApp needed |
+| Testing staging only (dev.mehadedu.com) | Just set `BASE_URL=https://dev.mehadedu.com/en` — uses fixed OTP automatically, no WhatsApp needed |
 | **Quick production check, any phone** | **Option D — Manual OTP** (zero setup, you type the OTP) |
 | Testing production, comfortable with Docker | **Option A — WAHA** (fully automatic, best for repeated runs) |
 | Testing production, no Docker | **Option B — whatsapp-web.js** (already installed) |
