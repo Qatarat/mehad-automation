@@ -625,6 +625,7 @@ a.stat:hover{{border-color:var(--accent);background:var(--bg-2);transform:transl
   <div class="mark">M</div>
   <div class="nav-title">Mehad QA</div>
   <span class="nav-sub">Run #{RUN_NUMBER} · {when_short or 'latest'}</span>
+  <a class="btn" href="otp-setup.html">📱 OTP Setup</a>
   <a class="btn primary" href="report.html">Full Report →</a>
 </nav>
 
@@ -687,6 +688,15 @@ a.stat:hover{{border-color:var(--accent);background:var(--bg-2);transform:transl
 
 {trend_html}
 
+<div class="sec-h">Tools</div>
+<div class="agent-grid" style="margin-bottom:28px">
+  <a class="agent-card" href="otp-setup.html">
+    <div class="emoji">📱</div>
+    <div class="lbl">OTP Phone Setup</div>
+    <div class="cta">Configure WhatsApp OTP →</div>
+  </a>
+</div>
+
 <div class="sec-h">Per-Agent Reports</div>
 <p style="color:var(--ink-3);font-family:var(--mono);font-size:12px;margin:0 0 16px">
   {len(AGENT_REPORTS)} specialised AI agents · click any card to see that agent's results
@@ -713,6 +723,7 @@ a.stat:hover{{border-color:var(--accent);background:var(--bg-2);transform:transl
       <a href="report.html">Full bug report</a>
       <a href="report.html#bugs">Bug tickets</a>
       <a href="report.html#tests">All tests</a>
+      <a href="otp-setup.html">OTP setup guide</a>
     </div>
   </div>
   <div>
@@ -734,6 +745,487 @@ a.stat:hover{{border-color:var(--accent);background:var(--bg-2);transform:transl
 
 </div><!-- /wrap -->
 </body></html>"""
+
+
+def _build_otp_setup_html() -> str:
+    """Build the OTP phone setup guide page."""
+    return r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mehad QA — OTP Phone Setup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" integrity="sha512-CNgIRecGo7nphbeZ04Sc13ka07paqdeTu0WR1IM4kNcpmBAUSHSe2ITZNZkqK5dXcz++LF8KJEiKL3QAXv1yA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<style>
+:root{
+  --bg-0:#07080b;--bg-1:#0c0e13;--bg-2:#11141b;--bg-3:#181c26;
+  --ink-0:#f6f7fa;--ink-1:#cdd1de;--ink-2:#9aa0b4;--ink-3:#626880;--ink-4:#3a4154;
+  --accent:oklch(0.85 0.18 95);
+  --ok:oklch(0.78 0.16 155);--bad:oklch(0.72 0.20 25);--warn:oklch(0.82 0.14 70);
+  --font:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Instrument Serif',Georgia,serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:clip}
+body{
+  background:var(--bg-0);color:var(--ink-1);font-family:var(--font);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(ellipse 900px 460px at 14% -10%,oklch(0.85 0.18 95 / 0.06),transparent 60%),
+    radial-gradient(ellipse 700px 500px at 92% 6%,oklch(0.72 0.18 295 / 0.06),transparent 65%);
+  background-attachment:fixed;
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(7,8,11,0.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--ink-4);
+  padding:0 28px;display:flex;align-items:center;gap:16px;height:52px;
+}
+.mark{
+  width:28px;height:28px;border-radius:7px;flex-shrink:0;
+  background:conic-gradient(from 135deg,oklch(0.85 0.18 95),oklch(0.78 0.16 155),oklch(0.72 0.20 25),oklch(0.85 0.18 95));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:12px;color:#07080b;font-family:var(--mono);
+}
+.nav-title{font-size:14px;font-weight:600;color:var(--ink-0);flex:1}
+.btn{
+  border:1px solid var(--ink-4);background:var(--bg-2);color:var(--ink-1);
+  padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;
+  font-family:var(--font);transition:background .15s;text-decoration:none;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn:hover{background:var(--bg-3);border-color:var(--ink-2);text-decoration:none}
+.btn.primary{background:var(--accent);color:var(--bg-0);border-color:var(--accent);font-weight:600}
+.btn.primary:hover{background:oklch(0.9 0.18 95)}
+.wrap{max-width:900px;margin:0 auto;padding:40px 28px 80px}
+h1{font-family:var(--serif);font-style:italic;font-size:36px;font-weight:400;color:var(--ink-0);letter-spacing:-.02em;margin-bottom:10px}
+h2{font-size:17px;font-weight:600;color:var(--ink-0);margin:0 0 14px}
+h3{font-size:14px;font-weight:600;color:var(--ink-0);margin:0 0 10px}
+p{margin-bottom:12px;color:var(--ink-2)}
+code{font-family:var(--mono);font-size:12px;background:var(--bg-2);padding:2px 6px;border-radius:4px;color:var(--accent)}
+pre{font-family:var(--mono);font-size:12px;background:var(--bg-2);border:1px solid var(--ink-4);border-radius:8px;padding:14px 16px;overflow-x:auto;margin:10px 0;color:var(--ink-1)}
+.sec-h{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;margin:36px 0 16px;
+  display:flex;align-items:center;gap:12px;
+}
+.sec-h::after{content:"";flex:1;height:1px;background:var(--ink-4)}
+.card{background:var(--bg-1);border:1px solid var(--ink-4);border-radius:12px;padding:22px 24px;margin-bottom:14px}
+.card.ok{border-color:oklch(0.78 0.16 155 / .5);background:oklch(0.78 0.16 155 / .06)}
+.card.warn{border-color:oklch(0.82 0.14 70 / .5);background:oklch(0.82 0.14 70 / .06)}
+.card.info{border-color:oklch(0.72 0.18 240 / .5);background:oklch(0.72 0.18 240 / .06)}
+.status-row{display:flex;align-items:center;gap:12px;font-size:14px}
+.dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;background:var(--ink-4)}
+.dot.green{background:oklch(0.78 0.16 155)}
+.dot.yellow{background:oklch(0.82 0.14 70);animation:pulse 1.5s infinite}
+.dot.red{background:oklch(0.72 0.20 25)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.qr-box{display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap;margin:16px 0}
+.qr-code{background:#f6f7fa;border-radius:12px;padding:12px;flex-shrink:0}
+.qr-info{flex:1;min-width:200px}
+.step-list{list-style:none;padding:0;margin:0;counter-reset:steps}
+.step-list li{counter-increment:steps;padding:10px 0 10px 44px;position:relative;border-bottom:1px solid var(--bg-3)}
+.step-list li:last-child{border-bottom:none}
+.step-list li::before{content:counter(steps);position:absolute;left:0;top:10px;width:28px;height:28px;border-radius:50%;background:var(--bg-2);border:1px solid var(--ink-4);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--accent)}
+.tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--bg-2);border-radius:8px;padding:4px;border:1px solid var(--ink-4)}
+.tab-btn{flex:1;padding:8px;background:none;border:none;color:var(--ink-2);font-size:12px;font-weight:500;font-family:var(--font);border-radius:6px;cursor:pointer;transition:background .15s,color .15s}
+.tab-btn.active{background:var(--bg-0);color:var(--ink-0);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+.badge{display:inline-block;font-family:var(--mono);font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;margin-left:6px}
+.badge.free{background:oklch(0.78 0.16 155 / .2);color:oklch(0.85 0.14 155);border:1px solid oklch(0.78 0.16 155 / .4)}
+.badge.recommended{background:var(--accent);color:var(--bg-0)}
+.tip{background:var(--bg-2);border-left:3px solid var(--accent);border-radius:4px;padding:10px 14px;font-size:13px;margin:10px 0;color:var(--ink-1)}
+.copy-btn{
+  float:right;margin-top:-4px;
+  background:var(--bg-3);border:1px solid var(--ink-4);color:var(--ink-2);
+  padding:3px 10px;border-radius:5px;font-size:11px;font-family:var(--mono);cursor:pointer;
+  transition:background .12s
+}
+.copy-btn:hover{background:var(--bg-0);color:var(--ink-0)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:16px 0}
+@media(max-width:680px){.grid2{grid-template-columns:1fr}.wrap{padding:20px 14px 60px}.nav{padding:0 14px}.qr-box{flex-direction:column}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="mark">M</div>
+  <div class="nav-title">Mehad QA &mdash; OTP Setup</div>
+  <a class="btn" href="index.html">&#8592; Back</a>
+</nav>
+
+<div class="wrap">
+
+<div style="margin-bottom:28px">
+  <h1>Phone OTP Setup</h1>
+  <p style="font-size:15px;color:var(--ink-1)">
+    Mehad sends one-time passwords via <strong style="color:var(--ink-0)">WhatsApp</strong> (not SMS).
+    This page helps you connect a phone number so the test suite can read OTPs automatically &mdash;
+    no manual copy-paste needed.
+  </p>
+</div>
+
+<!-- ─── Live WAHA status ──────────────────────────────────────────────── -->
+<div class="sec-h">Live Status</div>
+
+<div id="waha-status-card" class="card info">
+  <div class="status-row">
+    <div class="dot yellow" id="waha-dot"></div>
+    <span id="waha-status-text">Checking WAHA at localhost:3000&hellip;</span>
+  </div>
+  <p id="waha-status-detail" style="margin:8px 0 0;font-size:12px;color:var(--ink-3)">
+    WAHA is a free open-source WhatsApp API that runs on your computer.
+  </p>
+</div>
+
+<!-- ─── Test phone QR ─────────────────────────────────────────────────── -->
+<div class="sec-h">Test Phone QR Code</div>
+
+<div class="card">
+  <h2>Scan to open the test number on WhatsApp</h2>
+  <div class="qr-box">
+    <div class="qr-code" id="wa-qrcode"></div>
+    <div class="qr-info">
+      <h3>Test phone number</h3>
+      <p>
+        Scan this QR code with any WhatsApp-connected phone to open a chat with the
+        test account. You can then use this number to receive OTPs during production testing.
+      </p>
+      <p><strong style="color:var(--ink-0)">Default test number:</strong> <code>+880 98976564</code></p>
+      <p style="font-size:12px;color:var(--ink-3)">
+        This is the staging pre-registered number. For production, set your own number
+        via the <code>PROD_TEST_PHONE</code> environment variable.
+      </p>
+      <a class="btn" href="https://wa.me/88098976564" target="_blank" rel="noopener" style="margin-top:8px;display:inline-flex">
+        &#128172; Open in WhatsApp
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- WAHA QR (only shown when WAHA is running locally) -->
+<div id="waha-qr-section" style="display:none">
+  <div class="card ok">
+    <h2>Scan to connect WAHA ✅</h2>
+    <div class="qr-box">
+      <div class="qr-code" id="waha-qr-img"></div>
+      <div class="qr-info">
+        <h3>Connect your WhatsApp to WAHA</h3>
+        <p>Open WhatsApp on your phone &rarr; Settings &rarr; Linked Devices &rarr; Link a Device &rarr; scan this QR code.</p>
+        <p style="font-size:12px;color:var(--ink-3)">Session is saved automatically. You only need to scan once.</p>
+        <a class="btn primary" href="http://localhost:3000/dashboard" target="_blank" rel="noopener">
+          Open WAHA Dashboard ↗
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── Setup Guide ───────────────────────────────────────────────────── -->
+<div class="sec-h">Setup Guide</div>
+
+<div class="tabs">
+  <button class="tab-btn active" onclick="showTab('waha')">🐳 WAHA Docker <span class="badge recommended">recommended</span></button>
+  <button class="tab-btn" onclick="showTab('wajs')">🟢 Node.js bridge</button>
+  <button class="tab-btn" onclick="showTab('sms')">📩 Free SMS receivers</button>
+</div>
+
+<!-- Tab A: WAHA -->
+<div class="tab-panel active" id="tab-waha">
+  <div class="card">
+    <h2>Option A &mdash; WAHA Docker <span class="badge free">FREE</span> <span class="badge recommended">works for any country</span></h2>
+    <p>WAHA is a free open-source WhatsApp HTTP API. It runs on your computer in Docker and lets the test suite read OTPs automatically.</p>
+
+    <h3>Step 1 &mdash; Install Docker Desktop</h3>
+    <ul class="step-list">
+      <li>Go to <a href="https://www.docker.com/products/docker-desktop/" target="_blank" rel="noopener">docker.com/products/docker-desktop</a> and download Docker Desktop for your operating system (Windows / Mac / Linux).</li>
+      <li>Install it and open the Docker Desktop app. Wait until you see <strong style="color:var(--ink-0)">Docker is running</strong> in the system tray / menu bar.</li>
+      <li>Verify in a terminal: <code>docker --version</code> (should print a version number)</li>
+    </ul>
+
+    <h3 style="margin-top:18px">Step 2 &mdash; Start WAHA</h3>
+    <div class="tip">Copy and paste this single command into your terminal:</div>
+    <pre><button class="copy-btn" onclick="copyText(this,'docker run -d --name waha -p 3000:3000 devlikeapro/waha')">copy</button>docker run -d --name waha -p 3000:3000 devlikeapro/waha</pre>
+    <p style="font-size:12px">
+      <code>-d</code> = runs in background &nbsp;·&nbsp;
+      <code>--name waha</code> = gives it a name &nbsp;·&nbsp;
+      <code>-p 3000:3000</code> = opens port 3000 &nbsp;·&nbsp;
+      <code>devlikeapro/waha</code> = the free WAHA image
+    </p>
+
+    <h3 style="margin-top:18px">Step 3 &mdash; Scan the QR code</h3>
+    <ul class="step-list">
+      <li>Open <a href="http://localhost:3000/dashboard" target="_blank" rel="noopener">http://localhost:3000/dashboard</a> in your browser.</li>
+      <li>Click <strong style="color:var(--ink-0)">Start session</strong> if there is no active session.</li>
+      <li>A QR code will appear. Open WhatsApp on your test phone &rarr; <strong>Settings &rarr; Linked Devices &rarr; Link a Device</strong> &rarr; scan the QR code.</li>
+      <li>Once connected you will see <strong style="color:oklch(0.78 0.16 155)">Session WORKING</strong>. You only need to do this once &mdash; the session is saved automatically.</li>
+    </ul>
+
+    <h3 style="margin-top:18px">Step 4 &mdash; Configure your <code>.env</code></h3>
+    <pre><button class="copy-btn" onclick="copyText(this,'PROD_OTP_BACKEND=waha\nWAHA_URL=http://localhost:3000\nWAHA_SESSION=default\nWAHA_CHAT_ID=+88098976564@c.us\nPROD_COUNTRY_CODE=+880\nPROD_TEST_PHONE=98976564')">copy</button>PROD_OTP_BACKEND=waha
+WAHA_URL=http://localhost:3000
+WAHA_SESSION=default
+WAHA_CHAT_ID=+88098976564@c.us   # replace with your test number
+PROD_COUNTRY_CODE=+880
+PROD_TEST_PHONE=98976564</pre>
+    <p style="font-size:12px;color:var(--ink-3)">The chat ID format is <code>+{country_code}{local_number}@c.us</code>. For Bangladesh: <code>+88098976564@c.us</code></p>
+
+    <h3 style="margin-top:18px">Management commands</h3>
+    <div class="grid2">
+      <div>
+        <p style="font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-bottom:4px">Stop WAHA</p>
+        <pre style="margin:0">docker stop waha</pre>
+      </div>
+      <div>
+        <p style="font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-bottom:4px">Start again</p>
+        <pre style="margin:0">docker start waha</pre>
+      </div>
+      <div>
+        <p style="font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-bottom:4px">View logs</p>
+        <pre style="margin:0">docker logs waha -f</pre>
+      </div>
+      <div>
+        <p style="font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-bottom:4px">Remove &amp; restart fresh</p>
+        <pre style="margin:0">docker rm -f waha &amp;&amp; docker run ...</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tab B: Node.js bridge -->
+<div class="tab-panel" id="tab-wajs">
+  <div class="card">
+    <h2>Option B &mdash; whatsapp-web.js Node.js bridge <span class="badge free">FREE</span></h2>
+    <p>An open-source Node.js library that connects WhatsApp via QR scan and runs a local HTTP server the test suite can query for OTPs.</p>
+
+    <ul class="step-list">
+      <li>Install Node.js 18+ from <a href="https://nodejs.org" target="_blank" rel="noopener">nodejs.org</a> if you don't have it. Verify: <code>node --version</code></li>
+      <li>Open a terminal in this project's <code>scripts/</code> folder:
+        <pre><button class="copy-btn" onclick="copyText(this,'cd scripts\nnpm install')">copy</button>cd scripts
+npm install</pre>
+      </li>
+      <li>Start the bridge:
+        <pre><button class="copy-btn" onclick="copyText(this,'node whatsapp_otp_server.js')">copy</button>node whatsapp_otp_server.js</pre>
+        A QR code appears in the terminal. Scan it with WhatsApp (Settings &rarr; Linked Devices &rarr; Link a Device).
+      </li>
+      <li>Once you see <strong style="color:oklch(0.78 0.16 155)">WhatsApp client ready</strong>, the bridge is running at <code>http://localhost:3001/otp</code>.</li>
+      <li>Set in <code>.env</code>:
+        <pre><button class="copy-btn" onclick="copyText(this,'PROD_OTP_BACKEND=whatsapp_local\nWA_OTP_PORT=3001')">copy</button>PROD_OTP_BACKEND=whatsapp_local
+WA_OTP_PORT=3001</pre>
+      </li>
+    </ul>
+    <div class="tip">&#128274; The session is saved to <code>scripts/.wwebjs_auth/</code>. You won't need to scan the QR again unless you log out or delete that folder.</div>
+  </div>
+</div>
+
+<!-- Tab C: SMS receivers -->
+<div class="tab-panel" id="tab-sms">
+  <div class="card">
+    <h2>Option C &mdash; Free public SMS receivers <span class="badge free">FREE</span></h2>
+    <div class="card warn" style="margin-bottom:16px">
+      <strong style="color:oklch(0.82 0.14 70)">⚠️ WhatsApp only</strong><br/>
+      Mehad sends OTPs via WhatsApp, not SMS. SMS receivers <strong>will not work</strong> for Mehad
+      production tests. Use Options A or B instead. SMS receivers are listed here for testing
+      with other apps that use real SMS.
+    </div>
+
+    <div class="grid2">
+      <div class="card" style="margin:0">
+        <h3>receivesmsfast.com</h3>
+        <p style="font-size:12px">Bangladesh numbers. Free, no account.</p>
+        <pre style="font-size:11px">PROD_OTP_BACKEND=receivesmsfast
+RECEIVESMSFAST_NUMBER=8801755572498</pre>
+      </div>
+      <div class="card" style="margin:0">
+        <h3>quackr.io</h3>
+        <p style="font-size:12px">US/EU numbers. Free, no account.</p>
+        <pre style="font-size:11px">PROD_OTP_BACKEND=quackr
+QUACKR_NUMBER=12025551234</pre>
+      </div>
+      <div class="card" style="margin:0">
+        <h3>sms-online.co</h3>
+        <p style="font-size:12px">Many countries. Free, no account.</p>
+        <pre style="font-size:11px">PROD_OTP_BACKEND=smsonline
+SMSONLINE_NUMBER=12025551234</pre>
+      </div>
+      <div class="card" style="margin:0">
+        <h3>Staging (no OTP needed)</h3>
+        <p style="font-size:12px">dev.mehadedu.com always returns <code>123456</code>.</p>
+        <pre style="font-size:11px">TEST_OTP=123456
+TEST_PHONE=98976564</pre>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CI/CD Guide ───────────────────────────────────────────────────── -->
+<div class="sec-h">CI/CD (GitHub Actions)</div>
+
+<div class="card">
+  <h2>How WAHA works in GitHub Actions</h2>
+  <p>
+    The CI workflow automatically starts a WAHA Docker container for the main test jobs.
+    Docker is already installed on GitHub Actions Ubuntu runners &mdash; no extra setup needed.
+  </p>
+
+  <h3>How CI picks the OTP backend</h3>
+  <ul class="step-list">
+    <li><strong>Staging tests (default)</strong> &mdash; <code>BASE_URL=dev.mehadedu.com</code> &rarr; fixed OTP <code>123456</code> is used. WAHA starts but isn't needed.</li>
+    <li><strong>Production tests</strong> &mdash; Set <code>BASE_URL=https://mehadedu.com/en</code> in the workflow dispatch. Also set <code>PROD_OTP_BACKEND=waha</code> and configure the secrets below.</li>
+  </ul>
+
+  <h3 style="margin-top:18px">GitHub Secrets to configure</h3>
+  <p>Go to your repository &rarr; <strong>Settings &rarr; Secrets and variables &rarr; Actions &rarr; New repository secret</strong>.</p>
+  <div style="overflow-x:auto">
+  <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:10px">
+    <thead>
+      <tr style="background:var(--bg-2)">
+        <th style="text-align:left;padding:8px 12px;border:1px solid var(--ink-4);font-family:var(--mono)">Secret name</th>
+        <th style="text-align:left;padding:8px 12px;border:1px solid var(--ink-4)">Example value</th>
+        <th style="text-align:left;padding:8px 12px;border:1px solid var(--ink-4)">Description</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding:8px 12px;border:1px solid var(--ink-4);font-family:var(--mono)">PROD_OTP_BACKEND</td><td style="padding:8px 12px;border:1px solid var(--ink-4)"><code>waha</code></td><td style="padding:8px 12px;border:1px solid var(--ink-4)">Which OTP system to use</td></tr>
+      <tr><td style="padding:8px 12px;border:1px solid var(--ink-4);font-family:var(--mono)">WAHA_CHAT_ID</td><td style="padding:8px 12px;border:1px solid var(--ink-4)"><code>+88098976564@c.us</code></td><td style="padding:8px 12px;border:1px solid var(--ink-4)">WhatsApp chat ID of the test phone</td></tr>
+      <tr><td style="padding:8px 12px;border:1px solid var(--ink-4);font-family:var(--mono)">WAHA_SESSION</td><td style="padding:8px 12px;border:1px solid var(--ink-4)"><code>default</code></td><td style="padding:8px 12px;border:1px solid var(--ink-4)">WAHA session name (leave as default)</td></tr>
+      <tr><td style="padding:8px 12px;border:1px solid var(--ink-4);font-family:var(--mono)">PROD_TEST_PHONE</td><td style="padding:8px 12px;border:1px solid var(--ink-4)"><code>98976564</code></td><td style="padding:8px 12px;border:1px solid var(--ink-4)">Local part of the production test number</td></tr>
+      <tr><td style="padding:8px 12px;border:1px solid var(--ink-4);font-family:var(--mono)">PROD_COUNTRY_CODE</td><td style="padding:8px 12px;border:1px solid var(--ink-4)"><code>+880</code></td><td style="padding:8px 12px;border:1px solid var(--ink-4)">Country code for production number</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <h3 style="margin-top:18px">Important: WAHA session in CI</h3>
+  <div class="tip">
+    &#128274; Each CI run starts a <em>fresh</em> WAHA container with no WhatsApp session.
+    For production OTP in CI, you have two options:<br/><br/>
+    <strong style="color:var(--ink-0)">Option 1 (recommended)</strong> &mdash; Self-host a permanent WAHA instance, set
+    <code>WAHA_URL</code> secret to your server URL (e.g. <code>https://waha.yourserver.com</code>).
+    The CI job will use your always-on session.<br/><br/>
+    <strong style="color:var(--ink-0)">Option 2</strong> &mdash; Keep testing against <code>dev.mehadedu.com</code> staging
+    (no real OTP needed &mdash; always uses <code>123456</code>).
+  </div>
+</div>
+
+<!-- ─── Quick reference ───────────────────────────────────────────────── -->
+<div class="sec-h">Quick Reference</div>
+
+<div class="card">
+  <h2>Which option should I choose?</h2>
+  <div style="overflow-x:auto">
+  <table style="width:100%;border-collapse:collapse;font-size:12px;margin-top:4px">
+    <thead>
+      <tr style="background:var(--bg-2)">
+        <th style="text-align:left;padding:8px 12px;border:1px solid var(--ink-4)">Situation</th>
+        <th style="text-align:left;padding:8px 12px;border:1px solid var(--ink-4)">Best option</th>
+        <th style="text-align:left;padding:8px 12px;border:1px solid var(--ink-4)">Why</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td style="padding:8px 12px;border:1px solid var(--ink-4)">Testing on staging (<code>dev.mehadedu.com</code>)</td><td style="padding:8px 12px;border:1px solid var(--ink-4)">No setup needed</td><td style="padding:8px 12px;border:1px solid var(--ink-4)">Fixed OTP <code>123456</code> always works</td></tr>
+      <tr><td style="padding:8px 12px;border:1px solid var(--ink-4)">Testing on production &mdash; have Docker</td><td style="padding:8px 12px;border:1px solid var(--ink-4)">WAHA Docker (Option A)</td><td style="padding:8px 12px;border:1px solid var(--ink-4)">One-time QR scan, works for any country</td></tr>
+      <tr><td style="padding:8px 12px;border:1px solid var(--ink-4)">Testing on production &mdash; no Docker</td><td style="padding:8px 12px;border:1px solid var(--ink-4)">Node.js bridge (Option B)</td><td style="padding:8px 12px;border:1px solid var(--ink-4)">Only needs Node.js 18+</td></tr>
+      <tr><td style="padding:8px 12px;border:1px solid var(--ink-4)">CI/CD with production OTP</td><td style="padding:8px 12px;border:1px solid var(--ink-4)">Self-hosted WAHA + <code>WAHA_URL</code> secret</td><td style="padding:8px 12px;border:1px solid var(--ink-4)">Persistent session, no QR rescan needed</td></tr>
+      <tr><td style="padding:8px 12px;border:1px solid var(--ink-4)">Testing SMS (non-Mehad apps)</td><td style="padding:8px 12px;border:1px solid var(--ink-4)">receivesmsfast / quackr (Option C)</td><td style="padding:8px 12px;border:1px solid var(--ink-4)">Free public numbers, no setup</td></tr>
+    </tbody>
+  </table>
+  </div>
+</div>
+
+<!-- ─── Footer ────────────────────────────────────────────────────────── -->
+<footer style="margin-top:56px;padding-top:28px;border-top:1px solid var(--ink-4);text-align:center;color:var(--ink-3);font-size:12px">
+  <div style="margin-bottom:8px">Built by <a href="https://www.linkedin.com/in/mejbaur/" target="_blank" rel="noopener" style="color:var(--ink-2)">Mejbaur Bahar Fagun</a> &mdash; Senior Software Engineer QA (IV) &middot; Markopolo.ai</div>
+  <div><a href="index.html" style="color:var(--accent)">&larr; Back to dashboard</a></div>
+</footer>
+
+</div><!-- /wrap -->
+
+<script>
+// ── Tab switching ──────────────────────────────────────────────────────
+function showTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.remove('active'); });
+  document.querySelector('[onclick="showTab(\''+name+'\')"]').classList.add('active');
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ── Copy to clipboard ─────────────────────────────────────────────────
+function copyText(btn, text) {
+  navigator.clipboard.writeText(text).then(function(){
+    var orig = btn.textContent; btn.textContent = 'copied!';
+    setTimeout(function(){ btn.textContent = orig; }, 1500);
+  });
+}
+
+// ── Generate test-phone WhatsApp QR code ─────────────────────────────
+var testPhone = '+88098976564';
+new QRCode(document.getElementById('wa-qrcode'), {
+  text: 'https://wa.me/88098976564',
+  width: 180, height: 180,
+  colorDark: '#07080b', colorLight: '#f6f7fa',
+  correctLevel: QRCode.CorrectLevel.M
+});
+
+// ── Live WAHA status check ────────────────────────────────────────────
+(function checkWaha() {
+  var dot = document.getElementById('waha-dot');
+  var txt = document.getElementById('waha-status-text');
+  var det = document.getElementById('waha-status-detail');
+  var qrSec = document.getElementById('waha-qr-section');
+  var card = document.getElementById('waha-status-card');
+
+  fetch('http://localhost:3000/api/version', { mode: 'cors', signal: AbortSignal.timeout(3000) })
+    .then(function(r){ return r.json(); })
+    .then(function(v){
+      // WAHA is running — check session status
+      return fetch('http://localhost:3000/api/sessions', { mode: 'cors', signal: AbortSignal.timeout(3000) });
+    })
+    .then(function(r){ return r.json(); })
+    .then(function(sessions){
+      var sess = sessions && sessions[0];
+      var status = sess ? sess.status : 'UNKNOWN';
+      if (status === 'WORKING') {
+        dot.className = 'dot green';
+        txt.textContent = 'WAHA is running and connected ✅';
+        det.textContent = 'WhatsApp session active. OTPs will be captured automatically.';
+        card.className = 'card ok';
+        qrSec.style.display = 'none';
+      } else if (status === 'SCAN_QR_CODE') {
+        dot.className = 'dot yellow';
+        txt.textContent = 'WAHA is running — scan the QR code to connect ↓';
+        det.textContent = 'Open WhatsApp → Settings → Linked Devices → Link a Device → scan the QR below.';
+        card.className = 'card warn';
+        // Load WAHA QR image
+        var img = document.createElement('img');
+        img.src = 'http://localhost:3000/api/sessions/default/auth/qr?format=image&' + Date.now();
+        img.style.cssText = 'width:180px;height:180px;border-radius:8px';
+        img.onerror = function(){ img.alt = 'Could not load QR — open http://localhost:3000/dashboard'; };
+        document.getElementById('waha-qr-img').appendChild(img);
+        qrSec.style.display = 'block';
+      } else {
+        dot.className = 'dot yellow';
+        txt.textContent = 'WAHA is running (status: ' + status + ')';
+        det.textContent = 'Open http://localhost:3000/dashboard to check the session.';
+        card.className = 'card warn';
+      }
+    })
+    .catch(function(){
+      dot.className = 'dot red';
+      txt.textContent = 'WAHA is not running locally';
+      det.innerHTML = 'Start WAHA with: <code>docker run -d --name waha -p 3000:3000 devlikeapro/waha</code> &mdash; then reload this page.';
+      card.className = 'card';
+    });
+})();
+</script>
+</body>
+</html>"""
 
 
 def _archive_dir() -> Path:
@@ -848,6 +1340,11 @@ def main() -> None:
     (SITE_DIR / "index.html").write_text(
         _build_index_html(summary, history), encoding="utf-8")
     print(f"  ✅ index.html built ({len(history)} runs in history)")
+
+    # 3b. OTP setup page
+    (SITE_DIR / "otp-setup.html").write_text(
+        _build_otp_setup_html(), encoding="utf-8")
+    print(f"  ✅ otp-setup.html built")
 
     # 4. History index page (with unified footer)
     # Build ts_map for the history page (same source as index.html)

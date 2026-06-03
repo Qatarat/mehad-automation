@@ -44,6 +44,15 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90   # 7b model needs more time
 
+    # WAHA provides a WhatsApp OTP reader for production tests.
+    # Session needs one-time QR scan at http://localhost:3000/dashboard.
+    # CI staging tests use the fixed OTP (123456) and don't need authentication.
+    services:
+      waha:
+        image: devlikeapro/waha
+        ports:
+          - 3000:3000
+
     env:
       BASE_URL:              ${{ github.event.inputs.base_url  || 'https://dev.mehadedu.com/en' }}
       AI_MODEL:              ${{ github.event.inputs.ai_model  || 'qwen2.5-coder:7b' }}
@@ -71,11 +80,31 @@ jobs:
       TWILIO_ACCOUNT_SID:    ${{ secrets.TWILIO_ACCOUNT_SID }}
       TWILIO_AUTH_TOKEN:     ${{ secrets.TWILIO_AUTH_TOKEN }}
       TWILIO_WHATSAPP_NUMBER: ${{ secrets.TWILIO_WHATSAPP_NUMBER || '+14155238886' }}
+      # ── WAHA (WhatsApp HTTP API) — Docker service above exposes :3000 ────────
+      WAHA_URL:              http://localhost:3000
+      WAHA_SESSION:          ${{ secrets.WAHA_SESSION  || 'default' }}
+      WAHA_CHAT_ID:          ${{ secrets.WAHA_CHAT_ID  || '' }}
 
     steps:
       # ── 1. Checkout ──────────────────────────────────────────────────────────
       - name: Checkout repository
         uses: actions/checkout@v5
+
+      # ── 1b. Wait for WAHA service ────────────────────────────────────────────
+      - name: Wait for WAHA (WhatsApp OTP service)
+        run: |
+          echo "Waiting for WAHA to start (max 30s)..."
+          for i in $(seq 1 15); do
+            if curl -s http://localhost:3000/api/version > /dev/null 2>&1; then
+              echo "✅ WAHA ready"
+              curl -s http://localhost:3000/api/version | python3 -m json.tool 2>/dev/null | head -5 || true
+              curl -s http://localhost:3000/api/sessions 2>/dev/null | head -c 300 || true
+              echo ""
+              break
+            fi
+            sleep 2
+          done
+          echo "ℹ️  WAHA status: $(curl -s http://localhost:3000/api/sessions 2>/dev/null | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d[0].get(\"status\",\"unknown\") if d else \"no sessions\")' 2>/dev/null || echo 'not reachable — staging OTP will be used')"
 
       # ── 2. Python 3.12 ──────────────────────────────────────────────────────
       - name: Set up Python 3.12
@@ -1360,6 +1389,13 @@ jobs:
     name: "QA — Spec Validation (68 specs, 1200+ tests)"
     runs-on: ubuntu-latest
     timeout-minutes: 90
+
+    services:
+      waha:
+        image: devlikeapro/waha
+        ports:
+          - 3000:3000
+
     env:
       BASE_URL:        ${{ github.event.inputs.base_url || 'https://dev.mehadedu.com/en' }}
       TEST_OTP:        ${{ secrets.TEST_OTP        || '123456' }}
@@ -1369,9 +1405,21 @@ jobs:
       TEACHER_OTP:     ${{ secrets.TEACHER_OTP     || '123456' }}
       STUDENT_PHONE:   ${{ secrets.STUDENT_PHONE   || '98976564' }}
       STUDENT_OTP:     ${{ secrets.STUDENT_OTP     || '123456' }}
+      # ── WAHA (WhatsApp HTTP API) — Docker service above exposes :3000 ────────
+      WAHA_URL:        http://localhost:3000
+      WAHA_SESSION:    ${{ secrets.WAHA_SESSION  || 'default' }}
+      WAHA_CHAT_ID:    ${{ secrets.WAHA_CHAT_ID  || '' }}
 
     steps:
       - uses: actions/checkout@v5
+
+      - name: Wait for WAHA (WhatsApp OTP service)
+        run: |
+          for i in $(seq 1 15); do
+            curl -s http://localhost:3000/api/version > /dev/null 2>&1 && echo "✅ WAHA ready" && break
+            sleep 2
+          done
+          echo "WAHA: $(curl -s http://localhost:3000/api/sessions 2>/dev/null | python3 -c 'import sys,json; d=json.load(sys.stdin); print(d[0].get(\"status\",\"?\") if d else \"no sessions\")' 2>/dev/null || echo 'not reachable')"
       - uses: actions/setup-python@v5
         with: { python-version: "3.12", cache: "pip" }
 
