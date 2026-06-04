@@ -24,20 +24,38 @@ The student wallet/payments page shows recent transactions. It is the student's 
 
 ---
 
-## Payment Gateway (PayTabs)
+## Payment Gateway (MyFatoorah)
+
+> **Note (verified 2026-06-04):** The actual gateway is **MyFatoorah**, not PayTabs.
+> The URL slug `gatewaySlug=paytabs` is the internal Mehad identifier; the embedded
+> widget loads from `demo.myfatoorah.com` (sandbox — no real charges).
+> 3DS uses an ACS emulator with Y/N result dropdown.
 
 **URL pattern:** `/en/payment?bookingNumber=DBK-{date}-{id}&gatewaySlug=paytabs&customerName={name}&customerEmail={email}&customerPhone={phone}&price={amount}[&bookingType=group]`
+
+**Sandbox test cards:**
+| Card | Number | CVV | Expiry |
+|---|---|---|---|
+| Visa (approve) | `4111111111111111` | `100` | `05/28` |
+| Mastercard (approve) | `5123456789012346` | `100` | `05/25` |
 
 ### Payment Page Structure
 - `heading[level=1]` "Payment"
 - Info row:
-  - "Booking Number": `generic:has-text("DBK-...")` e.g., "DBK-20260602-1QYPVO"
+  - "Booking Number": `generic:has-text("DBK-...")` e.g., "DBK-20260604-TRI8FU"
   - "Total Amount": amount + SAR icon
 - Payment method selector:
   - `button "Card Supported card types"` [pressed] — card payment (default selected)
   - Card type icons displayed (Visa, Mastercard, etc.)
-- `iframe` — PayTabs embedded card entry widget
-- `button "Pay now"`
+- `iframe#MFEmbeddedIframe` — MyFatoorah embedded card widget (cross-origin, use `frame_locator`)
+  - `textbox "Card Holder Name"` — placeholder "Name on Card"
+  - `textbox "Card Number"` — placeholder "Card number" (auto-formats with spaces)
+  - `textbox "Expiry Date"` — placeholder "MM / YY"
+  - `textbox "Security Code"` — placeholder "CVV"
+- `button "Pay now"` — outside iframe, on main page
+- After Pay now: `iframe[title="3D Secure"]` > `iframe[name="challengeFrame"]` — ACS emulator
+  - Combobox with Y/N options (default: Y = Successful)
+  - `button "Submit"` — approves or declines 3DS
 - Security note: `generic:has-text("Your card details are encrypted and securely processed.")`
 
 ---
