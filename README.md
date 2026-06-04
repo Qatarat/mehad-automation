@@ -1,175 +1,351 @@
-# Fagun Autonomous QA Platform
+# Mehad Autonomous QA Platform
 
 <div align="center">
 
 [![CI](https://github.com/Qatarat/mehad-automation/actions/workflows/ai-tests.yml/badge.svg)](https://github.com/Qatarat/mehad-automation/actions/workflows/ai-tests.yml)
-![Python](https://img.shields.io/badge/Python-3.10%2B-blue?logo=python)
+[![Live Report](https://img.shields.io/badge/Live%20Report-qatarat.github.io-brightgreen)](https://qatarat.github.io/mehad-automation/)
+![Python](https://img.shields.io/badge/Python-3.12%2B-blue?logo=python)
 ![Playwright](https://img.shields.io/badge/Playwright-1.44%2B-green?logo=playwright)
-![Claude](https://img.shields.io/badge/Claude-Sonnet%204.6-blueviolet?logo=anthropic)
+![Tests](https://img.shields.io/badge/Tests-2000%2B-orange)
+![Specs](https://img.shields.io/badge/Specs-68%20pages-blueviolet)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-**Write a simple text file describing your app. Get hundreds of automated tests — instantly.**
+**Write a spec file describing your page → get 2000+ automated tests instantly.**
 
-*1246+ tests · 68 pages covered · Works on staging and production · No coding required*
+*68 pages · 22 QA agent types · Spec-driven URLs · No hard-coded targets*
+
+[**View Live Report →**](https://qatarat.github.io/mehad-automation/)
 
 </div>
 
 ---
 
+## Table of Contents
+
+1. [What Is This?](#what-is-this)
+2. [Test Scenario Types](#test-scenario-types)
+3. [How Spec-Driven URLs Work](#how-spec-driven-urls-work)
+4. [Installation](#installation)
+5. [Configuration](#configuration-env)
+6. [Running Tests](#running-tests)
+7. [OTP Options for Production](#otp-options-for-production)
+8. [CI / GitHub Actions](#ci--github-actions)
+9. [Adding a New Page](#adding-a-new-page)
+10. [Project Structure](#project-structure)
+11. [Troubleshooting](#troubleshooting)
+
+---
+
 ## What Is This?
 
-This tool **automatically tests the Mehad website** — clicking buttons, filling forms, checking pages, logging in — exactly like a real user would, but hundreds of times faster and around the clock.
+Mehad Autonomous QA is a fully automated testing platform for the [Mehad](https://mehadedu.com) online tutoring marketplace. It:
 
-You do not need to be a programmer to use it. If you can:
-- Copy and paste commands
-- Follow numbered steps
-- Read plain English
-
-…you can run this tool.
+- **Reads spec files** (plain-text `.md` files in `specs/`) that describe each page's URL, UI elements, flows, and test data
+- **Generates and runs 2000+ tests** covering every page — login, booking, payments, profiles, security, accessibility, and more
+- **Runs nightly in CI** via GitHub Actions, publishing results to [the live dashboard](https://qatarat.github.io/mehad-automation/)
+- **Never hard-codes the target URL** — each spec file declares its own `**URL:**`, and tests read from there
 
 ---
 
-## What Does It Test?
+## Test Scenario Types
 
-Every page in the Mehad app is described in a simple text file (called a "spec"). The tool reads those files and automatically:
+Every spec drives tests across **all** of the following scenario categories. This ensures no coverage gap regardless of which page is being tested.
 
-- Opens the website in a browser
-- Clicks buttons and fills forms
-- Logs in as a teacher, then as a student
-- Checks that the right things appear on screen
-- Reports any problems it finds
+### 1. Happy Path
+> The "everything works perfectly" flow. Valid data, expected steps, successful outcome.
 
-**68 pages are covered.** Each page gets hundreds of checks including:
-- Does the page load correctly?
-- Are all buttons and links working?
-- Does the login work with OTP?
-- Do error messages appear when wrong input is entered?
-- Is the page secure against attacks?
-- Does data saved by the teacher appear correctly for the student?
+| Example | What is verified |
+|---|---|
+| Student logs in with valid phone + OTP | Dashboard shows user name, modal closes |
+| Student books a session | Confirmation page reached, booking in history |
+| Tutor creates a group session | Session appears in group sessions list |
+
+**Test class:** `TestScenarioHappyPath` · `TestQA01Functional`
 
 ---
 
-## Before You Start — What You Need
+### 2. Valid Data
+> Tests that confirm the system accepts all legitimate inputs and variations.
 
-Install these three things on your computer (free, one-time setup):
+| Field | Valid values tested |
+|---|---|
+| Phone number | `98976564` (BD), `501234567` (SA), `0501234567` |
+| Country code | `+880` (BD), `+966` (SA), `+971` (UAE), `+1` (USA) |
+| OTP | `123456` (staging fixed), 6-digit numeric strings |
+| Session duration | `30 min`, `60 min`, `90 min` |
+| Search query | `Math`, `Physics`, `English`, `Arabic` |
 
-### 1. Python 3.10 or newer
-
-Python runs the test code.
-
-**Check if you already have it:**
-```
-python3 --version
-```
-If you see `Python 3.10.x` or higher — you're good. Skip this step.
-
-**If not installed:**
-- Go to **https://www.python.org/downloads/**
-- Click the big yellow "Download Python" button
-- Open the downloaded file and follow the installer
-- On the last screen, make sure **"Add Python to PATH"** is checked
+**Test class:** `TestScenarioValidData`
 
 ---
 
-### 2. Node.js 18 or newer
+### 3. Invalid Data
+> Tests that confirm the system rejects bad inputs with clear, user-friendly error messages.
 
-Node.js runs the WhatsApp message reader (needed for production OTP).
+| Field | Invalid values tested |
+|---|---|
+| Phone number | `abc123`, `@!#$%`, `123` (too short), `999999999999999` (too long) |
+| OTP | `000000`, `abcdef`, `12345` (5 digits), `1234567` (7 digits), `      ` (spaces) |
+| Country code search | `ZZZZZ`, `<script>`, `DROP TABLE`, emoji `😀` |
+| Session booking date | Past dates, `32/13/2099`, `00/00/0000` |
+| Promo code | `FAKEPROMO`, `<IMG SRC=x>`, `' OR 1=1--` |
 
-**Check if you already have it:**
-```
-node --version
-```
-If you see `v18.x.x` or higher — skip this step.
-
-**If not installed:**
-- Go to **https://nodejs.org/**
-- Click the **"LTS" (Long Term Support)** download button
-- Open the file and follow the installer (keep all default settings)
+**Test class:** `TestScenarioInvalidData` · `TestQA02EdgeCaseBoundary` · `TestQA03Security`
 
 ---
 
-### 3. Git
+### 4. Empty / Null / Blank Input
+> Tests that confirm the system handles missing data gracefully — no crashes, clear UI feedback.
 
-Git downloads the project code.
+| Scenario | Expected behaviour |
+|---|---|
+| Submit login with empty phone | "Send Code" button stays disabled |
+| Submit OTP with empty field | "Continue" button stays disabled |
+| Search tutors with empty query | Page loads with all tutors or placeholder message |
+| Book session with no date selected | Calendar error or submit stays disabled |
+| Profile update with blank name | Validation message, save blocked |
+| Whitespace-only phone `"   "` | Treated as empty — button stays disabled |
 
-**Check if you already have it:**
-```
-git --version
-```
-
-**If not installed:**
-- **Mac:** Open Terminal and type `git --version` — Mac will offer to install it automatically
-- **Windows:** Download from **https://git-scm.com/download/win** and run the installer
+**Test class:** `TestScenarioEmptyInput`
 
 ---
 
-## Installation — Step by Step
+### 5. Boundary Value
+> Tests at the exact limits — minimum, maximum, and just beyond.
 
-Open your **Terminal** (Mac) or **Command Prompt** (Windows) and run these commands one by one:
+| Field | Boundary values |
+|---|---|
+| Phone number | 7 digits (min valid), 8 digits, 12 digits (max), 13 digits (over) |
+| OTP | 5 digits (under), 6 digits (exact), 7 digits (over) |
+| Review rating | `1` (min), `5` (max), `0` (under), `6` (over) |
+| Session length | `15 min` (under min), `30 min` (min valid), `180 min` (max) |
+| Search query length | `1` char, `100` chars, `1000` chars |
 
-### Step 1 — Download the project
+**Test class:** `TestQA02EdgeCaseBoundary`
+
+---
+
+### 6. UAT (User Acceptance Testing)
+> End-to-end journeys that mirror real users' goals. Passes only when the full user story succeeds.
+
+| User story | Steps |
+|---|---|
+| **Student first login** | Open site → Log In → Select country → Enter phone → OTP → Dashboard |
+| **Student books a session** | Login → Find tutor → Select date/time → Pay → View booking |
+| **Student leaves a review** | Complete session → Rate tutor 1–5 stars → Write comment → Submit |
+| **Tutor sets availability** | Login as tutor → Calendar → Add slots → Save → Verify visibility |
+| **Admin adds a subject** | Login as admin → Subjects → Add "Calculus" → Verify in student search |
+| **Language switch** | Homepage in EN → click AR → verify RTL layout and Arabic text |
+
+**Test class:** `TestScenarioUAT`
+
+---
+
+### 7. Out of the Box / Creative Negative
+> Unexpected behaviour users actually do. Catches logic gaps missed by scripted tests.
+
+| Scenario | Why it matters |
+|---|---|
+| Rapid double-click on "Send Code" | Prevents duplicate OTP requests / API spam |
+| Resize browser mid-session | Responsive layout doesn't break in-progress flows |
+| Browser Back button after login | Session persists, modal doesn't re-appear |
+| Direct URL to protected page (not logged in) | Redirect to login, not blank/500 page |
+| Paste a phone number with `+880-989-76564` hyphens | Cleaned and accepted or clearly rejected |
+| Open 3 browser tabs simultaneously | Sessions don't interfere with each other |
+| Copy OTP from clipboard | OTP field accepts pasted values |
+| Submit form via keyboard Enter only (no mouse) | Form submits correctly |
+| Emoji in text fields `😀` | Handled gracefully, not stored as garbage |
+| URL manipulation — inject `?admin=true` | No privilege escalation |
+| Refresh page during OTP countdown | Countdown resets cleanly |
+| Very long session — sit idle 30 min | Session timeout / re-auth flow works |
+
+**Test class:** `TestScenarioOutOfTheBox`
+
+---
+
+### 8. Security
+> Automated injection and auth bypass checks on every input surface.
+
+| Type | What is tested |
+|---|---|
+| XSS | `<script>alert(1)</script>`, `"><img src=x onerror=alert(1)>`, 50 payloads |
+| SQL Injection | `' OR '1'='1`, `'; DROP TABLE users;--`, 50 payloads |
+| SSTI | `{{7*7}}`, `${7*7}`, `<%= 7*7 %>` |
+| IDOR | Direct `/api/users/1`, `/api/users/2` — must require auth |
+| Auth bypass | Forged JWT, missing Bearer token, expired token |
+| HTTPS | All requests over TLS, no mixed content |
+| CSP headers | Content-Security-Policy present on all pages |
+| Cookie flags | `Secure`, `HttpOnly`, `SameSite` on session cookies |
+| Open redirect | `?next=https://evil.com` must not redirect off-domain |
+
+**Test classes:** `TestQA03Security` · `TestQA13SecurityHeaders` · `TestQA14CookieSecurity` · `TestQA15OWASPSurface`
+
+---
+
+### 9. Performance
+> Timing and resource budgets.
+
+| Metric | Budget |
+|---|---|
+| Page load (DOMContentLoaded) | ≤ 8 seconds |
+| API response (login, search) | ≤ 5 seconds |
+| Largest Contentful Paint (LCP) | ≤ 3.5 seconds |
+| Time to Interactive (TTI) | ≤ 6 seconds |
+| JS heap growth across 3 navigations | ≤ 50 MB increase |
+
+**Test classes:** `TestQA04PerformanceAndJSErrors` · `TestQA16Lighthouse` · `TestQA17MemoryLeak`
+
+---
+
+### 10. Accessibility
+> WCAG 2.1 AA compliance checks.
+
+| Check | Details |
+|---|---|
+| Keyboard navigation | Tab through all interactive elements, Enter/Space activates |
+| Focus visible | Focus ring visible on all focusable elements |
+| ARIA labels | Buttons, inputs, dialogs have descriptive labels |
+| Heading hierarchy | H1 → H2 → H3 — no skipped levels |
+| Image alt text | All `<img>` have non-empty `alt` attributes |
+| Colour contrast | Text/background contrast meets 4.5:1 ratio |
+| Screen reader | `role="dialog"`, `aria-modal`, `aria-label` present |
+
+**Test class:** `TestQA07Accessibility`
+
+---
+
+### 11. i18n / RTL
+> Arabic language and right-to-left layout checks.
+
+| Check | Details |
+|---|---|
+| Language switch EN → AR | URL changes to `/ar/`, page content is Arabic |
+| RTL layout direction | `dir="rtl"` or `direction: rtl` on body/main |
+| Arabic text renders | Key headings render as Arabic Unicode, not boxes |
+| Numbers in Arabic locale | Dates and amounts shown in correct format |
+| Modal works in Arabic | Login modal fields and buttons functional in AR |
+
+**Test class:** `TestQA10I18nAndRTL`
+
+---
+
+### 12. API & Network
+> HTTP-level checks beyond what the browser renders.
+
+| Check | Details |
+|---|---|
+| All API calls return 2xx | No silent 404/500 on page load |
+| No 3rd-party data leakage | Request headers don't contain sensitive tokens |
+| CORS policy | API rejects cross-origin requests from unknown domains |
+| Rate limiting | Rapid login attempts return 429, not 200 |
+| Response content-type | JSON APIs return `application/json` |
+
+**Test class:** `TestQA06APIAndNetwork` · `TestQA18NetworkResilience`
+
+---
+
+### 13. Visual Regression
+> Pixel-diff screenshots compared against approved baselines.
+
+| Page | Breakpoints |
+|---|---|
+| Homepage | 1280px, 768px, 375px |
+| Login modal | 1280px, 375px |
+| Find Tutors | 1280px, 768px |
+| Tutor profile | 1280px, 375px |
+
+**Test class:** `TestQA11VisualRegression`
+
+---
+
+### 14. Mobile / Viewport
+> Layout, touch targets, and scroll behaviour on small screens.
+
+| Device | Viewport |
+|---|---|
+| iPhone SE | 375 × 667 |
+| iPhone 14 | 390 × 844 |
+| iPad | 768 × 1024 |
+| Galaxy S21 | 360 × 800 |
+
+| Check | Details |
+|---|---|
+| Touch targets | All buttons ≥ 44 × 44 px |
+| No horizontal scroll | Page fits within viewport width |
+| Hamburger menu | Opens/closes and links work |
+
+**Test class:** `TestQA08MobileAndViewport`
+
+---
+
+## How Spec-Driven URLs Work
+
+Every spec file begins with:
+
+```markdown
+# Page: Login — Homepage & Student Login Modal
+
+**URL:** `https://dev.mehadedu.com/en`
+```
+
+The tests read this URL automatically — nothing is hard-coded:
+
+```python
+# In tests/test_qa_comprehensive.py
+def _spec_url(spec_name: str, fallback: str = "") -> str:
+    spec_path = Path(__file__).parent.parent / "specs" / f"{spec_name}.md"
+    if spec_path.exists():
+        m = re.search(r'\*\*URL:\*\*\s*`(.+?)`', spec_path.read_text())
+        if m:
+            return m.group(1).strip()
+    return fallback or os.getenv("BASE_URL", "https://dev.mehadedu.com/en")
+```
+
+**To point tests at a different environment**, update the URL in the relevant spec file:
+
+```markdown
+**URL:** `https://staging.mehadedu.com/en`
+```
+
+Run the tests — they automatically target the new URL. No `.env` changes, no CI secrets to update.
+
+---
+
+## Installation
+
+### Requirements
+
+- Python 3.12+
+- Node.js 18+ (for WhatsApp bridge on production)
+- Git
+
+### One-time setup
 
 ```bash
+# 1 — Clone
 git clone https://github.com/Qatarat/mehad-automation
 cd mehad-automation
-```
 
-> This downloads all the project files into a folder called `mehad-automation` and moves you into it.
-
----
-
-### Step 2 — Install Python packages
-
-```bash
+# 2 — Python dependencies
 pip install -r requirements.txt
-```
 
-> This installs all the Python tools the project needs (Playwright, pytest, etc.). Takes 1–2 minutes.
-
----
-
-### Step 3 — Install the browser engine
-
-```bash
+# 3 — Browser engine
 playwright install chromium
-```
 
-> This downloads a special automated browser. Takes 1–2 minutes.
+# 4 — WhatsApp bridge (production OTP only)
+cd scripts && npm install && cd ..
+
+# 5 — Settings file
+cp .env.example .env   # then edit .env
+```
 
 ---
 
-### Step 4 — Install WhatsApp bridge packages (for production OTP)
+## Configuration (.env)
 
-```bash
-cd scripts
-npm install
-cd ..
-```
+### Staging (recommended starting point — no real phone needed)
 
-> This installs the WhatsApp message reader. Takes 1–2 minutes.
-
----
-
-### Step 5 — Create your settings file
-
-```bash
-cp .env.example .env
-```
-
-> This creates a file called `.env` where you put your phone numbers and passwords.
-> Open `.env` in any text editor (Notepad, TextEdit, VS Code) to edit it.
-
----
-
-## Settings File (.env) — What to Fill In
-
-Open the `.env` file in a text editor. You will see sections like this:
-
-### For staging/testing (dev.mehadedu.com) — easiest setup
-
-These settings work immediately with no extra setup:
-
-```
+```dotenv
 BASE_URL=https://dev.mehadedu.com/en
 
 TEST_PHONE=98976564
@@ -183,437 +359,364 @@ STUDENT_PHONE=98976564
 STUDENT_OTP=123456
 ```
 
-> The staging server always accepts OTP `123456` for registered test accounts.
-> **No real phone or WhatsApp needed for staging.**
+> Staging always accepts OTP `123456` for registered test accounts.
 
----
+### Production (requires WhatsApp OTP reader — see next section)
 
-## Run Your First Test (Staging)
-
-Once `.env` is set up for staging, run:
-
-```bash
-pytest tests/test_specs_all.py -v
-```
-
-You will see output like:
-
-```
-PASSED tests/test_specs_all.py::TestLogin::test_smoke_page_loads
-PASSED tests/test_specs_all.py::TestLogin::test_nav_login_button_visible
-PASSED tests/test_specs_all.py::TestLogin::test_func_otp_send_code_flow
-...
-1246 passed in 8m 42s
-```
-
-That's it — you are running 1246 automated tests.
-
----
-
-## Watch the Tests Run (Optional)
-
-Want to see the browser open and click things automatically? Add `HEADED=1`:
-
-```bash
-HEADED=1 pytest tests/test_specs_all.py -k "Login" -v
-```
-
-> `HEADED=1` makes the browser window visible instead of running hidden.
-> `-k "Login"` runs only the Login page tests (faster for demos).
-
----
-
-## Production Testing — Getting Real WhatsApp OTPs
-
-When testing **https://mehadedu.com** (the live site), the app sends a real WhatsApp message with a 6-digit code. The tool needs to read that code automatically.
-
-You have two free options:
-
----
-
-### Option A — WAHA (Easiest for production · Requires Docker)
-
-**What is WAHA?**
-WAHA is a free program that connects to WhatsApp and lets our tool read incoming messages automatically. It runs inside Docker — a tool that runs programs in a self-contained box.
-
-#### A1 — Install Docker Desktop
-
-1. Go to **https://www.docker.com/products/docker-desktop**
-2. Click **"Download for Mac"** (or Windows)
-
-   > **Mac users:** If you have an Apple Silicon Mac (M1/M2/M3 chip), download "Apple Silicon". If you have an older Intel Mac, download "Intel Chip". Not sure? Go to Apple menu → About This Mac.
-
-3. Open the downloaded file:
-   - **Mac:** Drag the Docker icon into your Applications folder
-   - **Windows:** Run the installer and follow the prompts
-
-4. Launch Docker from your Applications (or Start menu)
-
-5. Wait for the **whale icon** in the menu bar (Mac) or taskbar (Windows) to stop animating. When it's still, Docker is ready.
-
-6. Verify it works — open Terminal/Command Prompt and type:
-   ```bash
-   docker --version
-   ```
-   You should see something like: `Docker version 27.x.x`
-
----
-
-#### A2 — Start WAHA
-
-Copy and paste this exact command into Terminal:
-
-```bash
-docker run -d --name waha --restart unless-stopped -p 3000:3000 devlikeapro/waha
-```
-
-**What each part means:**
-
-| Part | What it does |
-|---|---|
-| `docker run` | Start a new program |
-| `-d` | Run it in the background (you can close Terminal) |
-| `--name waha` | Call it "waha" so you can find it later |
-| `--restart unless-stopped` | Auto-restart if your computer reboots |
-| `-p 3000:3000` | Make it available at http://localhost:3000 |
-| `devlikeapro/waha` | The WAHA program to download and run |
-
-The first time, it downloads WAHA (about 500MB). Subsequent starts are instant.
-
----
-
-#### A3 — Connect your WhatsApp (scan QR — one time only)
-
-1. Open your web browser and go to: **http://localhost:3000/dashboard**
-2. You will see the WAHA dashboard
-3. Click **"Start session"** → then click **"default"**
-4. A **QR code** appears on screen
-5. Open **WhatsApp** on your phone → tap **Settings** → **Linked Devices** → **Link a Device**
-6. Point your phone camera at the QR code on your screen
-7. The dashboard shows **"WORKING"** — your WhatsApp is now connected
-
-> You only scan the QR code **once**. WAHA remembers the connection.
-> Use a **test phone** (not your personal number) for this.
-
----
-
-#### A4 — Update your .env for production
-
-Open `.env` and change/add these lines:
-
-```
+```dotenv
 BASE_URL=https://mehadedu.com/en
-PROD_OTP_BACKEND=waha
+
+PROD_OTP_BACKEND=waha          # or: twilio | whatsapp_local | manual
+PROD_COUNTRY_CODE=+966
+PROD_TEST_PHONE=501234567
+PROD_TEACHER_PHONE=501234567
+PROD_STUDENT_PHONE=501234567
+
 WAHA_URL=http://localhost:3000
 WAHA_SESSION=default
-WAHA_CHAT_ID=+8801755572498@c.us
-
-PROD_COUNTRY_CODE=+880
-PROD_TEST_PHONE=1755572498
-PROD_TEACHER_PHONE=1755572498
-PROD_STUDENT_PHONE=1755572498
-```
-
-> Replace `+8801755572498` with your actual test phone number in this format: `+[country code][number]@c.us`
-> Example: USA number +12025551234 becomes `+12025551234@c.us`
-
----
-
-#### A5 — Run production tests
-
-Make sure WAHA is running (step A2), then:
-
-```bash
-pytest tests/test_specs_all.py -v
-```
-
-When the test reaches the login step, it will:
-1. Enter your phone number and click "Send Code"
-2. Wait for the WhatsApp OTP to arrive (WAHA reads it automatically)
-3. Enter the OTP and log in
-4. Continue testing
-
----
-
-#### Managing WAHA
-
-```bash
-# Check if WAHA is running
-docker ps
-
-# Stop WAHA
-docker stop waha
-
-# Start WAHA again (no QR needed — stays connected)
-docker start waha
-
-# View WAHA logs if something goes wrong
-docker logs waha -f
-
-# Completely remove WAHA (you would need to scan QR again)
-docker rm -f waha
+WAHA_CHAT_ID=+966501234567@c.us
 ```
 
 ---
 
-### Option B — whatsapp-web.js Bridge (No Docker needed)
+## Running Tests
 
-This is already installed (you ran `npm install` in Step 4). Use this if you cannot install Docker.
-
-#### B1 — Start the bridge
-
-Open a Terminal window and run:
+### By scenario type
 
 ```bash
-cd scripts
-node whatsapp_otp_server.js
+# All 2000+ tests
+pytest tests/test_qa_comprehensive.py tests/test_specs_all.py -v
+
+# Happy Path only
+pytest tests/test_qa_comprehensive.py -k "HappyPath" -v
+
+# Valid data scenarios
+pytest tests/test_qa_comprehensive.py -k "ValidData" -v
+
+# Invalid data scenarios
+pytest tests/test_qa_comprehensive.py -k "InvalidData" -v
+
+# Empty input scenarios
+pytest tests/test_qa_comprehensive.py -k "EmptyInput" -v
+
+# UAT scenarios
+pytest tests/test_qa_comprehensive.py -k "UAT" -v
+
+# Out of the box scenarios
+pytest tests/test_qa_comprehensive.py -k "OutOfTheBox" -v
+
+# Security only
+pytest tests/test_qa_comprehensive.py -k "Security" -v
+
+# Accessibility only
+pytest tests/test_qa_comprehensive.py -k "Accessibility" -v
+
+# Performance only
+pytest tests/test_qa_comprehensive.py -k "Performance or Lighthouse or MemoryLeak" -v
 ```
 
-A QR code will print in the terminal like this:
-
-```
-[WA] Scan this QR code with your test WhatsApp account:
-
-█████████████████████████████
-█ ▄▄▄▄▄ █▀█ █▄█▀ ▀▄▀▄▀ ▄▄▄▄▄ █
-█ █   █ █▀▀▄▀ ▄  ▄▀▄▄▀ █   █ █
-...
-
-[WA] Authenticated — session saved.
-[WA] WhatsApp client ready. OTP server listening on :3001
-```
-
-Scan the QR code with your WhatsApp test phone (same as WAHA step A3).
-
-> **Important:** Keep this Terminal window open while tests run. Opening a second Terminal window for the next step.
-
-#### B2 — Update .env
-
-```
-BASE_URL=https://mehadedu.com/en
-PROD_OTP_BACKEND=whatsapp_local
-WA_OTP_PORT=3001
-PROD_COUNTRY_CODE=+880
-PROD_TEST_PHONE=1755572498
-```
-
-#### B3 — Run tests in the second Terminal window
+### By QA agent number
 
 ```bash
-pytest tests/test_specs_all.py -v
+pytest tests/test_qa_comprehensive.py::TestQA01Functional -v       # Functional
+pytest tests/test_qa_comprehensive.py::TestQA02EdgeCaseBoundary -v # Edge cases
+pytest tests/test_qa_comprehensive.py::TestQA03Security -v         # Security
+pytest tests/test_qa_comprehensive.py::TestQA07Accessibility -v    # Accessibility
+pytest tests/test_qa_comprehensive.py::TestQA08MobileAndViewport -v # Mobile
 ```
 
----
-
-### Option C — Free Online SMS Receiver (No install, no account)
-
-Use this if the site also sends OTP via **SMS** (not just WhatsApp).
-
-> **Note:** Mehad currently uses WhatsApp for OTPs. Options A and B work with WhatsApp.
-> Option C works if there is an SMS fallback. Try it — if no OTP arrives within 90 seconds, switch to Option A or B.
-
-**Step 1 — Go to a free SMS receiver website:**
-- **https://receivesmsfast.com** — has Bangladesh numbers
-- **https://quackr.io** — has USA, EU numbers
-- **https://sms-online.co** — has many countries
-
-**Step 2 — Pick a number from the list on the website**
-
-For example, on receivesmsfast.com you might pick: `+8801755572498`
-
-**Step 3 — Update .env:**
-
-```
-BASE_URL=https://mehadedu.com/en
-PROD_OTP_BACKEND=receivesmsfast
-RECEIVESMSFAST_NUMBER=8801755572498
-PROD_COUNTRY_CODE=+880
-PROD_TEST_PHONE=1755572498
-```
-
-**Step 4 — Run tests:**
+### Spec-driven tests (all 68 pages)
 
 ```bash
-pytest tests/test_specs_all.py -v
-```
-
-The tool will poll the website every 5 seconds, waiting for the OTP to appear.
-
-> These numbers are public — anyone can see messages sent to them. Only use for test accounts.
-
----
-
-### Option D — Manual OTP (Simplest · No setup at all)
-
-**The easiest way to test production.** You enter your own real phone number and type the OTP yourself when it arrives on WhatsApp. No Docker, no Node.js, no extra tools.
-
-> **This is how the production login was verified live** — phone `+8801316314566` received a real WhatsApp OTP and login completed successfully on `https://mehadedu.com/en`.
-
-#### How it works
-
-1. The test opens the Mehad login page in a browser
-2. It asks you: **"Enter your WhatsApp phone number"**
-3. You type your number (e.g. `+8801316314566`)
-4. Mehad sends a 6-digit OTP to your WhatsApp
-5. The test asks: **"Enter the OTP from your WhatsApp"**
-6. You type the 6 digits
-7. Login completes — test continues automatically from there
-
-#### D1 — Update your .env
-
-```
-BASE_URL=https://mehadedu.com/en
-```
-
-That is all you need. When `BASE_URL` points to production (`mehadedu.com`), the test automatically switches to interactive mode — no extra variables required. For dev/staging (`dev.mehadedu.com`) it uses the fixed test OTP automatically with no prompts.
-
-#### D2 — Run the tests
-
-Open a Terminal in the project folder and run:
-
-```bash
-pytest tests/test_specs_all.py -v -s
-```
-
-> The `-s` flag is important — it lets you type your answers when the test asks for your phone number and OTP.
-
-#### D3 — What you will see
-
-When the test reaches the login step, it pauses and shows:
-
-```
-[PROD OTP] Enter your WhatsApp phone number (with country code, e.g. +8801316314566):
-```
-
-Type your number and press **Enter**.
-
-A few seconds later:
-
-```
-[PROD OTP] OTP sent to +8801316314566 — check your WhatsApp and enter the 6-digit code:
-```
-
-Open WhatsApp on your phone, find the message from Mehad, and type the 6 digits.
-
-Login completes and the rest of the tests run automatically.
-
-#### D4 — Running just the login test first
-
-If you want to verify login works before running all 1200+ tests:
-
-```bash
-pytest tests/test_specs_all.py::TestSpec_Login -v -s
-```
-
-Or run the full QA login test:
-
-```bash
-pytest tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_full_login_flow_success -v -s
-```
-
-#### Tips for manual OTP mode
-
-- **Have WhatsApp open** on your phone before running — the OTP arrives within a few seconds of "Send Code"
-- **You have ~60 seconds** to enter the OTP before it expires
-- If the OTP expires, just run the test again — a new code will be sent
-- This mode is perfect for a **one-off production check** or when you don't have Docker available
-- For **automated CI/CD** without manual input, use Option A (WAHA) instead
-
----
-
-## Which Option Should I Use?
-
-| My situation | Best option |
-|---|---|
-| Testing staging only (dev.mehadedu.com) | Just set `BASE_URL=https://dev.mehadedu.com/en` — uses fixed OTP automatically, no WhatsApp needed |
-| **Quick production check, any phone** | **Option D — Manual OTP** (zero setup, you type the OTP) |
-| Testing production, comfortable with Docker | **Option A — WAHA** (fully automatic, best for repeated runs) |
-| Testing production, no Docker | **Option B — whatsapp-web.js** (already installed) |
-| App sends SMS instead of WhatsApp | **Option C — free SMS receiver** (no install) |
-| Running tests in CI/CD automatically | **Option A — WAHA** with a self-hosted instance |
-
----
-
-## Running Specific Tests
-
-```bash
-# Run all tests (all 68 pages)
+# Regenerate test_specs_all.py from the 68 spec files, then run
+python3 scripts/validate_all_specs.py
 pytest tests/test_specs_all.py -v
 
-# Run only the Login page tests
+# Single page
 pytest tests/test_specs_all.py -k "Login" -v
 
-# Run only the Find Tutors page
-pytest tests/test_specs_all.py -k "FindTutors" -v
+# With visible browser (great for debugging)
+HEADED=1 SLOW_MO=800 pytest tests/test_specs_all.py -k "Login" -v
 
-# Run the full comprehensive QA suite
-pytest tests/test_qa_comprehensive.py -v
-
-# Watch the browser (great for demos or debugging)
-HEADED=1 SLOW_MO=1000 pytest tests/test_specs_all.py -k "Login" -v
-
-# Run tests faster in parallel (4 at a time)
+# Parallel (4 workers)
 pytest tests/test_specs_all.py -n 4 -v
 ```
 
----
+### Generate an HTML report
 
-## Understanding the Test Results
-
-When tests run, you will see:
-
-```
-PASSED  ← This check worked correctly
-FAILED  ← Something went wrong — details shown below
-ERROR   ← The test itself had a problem (not the app)
+```bash
+pytest tests/ --html=reports/index.html --self-contained-html -v
 ```
 
-After all tests finish, a summary appears:
-
-```
-==================== 1198 passed, 48 failed in 9m 12s ====================
-```
-
-A detailed HTML report is saved in the `reports/` folder. Open `reports/index.html` in your browser to see:
-- Which tests passed and failed
-- Screenshots of failures
-- Timing for each test
+Open `reports/index.html` in your browser.
 
 ---
 
-## Common Problems and Fixes
+## OTP Options for Production
+
+When `BASE_URL` points to `mehadedu.com`, the test auto-detects production mode and needs a real OTP reader.
+
+### Option A — WAHA (Recommended · Docker)
+
+```bash
+# Start WAHA
+docker run -d --name waha --restart unless-stopped -p 3000:3000 devlikeapro/waha
+
+# Scan QR: http://localhost:3000/dashboard → Start session → default
+# .env: PROD_OTP_BACKEND=waha
+```
+
+### Option B — whatsapp-web.js (No Docker)
+
+```bash
+# Already installed. Start in a separate terminal:
+cd scripts && node whatsapp_otp_server.js
+# Scan QR in terminal. Keep it open.
+# .env: PROD_OTP_BACKEND=whatsapp_local
+```
+
+### Option C — Twilio
+
+```dotenv
+PROD_OTP_BACKEND=twilio
+TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=your_auth_token
+TWILIO_WHATSAPP_NUMBER=+14155238886
+```
+
+### Option D — Manual (Zero setup)
+
+```bash
+# Just run tests with -s. The test will pause and ask you to type the OTP.
+pytest tests/test_qa_comprehensive.py::TestQA01Functional::test_qa01_full_login_flow_success -v -s
+```
+
+### Which option?
+
+| Situation | Best option |
+|---|---|
+| Staging tests | None needed — fixed OTP `123456` used automatically |
+| Quick production check | **D — Manual** (zero setup) |
+| Automated production CI | **A — WAHA** (reliable, persistent session) |
+| No Docker | **B — whatsapp-web.js** |
+| Already using Twilio | **C — Twilio** |
+
+---
+
+## CI / GitHub Actions
+
+Tests run automatically on every push to `main` and nightly at 02:00 UTC.
+
+### Secrets to configure (GitHub → Settings → Secrets → Actions)
+
+| Secret | Value |
+|---|---|
+| `TEST_OTP` | `123456` |
+| `TEST_PHONE` | `98976564` |
+| `TEST_COUNTRY` | `+880` |
+| `TEACHER_PHONE` | `98976564` |
+| `STUDENT_PHONE` | `98976564` |
+
+### Trigger a run manually
+
+1. GitHub → **Actions** tab
+2. Click **Mehad Autonomous AI Testing**
+3. Click **Run workflow**
+
+Results publish automatically to [qatarat.github.io/mehad-automation](https://qatarat.github.io/mehad-automation/).
+
+---
+
+## Adding a New Page
+
+1. Create `specs/my_new_page.md`:
+
+```markdown
+# Page: My New Page
+
+**URL:** `https://dev.mehadedu.com/en/my-page`
+
+## Description
+Brief description of what this page does.
+
+## UI Elements
+
+| Element | Selector | Notes |
+|---|---|---|
+| Submit button | `button:has-text("Submit")` | Required |
+| Name input | `input[name="name"]` | Required |
+
+## User Flows
+
+### Flow 1: Happy Path
+1. Navigate to page
+2. Fill name input with "Test User"
+3. Click Submit
+→ Expected: Success message visible
+
+## Requirements
+- REQ-01: Page loads without 5xx errors
+
+## Edge Cases
+| EC-01 | Empty name submitted | Error message shown |
+| EC-02 | Name with XSS payload | Input sanitised |
+
+## Test Data
+### Valid
+| Field | Value |
+|---|---|
+| name | Test User |
+| name | أحمد |
+
+### Invalid
+| Field | Value |
+|---|---|
+| name | <script>alert(1)</script> |
+| name | ' OR 1=1-- |
+```
+
+2. Regenerate and run:
+
+```bash
+python3 scripts/validate_all_specs.py
+pytest tests/test_specs_all.py -k "MyNewPage" -v
+```
+
+Tests are generated automatically from the spec. No code required.
+
+---
+
+## Project Structure
+
+```
+mehad-automation/
+│
+├── specs/                         # 68 page spec files (plain text)
+│   ├── login.md                   # Login page — URL, flows, test data
+│   ├── student_login.md           # Student login spec
+│   ├── student_payment.md         # Payment flow spec
+│   └── ...                        # One .md per page
+│
+├── tests/
+│   ├── test_qa_comprehensive.py   # 215+ hand-crafted tests (all scenario types)
+│   ├── test_specs_all.py          # Auto-generated from specs/ (1200+ tests)
+│   ├── test_login_e2e.py          # Login E2E tests
+│   ├── test_signup_e2e.py         # Signup E2E tests
+│   └── test_payment_flow.py       # Payment flow tests
+│
+├── ai_engine/                     # AI test generator
+│   ├── agent.py                   # Autonomous AI test agent
+│   ├── spec_parser.py             # Reads spec .md files
+│   ├── spec_compiler.py           # Compiles specs to JSON
+│   ├── test_generator.py          # Generates Playwright code from specs
+│   └── reporter.py                # Builds HTML bug reports
+│
+├── scripts/
+│   ├── consolidate_reports.py     # Merges all agent results
+│   ├── build_pages_site.py        # Builds GitHub Pages dashboard
+│   ├── validate_all_specs.py      # Regenerates test_specs_all.py
+│   ├── get_otp.py                 # Reads OTP from WhatsApp/Twilio/manual
+│   └── bug_clustering.py          # Groups bugs by root cause + trend tracking
+│
+├── payloads/
+│   ├── xss.txt                    # 50 XSS payloads
+│   ├── sqli.txt                   # 50 SQL injection payloads
+│   └── boundary.txt               # Boundary value strings
+│
+├── gh-pages-site/                 # Built dashboard (deployed to GitHub Pages)
+│
+├── .github/workflows/ai-tests.yml # CI pipeline (18 parallel QA agents)
+├── requirements.txt
+└── .env.example
+```
+
+---
+
+## Test Data Reference
+
+### Login
+
+| Type | Country | Phone | OTP | Expected result |
+|---|---|---|---|---|
+| Valid | +880 (BD) | `98976564` | `123456` | Login succeeds |
+| Valid | +966 (SA) | `501234567` | `123456` | Login succeeds |
+| Invalid | +880 | `abc123` | — | Input rejected |
+| Invalid | +880 | `123` | — | Send Code disabled |
+| Invalid | — | `98976564` | `000000` | Error message |
+| Empty | — | `` | — | Send Code disabled |
+| Empty | — | `98976564` | `` | Continue disabled |
+| Boundary | +880 | `1234567` (7 digits) | — | Min valid length |
+| Boundary | +880 | `1234567890123` (13 digits) | — | Over max length |
+| XSS | — | `<script>alert(1)</script>` | — | Sanitised or rejected |
+| SQLi | — | `' OR '1'='1` | — | Sanitised or rejected |
+
+### Booking / Session
+
+| Type | Data | Expected |
+|---|---|---|
+| Valid | Future date, available slot, registered tutor | Booking confirmed |
+| Invalid | Past date | Calendar blocks selection |
+| Invalid | Unavailable time slot | Slot greyed out |
+| Out of bounds | Same-day booking (0 hours notice) | Warning or blocked |
+| Duplicate | Re-book exact same slot | Conflict error |
+
+### Search
+
+| Type | Query | Expected |
+|---|---|---|
+| Valid | `Math` | Results list with tutors |
+| Valid | `رياضيات` (Arabic) | Results in Arabic locale |
+| Empty | `` | All tutors or placeholder |
+| Special chars | `@#$%^` | Empty results, no crash |
+| XSS | `<script>alert(1)</script>` | Escaped in results, no alert |
+| Very long | 1000-char string | Truncated or rejected gracefully |
+
+---
+
+## Troubleshooting
 
 ### "Auth setup failed" / Login not working
 
-- Make sure `TEACHER_PHONE` is a registered account in the system
-- For staging: confirm `TEST_OTP=123456` is in your `.env`
-- Add `HEADED=1` to watch what happens: `HEADED=1 pytest tests/test_specs_all.py -k "Login" -v`
+```bash
+# Watch the browser to see what's happening
+HEADED=1 pytest tests/test_qa_comprehensive.py::TestQA01Functional -v -k "login"
+```
 
-### WhatsApp OTP never arrives (production)
+Check:
+- `TEST_PHONE` is a registered staging account
+- `TEST_OTP=123456` is in `.env`
+- Staging server is up: `curl https://dev.mehadedu.com/en`
 
-- **WAHA (Option A):** Open http://localhost:3000/dashboard — check the session status shows "WORKING". If not, click the session and restart it.
-- **whatsapp-web.js (Option B):** Check the Terminal window where you ran `node whatsapp_otp_server.js` — it should say "WhatsApp client ready". If the window is closed, reopen it and run the command again.
-- Make sure the phone number in `.env` matches the WhatsApp account you connected
+### WhatsApp OTP never arrives
+
+- **WAHA:** Check http://localhost:3000/dashboard — session must show **WORKING**
+- **whatsapp-web.js:** Keep `node whatsapp_otp_server.js` terminal open
+- Phone number in `.env` must match the WhatsApp account connected to WAHA
 
 ### "playwright: Executable doesn't exist"
 
-Run this:
 ```bash
 playwright install chromium
 ```
 
-### "Docker not found" or "Cannot connect to Docker"
-
-- Make sure Docker Desktop is running (look for the whale icon in your menu bar / taskbar)
-- If Docker Desktop is not installed, see the Docker installation steps in Option A above
-
 ### Tests run very slowly
 
 ```bash
-LOAD_TIME_LIMIT=30 pytest tests/test_specs_all.py -v
+# Lower load timeout and skip headed mode
+LOAD_TIME_LIMIT=20 pytest tests/test_specs_all.py -v --timeout=30
 ```
 
-### A new page spec is not creating tests
+### Spec URL not being picked up
+
+Check your spec file has this exact format:
+
+```markdown
+**URL:** `https://dev.mehadedu.com/en/your-page`
+```
+
+Backticks required. No extra spaces inside them.
+
+### Re-generate tests after editing a spec
 
 ```bash
 python3 scripts/validate_all_specs.py
@@ -622,103 +725,22 @@ pytest tests/test_specs_all.py -v
 
 ---
 
-## Adding a New Page to Test
-
-1. Create a new file in the `specs/` folder, e.g. `specs/checkout.md`
-2. Write a description of the page in plain English with numbered steps:
-
-```markdown
-# Checkout Page
-
-**URL:** `https://dev.mehadedu.com/en/checkout`
-
-## Steps
-1. Navigate to the checkout page
-2. Select a payment method
-3. Click "Pay Now"
-4. Verify confirmation message appears
-```
-
-3. Run:
-```bash
-pytest tests/test_specs_all.py -k "Checkout" -v
-```
-
-Tests are automatically generated from your description. No coding needed.
-
----
-
-## GitHub Actions (Automatic Testing in the Cloud)
-
-The tests can run automatically on GitHub every time code changes, without you doing anything manually.
-
-### Setup (one time)
-
-1. Go to your repository on GitHub
-2. Click **Settings** → **Secrets and variables** → **Actions**
-3. Click **New repository secret** for each of these:
-
-| Secret name | What to put in it |
-|---|---|
-| `BASE_URL` | `https://dev.mehadedu.com/en` |
-| `TEACHER_PHONE` | `98976564` |
-| `STUDENT_PHONE` | `98976564` |
-| `TEST_OTP` | `123456` |
-| `TEST_COUNTRY` | `+880` |
-
-### Running manually
-
-1. Go to **Actions** tab in your GitHub repository
-2. Click **Fagun Autonomous QA Platform** in the left sidebar
-3. Click **Run workflow** → **Run workflow**
-
-Tests run in the cloud and results appear in the Actions tab.
-
----
-
-## Project Files Explained
-
-```
-mehad-automation/
-│
-├── specs/                    ← Text files describing each page (68 files)
-│   └── login.md              ← Example: describes the login page
-│
-├── tests/
-│   ├── test_specs_all.py     ← Auto-generated tests (do not edit manually)
-│   └── test_qa_comprehensive.py  ← Extra detailed tests for homepage/login
-│
-├── scripts/
-│   ├── get_otp.py            ← Reads OTP from WhatsApp/SMS automatically
-│   └── whatsapp_otp_server.js ← WhatsApp bridge (Option B)
-│
-├── ai_engine/                ← The engine that reads specs and creates tests
-│
-├── reports/                  ← Test results saved here (open index.html)
-│
-├── .env.example              ← Template for your settings file
-├── .env                      ← Your actual settings (never share this file)
-└── requirements.txt          ← List of Python packages needed
-```
-
----
-
 ## Getting Help
 
-If something is not working:
-
-1. Check the **Common Problems** section above
-2. Add `HEADED=1` to your command to watch the browser and see what's happening
-3. Check `docker logs waha -f` if using WAHA
+- Check the **Troubleshooting** section above
+- Add `HEADED=1` to watch the browser
+- [Open an issue](https://github.com/Qatarat/mehad-automation/issues)
+- [View the live dashboard](https://qatarat.github.io/mehad-automation/)
 
 ---
 
 <div align="center">
 
-**Fagun Autonomous QA Platform**
+**Mehad Autonomous QA Platform**
 
-Built by **[Mejbaur Bahar Fagun](mailto:mejbaur@markopolo.ai)** · Senior Software Engineer QA (IV) · Markopolo.ai
+Built by **[Mejbaur Bahar Fagun](mailto:mejbaur@markopolo.ai)**  
+Senior Software Engineer QA (IV) · Markopolo.ai
 
-Powered by Claude + Playwright + Ollama
+Powered by Playwright · Ollama · 22 AI QA Agents
 
 </div>

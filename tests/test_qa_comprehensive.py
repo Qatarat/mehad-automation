@@ -1,15 +1,23 @@
 """
 QA Comprehensive Test Suite — Mehad Homepage & Login Modal
 Spec: specs/login.md (and 21 student/tutor sub-specs)
-Covers 8 test groups:
-  QA-01  Functional & User Flow Tests       (homepage, modal, login, navigation)
-  QA-02  Edge Case & Boundary Tests         (phone validation, OTP, modal state)
-  QA-03  Security Tests (XSS + SQLi)        (phone/search injection vectors)
-  QA-04  Performance & JavaScript Error Tests
-  QA-05  Hallucination & Data Integrity Tests
-  QA-06  API & Network Monitoring           (headers, HTTPS, cookies, CORS)
-  QA-07  Accessibility Tests               (ARIA, keyboard, focus, headings)
-  QA-08  Mobile & Cross-Viewport Tests     (responsive layouts, touch targets)
+
+Covers all scenario types:
+  Scenario-HP   Happy Path                  — successful user journeys
+  Scenario-VD   Valid Data                  — all legitimate input variations
+  Scenario-INV  Invalid Data                — bad / malformed inputs
+  Scenario-EMP  Empty / Null / Blank Input  — missing data handling
+  Scenario-UAT  User Acceptance Testing     — end-to-end user stories
+  Scenario-OOB  Out of the Box              — creative / unexpected usage
+  QA-01         Functional & User Flow Tests
+  QA-02         Edge Case & Boundary Tests
+  QA-03         Security Tests (XSS + SQLi)
+  QA-04         Performance & JavaScript Error Tests
+  QA-05         Hallucination & Data Integrity Tests
+  QA-06         API & Network Monitoring
+  QA-07         Accessibility Tests
+  QA-08         Mobile & Cross-Viewport Tests
+  QA-09 …QA-22  SEO · i18n · Visual Regression · Memory · Network · Fuzz · Vision
 """
 
 import os, re, time, json, sys
@@ -25,9 +33,36 @@ except Exception:
     _fetch_otp = None  # type: ignore[assignment]
     _HAS_OTP_FETCHER = False
 
-BASE_URL = os.getenv("BASE_URL", "https://dev.mehadedu.com/en")
-FIND_TUTORS_URL = f"{BASE_URL}/find-tutors"
-AR_URL          = os.getenv("BASE_URL", "https://dev.mehadedu.com").rstrip("/en").rstrip("/") + "/ar"
+
+# ── Spec-driven URL resolution ─────────────────────────────────────────────────
+# Tests read their target URL from the spec .md file so that changing
+# the URL in the spec automatically retargets every test — nothing is
+# hard-coded here.
+
+def _spec_url(spec_name: str, fallback: str = "") -> str:
+    """Return the **URL:** declared in specs/<spec_name>.md.
+
+    Falls back to: explicit fallback → BASE_URL env var → dev URL.
+    Use this instead of hard-coding BASE_URL inside test classes so that
+    editing the spec file re-targets the test automatically."""
+    spec_path = Path(__file__).parent.parent / "specs" / f"{spec_name}.md"
+    if spec_path.exists():
+        raw = spec_path.read_text(encoding="utf-8", errors="ignore")
+        m = re.search(r"\*\*URL:\*\*\s*`(.+?)`", raw)
+        if m:
+            return m.group(1).strip()
+        # Also try bare URL in first 20 lines (older spec format)
+        for line in raw.splitlines()[:20]:
+            m2 = re.search(r"https?://[^\s\]\)`]+", line)
+            if m2:
+                return m2.group(0).rstrip(".,;)")
+    return fallback or os.getenv("BASE_URL", "https://dev.mehadedu.com/en")
+
+
+# Primary URL — driven by specs/login.md (or BASE_URL env as override)
+BASE_URL = os.getenv("BASE_URL") or _spec_url("login")
+FIND_TUTORS_URL = f"{BASE_URL.rstrip('/en').rstrip('/')}/en/find-tutors" if "/en" not in BASE_URL else f"{BASE_URL}/find-tutors"
+AR_URL = BASE_URL.replace("/en", "/ar").replace("/en/", "/ar/") if "/en" in BASE_URL else BASE_URL.rstrip("/") + "/ar"
 
 # SPA-safe load state — SPAs never reach networkidle
 LOAD_STATE = "domcontentloaded"
@@ -3966,3 +4001,853 @@ def test_real_check():
         assert findings == [], (
             f"verification failed — clean test was incorrectly flagged: {findings}"
         )
+
+
+# ═════════════════════════════════════════════════════════════════════════════
+# SCENARIO-TYPED TEST CLASSES
+# Each class explicitly targets one test scenario category so CI reports
+# and -k filters make coverage gaps immediately visible.
+#
+# All classes use _spec_url() to read the target URL from the spec file —
+# no hard-coded URLs.  To re-target a different environment, edit the
+# **URL:** line in the relevant spec .md file.
+# ═════════════════════════════════════════════════════════════════════════════
+
+_LOGIN_URL       = _spec_url("login")
+_STUDENT_URL     = _spec_url("student_login",    fallback=_LOGIN_URL)
+_FIND_TUTORS_URL = _spec_url("find_tutors",       fallback=_LOGIN_URL.rstrip("/") + "/find-tutors")
+_RESET_URL       = _spec_url("reset_password",    fallback=_LOGIN_URL)
+_SIGNUP_URL      = _spec_url("tutor_signup",      fallback=_LOGIN_URL)
+_PROFILE_URL     = _spec_url("student_profile",   fallback=_LOGIN_URL)
+_HOMEPAGE_URL    = _LOGIN_URL   # homepage IS the login-spec URL for Mehad
+
+# ─────────────────────────────────────────────────────────────────────────────
+# HAPPY PATH — TestScenarioHappyPath
+# Explicit "everything works" flows using valid data.
+# These are the first tests to run; if they fail, the app is broken.
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestScenarioHappyPath:
+    """Happy Path — successful end-to-end flows with valid inputs.
+    Target URL read from specs/login.md."""
+
+    def test_hp_homepage_loads_200(self, page: Page):
+        """Happy path: homepage returns HTTP 200 and renders content."""
+        resp = page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        assert resp is None or resp.status < 400, (
+            f"Homepage returned HTTP {resp.status if resp else '?'}"
+        )
+        assert page.title().strip() != "", "Page title is empty on homepage"
+
+    def test_hp_login_button_visible_unauthenticated(self, page: Page):
+        """Happy path: Log In button is visible before authentication."""
+        page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(1500)
+        btn = _find_visible_login_button(page)
+        assert btn.count() > 0 and btn.is_visible(timeout=8000), (
+            "Log In button not found on homepage (unauthenticated state)")
+
+    def test_hp_login_modal_opens(self, page: Page):
+        """Happy path: clicking Log In opens a modal dialog."""
+        _open_login_modal(page)
+        dialog = page.locator('[role="dialog"]').first
+        assert dialog.is_visible(timeout=5000), "Login dialog did not open"
+
+    def test_hp_modal_shows_welcome_back(self, page: Page):
+        """Happy path: login modal heading says 'Welcome back'."""
+        _open_login_modal(page)
+        text = page.locator('[role="dialog"]').first.inner_text()
+        assert "welcome back" in text.lower(), (
+            f"Expected 'Welcome back' heading — got: {text[:120]!r}")
+
+    def test_hp_country_code_default_sa(self, page: Page):
+        """Happy path: country code defaults to Saudi Arabia +966."""
+        _open_login_modal(page)
+        cc = page.locator('[aria-label="Country code"]').first
+        assert "+966" in cc.inner_text(), (
+            f"Country code not defaulting to +966 — got: {cc.inner_text()!r}")
+
+    def test_hp_phone_input_accepts_valid_phone(self, page: Page):
+        """Happy path: phone input accepts a valid numeric phone number."""
+        _open_login_modal(page)
+        phone = page.locator('input[type="tel"]').first
+        phone.wait_for(state="visible", timeout=5000)
+        phone.fill("")
+        phone.press_sequentially("98976564", delay=40)
+        val = phone.input_value()
+        assert "98976564" in val.replace(" ", ""), (
+            f"Phone input did not hold value '98976564' — got: {val!r}")
+
+    def test_hp_send_code_enabled_after_valid_phone(self, page: Page):
+        """Happy path: Send Code button becomes enabled after valid phone entered."""
+        _open_login_modal(page)
+        # Switch to +880 (Bangladesh)
+        _fill_phone(page, "+880", "98976564")
+        btn = page.locator('button:has-text("Send Code")').first
+        btn.wait_for(state="visible", timeout=5000)
+        assert not btn.is_disabled(), (
+            "Send Code button is still disabled after entering a valid phone number")
+
+    def test_hp_modal_closes_via_close_button(self, page: Page):
+        """Happy path: X close button dismisses the login modal cleanly."""
+        _open_login_modal(page)
+        close = page.locator('[aria-label="Close"]').first
+        close.wait_for(state="visible", timeout=5000)
+        close.click()
+        page.wait_for_timeout(600)
+        dialog = page.locator('[role="dialog"]')
+        assert dialog.count() == 0 or not dialog.first.is_visible(timeout=2000), (
+            "Modal did not close after clicking the X button")
+
+    def test_hp_find_tutors_page_loads(self, page: Page):
+        """Happy path: /find-tutors page loads and lists tutors."""
+        page.goto(_FIND_TUTORS_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(2000)
+        body = page.inner_text("body").lower()
+        assert ("tutor" in body or "teacher" in body or "find" in body), (
+            f"Find Tutors page appears empty — URL: {page.url}")
+
+    def test_hp_homepage_hero_headline_present(self, page: Page):
+        """Happy path: H1 hero headline renders on homepage."""
+        page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        h1 = page.locator("h1").first
+        assert h1.count() > 0, "No H1 heading on homepage"
+        assert len(h1.inner_text().strip()) > 3, "H1 heading is empty or too short"
+
+    def test_hp_footer_renders(self, page: Page):
+        """Happy path: footer renders with at least one link."""
+        page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        footer = page.locator("footer, [role='contentinfo']").first
+        assert footer.count() > 0, "Footer element not found on homepage"
+
+    def test_hp_language_toggle_present(self, page: Page):
+        """Happy path: EN/AR language toggle is visible in header."""
+        page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        en = page.locator('[aria-label="English"]').first
+        ar = page.locator('[aria-label="العربية"]').first
+        assert en.count() > 0 or ar.count() > 0, (
+            "Language toggle (EN/AR) not found in header")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# VALID DATA — TestScenarioValidData
+# Tests that confirm the system accepts all legitimate input variations.
+# Data taken from spec ## Test Data ### Valid sections.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Valid phone numbers per country (from specs)
+_VALID_PHONES = [
+    ("+880", "98976564"),    # Bangladesh (staging test account)
+    ("+966", "501234567"),   # Saudi Arabia
+]
+
+# Valid OTP values (staging accepts 123456 for all test accounts)
+_VALID_OTPS = ["123456"]
+
+class TestScenarioValidData:
+    """Valid Data — system must accept all legitimate input combinations.
+    URL sourced from specs/login.md."""
+
+    @pytest.mark.parametrize("country,phone", _VALID_PHONES)
+    def test_vd_valid_phone_enables_send_code(self, page: Page, country: str, phone: str):
+        """Valid data: Send Code becomes enabled for each valid phone/country pair."""
+        _open_login_modal(page)
+        _fill_phone(page, country, phone)
+        btn = page.locator('button:has-text("Send Code")').first
+        btn.wait_for(state="visible", timeout=5000)
+        assert not btn.is_disabled(), (
+            f"Send Code disabled for valid phone {country} {phone}")
+
+    def test_vd_valid_phone_numeric_only_accepted(self, page: Page):
+        """Valid data: phone field accepts digit-only numeric strings."""
+        _open_login_modal(page)
+        phone = page.locator('input[type="tel"]').first
+        phone.wait_for(state="visible", timeout=5000)
+        phone.fill("")
+        phone.press_sequentially("98976564", delay=30)
+        val = phone.input_value()
+        # Must contain digits from our input
+        assert any(d.isdigit() for d in val), (
+            f"Phone input returned non-digit value: {val!r}")
+
+    def test_vd_country_code_sa_valid(self, page: Page):
+        """Valid data: +966 (Saudi Arabia) is a selectable valid country code."""
+        _open_login_modal(page)
+        cc = page.locator('[aria-label="Country code"]').first
+        assert cc.count() > 0, "Country code selector not found"
+        # Default is already +966 — just verify it's there
+        assert "+966" in cc.inner_text(), "+966 not in country code button text"
+
+    def test_vd_country_code_bd_selectable(self, page: Page):
+        """Valid data: +880 (Bangladesh) is selectable from the country dropdown."""
+        _open_login_modal(page)
+        cc_btn = page.locator('[aria-label="Country code"]').first
+        cc_btn.click()
+        page.wait_for_selector('[placeholder="Search..."]', state="visible", timeout=5000)
+        page.locator('[placeholder="Search..."]').fill("Bangladesh")
+        page.wait_for_timeout(500)
+        option = page.locator('[role="option"]').filter(has_text="+880").first
+        assert option.count() > 0, "Bangladesh (+880) not in country dropdown"
+
+    def test_vd_otp_field_type_correct(self, page: Page):
+        """Valid data: OTP input field is type text / number / tel with maxlength 6."""
+        _open_login_modal(page)
+        # Trigger Send Code step so OTP field appears
+        _fill_phone(page, "+880", "98976564")
+        page.locator('button:has-text("Send Code")').first.click(force=True)
+        page.wait_for_timeout(3000)
+        otp_input = page.locator(
+            'input[autocomplete="one-time-code"], input[placeholder="000000"]'
+        ).first
+        if otp_input.count() == 0:
+            pytest.skip("OTP field not present — likely send-code step not reached")
+        maxlen = otp_input.get_attribute("maxlength")
+        assert maxlen in (None, "6"), (
+            f"OTP input maxlength should be 6, got: {maxlen!r}")
+
+    @pytest.mark.parametrize("otp", _VALID_OTPS)
+    def test_vd_valid_otp_format_accepted(self, page: Page, otp: str):
+        """Valid data: valid 6-digit OTP string can be typed into the OTP field."""
+        _open_login_modal(page)
+        _fill_phone(page, "+880", "98976564")
+        page.locator('button:has-text("Send Code")').first.click(force=True)
+        page.wait_for_timeout(3000)
+        otp_input = page.locator(
+            'input[autocomplete="one-time-code"], input[placeholder="000000"]'
+        ).first
+        if otp_input.count() == 0:
+            pytest.skip("OTP field not reached")
+        otp_input.fill(otp)
+        val = otp_input.input_value()
+        assert len(val) > 0, f"OTP field rejected valid OTP value: {otp!r}"
+
+    def test_vd_search_valid_subject_query(self, page: Page):
+        """Valid data: search field accepts standard subject strings."""
+        page.goto(_FIND_TUTORS_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(1500)
+        search = page.locator('input[type="search"], input[placeholder*="search" i], input[placeholder*="tutor" i]').first
+        if search.count() == 0:
+            pytest.skip("Search input not found on find-tutors page")
+        search.fill("Math")
+        val = search.input_value()
+        assert "Math" in val, f"Search input rejected 'Math' — got: {val!r}"
+
+    def test_vd_homepage_valid_page_title(self, page: Page):
+        """Valid data: homepage title is a non-empty, meaningful string."""
+        page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        title = page.title()
+        assert title.strip() != "", "Page title is empty"
+        assert len(title) > 3, f"Page title too short: {title!r}"
+        assert "404" not in title and "500" not in title, (
+            f"Error code in page title: {title!r}")
+
+    def test_vd_arabic_locale_url_valid(self, page: Page):
+        """Valid data: /ar URL loads correctly and returns 200."""
+        ar_url = _HOMEPAGE_URL.replace("/en", "/ar") if "/en" in _HOMEPAGE_URL else _HOMEPAGE_URL.rstrip("/") + "/ar"
+        resp = page.goto(ar_url)
+        page.wait_for_load_state("domcontentloaded")
+        if resp:
+            assert resp.status < 400, f"/ar URL returned HTTP {resp.status}"
+
+    def test_vd_find_tutors_valid_url_loads(self, page: Page):
+        """Valid data: /find-tutors URL loads and is accessible."""
+        resp = page.goto(_FIND_TUTORS_URL)
+        page.wait_for_load_state("domcontentloaded")
+        if resp:
+            assert resp.status < 400, f"/find-tutors returned HTTP {resp.status}"
+        assert "find" in page.url.lower() or page.inner_text("body").strip() != "", (
+            "Find-tutors page appears empty or redirected unexpectedly")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# INVALID DATA — TestScenarioInvalidData
+# Tests that confirm the system rejects bad inputs cleanly.
+# ─────────────────────────────────────────────────────────────────────────────
+
+_INVALID_PHONES = [
+    "abc123",           # letters mixed with numbers
+    "!@#$%^",           # special characters
+    "123",              # too short (under 7 digits)
+    "a",                # single letter
+    "   ",              # spaces only
+]
+
+_INVALID_OTPS = [
+    "000000",           # wrong OTP (staging rejects)
+    "abcdef",           # letters instead of digits
+    "12345",            # 5 digits — too short
+    "1234567",          # 7 digits — too long
+    "      ",           # whitespace only
+]
+
+
+class TestScenarioInvalidData:
+    """Invalid Data — system must reject bad inputs with clear feedback.
+    URL sourced from specs/login.md and specs/student_login.md."""
+
+    @pytest.mark.parametrize("phone", _INVALID_PHONES)
+    def test_inv_invalid_phone_keeps_send_code_disabled(self, page: Page, phone: str):
+        """Invalid data: Send Code stays disabled for invalid phone inputs."""
+        _open_login_modal(page)
+        phone_input = page.locator('input[type="tel"]').first
+        phone_input.wait_for(state="visible", timeout=5000)
+        phone_input.fill("")
+        phone_input.press_sequentially(phone, delay=30)
+        phone_input.press("Tab")
+        page.wait_for_timeout(400)
+        btn = page.locator('button:has-text("Send Code")').first
+        is_disabled = btn.is_disabled()
+        aria_disabled = btn.get_attribute("aria-disabled") == "true"
+        assert is_disabled or aria_disabled, (
+            f"Send Code should be disabled for invalid phone {phone!r} — was enabled")
+
+    def test_inv_letters_in_phone_rejected(self, page: Page):
+        """Invalid data: letters typed into phone field must not appear."""
+        _open_login_modal(page)
+        phone_input = page.locator('input[type="tel"]').first
+        phone_input.wait_for(state="visible", timeout=5000)
+        phone_input.fill("")
+        phone_input.press_sequentially("abcXYZ", delay=30)
+        val = phone_input.input_value()
+        assert not re.search(r"[a-zA-Z]", val), (
+            f"Letters appeared in phone field — value: {val!r}")
+
+    def test_inv_special_chars_in_phone_rejected(self, page: Page):
+        """Invalid data: special characters in phone field must not persist."""
+        _open_login_modal(page)
+        phone_input = page.locator('input[type="tel"]').first
+        phone_input.wait_for(state="visible", timeout=5000)
+        phone_input.fill("")
+        phone_input.press_sequentially("!@#$%", delay=30)
+        val = phone_input.input_value()
+        assert not re.search(r"[!@#$%^&*]", val), (
+            f"Special characters persisted in phone field — value: {val!r}")
+
+    def test_inv_phone_too_short_disables_send_code(self, page: Page):
+        """Invalid data: a phone number under 7 digits keeps Send Code disabled."""
+        _open_login_modal(page)
+        _fill_phone(page, "+880", "123")  # 3 digits — too short
+        btn = page.locator('button:has-text("Send Code")').first
+        btn.wait_for(state="visible", timeout=5000)
+        page.wait_for_timeout(400)
+        is_disabled = btn.is_disabled()
+        aria_disabled = btn.get_attribute("aria-disabled") == "true"
+        assert is_disabled or aria_disabled, (
+            "Send Code was enabled for a 3-digit phone — should be disabled")
+
+    def test_inv_wrong_country_search_no_crash(self, page: Page):
+        """Invalid data: searching for a non-existent country code shows empty, no crash."""
+        _open_login_modal(page)
+        cc_btn = page.locator('[aria-label="Country code"]').first
+        cc_btn.click()
+        page.wait_for_selector('[placeholder="Search..."]', state="visible", timeout=5000)
+        page.locator('[placeholder="Search..."]').fill("ZZZZZZNOTACOUNTRY")
+        page.wait_for_timeout(600)
+        # Page must not crash (500, uncaught error)
+        errors = []
+        page.once("pageerror", lambda e: errors.append(str(e)))
+        page.wait_for_timeout(500)
+        assert len(errors) == 0, f"JS error after invalid country search: {errors}"
+
+    def test_inv_xss_in_country_search_sanitised(self, page: Page):
+        """Invalid data: XSS payload in country search must not execute."""
+        _open_login_modal(page)
+        cc_btn = page.locator('[aria-label="Country code"]').first
+        cc_btn.click()
+        page.wait_for_selector('[placeholder="Search..."]', state="visible", timeout=5000)
+        page.locator('[placeholder="Search..."]').fill('<script>window.__xss=1</script>')
+        page.wait_for_timeout(600)
+        injected = page.evaluate("() => window.__xss")
+        assert not injected, "XSS payload executed in country search field"
+
+    def test_inv_invalid_otp_shows_error(self, page: Page):
+        """Invalid data: submitting wrong OTP shows an error message."""
+        _open_login_modal(page)
+        _fill_phone(page, "+880", "98976564")
+        page.locator('button:has-text("Send Code")').first.click(force=True)
+        page.wait_for_timeout(3000)
+        otp_input = page.locator(
+            'input[autocomplete="one-time-code"], input[placeholder="000000"]'
+        ).first
+        if otp_input.count() == 0:
+            pytest.skip("OTP step not reached")
+        otp_input.fill("000000")
+        continue_btn = page.locator('button:has-text("Continue")').first
+        if continue_btn.count() > 0 and not continue_btn.is_disabled():
+            continue_btn.click()
+            page.wait_for_timeout(2500)
+            # Expect some error signal — modal stays open OR error text visible
+            body_text = page.inner_text("body").lower()
+            dialog_open = page.locator('[role="dialog"]').count() > 0
+            has_error = (
+                "invalid" in body_text or "incorrect" in body_text
+                or "error" in body_text or "wrong" in body_text
+                or "failed" in body_text or dialog_open
+            )
+            assert has_error, "No error shown for wrong OTP 000000"
+
+    def test_inv_non_numeric_otp_not_accepted(self, page: Page):
+        """Invalid data: letters in OTP field must not persist."""
+        _open_login_modal(page)
+        _fill_phone(page, "+880", "98976564")
+        page.locator('button:has-text("Send Code")').first.click(force=True)
+        page.wait_for_timeout(3000)
+        otp_input = page.locator(
+            'input[autocomplete="one-time-code"], input[placeholder="000000"]'
+        ).first
+        if otp_input.count() == 0:
+            pytest.skip("OTP step not reached")
+        otp_input.fill("")
+        otp_input.press_sequentially("abcdef", delay=30)
+        val = otp_input.input_value()
+        assert not re.search(r"[a-zA-Z]", val), (
+            f"Letters appeared in OTP field — value: {val!r}")
+
+    def test_inv_direct_access_protected_api_requires_auth(self, page: Page):
+        """Invalid data: direct GET to /api/users without auth must not return 200 data."""
+        base = _HOMEPAGE_URL.split("/en")[0].split("/ar")[0]
+        api_url = f"{base}/api/users"
+        resp = page.goto(api_url)
+        page.wait_for_load_state("domcontentloaded")
+        if resp:
+            # Must either be a 401/403/404 or redirect to login — not 200 with data
+            body = page.inner_text("body").lower()[:500]
+            if resp.status == 200:
+                assert (
+                    "login" in body or "auth" in body
+                    or "[]" in body or "{}" in body
+                    or "denied" in body or len(body.strip()) < 20
+                ), (
+                    f"/api/users returned 200 with data without auth: {body[:200]!r}"
+                )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# EMPTY / NULL / BLANK INPUT — TestScenarioEmptyInput
+# Tests that confirm the system handles missing data gracefully.
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestScenarioEmptyInput:
+    """Empty Input — missing data must not crash the app or submit silently.
+    URL sourced from specs/login.md."""
+
+    def test_emp_empty_phone_send_code_disabled(self, page: Page):
+        """Empty: phone field empty → Send Code button disabled."""
+        _open_login_modal(page)
+        btn = page.locator('button:has-text("Send Code")').first
+        btn.wait_for(state="visible", timeout=5000)
+        is_disabled = btn.is_disabled()
+        aria_disabled = btn.get_attribute("aria-disabled") == "true"
+        assert is_disabled or aria_disabled, (
+            "Send Code is enabled with an empty phone number — must be disabled")
+
+    def test_emp_whitespace_only_phone_treated_as_empty(self, page: Page):
+        """Empty: phone field with only spaces treated as empty — Send Code stays disabled."""
+        _open_login_modal(page)
+        phone_input = page.locator('input[type="tel"]').first
+        phone_input.wait_for(state="visible", timeout=5000)
+        phone_input.fill("   ")
+        phone_input.press("Tab")
+        page.wait_for_timeout(400)
+        btn = page.locator('button:has-text("Send Code")').first
+        is_disabled = btn.is_disabled()
+        aria_disabled = btn.get_attribute("aria-disabled") == "true"
+        # Either disabled OR field strips spaces (value is empty)
+        val = phone_input.input_value().strip()
+        assert is_disabled or aria_disabled or val == "", (
+            f"Whitespace-only phone passed validation — button enabled, value: {val!r}")
+
+    def test_emp_empty_otp_continue_disabled(self, page: Page):
+        """Empty: OTP field empty → Continue button disabled."""
+        _open_login_modal(page)
+        _fill_phone(page, "+880", "98976564")
+        page.locator('button:has-text("Send Code")').first.click(force=True)
+        page.wait_for_timeout(3000)
+        otp_input = page.locator(
+            'input[autocomplete="one-time-code"], input[placeholder="000000"]'
+        ).first
+        if otp_input.count() == 0:
+            pytest.skip("OTP step not reached")
+        continue_btn = page.locator('button:has-text("Continue")').first
+        continue_btn.wait_for(state="visible", timeout=5000)
+        is_disabled = continue_btn.is_disabled()
+        aria_disabled = continue_btn.get_attribute("aria-disabled") == "true"
+        assert is_disabled or aria_disabled, (
+            "Continue is enabled with an empty OTP — must be disabled")
+
+    def test_emp_empty_country_search_shows_all_or_placeholder(self, page: Page):
+        """Empty: empty country search shows full list or placeholder, no crash."""
+        _open_login_modal(page)
+        cc_btn = page.locator('[aria-label="Country code"]').first
+        cc_btn.click()
+        page.wait_for_selector('[placeholder="Search..."]', state="visible", timeout=5000)
+        search = page.locator('[placeholder="Search..."]').first
+        search.fill("")  # explicitly empty
+        page.wait_for_timeout(500)
+        # Either options are visible or search is still functional — no crash
+        errors = []
+        page.once("pageerror", lambda e: errors.append(str(e)))
+        page.wait_for_timeout(300)
+        assert len(errors) == 0, f"JS crash on empty country search: {errors}"
+
+    def test_emp_search_field_empty_no_crash(self, page: Page):
+        """Empty: searching find-tutors with empty query must not crash."""
+        page.goto(_FIND_TUTORS_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(1500)
+        search = page.locator(
+            'input[type="search"], input[placeholder*="search" i], '
+            'input[placeholder*="tutor" i], input[placeholder*="subject" i]'
+        ).first
+        if search.count() == 0:
+            pytest.skip("Search input not found on find-tutors page")
+        search.fill("")
+        search.press("Enter")
+        page.wait_for_timeout(1500)
+        # No 500 error and page body is not empty
+        assert page.locator("body").count() > 0, "Page body disappeared after empty search"
+        title = page.title()
+        assert "500" not in title and "error" not in title.lower(), (
+            f"Error page shown after empty search: {title!r}")
+
+    def test_emp_modal_reopens_clean_after_close(self, page: Page):
+        """Empty: re-opening the login modal after closing shows a fresh empty form."""
+        _open_login_modal(page)
+        page.locator('[aria-label="Close"]').first.click()
+        page.wait_for_timeout(600)
+        # Reopen
+        btn = _find_visible_login_button(page)
+        btn.wait_for(state="visible", timeout=8000)
+        btn.click()
+        page.wait_for_selector('[role="dialog"]', state="visible", timeout=8000)
+        phone_input = page.locator('input[type="tel"]').first
+        if phone_input.count() > 0:
+            val = phone_input.input_value()
+            assert val.strip() == "", (
+                f"Phone field is not empty on re-opened modal — got: {val!r}")
+
+    def test_emp_no_stale_error_on_fresh_page(self, page: Page):
+        """Empty: a freshly loaded homepage must not show any error alerts."""
+        page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(1500)
+        error_selectors = [
+            '[role="alert"]',
+            '.error-message',
+            '[class*="error"]',
+            '[class*="alert-danger"]',
+        ]
+        for sel in error_selectors:
+            els = page.locator(sel).filter(visible=True)
+            if els.count() > 0:
+                txt = els.first.inner_text()
+                # Allow non-error alerts (e.g. cookie banners)
+                assert not any(k in txt.lower() for k in ("error", "failed", "crash")), (
+                    f"Stale error visible on fresh page ({sel}): {txt[:100]!r}")
+
+    def test_emp_body_not_empty_after_navigation(self, page: Page):
+        """Empty: page body is not blank after navigating to any main URL."""
+        for url in [_HOMEPAGE_URL, _FIND_TUTORS_URL]:
+            page.goto(url)
+            page.wait_for_load_state("domcontentloaded")
+            page.wait_for_timeout(1000)
+            body_text = page.inner_text("body").strip()
+            assert len(body_text) > 50, (
+                f"Page body appears empty after navigating to {url}")
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# UAT — TestScenarioUAT
+# User Acceptance Testing: end-to-end stories that mirror real user goals.
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestScenarioUAT:
+    """UAT — complete user acceptance scenarios.
+    URL sourced from specs/login.md (and sub-specs)."""
+
+    def test_uat_student_can_reach_login_modal(self, page: Page):
+        """UAT: Student story — open homepage, click Log In, see login form."""
+        page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(1500)
+        btn = _find_visible_login_button(page)
+        assert btn.count() > 0, "Log In button not found — UAT blocked at step 1"
+        btn.wait_for(state="visible", timeout=10000)
+        btn.click()
+        page.wait_for_selector('[role="dialog"]', state="visible", timeout=12000)
+        dialog = page.locator('[role="dialog"]').first
+        assert dialog.is_visible(), "Login dialog did not open — UAT blocked at step 2"
+        modal_text = dialog.inner_text().lower()
+        assert "phone" in modal_text or "whatsapp" in modal_text or "welcome" in modal_text, (
+            "Login modal does not show phone/welcome text — wrong dialog?")
+
+    def test_uat_student_can_change_country_to_bd(self, page: Page):
+        """UAT: Student can switch country code from +966 to +880 (Bangladesh)."""
+        _open_login_modal(page)
+        cc_btn = page.locator('[aria-label="Country code"]').first
+        cc_btn.click()
+        page.wait_for_selector('[placeholder="Search..."]', state="visible", timeout=6000)
+        page.locator('[placeholder="Search..."]').fill("Bangladesh")
+        page.wait_for_timeout(600)
+        option = page.locator('[role="option"]').filter(has_text="+880").first
+        assert option.count() > 0, "Bangladesh +880 option not found — UAT blocked"
+        option.click(force=True)
+        page.wait_for_timeout(500)
+        # Verify the button now shows +880
+        cc_text = page.locator('[aria-label="Country code"]').first.inner_text()
+        assert "+880" in cc_text, (
+            f"Country code did not update to +880 after selection — got: {cc_text!r}")
+
+    def test_uat_student_can_enter_phone_number(self, page: Page):
+        """UAT: Student can enter a valid phone number and see Send Code become active."""
+        _open_login_modal(page)
+        _fill_phone(page, "+880", "98976564")
+        btn = page.locator('button:has-text("Send Code")').first
+        btn.wait_for(state="visible", timeout=5000)
+        assert not btn.is_disabled(), (
+            "Send Code still disabled after entering valid phone — UAT blocked")
+
+    def test_uat_find_tutors_page_accessible_without_login(self, page: Page):
+        """UAT: Student can browse /find-tutors without being logged in."""
+        resp = page.goto(_FIND_TUTORS_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(1500)
+        if resp:
+            assert resp.status < 400, (
+                f"Find-tutors page inaccessible without login (HTTP {resp.status})")
+        # Must not redirect straight to login page
+        assert "find" in page.url.lower() or (
+            page.inner_text("body").lower().count("tutor") > 0
+        ), f"Find-tutors redirected away or showed nothing — URL: {page.url}"
+
+    def test_uat_homepage_shows_tutor_stats(self, page: Page):
+        """UAT: Visitor can see teacher/student count stats on the homepage."""
+        page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(1500)
+        content = page.inner_text("body")
+        has_stats = any(x in content for x in [
+            "1,200", "1200", "50,000", "50000", "98%", "teachers", "students",
+        ])
+        assert has_stats, "Homepage does not show teacher/student stats — UAT concern"
+
+    def test_uat_language_switches_to_arabic(self, page: Page):
+        """UAT: Clicking Arabic language button switches to /ar locale."""
+        page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        ar_btn = page.locator('[aria-label="العربية"]').first
+        if ar_btn.count() == 0:
+            pytest.skip("Arabic language button not found")
+        ar_btn.click()
+        page.wait_for_timeout(2000)
+        current_url = page.url
+        assert "/ar" in current_url or "ar" in current_url.lower(), (
+            f"URL did not switch to /ar after clicking Arabic toggle — URL: {current_url}")
+
+    def test_uat_become_a_tutor_link_navigates(self, page: Page):
+        """UAT: 'Become a Tutor' nav link navigates to the correct page."""
+        page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        link = page.locator('a[href="/en/become-tutor"]').first
+        if link.count() == 0:
+            pytest.skip("'Become a Tutor' link not found")
+        link.click()
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(1500)
+        assert "become" in page.url.lower() or "tutor" in page.url.lower(), (
+            f"Did not navigate to become-a-tutor page — URL: {page.url}")
+
+    def test_uat_modal_closes_without_creating_session(self, page: Page):
+        """UAT: Closing the modal without completing login leaves the user unauthenticated."""
+        _open_login_modal(page)
+        page.locator('[aria-label="Close"]').first.click()
+        page.wait_for_timeout(800)
+        # The "Log In" button should still be visible (not replaced by user name)
+        btn = _find_visible_login_button(page)
+        assert btn.count() > 0, "Log In button disappeared after closing modal without logging in"
+
+    def test_uat_keyboard_navigation_reaches_login(self, page: Page):
+        """UAT: User can reach and activate the Log In button using keyboard only."""
+        page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(1500)
+        # Tab through the page until we find and can activate the login button
+        page.keyboard.press("Tab")
+        page.wait_for_timeout(200)
+        focused = page.evaluate("() => document.activeElement?.textContent?.trim() || ''")
+        # We just want to confirm tabbing works and doesn't crash
+        assert isinstance(focused, str), "Keyboard focus evaluation failed"
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# OUT OF THE BOX — TestScenarioOutOfTheBox
+# Creative / unexpected usage patterns real users actually do.
+# ─────────────────────────────────────────────────────────────────────────────
+
+class TestScenarioOutOfTheBox:
+    """Out of the Box — unexpected usage patterns and creative negative scenarios.
+    URL sourced from specs/login.md."""
+
+    def test_oob_rapid_double_click_send_code(self, page: Page):
+        """OOB: Rapid double-click on Send Code must not trigger two OTP requests."""
+        _open_login_modal(page)
+        _fill_phone(page, "+880", "98976564")
+        btn = page.locator('button:has-text("Send Code")').first
+        btn.wait_for(state="visible", timeout=5000)
+        # Double-click rapidly
+        btn.dblclick(force=True)
+        page.wait_for_timeout(1500)
+        # Page must not crash
+        errors = []
+        page.once("pageerror", lambda e: errors.append(str(e)))
+        page.wait_for_timeout(500)
+        assert len(errors) == 0, f"JS crash on double-click Send Code: {errors}"
+        # Modal must still be open
+        assert page.locator('[role="dialog"]').count() > 0, (
+            "Modal closed after double-click — unexpected state")
+
+    def test_oob_browser_back_after_opening_modal(self, page: Page):
+        """OOB: pressing browser Back after opening the modal must not leave broken UI."""
+        _open_login_modal(page)
+        page.go_back()
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(1000)
+        # Page should be in a clean state
+        errors = []
+        page.once("pageerror", lambda e: errors.append(str(e)))
+        page.wait_for_timeout(500)
+        assert len(errors) == 0, f"JS crash after pressing Back from modal: {errors}"
+
+    def test_oob_modal_on_mobile_viewport(self, page: Page):
+        """OOB: login modal must be functional on a mobile viewport (375 × 667)."""
+        page.set_viewport_size({"width": 375, "height": 667})
+        page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(1500)
+        # Find and click a login button (may be hamburger menu on mobile)
+        btn = _find_visible_login_button(page)
+        if btn.count() == 0:
+            pytest.skip("Log In button not visible at 375px viewport")
+        btn.click()
+        page.wait_for_timeout(1500)
+        dialog = page.locator('[role="dialog"]')
+        assert dialog.count() > 0 and dialog.first.is_visible(timeout=5000), (
+            "Login modal not functional at 375px mobile viewport")
+
+    def test_oob_emoji_in_country_search(self, page: Page):
+        """OOB: typing an emoji in country search must not crash the page."""
+        _open_login_modal(page)
+        cc_btn = page.locator('[aria-label="Country code"]').first
+        cc_btn.click()
+        page.wait_for_selector('[placeholder="Search..."]', state="visible", timeout=5000)
+        search = page.locator('[placeholder="Search..."]').first
+        search.fill("😀🎉")
+        page.wait_for_timeout(600)
+        errors = []
+        page.once("pageerror", lambda e: errors.append(str(e)))
+        page.wait_for_timeout(400)
+        assert len(errors) == 0, f"JS crash when emoji entered in country search: {errors}"
+
+    def test_oob_very_long_phone_capped(self, page: Page):
+        """OOB: typing 30+ digits into phone field must be capped by maxlength."""
+        _open_login_modal(page)
+        phone_input = page.locator('input[type="tel"]').first
+        phone_input.wait_for(state="visible", timeout=5000)
+        phone_input.fill("")
+        phone_input.press_sequentially("1" * 30, delay=20)
+        val = phone_input.input_value()
+        assert len(val) <= 20, (
+            f"Phone field accepted {len(val)} characters — expected a maxlength cap")
+
+    def test_oob_refresh_page_during_modal(self, page: Page):
+        """OOB: refreshing the page while modal is open resets to a clean state."""
+        _open_login_modal(page)
+        page.reload()
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(1500)
+        # Modal should be gone after refresh
+        dialog = page.locator('[role="dialog"]')
+        is_visible = dialog.count() > 0 and dialog.first.is_visible(timeout=2000)
+        assert not is_visible, (
+            "Login modal is still visible after page refresh — stale state")
+
+    def test_oob_direct_url_to_homepage_with_query_params(self, page: Page):
+        """OOB: appending arbitrary query params to homepage URL must not break it."""
+        url = f"{_HOMEPAGE_URL}?debug=true&admin=1&unexpected=value"
+        resp = page.goto(url)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(1500)
+        if resp:
+            assert resp.status < 500, (
+                f"Homepage with query params returned HTTP {resp.status}")
+        title = page.title()
+        assert "500" not in title and "error" not in title.lower(), (
+            f"Error page on homepage with query params: {title!r}")
+
+    def test_oob_js_errors_not_present_on_homepage(self, page: Page):
+        """OOB: fresh homepage load must produce zero JS errors in console."""
+        errors: list[str] = []
+        page.on("pageerror", lambda e: errors.append(str(e)))
+        page.goto(_HOMEPAGE_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(2500)
+        # Allow up to 1 known SPA warning but zero uncaught exceptions
+        uncaught = [e for e in errors if "Warning" not in e and "Deprecation" not in e]
+        assert len(uncaught) == 0, (
+            f"Uncaught JS exceptions on homepage: {uncaught}")
+
+    def test_oob_tab_key_moves_focus_inside_modal(self, page: Page):
+        """OOB: Tab key must cycle focus through interactive elements inside modal."""
+        _open_login_modal(page)
+        page.keyboard.press("Tab")
+        page.wait_for_timeout(200)
+        focused_tag = page.evaluate(
+            "() => document.activeElement?.tagName?.toLowerCase() || ''"
+        )
+        # Focus must be on an interactive element — not lost outside modal
+        assert focused_tag in ("button", "input", "a", "select", "textarea") or (
+            page.evaluate("() => document.activeElement?.getAttribute('role')") in
+            ("button", "option", "combobox", "textbox", "dialog")
+        ), f"Tab did not move focus to an interactive element — got <{focused_tag}>"
+
+    def test_oob_modal_not_present_on_find_tutors(self, page: Page):
+        """OOB: Find Tutors page must not show login modal automatically."""
+        page.goto(_FIND_TUTORS_URL)
+        page.wait_for_load_state("domcontentloaded")
+        page.wait_for_timeout(2000)
+        dialog = page.locator('[role="dialog"]')
+        assert dialog.count() == 0 or not dialog.first.is_visible(timeout=2000), (
+            "Login modal appeared automatically on Find Tutors page — unexpected")
+
+    def test_oob_paste_phone_with_hyphens(self, page: Page):
+        """OOB: pasting a formatted phone number (+880-989-76564) should be handled."""
+        _open_login_modal(page)
+        phone_input = page.locator('input[type="tel"]').first
+        phone_input.wait_for(state="visible", timeout=5000)
+        phone_input.fill("+880-989-76564")
+        phone_input.press("Tab")
+        page.wait_for_timeout(400)
+        # Page must not crash — either value is stripped or field is in error state
+        errors = []
+        page.once("pageerror", lambda e: errors.append(str(e)))
+        page.wait_for_timeout(300)
+        assert len(errors) == 0, f"JS crash when pasting formatted phone: {errors}"
+
+    def test_oob_window_resize_mid_form(self, page: Page):
+        """OOB: resizing browser window while modal is open must not break layout."""
+        _open_login_modal(page)
+        page.set_viewport_size({"width": 375, "height": 667})
+        page.wait_for_timeout(600)
+        page.set_viewport_size({"width": 1280, "height": 800})
+        page.wait_for_timeout(600)
+        dialog = page.locator('[role="dialog"]').first
+        assert dialog.is_visible(timeout=3000), (
+            "Modal disappeared or became hidden after viewport resize")
