@@ -363,6 +363,15 @@ def _build_index_html(summary: dict, history: list[tuple[int, Path]]) -> str:
     rate_klass = "pass" if (isinstance(rate, str) and rate.endswith("%")
                             and float(rate.rstrip("%")) >= 95) else "warn"
 
+    trends = _load_trends()
+
+    # Total tests should never decrease run-to-run.  Use the high-water mark
+    # stored in trends.json (written by bug_clustering.update_trends) so that
+    # a run where some agent artifacts fail to download doesn't make the
+    # dashboard regress from 2000+ back to 1000+.
+    hw_total = trends.get("max_total_tests", 0)
+    t = max(t, hw_total)
+
     stats_html = (
         _stat_box("Passed",     p,             "pass",       "#passed") +
         _stat_box("Failed",     f,             "fail" if f else "ok", "#failed") +
@@ -373,8 +382,6 @@ def _build_index_html(summary: dict, history: list[tuple[int, Path]]) -> str:
     )
     agent_grid = "".join(_agent_card(src, pub, lbl, em)
                          for src, pub, lbl, em in AGENT_REPORTS)
-
-    trends = _load_trends()
     ts_map: dict[int, str] = {
         int(r["run_number"]): r.get("timestamp", "")
         for r in trends.get("runs", [])

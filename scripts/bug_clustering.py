@@ -259,6 +259,12 @@ def update_trends(trends: dict, run_number: int | str, run_url: str,
     fixed-bugs vs persistent-bugs."""
     run_num = int(run_number)
 
+    # Track high-water mark so the dashboard total never regresses.
+    # Some runs miss artifacts (e.g. spec-validation timeout) which makes
+    # the per-run total lower than what the test suite actually contains.
+    cur_total = totals.get("total_tests", 0)
+    trends["max_total_tests"] = max(trends.get("max_total_tests", 0), cur_total)
+
     # Append this run to the runs array (cap history to last 50 runs)
     trends.setdefault("runs", []).append({
         "run_number": run_num,
@@ -266,7 +272,7 @@ def update_trends(trends: dict, run_number: int | str, run_url: str,
         "timestamp":  datetime.utcnow().isoformat() + "Z",
         "passed":     totals.get("total_passed", 0),
         "failed":     totals.get("total_failed", 0),
-        "total":      totals.get("total_tests", 0),
+        "total":      cur_total,
         "bugs":       totals.get("total_bugs", 0),
         "pass_rate":  totals.get("pass_rate", "N/A"),
     })

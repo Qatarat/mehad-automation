@@ -756,6 +756,21 @@ def main():
         if fp:
             bug["recurrence_count"] = fingerprint_recurrence_count(trends, fp)
 
+    # Apply high-water mark: total_tests should never decrease across runs.
+    # When a job's artifacts are missing (timeout, download failure) the raw
+    # count is lower than the actual suite size — use the stored maximum so
+    # the dashboard never shows a regressing total.
+    hw_total = trends.get("max_total_tests", 0)
+    if totals["total_tests"] < hw_total:
+        print(f"[CONSOLIDATE] total_tests ({totals['total_tests']}) < high-water "
+              f"({hw_total}) — using high-water mark to prevent count regression")
+        totals["total_tests"] = hw_total
+        if totals["total_passed"] + totals["total_failed"] > 0:
+            totals["pass_rate"] = (
+                f"{totals['total_passed'] / hw_total * 100:.1f}%"
+                if hw_total else "N/A"
+            )
+
     print("[CONSOLIDATE] Results:")
     print(f"  {'Group':<30} {'Pass':>5} {'Fail':>5} {'Total':>6}")
     print(f"  {'-'*50}")
