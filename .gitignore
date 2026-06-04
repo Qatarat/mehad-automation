@@ -23,3 +23,6 @@ reports/videos-embed/
 reports/visual-actuals/
 reports/visual-diffs/
 specs/*.spec.json
+
+# Playwright MCP session logs (auto-created by Claude Code browser tool)
+.playwright-mcp/

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mehad QA — Run #0</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --bg-0:#07080b;--bg-1:#0c0e13;--bg-2:#11141b;--bg-3:#181c26;
+  --ink-0:#f6f7fa;--ink-1:#cdd1de;--ink-2:#9aa0b4;--ink-3:#626880;--ink-4:#3a4154;
+  --accent:oklch(0.85 0.18 95);
+  --ok:oklch(0.78 0.16 155);--bad:oklch(0.72 0.20 25);--warn:oklch(0.82 0.14 70);
+  --font:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Instrument Serif',Georgia,serif;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;overflow-x:clip}
+body{
+  background:var(--bg-0);color:var(--ink-1);font-family:var(--font);
+  font-size:14px;line-height:1.6;-webkit-font-smoothing:antialiased;
+  background-image:
+    radial-gradient(ellipse 900px 460px at 14% -10%,oklch(0.85 0.18 95 / 0.06),transparent 60%),
+    radial-gradient(ellipse 700px 500px at 92% 6%,oklch(0.72 0.18 295 / 0.06),transparent 65%);
+  background-attachment:fixed;
+}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ── Nav ── */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(7,8,11,0.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--ink-4);
+  padding:0 28px;display:flex;align-items:center;gap:16px;height:52px;
+}
+.mark{
+  width:28px;height:28px;border-radius:7px;flex-shrink:0;
+  background:conic-gradient(from 135deg,oklch(0.85 0.18 95),oklch(0.78 0.16 155),oklch(0.72 0.20 25),oklch(0.85 0.18 95));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:12px;color:#07080b;font-family:var(--mono);
+}
+.nav-title{font-size:14px;font-weight:600;color:var(--ink-0);flex:1}
+.nav-sub{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.btn{
+  border:1px solid var(--ink-4);background:var(--bg-2);color:var(--ink-1);
+  padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;
+  font-family:var(--font);transition:background .15s;text-decoration:none;
+  display:inline-flex;align-items:center;gap:6px;
+}
+.btn:hover{background:var(--bg-3);border-color:var(--ink-2);text-decoration:none}
+.btn.primary{background:var(--accent);color:var(--bg-0);border-color:var(--accent);font-weight:600}
+.btn.primary:hover{background:oklch(0.9 0.18 95)}
+
+/* ── Wrap ── */
+.wrap{max-width:1200px;margin:0 auto;padding:32px 28px 80px}
+
+/* ── Run header ── */
+.run-header{
+  display:grid;grid-template-columns:1fr auto;gap:32px;
+  padding-bottom:28px;border-bottom:1px solid var(--ink-4);margin-bottom:28px;
+  align-items:start;
+}
+.pill{
+  display:inline-flex;align-items:center;gap:6px;padding:3px 10px;
+  border-radius:999px;font-family:var(--mono);font-size:11px;font-weight:500;
+  border:1px solid var(--ink-4);background:var(--bg-2);color:var(--ink-1);
+}
+.pill.run{background:var(--accent);color:var(--bg-0);border-color:var(--accent);font-weight:700}
+.pill.ok{background:oklch(0.78 0.16 155 / .15);border-color:oklch(0.78 0.16 155 / .4);color:oklch(0.85 0.14 155)}
+.pill.fail{background:oklch(0.72 0.20 25 / .15);border-color:oklch(0.72 0.20 25 / .4);color:oklch(0.85 0.18 25)}
+.badge-row{display:flex;gap:8px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.run-header h1{
+  font-family:var(--serif);font-style:italic;font-size:34px;font-weight:400;
+  letter-spacing:-.02em;line-height:1.2;color:var(--ink-0);margin:0;
+}
+.run-meta{
+  display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;
+  font-family:var(--mono);font-size:12px;color:var(--ink-3);
+}
+.run-meta a{color:var(--ink-2)}
+.stamp{
+  border:1.5px solid oklch(0.72 0.20 25 / .6);border-radius:14px;
+  padding:16px 20px;min-width:190px;text-align:right;
+  background:linear-gradient(180deg,oklch(0.72 0.20 25 / .14),oklch(0.72 0.20 25 / .04));
+  position:relative;overflow:hidden;
+}
+.stamp.pass-stamp{
+  border-color:oklch(0.78 0.16 155 / .6);
+  background:linear-gradient(180deg,oklch(0.78 0.16 155 / .14),oklch(0.78 0.16 155 / .04));
+}
+.stamp .k{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:oklch(0.85 0.16 25);font-weight:600}
+.stamp.pass-stamp .k{color:oklch(0.85 0.14 155)}
+.stamp .v{font-family:var(--serif);font-style:italic;font-size:36px;line-height:1.1;color:oklch(0.88 0.18 25);margin-top:4px}
+.stamp.pass-stamp .v{color:oklch(0.85 0.14 155)}
+.stamp .sub{font-size:12px;color:var(--ink-2);margin-top:4px;font-family:var(--mono)}
+
+/* ── Stats row ── */
+.stats{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:12px;margin-bottom:28px;
+}
+.stat{
+  background:var(--bg-1);border:1px solid var(--ink-4);border-radius:12px;
+  padding:18px 16px;position:relative;
+  text-decoration:none;color:inherit;display:block;
+  transition:transform .12s,border-color .12s,background .12s;
+}
+a.stat:hover{border-color:var(--accent);background:var(--bg-2);transform:translateY(-2px)}
+.stat .lbl{font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3);margin-bottom:8px}
+.stat .val{font-family:var(--serif);font-style:italic;font-size:34px;font-weight:400;line-height:1;color:var(--ink-0)}
+.stat.pass .val{color:oklch(0.85 0.14 155)}
+.stat.fail .val{color:oklch(0.85 0.18 25)}
+.stat.warn .val{color:oklch(0.92 0.14 85)}
+.stat.ok .val{color:oklch(0.85 0.14 155)}
+.stat.total .val{color:var(--accent)}
+
+/* ── CTA ── */
+.primary-cta{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:20px 24px;background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:14px;color:var(--ink-0);text-decoration:none;font-size:15px;
+  font-weight:600;margin-bottom:28px;transition:background .15s,border-color .15s;
+  gap:16px;
+}
+.primary-cta:hover{background:var(--bg-2);border-color:var(--accent);text-decoration:none}
+.primary-cta .cta-label{display:flex;align-items:center;gap:12px}
+.primary-cta .cta-sub{font-size:12px;font-weight:400;color:var(--ink-2);margin-top:3px}
+.primary-cta .cta-arrow{font-size:20px;color:var(--accent);flex-shrink:0}
+
+/* ── Section headers ── */
+.sec-h{
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink-3);font-weight:600;margin:32px 0 14px;
+  display:flex;align-items:center;gap:12px;
+}
+.sec-h::after{content:"";flex:1;height:1px;background:var(--ink-4)}
+
+/* ── Ring ── */
+.ring-wrap{
+  background:var(--bg-1);border:1px solid var(--ink-4);border-radius:14px;
+  padding:20px 24px;margin-bottom:28px;
+  display:flex;align-items:center;gap:20px;
+}
+.ring{flex-shrink:0}
+.ring-info .big{font-family:var(--serif);font-style:italic;font-size:20px;color:var(--ink-0);letter-spacing:-.01em}
+.ring-info .sm{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:4px}
+
+/* ── Agent grid ── */
+.agent-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;
+}
+.agent-card{
+  background:var(--bg-1);border:1px solid var(--ink-4);border-radius:12px;
+  padding:18px;text-decoration:none;color:var(--ink-1);display:block;
+  transition:transform .12s,border-color .12s,background .12s;
+}
+.agent-card:hover{border-color:var(--accent);background:var(--bg-2);transform:translateY(-2px);text-decoration:none}
+.agent-card.disabled{opacity:.45;cursor:not-allowed}
+.agent-card .emoji{font-size:26px;margin-bottom:8px}
+.agent-card .lbl{font-weight:600;font-size:13.5px;color:var(--ink-0);margin-bottom:4px}
+.agent-card .cta{font-family:var(--mono);font-size:11px;color:var(--accent)}
+.agent-card .cta.muted{color:var(--ink-4)}
+
+/* ── Trend card ── */
+.trend-card{background:var(--bg-1);border:1px solid var(--ink-4);border-radius:12px;padding:18px 22px;margin:0 0 28px}
+.trend-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px;margin-bottom:14px}
+.trend-label{font-family:var(--mono);font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em}
+.trend-value{font-family:var(--serif);font-style:italic;font-size:26px;font-weight:400;color:var(--ink-0);margin-top:2px}
+.trend-svg{width:100%;height:120px;display:block}
+.trend-alerts{margin-top:14px;padding:12px 16px;background:oklch(0.72 0.20 25 / .12);border-left:3px solid oklch(0.85 0.18 25);border-radius:6px}
+.trend-alerts-title{font-weight:700;color:oklch(0.85 0.18 25);margin-bottom:6px;font-size:13px}
+.trend-alerts ul{margin:0;padding-left:18px;color:var(--ink-1);font-size:12px}
+.trend-alerts li{margin:3px 0}
+
+/* ── History table ── */
+.history-table{width:100%;border-collapse:collapse;background:var(--bg-1);border:1px solid var(--ink-4);border-radius:12px;overflow:hidden}
+.history-table th,.history-table td{padding:11px 18px;text-align:left;border-bottom:1px solid var(--ink-4);font-size:13px}
+.history-table th{background:var(--bg-2);font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)}
+.history-table tr:last-child td{border-bottom:none}
+.history-table tr:hover td{background:var(--bg-2)}
+.history-table a{color:var(--accent)}
+
+/* ── Footer ── */
+.brand-foot{
+  margin-top:56px;padding-top:32px;border-top:1px solid var(--ink-4);
+  display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:40px;
+  color:var(--ink-2);font-size:12.5px;
+}
+.brand-foot h5{margin:0 0 12px;color:var(--ink-3);font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.14em;font-weight:500}
+.brand-foot .who b{color:var(--ink-0);font-weight:600;display:block;font-size:15px}
+.brand-foot .who span{display:block;margin-top:2px}
+.brand-foot .who p{margin:12px 0 0;color:var(--ink-3);max-width:44ch;font-size:12px;line-height:1.6}
+.brand-foot .links{display:flex;flex-direction:column;gap:10px}
+.brand-foot .links a{color:var(--ink-2);transition:120ms ease}
+.brand-foot .links a:hover{color:var(--ink-0)}
+
+/* ── Responsive ── */
+@media (max-width:900px){
+  .brand-foot{grid-template-columns:1fr 1fr;gap:32px}
+  .run-header{grid-template-columns:1fr}
+  .stamp{justify-self:start;min-width:0;width:100%;text-align:left}
+}
+@media (max-width:680px){
+  .wrap{padding:18px 14px 60px}
+  .nav{padding:0 14px}
+  .stats{grid-template-columns:repeat(2,1fr);gap:8px}
+  .stat .val{font-size:26px}
+  .run-header h1{font-size:26px}
+  .agent-grid{grid-template-columns:1fr}
+  .brand-foot{grid-template-columns:1fr;gap:24px;margin-top:40px}
+  .primary-cta{flex-direction:column;gap:8px}
+  .trend-summary{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:420px){
+  .stats{grid-template-columns:1fr}
+  .history-table th,.history-table td{padding:8px 12px;font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="mark">M</div>
+  <div class="nav-title">Mehad QA</div>
+  <span class="nav-sub">Run #0 · latest</span>
+  <a class="btn" href="otp-setup.html">📱 OTP Setup</a>
+  <a class="btn primary" href="report.html">Full Report →</a>
+</nav>
+
+<div class="wrap">
+
+<!-- Run header -->
+<div class="run-header">
+  <div>
+    <div class="badge-row">
+      <span class="pill run">Run #0</span>
+      <span class="pill fail">Review</span>
+    </div>
+    <h1>Mehad Autonomous QA</h1>
+    <div class="run-meta">
+      <span>Target: <a href="" target="_blank" rel="noopener">—</a></span>
+      <span>Commit: <a href="https://github.com//commit/">—</a></span>
+      <span>Generated: —</span>
+      <span><a href="https://github.com//actions/runs/">CI run ↗</a></span>
+    </div>
+  </div>
+  <div class="stamp ">
+    <div class="k">QA Verdict</div>
+    <div class="v">No-Go</div>
+    <div class="sub">— pass rate · 0 bug(s)</div>
+  </div>
+</div>
+
+<!-- Stats -->
+<div class="stats"><a class="stat pass" href="report.html#passed"><div class="lbl">Passed</div><div class="val">0</div></a><a class="stat ok" href="report.html#failed"><div class="lbl">Failed</div><div class="val">0</div></a><a class="stat total" href="report.html#all-tests"><div class="lbl">Total Tests</div><div class="val">0</div></a><a class="stat warn" href="report.html#tests"><div class="lbl">Pass Rate</div><div class="val">—</div></a><a class="stat ok" href="report.html#bugs"><div class="lbl">Bug Tickets</div><div class="val">0</div></a><a class="stat total" href="report.html#summary-table"><div class="lbl">Sources</div><div class="val">0</div></a></div>
+
+<!-- Ring + CTA -->
+<div class="ring-wrap">
+  <div class="ring">
+    <svg width="80" height="80" viewBox="0 0 44 44">
+      <circle cx="22" cy="22" r="18" fill="none" stroke="var(--bg-3)" stroke-width="5"/>
+      <circle cx="22" cy="22" r="18" fill="none" stroke="oklch(0.85 0.18 25)" stroke-width="5"
+        stroke-dasharray="113.1" stroke-dashoffset="113.1"
+        stroke-linecap="round" transform="rotate(-90 22 22)"/>
+      <text x="22" y="25" text-anchor="middle" font-size="8" font-weight="700"
+        fill="oklch(0.85 0.18 25)" font-family="'JetBrains Mono',monospace">—</text>
+    </svg>
+  </div>
+  <div class="ring-info">
+    <div class="big">0 / 0 tests passed</div>
+    <div class="sm">0 failure(s) · 0 bug ticket(s) · 0 source(s)</div>
+  </div>
+  <a class="btn primary" href="report.html" style="margin-left:auto">View full report →</a>
+</div>
+
+<a class="primary-cta" href="report.html">
+  <div class="cta-label">
+    <span style="font-size:22px">📊</span>
+    <div>
+      Full bug report
+      <div class="cta-sub">Every test · every bug · screenshots · friendly explanations</div>
+    </div>
+  </div>
+  <span class="cta-arrow">→</span>
+</a>
+
+
+
+<div class="sec-h">Tools</div>
+<div class="agent-grid" style="margin-bottom:28px">
+  <a class="agent-card" href="otp-setup.html">
+    <div class="emoji">📱</div>
+    <div class="lbl">OTP Phone Setup</div>
+    <div class="cta">Configure WhatsApp OTP →</div>
+  </a>
+</div>
+
+<div class="sec-h">Per-Agent Reports</div>
+<p style="color:var(--ink-3);font-family:var(--mono);font-size:12px;margin:0 0 16px">
+  22 specialised AI agents · click any card to see that agent's results
+</p>
+<div class="agent-grid"><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🧪</div><div class="lbl">QA-01 Functional</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🔍</div><div class="lbl">QA-02 Edge Cases</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🔒</div><div class="lbl">QA-03 Security</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">⚡</div><div class="lbl">QA-04 Performance</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🧠</div><div class="lbl">QA-05 Hallucination/Data</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🌐</div><div class="lbl">QA-06 API & Network</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">♿</div><div class="lbl">QA-07 Accessibility</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">📱</div><div class="lbl">QA-08 Mobile / Viewport</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🔎</div><div class="lbl">QA-09 SEO & Meta</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🌏</div><div class="lbl">QA-10 i18n & RTL</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🎨</div><div class="lbl">QA-11 Visual Regression</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🐞</div><div class="lbl">QA-12 JS Error Sweeper</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🛡️</div><div class="lbl">QA-13 Security Headers</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🍪</div><div class="lbl">QA-14 Cookie Security</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🎯</div><div class="lbl">QA-15 OWASP Surface</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">📊</div><div class="lbl">QA-16 Core Web Vitals</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">💧</div><div class="lbl">QA-17 Memory Leak</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">📡</div><div class="lbl">QA-18 Network Resilience</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🤖</div><div class="lbl">QA-19 Autonomous Explorer</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🎲</div><div class="lbl">QA-20 Property-Based Fuzz</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">👁️</div><div class="lbl">QA-22 Vision-LLM UI Review</div><div class="cta muted">No data</div></div><div class="agent-card disabled" title="Report not generated this run"><div class="emoji">🛠️</div><div class="lbl">AI Test Agent (auto-gen)</div><div class="cta muted">No data</div></div></div>
+
+<div class="sec-h">History</div>
+<p style="color:var(--ink-3);font-family:var(--mono);font-size:12px;margin:0 0 14px">
+  Past runs are archived — compare against earlier baselines
+</p>
+<table class="history-table"><thead><tr><th>Run</th><th>Date &amp; Time</th><th>Report</th></tr></thead><tbody><tr><td>Run #0</td><td><span style="color:#8b949e;font-size:12px">Jun 03, 2026 01:44 PM</span></td><td><a href="history/run-0.html">View report</a></td></tr></tbody></table>
+
+<!-- Footer -->
+<footer class="brand-foot">
+  <div class="who">
+    <h5>Built by</h5>
+    <b>Mejbaur Bahar Fagun</b>
+    <span style="color:var(--ink-1)">Senior Software Engineer QA (IV) · Markopolo.ai</span>
+    <p>Mehad Autonomous QA Platform · 22 specialised agents · AI-driven intent-based testing · Playwright + local LLM inference.</p>
+  </div>
+  <div>
+    <h5>Report</h5>
+    <div class="links">
+      <a href="report.html">Full bug report</a>
+      <a href="report.html#bugs">Bug tickets</a>
+      <a href="report.html#tests">All tests</a>
+      <a href="otp-setup.html">OTP setup guide</a>
+    </div>
+  </div>
+  <div>
+    <h5>Run #0</h5>
+    <div class="links">
+      <a href="https://github.com//actions/runs/" target="_blank" rel="noreferrer">CI run ↗</a>
+      <a href="history/index.html">All history</a>
+      
+    </div>
+  </div>
+  <div>
+    <h5>Connect</h5>
+    <div class="links">
+      <a href="https://www.linkedin.com/in/mejbaur/" target="_blank" rel="noreferrer">LinkedIn ↗</a>
+      <a href="mailto:mejbaur@markopolo.ai">Email ↗</a>
+    </div>
+  </div>
+</footer>
+
+</div><!-- /wrap -->
+</body></html>
