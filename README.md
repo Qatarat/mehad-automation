@@ -7,12 +7,12 @@
 ![Python](https://img.shields.io/badge/Python-3.12%2B-blue?logo=python)
 ![Playwright](https://img.shields.io/badge/Playwright-1.44%2B-green?logo=playwright)
 ![Tests](https://img.shields.io/badge/Tests-2000%2B-orange)
-![Specs](https://img.shields.io/badge/Specs-68%20pages-blueviolet)
+![Specs](https://img.shields.io/badge/Specs-69%20pages-blueviolet)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
 **Write a spec file describing your page → get 2000+ automated tests instantly.**
 
-*68 pages · 22 QA agent types · Spec-driven URLs · No hard-coded targets*
+*69 pages · 22 QA agent types · Spec-driven URLs · No hard-coded targets · Production E2E verified*
 
 [**View Live Report →**](https://qatarat.github.io/mehad-automation/)
 
@@ -28,10 +28,11 @@
 4. [Installation](#installation)
 5. [Configuration](#configuration-env)
 6. [Running Tests](#running-tests)
-7. [OTP Options for Production](#otp-options-for-production)
-8. [CI / GitHub Actions](#ci--github-actions)
-9. [Adding a New Page](#adding-a-new-page)
-10. [Project Structure](#project-structure)
+7. [Production E2E Verified Results](#production-e2e-verified-results)
+8. [OTP Options for Production](#otp-options-for-production)
+9. [CI / GitHub Actions](#ci--github-actions)
+10. [Adding a New Page](#adding-a-new-page)
+11. [Project Structure](#project-structure)
 11. [Troubleshooting](#troubleshooting)
 
 ---
@@ -449,6 +450,47 @@ pytest tests/ --html=reports/index.html --self-contained-html -v
 ```
 
 Open `reports/index.html` in your browser.
+
+---
+
+## Production E2E Verified Results
+
+Full end-to-end walkthrough on `https://mehadedu.com` — verified 2026-06-06.
+
+### New Teacher Onboarding Flow (Production)
+| Step | URL | Status |
+|------|-----|--------|
+| Become-a-Tutor → Apply Now | `/en/become-tutor` | ✅ |
+| Teacher OTP login | `/en/tutor-login` | ✅ |
+| 4-step profile wizard | `/en/tutor/profile` | ✅ |
+| Application submitted (pending) | `/en/tutor/profile` success screen | ✅ |
+| Admin approves → dashboard unlocks | `/en/dashboard` | ✅ |
+| Instructor profile data in 3 tabs | `/en/dashboard/instructor-profile` | ✅ |
+| Public profile visible | `/en/tutor/301` | ✅ |
+| Set availability (Mon–Fri 10–12) | `/en/dashboard/availability` | ✅ |
+| Slots appear on public profile | `/en/tutor/301` | ✅ |
+
+### Student Booking Flow (Production)
+| Step | Status |
+|------|--------|
+| Student login (homepage modal) | ✅ |
+| Navigate to tutor, see slots | ✅ |
+| Book Trial Lesson dialog (duration, date, time) | ✅ |
+| Review & Confirm (100 SAR) | ✅ |
+| Redirect to payment page | ✅ |
+| MyFatoorah iframe loads | ✅ |
+| Card fields accept input | ✅ |
+| Payment failure error page (`status=failed`) | ✅ |
+| Payment success (live card) | 🔲 Requires real card |
+
+### Production-Specific Notes
+- **Same phone → dual roles:** One phone number can hold separate student (userId 514) and tutor (userId 615) accounts. Student logs in via homepage modal; tutor logs in via `/en/tutor-login`.
+- **Tutor profile ID ≠ User ID:** Tutor profile ID (301) is different from the auth userId (615). Resolved via `GET /api/v1/public/tutors/{id}`.
+- **Live payment gateway:** `sa.myfatoorah.com` — real charges apply. Test card `4111 1111 1111 1111` is declined (no charge), but failure page renders correctly.
+- **Booking number prefix:** Production uses `BK-` prefix; dev uses `DBK-` prefix.
+- **`/en/tutors` is 404:** Use `/en/find-tutors` for tutor listing on production.
+
+See [`specs/production_e2e.md`](specs/production_e2e.md) for the complete step-by-step walkthrough with all observed selectors, URLs, and test data.
 
 ---
 

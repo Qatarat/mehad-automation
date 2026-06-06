@@ -1,9 +1,42 @@
 # Page: Tutor Instructor Profile
 
-**URL:** `https://dev.mehadedu.com/en/dashboard/instructor-profile`
+**URL (dev):** `https://dev.mehadedu.com/en/dashboard/instructor-profile`
+**URL (prod):** `https://mehadedu.com/en/dashboard/instructor-profile`
 
 ## Description
-Tutor's public instructor profile management. Three sections: Personal Information, Certificates, and Teaching Subjects. Updates require admin approval before becoming publicly visible.
+Tutor's public instructor profile management. Three sections: Personal Information, Certificates & Expertise, and Teaching Subjects. New teachers complete a 4-step APPLICATION wizard at `/en/tutor/profile` — after admin approval (2–3 business days), the same data is accessible and editable at this dashboard page. Updates to the dashboard profile also require admin review.
+
+## Two-Phase New Teacher Setup
+
+### Phase 1 — Application Wizard (`/en/tutor/profile`)
+Accessed via `/en/become-tutor` → "Apply Now" → `/en/tutor-login` OTP login.
+
+| Step | Page | Key Fields |
+|------|------|-----------|
+| 1 | Personal Information | First Name*, Last Name*, Email*, Bio* (500 chars), Languages*, Timezone (auto), Intro Video (optional) |
+| 2 | Educational Certifications | Highest Degree*, University/Institution*, Graduation Year* (4 digits), Certificate* (PDF/JPG/PNG, max 10MB) |
+| 3 | Subjects & Expertise | Subject Name* (dropdown), Hourly Rate* (SAR), About This Subject* (500 chars), Years of Experience* (1–10), Target Students* (Primary/Middle/High School/University), Additional Experience (optional) |
+| 4 | Review | Read-only summary of all steps; "Submit Application" button |
+
+**Post-submit state:** "Application Submitted — pending management review. 2–3 business days."
+
+### Phase 2 — Post-Approval Dashboard (`/en/dashboard/instructor-profile`)
+After admin approves, the tutor dashboard unlocks full menus. The instructor profile page shows three tabs with the submitted data (editable). The **Public Availability** toggle controls whether the profile is visible to students.
+
+**Critical:** Even after approval, the tutor must still set availability at `/en/dashboard/availability` before students can see bookable slots.
+
+## Public Profile
+Once approved and visible: `https://mehadedu.com/en/tutor/{tutor_profile_id}`
+Note: `tutor_profile_id` ≠ `userId`. The mapping is resolved via `GET /api/v1/public/tutors/{id}`.
+
+## Dual-Role Accounts (Production)
+The same phone number can hold both a student account and a tutor account. Student login uses the homepage modal; tutor login uses `/en/tutor-login`. Each role has a separate `userId` and `role` field in localStorage.
+
+**Observed production accounts:**
+| Phone | userId | Role | Notes |
+|-------|--------|------|-------|
+| +880 1316314566 | 514 | student | Created 2026-06-03 |
+| +880 1316314566 | 615 | tutor | Created 2026-06-06; tutor profile ID 301 |
 
 ## UI Elements
 

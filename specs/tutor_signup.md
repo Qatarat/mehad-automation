@@ -1,9 +1,12 @@
 # Page: Tutor Signup — Tutor Application Form
 
-**URL:** `https://dev.mehadedu.com/en/tutor-login`
+**URL (dev):** `https://dev.mehadedu.com/en/tutor-login`
+**URL (prod):** `https://mehadedu.com/en/tutor-login`
 
 ## Description
-Tutor registration flow. Starts at /en/become-tutor, clicks Apply Now, authenticates via OTP on /en/tutor-login, then completes a multi-step signup form covering personal info, education, subjects and expertise.
+Tutor registration flow. Starts at `/en/become-tutor`, clicks "Apply Now", authenticates via OTP on `/en/tutor-login`, then completes a 4-step profile wizard at `/en/tutor/profile` covering personal info, certifications, subjects and expertise. After submission the application enters pending admin review (2–3 business days).
+
+**Production note:** The same phone number may hold both a student and a tutor account — they are separate `userId` records with different `role` values (`student` vs `tutor`). Student login uses the homepage modal; tutor login uses `/en/tutor-login`.
 
 ## UI Elements
 

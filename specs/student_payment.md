@@ -1,14 +1,36 @@
 # Page: Student Payment
 
-**URL:** `https://dev.mehadedu.com/en/payment?bookingNumber=...`
+**URL (dev):** `https://dev.mehadedu.com/en/payment?bookingNumber=...`
+**URL (prod):** `https://mehadedu.com/en/payment?bookingNumber=...`
 
 ## Description
 Payment flow for booking sessions. Students fill card details inside a MyFatoorah embedded iframe to pay for 1-to-1 or group sessions.
 
 **Gateway:** MyFatoorah (slug in URL is `paytabs` but the actual widget is MyFatoorah)
-**Environment:** Sandbox — `demo.myfatoorah.com` — NO real charges
+
+### Dev Environment
+**MyFatoorah host:** `demo.myfatoorah.com` — **NO real charges (sandbox)**
 **Test card:** `4111 1111 1111 1111` · CVV `100` · Expiry `05/28`
 **3DS:** ACS Emulator iframe auto-approves with "Y = Successful" (sandbox only)
+
+### Production Environment
+**MyFatoorah host:** `sa.myfatoorah.com` — **LIVE gateway — real charges apply**
+**Test card:** `4111 1111 1111 1111` is **rejected** by the live gateway (no real charge, clean failure)
+**Error handling:** On payment failure, redirects to `/en/payment/result?status=failed&bookingNumber=...`
+**3DS:** Not shown for declined cards; appears for cards that pass authorization
+**To test success on prod:** Use a real Visa/MC card or a card pre-approved by MyFatoorah SA for test mode
+
+### Payment URL Parameters
+```
+/en/payment?bookingNumber=BK-YYYYMMDD-XXXXXX
+           &gatewaySlug=paytabs
+           &customerName=...
+           &customerEmail=...
+           &customerPhone=...
+           &price=100
+```
+- `bookingNumber` format on prod: `BK-YYYYMMDD-XXXXXX` (e.g. `BK-20260606-KTFE91`)
+- `bookingNumber` format on dev: `DBK-YYYYMMDD-XXXXXX` (e.g. `DBK-20260101-ABC123`)
 
 ## UI Elements
 
