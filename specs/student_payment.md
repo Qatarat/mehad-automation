@@ -89,7 +89,14 @@ Payment flow for booking sessions. Students fill card details inside a MyFatoora
 | Field | Value |
 |---|---|
 | Tutor | Automations Tutor (profile ID 89) |
-| Student | Automations Student (user ID 327) |
-| Price | 50 SAR |
-| Available days | Mon / Tue / Wed (10:00–12:00 Asia/Dhaka) |
+| Student | Automations Student (phone +880 **98765432**, OTP 123456) |
+| Price | 100 SAR |
+| Available days | Mon / Tue / Wed / Sat (Asia/Dhaka) |
 | Booking number format | `DBK-YYYYMMDD-XXXXXX` |
+
+## Automation Notes
+- Student login uses phone `98765432` (student account), **not** `98976564` (tutor account).
+- `book_slot_via_ui` navigates `/en/tutor/89`, handles both Trial and Package dialogs.
+- Duration "1 hour" is selected before slot-picking so time ranges show correctly.
+- "Next week" navigation uses `button:has-text("Next week")` (not aria-label).
+- 3DS ACS emulator at `demo.myfatoorah.com` — `iframe[title="3D Secure"]` → inner `iframe[name="challengeFrame"]`.

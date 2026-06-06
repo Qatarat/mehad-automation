@@ -58,12 +58,17 @@ Session management for both tutors and students. Shows session details, join cla
 - REQ-09: Type filter shows 1-to-1 and Group Session options
 
 ## Edge Cases
-| EC-01 | Join before session time | Join button not visible |
+| EC-01 | Join before session time | Join button not visible — automation always validates this since sessions are booked for future dates |
 | EC-02 | Session end time reached | Auto-close triggers |
 | EC-03 | Search with invalid name | Empty results shown |
 | EC-04 | Filter Cancelled sessions | Only cancelled sessions shown |
 | EC-05 | Filter Group sessions | Only group sessions shown |
 | EC-06 | Session cancelled mid-join | Error handled gracefully |
+
+## Automation Notes
+- Don't test the actual Join Classroom click flow in automated smoke/regression runs — it requires real-time session presence and is covered by xfail in tests/test_live_session_superadmin.py.
+- Session History tab accessibility IS tested: see TBS-06 and TestTeacherSessionHistory.
+- Slots are intentionally created for future dates; see TestSlotFutureDates for the date contract.
 
 ## Test Data
 ### Valid
