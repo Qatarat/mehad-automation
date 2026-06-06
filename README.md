@@ -453,6 +453,170 @@ Open `reports/index.html` in your browser.
 
 ---
 
+## Quick Start: Test on Dev or Production
+
+Follow these steps to run the full test suite locally against either environment in under 10 minutes.
+
+---
+
+### Option A — Dev Server (Recommended · No real phone needed)
+
+The dev environment uses a **fixed OTP `123456`** for all test accounts — no WhatsApp or SMS required.
+
+**Step 1 — Clone and install**
+
+```bash
+git clone https://github.com/Qatarat/mehad-automation
+cd mehad-automation
+pip install -r requirements.txt
+playwright install chromium
+```
+
+**Step 2 — Create `.env`**
+
+```dotenv
+# .env  (copy from .env.example and set these values)
+
+BASE_URL=https://dev.mehadedu.com/en
+
+# Student account (pre-registered on dev)
+STUDENT_PHONE=98765432
+STUDENT_OTP=123456
+TEST_COUNTRY=+880
+
+# Tutor account (pre-registered on dev)
+TEACHER_PHONE=98976564
+TEACHER_OTP=123456
+```
+
+> Both accounts are already registered on `dev.mehadedu.com` and always accept OTP `123456`.
+
+**Step 3 — Run**
+
+```bash
+# Full suite
+pytest tests/ -v
+
+# Payment tests only (sandbox — no real charges)
+pytest tests/test_payment_flow.py -v
+
+# Spec-driven tests for all 69 pages
+pytest tests/test_specs_all.py -v
+
+# Single feature
+pytest tests/test_specs_all.py -k "payment" -v
+
+# With visible browser (good for watching the tests run)
+HEADED=1 SLOW_MO=500 pytest tests/test_payment_flow.py -v
+```
+
+**Expected result:** All 5 payment tests pass in ~2 minutes. Full suite runs in ~15–20 minutes.
+
+---
+
+### Option B — Production Server (Real phone · Live environment)
+
+Production uses **real SMS/WhatsApp OTPs**. You need a phone number registered on `mehadedu.com`.
+
+> **⚠️ Payment warning:** The production gateway (`sa.myfatoorah.com`) is **live**. Tests verify the booking and payment page load, card fields render, and failure errors show correctly — **no real charge is made** unless you provide a real card.
+
+**Step 1 — Clone and install (same as dev)**
+
+```bash
+git clone https://github.com/Qatarat/mehad-automation
+cd mehad-automation
+pip install -r requirements.txt
+playwright install chromium
+```
+
+**Step 2 — Create `.env`**
+
+```dotenv
+# .env
+
+BASE_URL=https://mehadedu.com/en
+
+# Your registered student account on mehadedu.com
+STUDENT_PHONE=1316314566      # digits only, no country code
+TEST_COUNTRY=+880              # your country code
+
+# Your registered teacher account
+TEACHER_PHONE=1316314566
+
+# OTP method — choose one:
+PROD_OTP_BACKEND=manual       # simplest: you type OTP when prompted
+# PROD_OTP_BACKEND=waha       # automated via WAHA Docker (see OTP Options section)
+```
+
+**Step 3 — Run with manual OTP**
+
+```bash
+# Run a single test with -s so the OTP prompt appears in your terminal
+pytest tests/test_login_e2e.py -v -s
+
+# When you see "Enter OTP:" in the terminal, check your WhatsApp and type it
+```
+
+**Step 4 — Run a specific production scenario**
+
+```bash
+# Test the full signup → booking → payment flow
+pytest tests/test_specs_all.py -k "production_e2e" -v -s
+
+# Test payment page only (verifies iframe loads + failure page)
+pytest tests/test_payment_flow.py::TestPaymentFlow::test_02_payment_iframe_renders -v -s
+
+# Test student login
+pytest tests/test_specs_all.py -k "student_login" -v -s
+```
+
+**Step 5 — Run all tests with automated OTP (WAHA)**
+
+```bash
+# Start WAHA (one-time setup)
+docker run -d --name waha -p 3000:3000 devlikeapro/waha
+
+# Open http://localhost:3000/dashboard → Start session → scan QR with WhatsApp
+# Update .env:
+#   PROD_OTP_BACKEND=waha
+#   WAHA_URL=http://localhost:3000
+#   WAHA_SESSION=default
+#   WAHA_CHAT_ID=+8801316314566@c.us   # your full phone with country code
+
+# Now run the full suite unattended
+pytest tests/ -v
+```
+
+---
+
+### Dev vs Production — At a Glance
+
+| | Dev (`dev.mehadedu.com`) | Production (`mehadedu.com`) |
+|---|---|---|
+| **OTP** | Fixed `123456` — no phone needed | Real SMS/WhatsApp OTP |
+| **Payment gateway** | `demo.myfatoorah.com` (sandbox) | `sa.myfatoorah.com` (live) |
+| **Test card** | `4111 1111 1111 1111` — always succeeds | Same card — rejected (no charge) |
+| **Booking prefix** | `DBK-YYYYMMDD-XXXXXX` | `BK-YYYYMMDD-XXXXXX` |
+| **3DS** | ACS Emulator auto-approves | Real 3DS challenge |
+| **Setup time** | ~5 minutes | ~10 minutes + phone registration |
+| **Best for** | CI, automation, PR checks | Smoke tests, pre-release checks |
+
+---
+
+### Running a Targeted Smoke Test (Both Environments)
+
+This one-liner checks the most critical flows — login, booking, and payment page — in under 3 minutes:
+
+```bash
+# Dev smoke test
+pytest tests/test_login.py tests/test_payment_flow.py -v --timeout=60
+
+# Production smoke test (manual OTP)
+BASE_URL=https://mehadedu.com/en pytest tests/test_login_e2e.py tests/test_specs_all.py -k "student_login or payment" -v -s --timeout=90
+```
+
+---
+
 ## Production E2E Verified Results
 
 Full end-to-end walkthrough on `https://mehadedu.com` — verified 2026-06-06.
