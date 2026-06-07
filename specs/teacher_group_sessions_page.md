@@ -1,5 +1,7 @@
 # Teacher Group Sessions Page Spec
 
+**URL:** `https://dev.mehadedu.com/en/dashboard/group-sessions`
+
 ## Overview
 The Group Sessions page (`/en/dashboard/group-sessions`) is where teachers manage their group session offerings. It shows a "Group Sessions" heading. When no sessions exist, it displays "No group sessions found". Group sessions are created from the Availability Calendar using the "Group sessions" button.
 

@@ -1,5 +1,7 @@
 # Teacher Instructor Profile Edit Spec
 
+**URL:** `https://dev.mehadedu.com/en/dashboard/instructor-profile`
+
 ## Overview
 The Instructor Profile page (`/en/dashboard/instructor-profile`) allows teachers to manage their public profile. It has three tabs: Personal Information, Certificates & Expertise, and Teaching Subjects. A Public Availability toggle controls visibility on the platform. The Personal Information tab shows name, title, bio, location, languages, and has an "Edit Profile" button that opens an edit form.
 

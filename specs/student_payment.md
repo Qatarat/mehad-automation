@@ -1,5 +1,7 @@
 # Page: Student Payment
 
+**URL:** `https://dev.mehadedu.com/en/payment`
+
 **URL (dev):** `https://dev.mehadedu.com/en/payment?bookingNumber=...`
 **URL (prod):** `https://mehadedu.com/en/payment?bookingNumber=...`
 

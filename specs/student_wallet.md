@@ -1,5 +1,7 @@
 # Student Payment & Wallet Spec
 
+**URL:** `https://dev.mehadedu.com/en/dashboard/wallet`
+
 ## Overview
 The Payment & Wallet page (`/en/dashboard/wallet`) shows the student's transaction history under a "Payments" heading. It lists "Recent Transactions" with a "No transactions found" state when empty. Accessible only to authenticated students.
 

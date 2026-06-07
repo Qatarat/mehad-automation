@@ -1,5 +1,7 @@
 # Teacher Notifications Spec
 
+**URL:** `https://dev.mehadedu.com/en/dashboard/notifications`
+
 ## Overview
 The Notifications page (`/en/dashboard/notifications`) shows all notifications for the teacher with All and Unread tabs. Each notification has an icon, title, date, and description. A "Mark all as read" button clears the unread count. The sidebar shows a numeric badge on the Notifications link when there are unread notifications.
 

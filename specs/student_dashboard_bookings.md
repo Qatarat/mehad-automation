@@ -1,5 +1,7 @@
 # Student Dashboard — My Bookings Spec
 
+**URL:** `https://dev.mehadedu.com/en/dashboard/bookings`
+
 ## Overview
 The My Bookings page is the student's session management hub. It shows a greeting, unbooked hours counter, tabs for Upcoming Sessions and Session History, and a CTA to Browse & Book Sessions when there are no bookings. Accessible only to authenticated students.
 

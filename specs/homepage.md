@@ -1,5 +1,7 @@
 # Homepage Spec
 
+**URL:** `https://dev.mehadedu.com/en`
+
 ## Overview
 The Mehad homepage is the public landing page for Saudi Arabia's #1 education platform. It features a hero section with a tutor search widget, a subject browser, how-it-works steps, top teachers carousel, student testimonials, and a CTA banner. The header contains the primary navigation, language switcher, and Log In button.
 

@@ -1,5 +1,7 @@
 # Tutor Public Profile Spec
 
+**URL:** `https://dev.mehadedu.com/en/tutor/profile`
+
 ## Overview
 The public tutor profile page shows full tutor details: header with name, bio, stats (lessons taught, average rating, response rate), booking widget (1-to-1 and Group Session tabs), subject/price selector, weekly availability calendar with timezone switcher, introduction video, about section (languages, subjects with details, specialties, education, certifications), and student reviews.
 

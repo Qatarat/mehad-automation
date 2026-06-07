@@ -126,10 +126,13 @@ def _clean_hint(hint: str) -> str:
     # Validate the full expression via AST — catches ALL remaining syntax issues
     # (unbalanced quotes, JS regex literals /pattern/, etc.)
     try:
-        ast.parse(f"page.{hint}.first", mode="eval")
+        tree = ast.parse(f"page.{hint}.first", mode="eval")
+        if not isinstance(tree.body, (ast.Attribute, ast.Call)):
+            return ""
     except SyntaxError:
         return ""
     return hint
+
 
 
 def _repr(data: list[str]) -> str:

@@ -233,11 +233,20 @@ _HDR = (
 
 # ── AI model management ───────────────────────────────────────────────────────
 
+_OLLAMA_DEAD: bool = False
+
 def _available_models() -> set[str]:
+    global _OLLAMA_DEAD
     try:
-        return {m["model"] for m in ollama.list().get("models", [])}
-    except Exception:
-        return {AI_MODEL}
+        models = ollama.list().get("models", [])
+        return {m["model"] for m in models}
+    except Exception as e:
+        msg = str(e).lower()
+        log(f"  [MODELS] Failed to list Ollama models: {e}")
+        # If connection is refused/unavailable, mark Ollama as dead
+        if any(x in msg for x in ["refused", "connecterror", "connection", "offline", "not running", "failed to establish"]):
+            _OLLAMA_DEAD = True
+        return set()
 
 _AVAILABLE: set[str] | None = None
 _CONFIRMED_UNAVAILABLE: set[str] = set()
@@ -281,9 +290,15 @@ def ai_call(system: str, user: str, max_tokens: int = 4096,
 
     Returns "" if every model fails. Never raises.
     """
-    global _AVAILABLE
+    global _AVAILABLE, _OLLAMA_DEAD
+    if _OLLAMA_DEAD:
+        return ""
+
     if _AVAILABLE is None:
         _AVAILABLE = _available_models()
+        if _OLLAMA_DEAD:
+            log("  [MODELS] Ollama is offline/unavailable. Disabling AI features.")
+            return ""
         if _AVAILABLE:
             log(f"  [MODELS] Available: {sorted(_AVAILABLE)}")
         else:
@@ -291,6 +306,8 @@ def ai_call(system: str, user: str, max_tokens: int = 4096,
 
     seen_models: set[str] = set()
     for model, tok, temp, model_timeout in MODEL_CHAIN:
+        if _OLLAMA_DEAD:
+            return ""
         if model in _CONFIRMED_UNAVAILABLE:
             continue
         if model in seen_models:
@@ -354,8 +371,13 @@ def ai_call(system: str, user: str, max_tokens: int = 4096,
         except Exception as e:
             msg = str(e)
             log(f"  [AI] ❌ {model}: {msg[:120]}")
-            if "not found" in msg.lower() or "404" in msg or "no such model" in msg.lower():
+            msg_lower = msg.lower()
+            if "not found" in msg_lower or "404" in msg or "no such model" in msg_lower:
                 _CONFIRMED_UNAVAILABLE.add(model)
+            if any(x in msg_lower for x in ["refused", "connecterror", "connection", "offline", "not running", "failed to establish"]):
+                log("  [AI] Connection issue detected. Disabling Ollama for this run.")
+                _OLLAMA_DEAD = True
+                return ""
 
     log("  [AI] ⚠️  All models exhausted — template fallback")
     return ""

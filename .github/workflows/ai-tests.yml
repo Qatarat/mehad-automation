@@ -720,7 +720,7 @@ jobs:
   qa-agent-5-langgraph:
     name: "QA Agent 5 — LangGraph AI Orchestration"
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90    # raised from 60 — 7b pull (~10m) + 28 specs parallel need headroom
     env:
       BASE_URL:            ${{ github.event.inputs.base_url || 'https://dev.mehadedu.com/en' }}
       AI_MODEL:            ${{ github.event.inputs.ai_model || 'qwen2.5-coder:7b' }}
@@ -747,6 +747,7 @@ jobs:
           path: ~/.ollama/models
           key: ollama-models-v6-qwen2.5-coder-7b-1.5b-tinyllama
       - name: Start Ollama + pull models
+        timeout-minutes: 20   # guard: model pull should never consume the whole job budget
         run: |
           ollama serve &
           for i in $(seq 1 20); do curl -s http://localhost:11434/api/tags > /dev/null 2>&1 && break; sleep 2; done
@@ -764,6 +765,11 @@ jobs:
         run: |
           echo "=== LangGraph Agent — spec → generate → cache → run ==="
           python -u -m ai_engine.langgraph_agent || true
+      - name: Ensure upload dirs exist (avoids ENOENT on early cancel)
+        if: always()
+        run: |
+          mkdir -p reports cache/tests
+          touch reports/.keep cache/tests/.keep
       - name: Upload LangGraph Reports
         uses: actions/upload-artifact@v5
         if: always()

@@ -1,5 +1,7 @@
 # Teacher Reviews Page Spec
 
+**URL:** `https://dev.mehadedu.com/en/dashboard/reviews`
+
 ## Overview
 The Teacher Reviews page (`/en/dashboard/reviews`) shows a review summary with Average Rating, Total Reviews, and 5-Star Reviews percentage. A Rating Distribution section shows star-by-star breakdown. A search box and star filter buttons (All, 5★, 4★, 3★, 2★, 1★) allow filtering. Shows "No reviews found" when empty.
 

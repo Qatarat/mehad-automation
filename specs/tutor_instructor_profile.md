@@ -1,5 +1,7 @@
 # Page: Tutor Instructor Profile
 
+**URL:** `https://dev.mehadedu.com/en/dashboard/instructor-profile`
+
 **URL (dev):** `https://dev.mehadedu.com/en/dashboard/instructor-profile`
 **URL (prod):** `https://mehadedu.com/en/dashboard/instructor-profile`
 

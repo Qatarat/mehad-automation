@@ -401,6 +401,13 @@ def run_all_specs(spec_paths: list[Path] | None = None) -> dict:
     TESTS_DIR.mkdir(parents=True, exist_ok=True)
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
+    # Restore cache from GitHub Pages before processing
+    try:
+        from ai_engine.agent import AutonomousTestAgent
+        AutonomousTestAgent()
+    except Exception as e:
+        log(f"[LangGraph] Failed to initialize AutonomousTestAgent for cache restore: {e}")
+
     if spec_paths is None:
         spec_paths = [
             p for p in sorted(Path("specs").glob("*.md"))
@@ -417,12 +424,11 @@ def run_all_specs(spec_paths: list[Path] | None = None) -> dict:
         f"{cache_stats['total_cached_tests']} test(s) cached")
     log(f"[LangGraph] Processing {len(spec_paths)} spec(s)...\n")
 
-    for spec_path in spec_paths:
-        name = spec_path.stem
-        log(f"\n{'━'*64}")
-        log(f"  SPEC: {spec_path.name}")
-        log(f"{'━'*64}")
+    from concurrent.futures import ThreadPoolExecutor, as_completed
 
+    def process_spec(spec_path: Path) -> tuple[str, dict]:
+        name = spec_path.stem
+        log(f"\n{'━'*64}\n  SPEC START: {spec_path.name}\n{'━'*64}")
         init_state: SpecState = {
             "spec_path":     str(spec_path),
             "spec_name":     name,
@@ -436,12 +442,11 @@ def run_all_specs(spec_paths: list[Path] | None = None) -> dict:
             "from_cache":    False,
             "messages":      [],
         }
-
         config = {"configurable": {"thread_id": name}}
         try:
             final_state = graph.invoke(init_state, config=config)
             results     = final_state.get("test_results", {})
-            all_results[name] = {
+            return name, {
                 "status":     "passed" if results.get("failed", 0) == 0 and results.get("total", 0) > 0
                               else "failed",
                 "passed":     results.get("passed", 0),
@@ -453,10 +458,18 @@ def run_all_specs(spec_paths: list[Path] | None = None) -> dict:
             }
         except Exception as exc:
             log(f"  [ERROR] Graph execution failed for {name}: {exc}")
-            all_results[name] = {
+            return name, {
                 "status": "error", "passed": 0, "failed": 0, "total": 0,
                 "from_cache": False, "bugs": [], "gaps": str(exc),
             }
+
+    # Parallel execution with thread pool
+    # Use max_workers=4 for GitHub Actions
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        futures = {executor.submit(process_spec, p): p for p in spec_paths}
+        for future in as_completed(futures):
+            name, res = future.result()
+            all_results[name] = res
 
     return all_results
 
@@ -497,3 +510,18 @@ if __name__ == "__main__":
 
     generate_report(results, BASE_URL, "langgraph")
     log("✅ Report → reports/bug-report.html")
+
+    # Emit cache index so gh-pages can serve the cache directory
+    try:
+        cache_dir = MEMORY.cache_dir
+        slugs = sorted(p.stem for p in cache_dir.glob("*.json")
+                       if p.name != "_index.json")
+        (cache_dir / "_index.json").write_text(json.dumps({
+            "generated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+            "base_url":     BASE_URL,
+            "slugs":        slugs,
+            "count":        len(slugs),
+        }, indent=2), encoding="utf-8")
+        log(f"  [CACHE] Index emitted with {len(slugs)} entries → {cache_dir}/_index.json")
+    except Exception as e:
+        log(f"  [CACHE] Index emit failed: {e}")

@@ -1,5 +1,7 @@
 # Teacher Dashboard Overview Spec
 
+**URL:** `https://dev.mehadedu.com/en/dashboard/availability`
+
 ## Overview
 The Teacher (Tutor) Dashboard is accessible after logging in via `/en/tutor-login`. The teacher lands on the Availability Calendar (`/en/dashboard/availability`). The sidebar provides navigation to: Availability Calendar, Booked Sessions, Group Sessions, Messages, Earnings & Payouts, Reviews, Notifications (with unread badge), Instructor Profile, and Help Center. The account switcher shows the tutor name and role.
 

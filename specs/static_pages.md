@@ -1,5 +1,7 @@
 # Static Public Pages Spec
 
+**URL:** `https://dev.mehadedu.com/en/how-mehad-works`
+
 ## Overview
 These are informational static pages accessible to all users without login. They include How It Works, About Us, FAQs, Pricing, Subjects directory, Privacy Policy, Terms & Conditions, Refund Policy, and Cookie Policy.
 

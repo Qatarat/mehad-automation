@@ -365,20 +365,30 @@ def _build_index_html(summary: dict, history: list[tuple[int, Path]]) -> str:
 
     trends = _load_trends()
 
-    # Total tests should never decrease run-to-run.  Use the high-water mark
-    # stored in trends.json (written by bug_clustering.update_trends) so that
-    # a run where some agent artifacts fail to download doesn't make the
-    # dashboard regress from 2000+ back to 1000+.
+    # actual_ran: how many tests actually executed this run (honest denominator).
+    # t may be inflated to the HWM suite capacity for display — but
+    # pass_rate is already correct in consolidated_summary.json (computed from
+    # actual_ran by consolidate_reports.py).
+    actual_ran = summary.get("actual_tests_run", t)
     hw_total = trends.get("max_total_tests", 0)
-    t = max(t, hw_total)
+    suite_cap = max(t, hw_total)   # for display in Total Tests card
+
+    # Show "X ran / Y suite" when the suite capacity > actual run count so
+    # users immediately know some agent artifacts were missing this run.
+    if suite_cap > actual_ran and actual_ran > 0:
+        total_label = "Tests Ran / Suite"
+        total_value = f"{actual_ran:,} / {suite_cap:,}"
+    else:
+        total_label = "Total Tests"
+        total_value = suite_cap if suite_cap else t
 
     stats_html = (
-        _stat_box("Passed",     p,             "pass",       "#passed") +
-        _stat_box("Failed",     f,             "fail" if f else "ok", "#failed") +
-        _stat_box("Total Tests", t,            "total",      "#all-tests") +
-        _stat_box("Pass Rate",  rate,          rate_klass,   "#tests") +
-        _stat_box("Bug Tickets", bugs,         "fail" if bugs else "ok", "#bugs") +
-        _stat_box("Sources",    len(sources),  "total",      "#summary-table")
+        _stat_box("Passed",       p,            "pass",              "#passed") +
+        _stat_box("Failed",       f,            "fail" if f else "ok", "#failed") +
+        _stat_box(total_label,    total_value,  "total",             "#all-tests") +
+        _stat_box("Pass Rate",    rate,         rate_klass,          "#tests") +
+        _stat_box("Bug Tickets",  bugs,         "fail" if bugs else "ok", "#bugs") +
+        _stat_box("Sources",      len(sources), "total",             "#summary-table")
     )
     agent_grid = "".join(_agent_card(src, pub, lbl, em)
                          for src, pub, lbl, em in AGENT_REPORTS)
@@ -676,7 +686,7 @@ a.stat:hover{{border-color:var(--accent);background:var(--bg-2);transform:transl
     </svg>
   </div>
   <div class="ring-info">
-    <div class="big">{p} / {t} tests passed</div>
+    <div class="big">{p} / {actual_ran} tests passed</div>
     <div class="sm">{f} failure(s) · {bugs} bug ticket(s) · {len(sources)} source(s)</div>
   </div>
   <a class="btn primary" href="report.html" style="margin-left:auto">View full report →</a>

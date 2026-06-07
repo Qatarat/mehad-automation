@@ -1,5 +1,7 @@
 # Student Profile Page Spec
 
+**URL:** `https://dev.mehadedu.com/en/dashboard/profile`
+
 ## Overview
 The Student Profile page (`/en/dashboard/profile`) displays the student's name, role, avatar, contact information (email, location, phone, member since date). An "Edit Profile" button opens an edit form. A "Change Avatar" button allows profile picture updates. Accessible from Settings > Edit Profile.
 

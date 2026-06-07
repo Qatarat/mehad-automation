@@ -1,5 +1,7 @@
 # Find Tutors Page Spec
 
+**URL:** `https://dev.mehadedu.com/en/find-tutors`
+
 ## Overview
 The Find Tutors page is the public tutor directory. It lists all approved tutors with search, filter, sort, and pagination (Load more). Each tutor card shows rating, subject, student count, lesson count, languages, bio excerpt, price, and action buttons (Book Trial Lesson, Message, Save). When unauthenticated, Book Trial Lesson and Message trigger the login modal.
 

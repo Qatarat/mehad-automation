@@ -1,5 +1,7 @@
 # Teacher Earnings & Payouts Spec
 
+**URL:** `https://dev.mehadedu.com/en/dashboard/earnings`
+
 ## Overview
 The Earnings & Payouts page (`/en/dashboard/earnings`) shows four financial metric cards (Total Earnings, Available Balance, Pending Earnings, Completed Payouts), an Earnings/Payout tab switcher, and a Recent Earnings history list. Shows "No earnings yet." when empty.
 

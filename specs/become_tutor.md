@@ -1,5 +1,7 @@
 # Become a Tutor Page Spec
 
+**URL:** `https://dev.mehadedu.com/en/become-tutor`
+
 ## Overview
 The Become a Tutor landing page is a public marketing page that explains the benefits of teaching on Mehad, the 4-step process, requirements, and has a CTA "Apply Now" button that navigates to `/en/tutor-login` to start the registration flow.
 

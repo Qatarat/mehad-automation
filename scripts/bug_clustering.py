@@ -273,6 +273,7 @@ def update_trends(trends: dict, run_number: int | str, run_url: str,
         "passed":     totals.get("total_passed", 0),
         "failed":     totals.get("total_failed", 0),
         "total":      cur_total,
+        "actual_tests_run": totals.get("actual_tests_run", cur_total),
         "bugs":       totals.get("total_bugs", 0),
         "pass_rate":  totals.get("pass_rate", "N/A"),
     })

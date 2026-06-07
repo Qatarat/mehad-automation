@@ -1,5 +1,7 @@
 # Dashboard Help Center Spec
 
+**URL:** `https://dev.mehadedu.com/en/dashboard/help-center`
+
 ## Overview
 The Help Center page is accessible from the sidebar of both the student and teacher dashboards. It provides FAQ / support content for authenticated users. The URL is `/en/dashboard/help-center` for both roles.
 

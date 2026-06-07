@@ -756,20 +756,27 @@ def main():
         if fp:
             bug["recurrence_count"] = fingerprint_recurrence_count(trends, fp)
 
-    # Apply high-water mark: total_tests should never decrease across runs.
+    # ── actual_tests_run: the HONEST count of tests that executed this run ──────
+    # This is computed from real per-agent JSON data (not inflated by HWM).
+    # It is the correct denominator for pass_rate.
+    actual_ran = totals["total_tests"]
+    totals["actual_tests_run"] = actual_ran
+
+    # ── High-water mark: inflate total_tests for DISPLAY only ────────────────
     # When a job's artifacts are missing (timeout, download failure) the raw
-    # count is lower than the actual suite size — use the stored maximum so
-    # the dashboard never shows a regressing total.
+    # count is lower than the all-time suite capacity recorded in trends.
+    # We inflate total_tests so the dashboard never shows a regressing suite
+    # size — but we DO NOT touch pass_rate, which must use actual_ran as its
+    # denominator.  Counting un-run tests as failures (1841/3816 = 48.2%)
+    # is misleading; the real rate is 1841/1867 = 98.6%.
     hw_total = trends.get("max_total_tests", 0)
     if totals["total_tests"] < hw_total:
         print(f"[CONSOLIDATE] total_tests ({totals['total_tests']}) < high-water "
-              f"({hw_total}) — using high-water mark to prevent count regression")
+              f"({hw_total}) — inflating display total; pass_rate stays {totals['pass_rate']}")
         totals["total_tests"] = hw_total
-        if totals["total_passed"] + totals["total_failed"] > 0:
-            totals["pass_rate"] = (
-                f"{totals['total_passed'] / hw_total * 100:.1f}%"
-                if hw_total else "N/A"
-            )
+        # ⚠️  DO NOT recalculate pass_rate here — pass_rate is already correct
+        # (computed against actual_ran by compute_totals()).  Recalculating it
+        # with hw_total as denominator produces a completely wrong number.
 
     print("[CONSOLIDATE] Results:")
     print(f"  {'Group':<30} {'Pass':>5} {'Fail':>5} {'Total':>6}")
@@ -781,13 +788,18 @@ def main():
           f"{totals['total_tests']:>6}  (pass rate: {totals['pass_rate']})")
 
     # Write consolidated summary JSON (with cluster summary appended)
+    # actual_tests_run: how many tests actually executed this run (honest count).
+    # total_tests: may be inflated to HWM suite capacity for display.
+    # pass_rate: always calculated from actual_tests_run — never from HWM total.
     cons_path = REPORTS_DIR / "consolidated_summary.json"
     cons_path.write_text(json.dumps({
-        "timestamp": datetime.now().isoformat(),
-        "base_url":  base_url,
-        "engine":    "consolidated",
-        "sources":   list(all_results.keys()),
+        "timestamp":        datetime.now().isoformat(),
+        "base_url":         base_url,
+        "engine":           "consolidated",
+        "sources":          list(all_results.keys()),
         **totals,
+        "actual_tests_run": actual_ran,   # honest count — use for pass rate denominator
+        "suite_capacity":   totals["total_tests"],  # HWM-inflated suite total
         "clusters": [
             {
                 "id":             c.cluster_id(),

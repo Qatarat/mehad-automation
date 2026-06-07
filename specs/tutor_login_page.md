@@ -1,5 +1,7 @@
 # Teacher Login Page Spec
 
+**URL:** `https://dev.mehadedu.com/en/tutor-login`
+
 ## Overview
 The Teacher Login page (`/en/tutor-login`) is a standalone page (not a modal) for tutors to authenticate via WhatsApp OTP. It is reached from the Become a Tutor page's "Apply Now" button. After successful authentication existing tutors land on `/en/dashboard/availability`. New tutors see a multi-step signup form.
 

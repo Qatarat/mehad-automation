@@ -1,5 +1,7 @@
 # Teacher Booked Sessions Spec
 
+**URL:** `https://dev.mehadedu.com/en/dashboard/booked-sessions`
+
 ## Overview
 The Booked Sessions page (`/en/dashboard/booked-sessions`) shows all sessions booked with the teacher. It has tabs for Upcoming Sessions and Session History, a keyword search box, and a Filters button. Displays empty state "No upcoming sessions found" when there are no bookings.
 
