@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA — Run #63 · 2026-06-06 13:56:17</title>
+<title>Mehad QA — Run #64 · 2026-06-07 04:21:32</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
@@ -538,7 +538,7 @@ ol.steps li{margin-bottom:5px}
   <div class="crumbs">
     <a href="index.html">Mehad QA</a>
     <span class="sep">/</span>
-    <span class="current">Run #63</span>
+    <span class="current">Run #64</span>
   </div>
   <button class="btn primary" onclick="window.print()">Export PDF</button>
 </nav>
@@ -553,18 +553,18 @@ ol.steps li{margin-bottom:5px}
 <!-- ── Run header ── -->
 <section class="commit">
   <div class="badge-row">
-    <span class="pill run">Run #63</span>
+    <span class="pill run">Run #64</span>
     <span class="pill">dev.mehadedu.com/en</span>
     <span class="pill fail">Needs review</span>
   </div>
-  <h1>93.0% — 3 test(s) need attention</h1>
+  <h1>86.0% — 6 test(s) need attention</h1>
   <div class="commit-meta">
-    <span><b>Date:</b> 2026-06-06 13:56:17</span>
+    <span><b>Date:</b> 2026-06-07 04:21:32</span>
     <span><b>Model:</b> qwen2.5-coder:7b</span>
     <span><b>Specs:</b> 1</span>
     <span><b>Tests:</b> 43</span>
   </div>
-  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">AI-driven spec validation completed on https://dev.mehadedu.com/en. 0 critical, 1 high, 2 medium, 0 low priority bugs found across 1 spec(s).</p>
+  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">AI-driven spec validation completed on https://dev.mehadedu.com/en. 0 critical, 1 high, 5 medium, 0 low priority bugs found across 1 spec(s).</p>
   <span class="stamp ">Review</span>
 </section>
 
@@ -572,19 +572,19 @@ ol.steps li{margin-bottom:5px}
 <section class="card">
   <div class="card-head">
     <h4>Quality Overview</h4>
-    <span style="font-size:12px;color:var(--ink-3)">40/43 passing</span>
+    <span style="font-size:12px;color:var(--ink-3)">37/43 passing</span>
   </div>
   <div class="card-body">
     <div class="diff-rows">
       <div class="diff-row up">
         <span class="sym">+</span>
         <span class="lbl">Pass rate</span>
-        <span class="val">93.0%</span>
+        <span class="val">86.0%</span>
       </div>
       <div class="diff-row add">
         <span class="sym">+</span>
         <span class="lbl">Failing tests</span>
-        <span class="val">3</span>
+        <span class="val">6</span>
       </div>
       <div class="diff-row neutral">
         <span class="sym">·</span>
@@ -614,7 +614,7 @@ ol.steps li{margin-bottom:5px}
   </div>
   <div class="pstrip-item p2">
     <div class="pstrip-label">P2 Medium</div>
-    <div class="pstrip-val">2</div>
+    <div class="pstrip-val">5</div>
     <div class="pstrip-sla">Current sprint</div>
   </div>
   <div class="pstrip-item p3">
@@ -641,20 +641,50 @@ ol.steps li{margin-bottom:5px}
   <div class="card-head"><h4>All Tests</h4><span style="font-size:12px;color:var(--ink-3)">43 total</span></div>
   <div class="tests-tools">
     <span class="chip active" data-tf="all">All (43)</span>
-    <span class="chip fail" data-tf="failed">Failed (3)</span>
-    <span class="chip pass" data-tf="passed">Passed (40)</span>
+    <span class="chip fail" data-tf="failed">Failed (6)</span>
+    <span class="chip pass" data-tf="passed">Passed (37)</span>
     <span class="chip" data-tf="p0">P0</span>
     <span class="chip" data-tf="p1">P1</span>
     <input id="testSearch" type="text" placeholder="Search tests…"/>
   </div>
   <div id="tests-body">
-    <div class="group" data-spec="qa01_functional"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa01_functional</span><span class="count">40 pass · 3 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa01_full_login_flow_success</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-06 13:56:16</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-01 -001">QA-01 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Complete WhatsApp OTP login must succeed and show user name in header — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Complete WhatsApp OTP login must succeed and show user name in header.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Login did not succeed — 'Automations Student' not found in page. Current URL: https://dev.mehadedu.com/en</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: Login did not succeed — 'Automations Student' not found in page. Current URL: https://dev.mehadedu.com/en
+    <div class="group" data-spec="qa01_functional"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa01_functional</span><span class="count">37 pass · 6 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa01_header_navigation_links_present</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-07 04:21:31</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-01 -001">QA-01 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Header must have Home, Become a Tutor, How It Works, About Us links — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Header must have Home, Become a Tutor, How It Works, About Us links.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Nav link /en/how-mehad-works not found in header</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: Nav link /en/how-mehad-works not found in header
+E   assert 0 &gt; 0
+E    +  where 0 = count()
+E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='a[href=&quot;/en/how-mehad-works&quot;] &gt;&gt; nth=0'&gt;.count
+
+tests/test_qa_comprehensive.py:221: in test_qa01_header_navigation_links_present
+    assert link.count() &gt; 0, f&quot;Nav link {href} not found in header&quot;
+E   AssertionError: Nav link /en/how-mehad-works not found in header
+E   assert 0 &gt; 0
+E    +  where 0 = count()
+E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='a[href=&quot;/en/how-mehad-works&quot;] &gt;&gt; nth=0'&gt;.count</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa01_language_toggle_buttons_present</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-07 04:21:31</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-01 -002">QA-01 -002</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Language toggle (EN/AR) buttons must be visible in header — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Language toggle (EN/AR) buttons must be visible in header.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">English language button not found</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: English language button not found
+E   assert 0 &gt; 0
+E    +  where 0 = count()
+E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='[aria-label=&quot;English&quot;] &gt;&gt; nth=0'&gt;.count
+
+tests/test_qa_comprehensive.py:229: in test_qa01_language_toggle_buttons_present
+    assert en_btn.count() &gt; 0, &quot;English language button not found&quot;
+E   AssertionError: English language button not found
+E   assert 0 &gt; 0
+E    +  where 0 = count()
+E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='[aria-label=&quot;English&quot;] &gt;&gt; nth=0'&gt;.count</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa01_footer_present_with_links</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-07 04:21:31</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-01 -003">QA-01 -003</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Footer must contain Mehad logo, nav links, and copyright — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Footer must contain Mehad logo, nav links, and copyright.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Footer appears empty or incomplete</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: Footer appears empty or incomplete
+E   assert ('privacy' in '' or 'terms' in '' or ('2026' in '' or 'mahad' in ''))
+E    +  where '' = &lt;built-in method lower of str object at 0x7f4ed8a225d0&gt;()
+E    +    where &lt;built-in method lower of str object at 0x7f4ed8a225d0&gt; = ''.lower
+
+tests/test_qa_comprehensive.py:332: in test_qa01_footer_present_with_links
+    assert &quot;privacy&quot; in footer_text or &quot;terms&quot; in footer_text or (
+E   AssertionError: Footer appears empty or incomplete
+E   assert ('privacy' in '' or 'terms' in '' or ('2026' in '' or 'mahad' in ''))
+E    +  where '' = &lt;built-in method lower of str object at 0x7f4ed8a225d0&gt;()
+E    +    where &lt;built-in method lower of str object at 0x7f4ed8a225d0&gt; = ''.lower</div></div></div></div><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa01_full_login_flow_success</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-07 04:21:31</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-01 -004">QA-01 -004</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Complete WhatsApp OTP login must succeed and show user name in header — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Complete WhatsApp OTP login must succeed and show user name in header.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Login did not succeed — 'Automations Student' not found in page. Current URL: https://dev.mehadedu.com/en</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: Login did not succeed — 'Automations Student' not found in page. Current URL: https://dev.mehadedu.com/en
 E   assert ('Automations Student' in &quot;Verification code sent successfully\nHome\nFind Tutors\nBecome a Tutor\nHow It Works\nAbout Us\nAR\nEN\nLog In\nSaudi Arabia's #1 Education Platform\nLearn with the Best\nTeachers\nin Saudi Arabia\n\nOne-on-one online lessons for all subjects • Flexible scheduling • Certified teachers\n\n1,200\nCertified Teachers\n+ 50,000\nStudents H
 
 tests/test_qa_comprehensive.py:550: in test_qa01_full_login_flow_success
     assert TEST_USER_NAME in body_text or &quot;logged in&quot; in body_text.lower(), (
 E   AssertionError: Login did not succeed — 'Automations Student' not found in page. Current URL: https://dev.mehadedu.com/en
-E   assert ('Automations Student' in &quot;Verification code sent successfully\nHome\nFind Tutors\nBecome a Tutor\nHow It Works\nAbout Us\nAR\nEN\nLog In\nSaudi Arabia's #1 Education Platform\nLearn with the Best\nTeachers\nin Saudi Arabia\n\nOne-on-one online lessons for all subjects • Flexible scheduling • Certified teachers\n\n1,200\nCertified Teachers\n+ 50,000\nStudents Helped\n98%\nStudent Satisfaction\nFind Your Perfect Teacher\nOver 1,200 teachers available now\nSubject\nSelect subject\nLevel\nSelect Level\nAvailable Time\nSelect availability\nPrice Range\nSelect Price Range\nFind a Teacher\nأ\nس\nن\nم\nJoin 50,000+ satisfied students\nSTUDY SUBJECTS\nMost Requested Subjects\n\nChoose your subject and start learning with top tutors\n\nPhysics\n11 teachers available\nMath\n27 teachers available\nAlgebra\n13 teachers available\nChemistry\n19 teachers available\nPhysical Chemistry\n2 teachers available\nHOW IT WORKS\nThree Steps to Success\n\nFrom choosing a teacher to starting your lesson in minutes\n\nChoose a Teacher\n\nBrowse hundreds of certified teachers and compare ratings and prices to find your best match\n\nBook a Session\n\nPick a time that suits you from the teacher's schedule and pay securely with multi... of bangladesh university\n\nThis platform helped me tremendously...\n\nJohn Doe\nSoftware Engineer\n\nThis platform helped me tremendously...\n\nJohn Doe\nSoftware Engineer\n\nAutem consequat Et\n\nP\nProident vero qui o\nOccaecat consectetur\n\nNam qui est laboris quo dolores distinctio\n\nC\nChloe Dominguez\nIpsum lorem in quia consequat N\nStart Learning Today with Mehad\n\nJoin over 50,000 students achieving outstanding results with Saudi Arabia's best teachers\n\nFind your t</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa01_how_it_works_link_navigates</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-06 13:56:16</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-01 -002">QA-01 -002</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">How It Works link must navigate to /en/how-mehad-works — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">How It Works link must navigate to /en/how-mehad-works.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">How It Works link not found</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: How It Works link not found
+E   assert ('Automations Student' in &quot;Verification code sent successfully\nHome\nFind Tutors\nBecome a Tutor\nHow It Works\nAbout Us\nAR\nEN\nLog In\nSaudi Arabia's #1 Education Platform\nLearn with the Best\nTeachers\nin Saudi Arabia\n\nOne-on-one online lessons for all subjects • Flexible scheduling • Certified teachers\n\n1,200\nCertified Teachers\n+ 50,000\nStudents Helped\n98%\nStudent Satisfaction\nFind Your Perfect Teacher\nOver 1,200 teachers available now\nSubject\nSelect subject\nLevel\nSelect Level\nAvailable Time\nSelect availability\nPrice Range\nSelect Price Range\nFind a Teacher\nأ\nس\nن\nم\nJoin 50,000+ satisfied students\nSTUDY SUBJECTS\nMost Requested Subjects\n\nChoose your subject and start learning with top tutors\n\nPhysics\n11 teachers available\nMath\n27 teachers available\nAlgebra\n13 teachers available\nChemistry\n19 teachers available\nPhysical Chemistry\n2 teachers available\nHOW IT WORKS\nThree Steps to Success\n\nFrom choosing a teacher to starting your lesson in minutes\n\nChoose a Teacher\n\nBrowse hundreds of certified teachers and compare ratings and prices to find your best match\n\nBook a Session\n\nPick a time that suits you from the teacher's schedule and pay securely with multi... of bangladesh university\n\nThis platform helped me tremendously...\n\nJohn Doe\nSoftware Engineer\n\nThis platform helped me tremendously...\n\nJohn Doe\nSoftware Engineer\n\nAutem consequat Et\n\nP\nProident vero qui o\nOccaecat consectetur\n\nNam qui est laboris quo dolores distinctio\n\nC\nChloe Dominguez\nIpsum lorem in quia consequat N\nStart Learning Today with Mehad\n\nJoin over 50,000 students achieving outstanding results with Saudi Arabia's best teachers\n\nFind your t</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa01_how_it_works_link_navigates</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-07 04:21:31</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-01 -005">QA-01 -005</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">How It Works link must navigate to /en/how-mehad-works — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">How It Works link must navigate to /en/how-mehad-works.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">How It Works link not found</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: How It Works link not found
 E   assert 0 &gt; 0
 E    +  where 0 = count()
 E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='a[href=&quot;/en/how-mehad-works&quot;] &gt;&gt; nth=0'&gt;.count
@@ -664,7 +694,7 @@ tests/test_qa_comprehensive.py:667: in test_qa01_how_it_works_link_navigates
 E   AssertionError: How It Works link not found
 E   assert 0 &gt; 0
 E    +  where 0 = count()
-E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='a[href=&quot;/en/how-mehad-works&quot;] &gt;&gt; nth=0'&gt;.count</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa01_about_us_link_navigates</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-06 13:56:16</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-01 -003">QA-01 -003</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">About Us link must navigate to /en/about-us — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">About Us link must navigate to /en/about-us.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">About Us link not found</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: About Us link not found
+E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='a[href=&quot;/en/how-mehad-works&quot;] &gt;&gt; nth=0'&gt;.count</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa01_about_us_link_navigates</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-07 04:21:31</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-01 -006">QA-01 -006</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">About Us link must navigate to /en/about-us — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">About Us link must navigate to /en/about-us.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">About Us link not found</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: About Us link not found
 E   assert 0 &gt; 0
 E    +  where 0 = count()
 E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='a[href=&quot;/en/about-us&quot;] &gt;&gt; nth=0'&gt;.count
@@ -674,16 +704,16 @@ tests/test_qa_comprehensive.py:681: in test_qa01_about_us_link_navigates
 E   AssertionError: About Us link not found
 E   assert 0 &gt; 0
 E    +  where 0 = count()
-E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='a[href=&quot;/en/about-us&quot;] &gt;&gt; nth=0'&gt;.count</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_homepage_loads_correct_url</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_homepage_loads_correct_url</dd><dt>What it checks</dt><dd>Homepage must load at the Mehad /en URL without redirect loop.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>1.53s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_page_title_contains_mehad</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_page_title_contains_mehad</dd><dt>What it checks</dt><dd>Page title must mention Mehad (brand presence check).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>5.13s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_header_logo_visible</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_header_logo_visible</dd><dt>What it checks</dt><dd>Mehad logo/link must be visible in the header.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>5.70s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_header_login_button_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_header_login_button_present</dd><dt>What it checks</dt><dd>Log In button must be visible in the header (unauthenticated state).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>6.69s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_header_navigation_links_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_header_navigation_links_present</dd><dt>What it checks</dt><dd>Header must have Home, Become a Tutor, How It Works, About Us links.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>5.64s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_language_toggle_buttons_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_language_toggle_buttons_present</dd><dt>What it checks</dt><dd>Language toggle (EN/AR) buttons must be visible in header.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.78s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_hero_headline_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_hero_headline_present</dd><dt>What it checks</dt><dd>Hero H1 headline must contain the main marketing copy.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.84s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_hero_platform_badge_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_hero_platform_badge_present</dd><dt>What it checks</dt><dd>Saudi Arabia's #1 platform badge or stats must be present.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>5.30s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_hero_stats_non_empty</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_hero_stats_non_empty</dd><dt>What it checks</dt><dd>Teacher count, student count, satisfaction stats must not be zero/empty.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.97s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_tutor_search_form_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_tutor_search_form_present</dd><dt>What it checks</dt><dd>Tutor search form with Find a Teacher button must be on homepage.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>5.97s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_find_teacher_navigates_to_find_tutors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_find_teacher_navigates_to_find_tutors</dd><dt>What it checks</dt><dd>Clicking Find a Teacher with no filters navigates to /en/find-tutors.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>7.37s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_search_subject_dropdown_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_search_subject_dropdown_present</dd><dt>What it checks</dt><dd>Subject dropdown with 'Select subject' placeholder must be in search form.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>6.70s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_study_subjects_section_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_study_subjects_section_present</dd><dt>What it checks</dt><dd>'Most Requested Subjects' / 'STUDY SUBJECTS' section must be visible.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>7.64s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_how_it_works_section_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_how_it_works_section_present</dd><dt>What it checks</dt><dd>'How It Works' / 'Three Steps to Success' section must be visible.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>7.81s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_top_teachers_section_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_top_teachers_section_present</dd><dt>What it checks</dt><dd>'Our Top Teachers' section with tutor cards must be visible.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>9.33s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_footer_present_with_links</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_footer_present_with_links</dd><dt>What it checks</dt><dd>Footer must contain Mehad logo, nav links, and copyright.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>7.69s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_student_reviews_section_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_student_reviews_section_present</dd><dt>What it checks</dt><dd>Student testimonials/reviews section must exist.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>6.77s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_login_modal_opens_on_button_click</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_login_modal_opens_on_button_click</dd><dt>What it checks</dt><dd>Clicking Log In button must open the login modal/dialog.</dd><dt>Duration</dt><dd>6.24s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_has_welcome_back_title</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_has_welcome_back_title</dd><dt>What it checks</dt><dd>Login modal title must be 'Welcome back'.</dd><dt>Duration</dt><dd>9.77s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_has_sign_in_subtitle</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_has_sign_in_subtitle</dd><dt>What it checks</dt><dd>Login modal subtitle must mention 'Sign in to continue'.</dd><dt>Duration</dt><dd>6.66s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_has_whatsapp_number_label</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_has_whatsapp_number_label</dd><dt>What it checks</dt><dd>Login modal must have 'WhatsApp Number' label visible.</dd><dt>Duration</dt><dd>2.98s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_has_phone_input</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_has_phone_input</dd><dt>What it checks</dt><dd>Login modal must have a telephone input field.</dd><dt>Duration</dt><dd>7.30s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_country_code_default_is_966</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_country_code_default_is_966</dd><dt>What it checks</dt><dd>Country code selector must default to Saudi Arabia +966.</dd><dt>Duration</dt><dd>6.10s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_send_code_button_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_send_code_button_present</dd><dt>What it checks</dt><dd>Send Code button must be present in the login modal.</dd><dt>Duration</dt><dd>6.99s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_send_code_disabled_without_phone</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_send_code_disabled_without_phone</dd><dt>What it checks</dt><dd>Send Code button must be disabled when phone field is empty.</dd><dt>Duration</dt><dd>7.14s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_close_button_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_close_button_present</dd><dt>What it checks</dt><dd>Modal must have a Close button (X) to dismiss.</dd><dt>Duration</dt><dd>2.94s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_closes_on_close_button_click</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_closes_on_close_button_click</dd><dt>What it checks</dt><dd>Clicking Close button must dismiss the login modal.</dd><dt>Duration</dt><dd>7.63s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_country_code_dropdown_opens</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_country_code_dropdown_opens</dd><dt>What it checks</dt><dd>Clicking country code selector must open a dropdown with search.</dd><dt>Duration</dt><dd>4.14s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_country_search_filters_results</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_country_search_filters_results</dd><dt>What it checks</dt><dd>Typing in country search must filter the country list.</dd><dt>Test data</dt><dd>fill(&quot;Bangladesh&quot;)</dd><dt>Duration</dt><dd>7.28s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_country_bangladesh_selectable</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_country_bangladesh_selectable</dd><dt>What it checks</dt><dd>Bangladesh +880 must be selectable from the country dropdown.</dd><dt>Test data</dt><dd>fill(&quot;Bangladesh&quot;)</dd><dt>Duration</dt><dd>8.40s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_phone_field_accepts_numbers</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_phone_field_accepts_numbers</dd><dt>What it checks</dt><dd>Phone input must accept digit input.</dd><dt>Test data</dt><dd>fill(TEST_PHONE)</dd><dt>Duration</dt><dd>2.98s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_send_code_enabled_after_phone_entry</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_send_code_enabled_after_phone_entry</dd><dt>What it checks</dt><dd>Send Code button must become enabled after a valid phone is entered.</dd><dt>Test data</dt><dd>TEST_COUNTRY_CODE · TEST_PHONE</dd><dt>Duration</dt><dd>5.77s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_otp_input_appears_after_send_code</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_otp_input_appears_after_send_code</dd><dt>What it checks</dt><dd>After clicking Send Code, OTP input must appear/become enabled.</dd><dt>Test data</dt><dd>TEST_COUNTRY_CODE · TEST_PHONE</dd><dt>Duration</dt><dd>9.44s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_become_a_tutor_link_navigates</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_become_a_tutor_link_navigates</dd><dt>What it checks</dt><dd>Become a Tutor link must navigate to /en/become-tutor.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>1.54s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_language_toggle_ar_navigates</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_language_toggle_ar_navigates</dd><dt>What it checks</dt><dd>Clicking AR button must navigate to the Arabic locale.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.14s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_subject_badge_navigates_to_find_tutors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_subject_badge_navigates_to_find_tutors</dd><dt>What it checks</dt><dd>Clicking a subject badge (e.g. Math) must navigate to /en/find-tutors.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.25s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_find_tutors_page_loads</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_find_tutors_page_loads</dd><dt>What it checks</dt><dd>Direct navigation to /en/find-tutors must load the tutor listing page.</dd><dt>Duration</dt><dd>2.41s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_find_tutors_page_shows_tutor_cards</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_find_tutors_page_shows_tutor_cards</dd><dt>What it checks</dt><dd>Find tutors page must display at least one tutor card.</dd><dt>Duration</dt><dd>3.27s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_arabic_locale_page_loads</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_arabic_locale_page_loads</dd><dt>What it checks</dt><dd>Navigating to /ar must load the Arabic locale without errors.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>1.35s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_footer_privacy_policy_link_works</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_footer_privacy_policy_link_works</dd><dt>What it checks</dt><dd>Footer Privacy Policy link must navigate to the policy page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>1.25s</dd></dl></div></div></div></div>
+E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='a[href=&quot;/en/about-us&quot;] &gt;&gt; nth=0'&gt;.count</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_homepage_loads_correct_url</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_homepage_loads_correct_url</dd><dt>What it checks</dt><dd>Homepage must load at the Mehad /en URL without redirect loop.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>5.77s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_page_title_contains_mehad</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_page_title_contains_mehad</dd><dt>What it checks</dt><dd>Page title must mention Mehad (brand presence check).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>7.06s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_header_logo_visible</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_header_logo_visible</dd><dt>What it checks</dt><dd>Mehad logo/link must be visible in the header.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>9.55s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_header_login_button_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_header_login_button_present</dd><dt>What it checks</dt><dd>Log In button must be visible in the header (unauthenticated state).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>9.43s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_hero_headline_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_hero_headline_present</dd><dt>What it checks</dt><dd>Hero H1 headline must contain the main marketing copy.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>1.32s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_hero_platform_badge_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_hero_platform_badge_present</dd><dt>What it checks</dt><dd>Saudi Arabia's #1 platform badge or stats must be present.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.93s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_hero_stats_non_empty</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_hero_stats_non_empty</dd><dt>What it checks</dt><dd>Teacher count, student count, satisfaction stats must not be zero/empty.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.95s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_tutor_search_form_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_tutor_search_form_present</dd><dt>What it checks</dt><dd>Tutor search form with Find a Teacher button must be on homepage.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.23s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_find_teacher_navigates_to_find_tutors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_find_teacher_navigates_to_find_tutors</dd><dt>What it checks</dt><dd>Clicking Find a Teacher with no filters navigates to /en/find-tutors.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.05s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_search_subject_dropdown_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_search_subject_dropdown_present</dd><dt>What it checks</dt><dd>Subject dropdown with 'Select subject' placeholder must be in search form.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.19s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_study_subjects_section_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_study_subjects_section_present</dd><dt>What it checks</dt><dd>'Most Requested Subjects' / 'STUDY SUBJECTS' section must be visible.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>1.59s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_how_it_works_section_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_how_it_works_section_present</dd><dt>What it checks</dt><dd>'How It Works' / 'Three Steps to Success' section must be visible.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.65s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_top_teachers_section_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_top_teachers_section_present</dd><dt>What it checks</dt><dd>'Our Top Teachers' section with tutor cards must be visible.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.07s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_student_reviews_section_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_student_reviews_section_present</dd><dt>What it checks</dt><dd>Student testimonials/reviews section must exist.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.87s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_login_modal_opens_on_button_click</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_login_modal_opens_on_button_click</dd><dt>What it checks</dt><dd>Clicking Log In button must open the login modal/dialog.</dd><dt>Duration</dt><dd>2.97s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_has_welcome_back_title</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_has_welcome_back_title</dd><dt>What it checks</dt><dd>Login modal title must be 'Welcome back'.</dd><dt>Duration</dt><dd>2.86s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_has_sign_in_subtitle</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_has_sign_in_subtitle</dd><dt>What it checks</dt><dd>Login modal subtitle must mention 'Sign in to continue'.</dd><dt>Duration</dt><dd>3.16s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_has_whatsapp_number_label</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_has_whatsapp_number_label</dd><dt>What it checks</dt><dd>Login modal must have 'WhatsApp Number' label visible.</dd><dt>Duration</dt><dd>3.43s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_has_phone_input</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_has_phone_input</dd><dt>What it checks</dt><dd>Login modal must have a telephone input field.</dd><dt>Duration</dt><dd>3.14s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_country_code_default_is_966</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_country_code_default_is_966</dd><dt>What it checks</dt><dd>Country code selector must default to Saudi Arabia +966.</dd><dt>Duration</dt><dd>2.88s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_send_code_button_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_send_code_button_present</dd><dt>What it checks</dt><dd>Send Code button must be present in the login modal.</dd><dt>Duration</dt><dd>2.77s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_send_code_disabled_without_phone</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_send_code_disabled_without_phone</dd><dt>What it checks</dt><dd>Send Code button must be disabled when phone field is empty.</dd><dt>Duration</dt><dd>2.82s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_close_button_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_close_button_present</dd><dt>What it checks</dt><dd>Modal must have a Close button (X) to dismiss.</dd><dt>Duration</dt><dd>2.83s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_modal_closes_on_close_button_click</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_modal_closes_on_close_button_click</dd><dt>What it checks</dt><dd>Clicking Close button must dismiss the login modal.</dd><dt>Duration</dt><dd>4.05s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_country_code_dropdown_opens</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_country_code_dropdown_opens</dd><dt>What it checks</dt><dd>Clicking country code selector must open a dropdown with search.</dd><dt>Duration</dt><dd>3.86s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_country_search_filters_results</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_country_search_filters_results</dd><dt>What it checks</dt><dd>Typing in country search must filter the country list.</dd><dt>Test data</dt><dd>fill(&quot;Bangladesh&quot;)</dd><dt>Duration</dt><dd>4.12s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_country_bangladesh_selectable</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_country_bangladesh_selectable</dd><dt>What it checks</dt><dd>Bangladesh +880 must be selectable from the country dropdown.</dd><dt>Test data</dt><dd>fill(&quot;Bangladesh&quot;)</dd><dt>Duration</dt><dd>4.55s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_phone_field_accepts_numbers</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_phone_field_accepts_numbers</dd><dt>What it checks</dt><dd>Phone input must accept digit input.</dd><dt>Test data</dt><dd>fill(TEST_PHONE)</dd><dt>Duration</dt><dd>2.84s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_send_code_enabled_after_phone_entry</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_send_code_enabled_after_phone_entry</dd><dt>What it checks</dt><dd>Send Code button must become enabled after a valid phone is entered.</dd><dt>Test data</dt><dd>TEST_COUNTRY_CODE · TEST_PHONE</dd><dt>Duration</dt><dd>5.75s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_otp_input_appears_after_send_code</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_otp_input_appears_after_send_code</dd><dt>What it checks</dt><dd>After clicking Send Code, OTP input must appear/become enabled.</dd><dt>Test data</dt><dd>TEST_COUNTRY_CODE · TEST_PHONE</dd><dt>Duration</dt><dd>6.07s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_become_a_tutor_link_navigates</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_become_a_tutor_link_navigates</dd><dt>What it checks</dt><dd>Become a Tutor link must navigate to /en/become-tutor.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.00s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_language_toggle_ar_navigates</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_language_toggle_ar_navigates</dd><dt>What it checks</dt><dd>Clicking AR button must navigate to the Arabic locale.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.52s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_subject_badge_navigates_to_find_tutors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_subject_badge_navigates_to_find_tutors</dd><dt>What it checks</dt><dd>Clicking a subject badge (e.g. Math) must navigate to /en/find-tutors.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.44s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_find_tutors_page_loads</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_find_tutors_page_loads</dd><dt>What it checks</dt><dd>Direct navigation to /en/find-tutors must load the tutor listing page.</dd><dt>Duration</dt><dd>1.79s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_find_tutors_page_shows_tutor_cards</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_find_tutors_page_shows_tutor_cards</dd><dt>What it checks</dt><dd>Find tutors page must display at least one tutor card.</dd><dt>Duration</dt><dd>3.14s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_arabic_locale_page_loads</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_arabic_locale_page_loads</dd><dt>What it checks</dt><dd>Navigating to /ar must load the Arabic locale without errors.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>1.18s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa01_footer_privacy_policy_link_works</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa01_footer_privacy_policy_link_works</dd><dt>What it checks</dt><dd>Footer Privacy Policy link must navigate to the policy page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>1.17s</dd></dl></div></div></div></div>
   </div>
 </section>
 
 <!-- ── Bug tickets ── -->
-<section class="card" id="bugs"><div class="card-head"><h4>Bug Tickets</h4><span style="font-size:12px;color:var(--ink-3)">3 total</span></div><div class="card-body" style="padding:0">
+<section class="card" id="bugs"><div class="card-head"><h4>Bug Tickets</h4><span style="font-size:12px;color:var(--ink-3)">6 total</span></div><div class="card-body" style="padding:0">
 <section class="card">
-  <div class="card-head"><h4>Root-Cause Summary</h4><span style="font-size:12px;color:var(--ink-3)">2 clusters</span></div>
+  <div class="card-head"><h4>Root-Cause Summary</h4><span style="font-size:12px;color:var(--ink-3)">3 clusters</span></div>
   <div class="card-body">
-    <div class="cluster-headline">3 bug ticket(s) → <strong>2 unique root cause(s)</strong></div>
+    <div class="cluster-headline">6 bug ticket(s) → <strong>3 unique root cause(s)</strong></div>
     <div class="cluster-list">
 <div class="cluster-row">
   <div class="cluster-meta">
@@ -693,28 +723,284 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
     <span class="recurrence-badge">30x consecutive</span>
   </div>
   <div class="cluster-title">Auth: full login flow broken</div>
-  <div class="cluster-tickets"><a href="#QA-01 -001" class="cluster-bug-link">QA-01 -001</a></div>
+  <div class="cluster-tickets"><a href="#QA-01 -004" class="cluster-bug-link">QA-01 -004</a></div>
 </div>
 <div class="cluster-row">
   <div class="cluster-meta">
     <span class="badge MEDIUM">MEDIUM</span>
     <span class="badge P2">P2</span>
-    <span class="cluster-count">2x affected</span>
+    <span class="cluster-count">4x affected</span>
     <span class="recurrence-badge">30x consecutive</span>
   </div>
   <div class="cluster-title">Generic assertion failure</div>
-  <div class="cluster-tickets"><a href="#QA-01 -002" class="cluster-bug-link">QA-01 -002</a> <a href="#QA-01 -003" class="cluster-bug-link">QA-01 -003</a></div>
+  <div class="cluster-tickets"><a href="#QA-01 -001" class="cluster-bug-link">QA-01 -001</a> <a href="#QA-01 -003" class="cluster-bug-link">QA-01 -003</a> <a href="#QA-01 -005" class="cluster-bug-link">QA-01 -005</a> <a href="#QA-01 -006" class="cluster-bug-link">QA-01 -006</a></div>
+</div>
+<div class="cluster-row">
+  <div class="cluster-meta">
+    <span class="badge MEDIUM">MEDIUM</span>
+    <span class="badge P2">P2</span>
+    <span class="cluster-count">1x affected</span>
+    <span class="recurrence-badge">30x consecutive</span>
+  </div>
+  <div class="cluster-title">Accessibility: required attribute missing</div>
+  <div class="cluster-tickets"><a href="#QA-01 -002" class="cluster-bug-link">QA-01 -002</a></div>
 </div></div>
     <div class="cluster-help">
       Bugs sharing a root cause are grouped here. Click any ticket ID to jump to its full bug card.
     </div>
   </div>
 </section><div id="bug-list" style="padding:20px">
-<div class="bug-card" id="QA-01 -001" data-priority="P1">
+<div class="bug-card" id="QA-01 -001" data-priority="P2">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
         <span class="bug-id">QA-01 -001</span>
+        <span class="badge MEDIUM">MEDIUM</span>
+        <span class="badge P2">P2</span>
+        
+      </div>
+      <div class="bug-title">Failed: Test qa01 header navigation links present</div>
+      <div class="bug-meta">
+        <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
+        <span><code>test_qa01_header_navigation_links_present</code></span>
+        <span>2026-06-07 04:21:31</span>
+        <span>2.45s</span>
+        
+        
+      </div>
+    </div>
+  </div>
+  <div class="bug-body">
+    
+    
+<div class="info-block analysis" style="margin-bottom:16px">
+  <div class="ib-label">What this test was checking</div>
+  <div>Header must have Home, Become a Tutor, How It Works, About Us links — verified against https://dev.mehadedu.com/en.</div>
+</div>
+    
+<div class="info-block analysis" style="margin-bottom:16px">
+  <div class="ib-label">Test data used</div>
+  <div style="font-family:var(--mono);color:var(--accent);font-size:12px">BASE_URL</div>
+</div>
+    
+<div style="margin-bottom:16px">
+  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+              color:var(--ink-3);margin-bottom:8px">Steps to Reproduce</div>
+  <ol class="steps"><li>Open a browser and go to https://dev.mehadedu.com/en</li><li>Click the navigation link being tested</li><li>Observe the result: it does NOT match what the test expected (see Actual Behavior)</li></ol>
+</div>
+    
+<div class="two-col">
+  <div class="info-block expected">
+    <div class="ib-label">What should happen</div>
+    <div>Header must have Home, Become a Tutor, How It Works, About Us links.</div>
+  </div>
+  <div class="info-block actual">
+    <div class="ib-label">What actually happened</div>
+    <div>Nav link /en/how-mehad-works not found in header</div>
+  </div>
+</div>
+    
+<div class="shot-wrap">
+  <div class="shot-label">Proof of Concept — Screenshot</div>
+  <div class="no-shot">No screenshot captured (test may have failed before page loaded)</div>
+</div>
+    
+    
+<button class="err-toggle" onclick="toggleErr('err-1')">
+  <span>▶ Show error details</span>
+  <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
+</button>
+<div class="err-body" id="err-1">
+  <pre style="margin-top:8px"><strong style="color:var(--bad)">E   AssertionError: Nav link /en/how-mehad-works not found in header
+E   assert 0 &gt; 0
+E    +  where 0 = count()
+E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='a[href=&quot;/en/how-mehad-works&quot;] &gt;&gt; nth=0'&gt;.count</strong>
+
+tests/test_qa_comprehensive.py:221: in test_qa01_header_navigation_links_present
+    assert link.count() &gt; 0, f&quot;Nav link {href} not found in header&quot;
+E   AssertionError: Nav link /en/how-mehad-works not found in header
+E   assert 0 &gt; 0
+E    +  where 0 = count()
+E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='a[href=&quot;/en/how-mehad-works&quot;] &gt;&gt; nth=0'&gt;.count</pre>
+</div>
+    
+    <div style="margin-top:16px"></div>
+    <div class="env-strip">
+      <span><b>Browser:</b> Chromium</span>
+      <span><b>Viewport:</b> 1280x720</span>
+      <span><b>Env:</b> Staging</span>
+    </div>
+  </div>
+</div>
+<div class="bug-card" id="QA-01 -002" data-priority="P2">
+  <div class="bug-card-hdr">
+    <div>
+      <div class="left">
+        <span class="bug-id">QA-01 -002</span>
+        <span class="badge MEDIUM">MEDIUM</span>
+        <span class="badge P2">P2</span>
+        
+      </div>
+      <div class="bug-title">Failed: Test qa01 language toggle buttons present</div>
+      <div class="bug-meta">
+        <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
+        <span><code>test_qa01_language_toggle_buttons_present</code></span>
+        <span>2026-06-07 04:21:31</span>
+        <span>1.80s</span>
+        
+        
+      </div>
+    </div>
+  </div>
+  <div class="bug-body">
+    
+    
+<div class="info-block analysis" style="margin-bottom:16px">
+  <div class="ib-label">What this test was checking</div>
+  <div>Language toggle (EN/AR) buttons must be visible in header — verified against https://dev.mehadedu.com/en.</div>
+</div>
+    
+<div class="info-block analysis" style="margin-bottom:16px">
+  <div class="ib-label">Test data used</div>
+  <div style="font-family:var(--mono);color:var(--accent);font-size:12px">BASE_URL</div>
+</div>
+    
+<div style="margin-bottom:16px">
+  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+              color:var(--ink-3);margin-bottom:8px">Steps to Reproduce</div>
+  <ol class="steps"><li>Open a browser and go to https://dev.mehadedu.com/en</li><li>Observe the result: it does NOT match what the test expected (see Actual Behavior)</li></ol>
+</div>
+    
+<div class="two-col">
+  <div class="info-block expected">
+    <div class="ib-label">What should happen</div>
+    <div>Language toggle (EN/AR) buttons must be visible in header.</div>
+  </div>
+  <div class="info-block actual">
+    <div class="ib-label">What actually happened</div>
+    <div>English language button not found</div>
+  </div>
+</div>
+    
+<div class="shot-wrap">
+  <div class="shot-label">Proof of Concept — Screenshot</div>
+  <div class="no-shot">No screenshot captured (test may have failed before page loaded)</div>
+</div>
+    
+    
+<button class="err-toggle" onclick="toggleErr('err-2')">
+  <span>▶ Show error details</span>
+  <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
+</button>
+<div class="err-body" id="err-2">
+  <pre style="margin-top:8px"><strong style="color:var(--bad)">E   AssertionError: English language button not found
+E   assert 0 &gt; 0
+E    +  where 0 = count()
+E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='[aria-label=&quot;English&quot;] &gt;&gt; nth=0'&gt;.count</strong>
+
+tests/test_qa_comprehensive.py:229: in test_qa01_language_toggle_buttons_present
+    assert en_btn.count() &gt; 0, &quot;English language button not found&quot;
+E   AssertionError: English language button not found
+E   assert 0 &gt; 0
+E    +  where 0 = count()
+E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='[aria-label=&quot;English&quot;] &gt;&gt; nth=0'&gt;.count</pre>
+</div>
+    
+    <div style="margin-top:16px"></div>
+    <div class="env-strip">
+      <span><b>Browser:</b> Chromium</span>
+      <span><b>Viewport:</b> 1280x720</span>
+      <span><b>Env:</b> Staging</span>
+    </div>
+  </div>
+</div>
+<div class="bug-card" id="QA-01 -003" data-priority="P2">
+  <div class="bug-card-hdr">
+    <div>
+      <div class="left">
+        <span class="bug-id">QA-01 -003</span>
+        <span class="badge MEDIUM">MEDIUM</span>
+        <span class="badge P2">P2</span>
+        
+      </div>
+      <div class="bug-title">Failed: Test qa01 footer present with links</div>
+      <div class="bug-meta">
+        <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
+        <span><code>test_qa01_footer_present_with_links</code></span>
+        <span>2026-06-07 04:21:31</span>
+        <span>1.21s</span>
+        
+        
+      </div>
+    </div>
+  </div>
+  <div class="bug-body">
+    
+    
+<div class="info-block analysis" style="margin-bottom:16px">
+  <div class="ib-label">What this test was checking</div>
+  <div>Footer must contain Mehad logo, nav links, and copyright — verified against https://dev.mehadedu.com/en.</div>
+</div>
+    
+<div class="info-block analysis" style="margin-bottom:16px">
+  <div class="ib-label">Test data used</div>
+  <div style="font-family:var(--mono);color:var(--accent);font-size:12px">BASE_URL</div>
+</div>
+    
+<div style="margin-bottom:16px">
+  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+              color:var(--ink-3);margin-bottom:8px">Steps to Reproduce</div>
+  <ol class="steps"><li>Open a browser and go to https://dev.mehadedu.com/en</li><li>Observe the result: it does NOT match what the test expected (see Actual Behavior)</li></ol>
+</div>
+    
+<div class="two-col">
+  <div class="info-block expected">
+    <div class="ib-label">What should happen</div>
+    <div>Footer must contain Mehad logo, nav links, and copyright.</div>
+  </div>
+  <div class="info-block actual">
+    <div class="ib-label">What actually happened</div>
+    <div>Footer appears empty or incomplete</div>
+  </div>
+</div>
+    
+<div class="shot-wrap">
+  <div class="shot-label">Proof of Concept — Screenshot</div>
+  <div class="no-shot">No screenshot captured (test may have failed before page loaded)</div>
+</div>
+    
+    
+<button class="err-toggle" onclick="toggleErr('err-3')">
+  <span>▶ Show error details</span>
+  <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
+</button>
+<div class="err-body" id="err-3">
+  <pre style="margin-top:8px"><strong style="color:var(--bad)">E   AssertionError: Footer appears empty or incomplete
+E   assert ('privacy' in '' or 'terms' in '' or ('2026' in '' or 'mahad' in ''))
+E    +  where '' = &lt;built-in method lower of str object at 0x7f4ed8a225d0&gt;()
+E    +    where &lt;built-in method lower of str object at 0x7f4ed8a225d0&gt; = ''.lower</strong>
+
+tests/test_qa_comprehensive.py:332: in test_qa01_footer_present_with_links
+    assert &quot;privacy&quot; in footer_text or &quot;terms&quot; in footer_text or (
+E   AssertionError: Footer appears empty or incomplete
+E   assert ('privacy' in '' or 'terms' in '' or ('2026' in '' or 'mahad' in ''))
+E    +  where '' = &lt;built-in method lower of str object at 0x7f4ed8a225d0&gt;()
+E    +    where &lt;built-in method lower of str object at 0x7f4ed8a225d0&gt; = ''.lower</pre>
+</div>
+    
+    <div style="margin-top:16px"></div>
+    <div class="env-strip">
+      <span><b>Browser:</b> Chromium</span>
+      <span><b>Viewport:</b> 1280x720</span>
+      <span><b>Env:</b> Staging</span>
+    </div>
+  </div>
+</div>
+<div class="bug-card" id="QA-01 -004" data-priority="P1">
+  <div class="bug-card-hdr">
+    <div>
+      <div class="left">
+        <span class="bug-id">QA-01 -004</span>
         <span class="badge HIGH">HIGH</span>
         <span class="badge P1">P1</span>
         
@@ -723,8 +1009,8 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa01_full_login_flow_success</code></span>
-        <span>2026-06-06 13:56:16</span>
-        <span>9.88s</span>
+        <span>2026-06-07 04:21:31</span>
+        <span>9.99s</span>
         
         
       </div>
@@ -766,11 +1052,11 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-1')">
+<button class="err-toggle" onclick="toggleErr('err-4')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-1">
+<div class="err-body" id="err-4">
   <pre style="margin-top:8px"><strong style="color:var(--bad)">E   AssertionError: Login did not succeed — 'Automations Student' not found in page. Current URL: https://dev.mehadedu.com/en
 E   assert ('Automations Student' in &quot;Verification code sent successfully\nHome\nFind Tutors\nBecome a Tutor\nHow It Works\nAbout Us\nAR\nEN\nLog In\nSaudi Arabia's #1 Education Platform\nLearn with the Best\nTeachers\nin Saudi Arabia\n\nOne-on-one online lessons for all subjects • Flexible scheduling • Certified teachers\n\n1,200\nCertified Teachers\n+ 50,000\nStudents H</strong>
 
@@ -788,11 +1074,11 @@ E   assert ('Automations Student' in &quot;Verification code sent successfully\n
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-01 -002" data-priority="P2">
+<div class="bug-card" id="QA-01 -005" data-priority="P2">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-01 -002</span>
+        <span class="bug-id">QA-01 -005</span>
         <span class="badge MEDIUM">MEDIUM</span>
         <span class="badge P2">P2</span>
         
@@ -801,8 +1087,8 @@ E   assert ('Automations Student' in &quot;Verification code sent successfully\n
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa01_how_it_works_link_navigates</code></span>
-        <span>2026-06-06 13:56:16</span>
-        <span>1.27s</span>
+        <span>2026-06-07 04:21:31</span>
+        <span>1.14s</span>
         
         
       </div>
@@ -844,11 +1130,11 @@ E   assert ('Automations Student' in &quot;Verification code sent successfully\n
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-2')">
+<button class="err-toggle" onclick="toggleErr('err-5')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-2">
+<div class="err-body" id="err-5">
   <pre style="margin-top:8px"><strong style="color:var(--bad)">E   AssertionError: How It Works link not found
 E   assert 0 &gt; 0
 E    +  where 0 = count()
@@ -870,11 +1156,11 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-01 -003" data-priority="P2">
+<div class="bug-card" id="QA-01 -006" data-priority="P2">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-01 -003</span>
+        <span class="bug-id">QA-01 -006</span>
         <span class="badge MEDIUM">MEDIUM</span>
         <span class="badge P2">P2</span>
         
@@ -883,7 +1169,7 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa01_about_us_link_navigates</code></span>
-        <span>2026-06-06 13:56:16</span>
+        <span>2026-06-07 04:21:31</span>
         <span>1.66s</span>
         
         
@@ -926,11 +1212,11 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-3')">
+<button class="err-toggle" onclick="toggleErr('err-6')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-3">
+<div class="err-body" id="err-6">
   <pre style="margin-top:8px"><strong style="color:var(--bad)">E   AssertionError: About Us link not found
 E   assert 0 &gt; 0
 E    +  where 0 = count()
@@ -970,10 +1256,10 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
       <svg class="ring" viewBox="0 0 44 44">
         <circle cx="22" cy="22" r="18" fill="none" stroke="var(--bg-3)" stroke-width="5"/>
         <circle cx="22" cy="22" r="18" fill="none" stroke="oklch(0.85 0.14 155)" stroke-width="5"
-          stroke-dasharray="113.1" stroke-dashoffset="7.92"
+          stroke-dasharray="113.1" stroke-dashoffset="15.83"
           stroke-linecap="round" transform="rotate(-90 22 22)"/>
         <text x="22" y="25" text-anchor="middle" font-size="8" font-weight="700"
-          fill="oklch(0.85 0.14 155)" font-family="'JetBrains Mono',monospace">93.0%</text>
+          fill="oklch(0.85 0.14 155)" font-family="'JetBrains Mono',monospace">86.0%</text>
       </svg>
     </div>
     <div class="mini-stats">
@@ -986,7 +1272,7 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
         <div class="ms-l">P1 bugs</div>
       </div>
       <div class="ms ok">
-        <div class="ms-v">2</div>
+        <div class="ms-v">5</div>
         <div class="ms-l">P2 bugs</div>
       </div>
       <div class="ms">
@@ -999,8 +1285,8 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
   <div class="card" style="margin-bottom:16px">
     <div class="card-head"><h4>Run Info</h4></div>
     <dl class="run-dl">
-      <dt>Run #</dt><dd>63</dd>
-      <dt>Date</dt><dd>2026-06-06 13:56:17</dd>
+      <dt>Run #</dt><dd>64</dd>
+      <dt>Date</dt><dd>2026-06-07 04:21:32</dd>
       <dt>Target URL</dt><dd style="word-break:break-all">https://dev.mehadedu.com/en</dd>
       <dt>AI Model</dt><dd>qwen2.5-coder:7b</dd>
       <dt>Browser</dt><dd>Chromium (headless)</dd>
@@ -1012,11 +1298,11 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
     <dl class="run-dl">
       <dt>Critical (P0)</dt><dd style="color:var(--bad)">0 · 24h SLA</dd>
       <dt>High (P1)</dt><dd style="color:var(--warn)">1 · 2–3 days</dd>
-      <dt>Medium (P2)</dt><dd style="color:var(--ok)">2 · current sprint</dd>
+      <dt>Medium (P2)</dt><dd style="color:var(--ok)">5 · current sprint</dd>
       <dt>Low (P3)</dt><dd style="color:var(--accent)">0 · backlog</dd>
       <dt>Severity: Critical</dt><dd style="color:var(--bad)">0</dd>
       <dt>Severity: High</dt><dd style="color:var(--warn)">1</dd>
-      <dt>Severity: Medium</dt><dd style="color:var(--accent)">2</dd>
+      <dt>Severity: Medium</dt><dd style="color:var(--accent)">5</dd>
       <dt>Severity: Low</dt><dd style="color:var(--ok)">0</dd>
     </dl>
   </div>
@@ -1049,12 +1335,12 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
     </div>
   </div>
   <div>
-    <div class="col-head">Run #63</div>
+    <div class="col-head">Run #64</div>
     <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
-      2026-06-06 13:56:17<br/>
+      2026-06-07 04:21:32<br/>
       43 tests<br/>
       1 specs<br/>
-      93.0% pass rate
+      86.0% pass rate
     </div>
   </div>
 </footer>
