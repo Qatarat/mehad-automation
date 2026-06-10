@@ -1030,40 +1030,98 @@ class TestQA03Security:
         "<svg onload=alert(1)>",
     ])
     def test_qa03_xss_in_phone_field(self, page: Page, payload: str):
-        """XSS payload in phone field must not execute scripts or crash app."""
+        """XSS payload in phone field must not execute scripts or crash app.
+
+        Multi-layer checks:
+        1. No JS dialog (alert/confirm/prompt) fires.
+        2. No pageerror fires.
+        3. window.__xss_phone_executed not set (covers onerror/onload handlers
+           that don't use alert()).
+        4. The raw <script> tag is not reflected unescaped in page HTML.
+        5. No 500 error in page title.
+        """
         js_alerts: list = []
         page.on("dialog",    lambda d: (js_alerts.append(d.message), d.dismiss()))
         page.on("pageerror", lambda exc: js_alerts.append(str(exc)))
 
+        # Seed a known-false sentinel so we can detect any write to window
+        page.evaluate("() => { window.__xss_phone_executed = false; }")
+
         _open_login_modal(page)
         phone_input = page.locator('input[type="tel"]').first
         phone_input.fill(payload)
-        page.wait_for_timeout(800)
+        # Trigger React onChange/onBlur so any live preview rendering fires
+        phone_input.press("Tab")
+        page.wait_for_timeout(1000)
 
+        # 1 + 2 — dialog / pageerror
         assert len(js_alerts) == 0, (
-            f"XSS payload triggered alert in phone field: {payload!r} → {js_alerts}")
+            f"XSS payload triggered alert/pageerror in phone field: "
+            f"{payload!r} → {js_alerts}")
+
+        # 3 — window sentinel (covers handlers that skip alert())
+        xss_fired = page.evaluate("() => window.__xss_phone_executed")
+        assert not xss_fired, (
+            f"XSS payload executed JS via window handler in phone field: {payload!r}")
+
+        # 4 — no raw unescaped <script in rendered HTML (excludes value= attributes,
+        #      those are harmless; we look for injected nodes outside input)
+        html = page.content()
+        # Strip the input value attribute region before checking for injected tags
+        html_no_input = re.sub(r'<input[^>]*>', '', html)
+        if "<script" in payload.lower() and "<script" in html_no_input.lower():
+            assert False, (
+                f"XSS payload reflected as unescaped <script> in page HTML: {payload!r}")
+
+        # 5 — no server crash
         assert "500" not in page.title(), (
             f"XSS payload crashed server via phone field: {payload!r}")
 
     @pytest.mark.parametrize("payload", _load_payload_lines("xss.txt") or [
         "<script>alert('xss')</script>",
         '"><img src=x onerror=alert(1)>',
+        "<img src=x onerror=\"window.__xss_country_executed=1\">",
+        "<svg onload=\"window.__xss_country_executed=1\">",
     ])
     def test_qa03_xss_in_country_search(self, page: Page, payload: str):
-        """XSS payload in country search field must not execute."""
+        """XSS payload in country search field must not execute.
+
+        Multi-layer checks:
+        1. No JS dialog fires.
+        2. No pageerror fires.
+        3. window.__xss_country_executed not set — covers onerror/onload
+           that render in the dropdown list via innerHTML instead of textContent.
+        4. Dropdown renders results as plain text (no injected script nodes).
+        """
         js_alerts: list = []
         page.on("dialog",    lambda d: (js_alerts.append(d.message), d.dismiss()))
         page.on("pageerror", lambda exc: js_alerts.append(str(exc)))
+
+        page.evaluate("() => { window.__xss_country_executed = false; }")
 
         _open_login_modal(page)
         cc_btn = page.locator('[aria-label="Country code"]').first
         cc_btn.click()
         page.wait_for_selector('[placeholder="Search..."]', state="visible", timeout=5000)
-        page.locator('[placeholder="Search..."]').fill(payload)
-        page.wait_for_timeout(800)
+        search_input = page.locator('[placeholder="Search..."]').first
+        search_input.fill(payload)
+        page.wait_for_timeout(1000)
 
+        # 1 + 2 — dialog / pageerror
         assert len(js_alerts) == 0, (
-            f"XSS in country search triggered alert: {payload!r} → {js_alerts}")
+            f"XSS in country search triggered alert/pageerror: {payload!r} → {js_alerts}")
+
+        # 3 — window sentinel
+        xss_fired = page.evaluate("() => window.__xss_country_executed")
+        assert not xss_fired, (
+            f"XSS payload executed via country search dropdown renderer: {payload!r}")
+
+        # 4 — no injected <script> nodes outside the input itself
+        html = page.content()
+        html_no_input = re.sub(r'<input[^>]*>', '', html)
+        if "<script" in payload.lower() and "<script" in html_no_input.lower():
+            assert False, (
+                f"XSS payload reflected as unescaped <script> in country search HTML: {payload!r}")
 
     def test_qa03_xss_not_reflected_in_page_html(self, page: Page):
         """XSS payload entered in phone field must not be reflected raw in HTML."""
@@ -1095,25 +1153,51 @@ class TestQA03Security:
         "\" OR \"1\"=\"1",
     ])
     def test_qa03_sqli_in_phone_field(self, page: Page, payload: str):
-        """SQL injection in phone field must not expose DB errors."""
+        """SQL injection in phone field must be blocked at every layer.
+
+        Checks (in priority order):
+        1. Frontend validation: Send Code button MUST remain disabled.
+           Phone field regex is ^[0-9+\\-\\s]{6,20}$ — SQL chars ('";=) are invalid.
+        2. If frontend validation missing (button enabled), click and verify
+           no DB error strings leak into the page.
+        3. No 500 server error.
+
+        Failing check 1 alone is a CRITICAL finding — the input layer is the
+        first line of defence against parameterised-query bypasses.
+        """
         _open_login_modal(page)
         phone_input = page.locator('input[type="tel"]').first
         phone_input.fill(payload)
-        page.wait_for_timeout(500)
+        # Trigger blur/validation so React applies field-level validation
+        phone_input.press("Tab")
+        page.wait_for_timeout(600)
 
-        # Try submitting if Send Code gets enabled
         btn = page.locator('button:has-text("Send Code")').first
-        if not btn.is_disabled():
+        is_disabled = (
+            btn.is_disabled()
+            or btn.get_attribute("aria-disabled") == "true"
+            or btn.get_attribute("disabled") is not None
+        )
+
+        if not is_disabled:
+            # Frontend validation absent — still probe for backend exposure
             btn.click()
             page.wait_for_timeout(2000)
 
         content = page.content().lower()
-        db_errors = ["sql syntax", "mysql", "postgresql", "sqlite", "ora-",
-                     "unclosed", "unterminated", "syntax error near"]
+        db_errors = [
+            "sql syntax", "mysql", "postgresql", "sqlite", "ora-",
+            "unclosed", "unterminated", "syntax error near",
+            "invalid query", "query failed", "database error",
+        ]
         found = [e for e in db_errors if e in content]
         assert not found, (
             f"SQL injection leaked DB error — hints: {found} | payload: {payload!r}")
-        assert "500" not in page.title(), f"SQLi caused 500 error: {payload!r}"
+        assert "500" not in page.title(), (
+            f"SQLi caused 500 error: {payload!r}")
+        assert is_disabled, (
+            f"CRITICAL: Send Code enabled for SQL payload — phone field lacks "
+            f"input validation (regex ^[0-9+\\-\\s]{{6,20}}$): {payload!r}")
 
     def test_qa03_no_sensitive_data_in_html(self, page: Page):
         """Homepage HTML must not expose API keys, passwords, or tokens."""
