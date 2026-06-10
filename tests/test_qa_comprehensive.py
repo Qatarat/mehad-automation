@@ -93,17 +93,26 @@ def _open_login_modal(page: Page):
     (mobile menu drawer) and a visible header button without aria-label. We must
     pick the *visible* one or wait_for(state="visible") will hang on the wrong node.
     """
-    page.goto(BASE_URL)
-    page.wait_for_load_state(LOAD_STATE)
-    # Extra wait for React SPA hydration on CI (staging server can be slow)
-    page.wait_for_timeout(1500)
-    btn = _find_visible_login_button(page)
+    # Use commit (not load) + 30 s to survive slow CI/staging — conftest sets
+    # 15 s default which is too short for the SPA on parametrized test runs.
+    page.goto(BASE_URL, wait_until="commit", timeout=30000)
+    page.wait_for_timeout(2000)
+    # Two Login buttons exist: mobile (class hb-login-mb, outside desktop viewport)
+    # and desktop header button. _find_visible_login_button can return the mobile one
+    # which throws "Element is outside of the viewport". Use .last which reliably
+    # resolves to the desktop button at 1280 px width.
+    btn = page.locator(
+        'button:not([aria-label="Login"]):has-text("Log In"), '
+        'button:not([aria-label]):has-text("Login"), '
+        'button[aria-label="تسجيل الدخول"]'
+    ).last
     btn.wait_for(state="visible", timeout=20000)
-    btn.click()
+    btn.scroll_into_view_if_needed()
+    btn.click(timeout=30000)
     # Modal may use role=dialog OR aria-modal=true OR a class-based modal
     page.wait_for_selector(
         '[role="dialog"], [aria-modal="true"], [class*="modal-content"]',
-        state="visible", timeout=12000
+        state="visible", timeout=15000
     )
 
 
