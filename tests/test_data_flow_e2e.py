@@ -154,6 +154,15 @@ def _otp_login(pg: Page, phone: str, otp: str, country: str = "+880") -> None:
         )
 
 
+def _wait_loaded(pg, selectors: str, timeout: int = 10000) -> None:
+    """Wait for at least one of the given CSS/text selectors to be visible.
+    Falls through silently — callers check counts after this."""
+    try:
+        pg.wait_for_selector(selectors, state="visible", timeout=timeout)
+    except Exception:
+        pass  # caller will see count=0 and handle appropriately
+
+
 def _base() -> str:
     return BASE_URL.rstrip("/").rsplit("/en", 1)[0].rsplit("/ar", 1)[0]
 
@@ -356,6 +365,7 @@ class TestDF01StudentPayment:
     def test_df01_transactions_have_required_fields(self, student_page: Page):
         student_page.goto(_url("/dashboard/wallet"), wait_until="commit", timeout=30000)
         student_page.wait_for_timeout(4000)
+        _wait_loaded(student_page, ':has-text("Recent Transactions"), :has-text("No transaction"), :has-text("No payment"), :has-text("Payments")')
 
         # Check page has either a "Recent Transactions" section header (real data)
         # or an explicit no-data indicator. Wallet uses generic divs, not table rows.
@@ -415,6 +425,7 @@ class TestDF02StudentBookings:
     def test_df02_tabs_present(self, student_page: Page):
         student_page.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=30000)
         student_page.wait_for_timeout(4000)
+        _wait_loaded(student_page, 'button:has-text("Upcoming"), button:has-text("Upcoming Sessions"), button:has-text("Session History")')
         up = student_page.locator(
             'button:has-text("Upcoming"), [data-tab="upcoming"], :has-text("Upcoming")'
         ).count()
@@ -700,6 +711,7 @@ class TestDF06TutorBookedSessions:
     def test_df06_all_sessions_heading(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/booked-sessions"), wait_until="commit", timeout=30000)
         tutor_page.wait_for_timeout(4000)
+        _wait_loaded(tutor_page, ':has-text("All Sessions"), button:has-text("Upcoming Sessions"), button:has-text("Session History")')
         assert "500" not in tutor_page.title()
         page_text = tutor_page.inner_text("body")
         has_heading = "All Sessions" in page_text
@@ -711,6 +723,7 @@ class TestDF06TutorBookedSessions:
     def test_df06_upcoming_and_history_tabs(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/booked-sessions"), wait_until="commit", timeout=30000)
         tutor_page.wait_for_timeout(4000)
+        _wait_loaded(tutor_page, 'button:has-text("Upcoming Sessions"), button:has-text("Session History")')
         up = tutor_page.locator('button:has-text("Upcoming Sessions")').count()
         hi = tutor_page.locator('button:has-text("Session History")').count()
         _record("DF-06", "Tabs: Upcoming Sessions + Session History",
@@ -858,6 +871,7 @@ class TestDF08TutorEarnings:
     def test_df08_three_balance_sections(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/earnings"), wait_until="commit", timeout=30000)
         tutor_page.wait_for_timeout(4000)
+        _wait_loaded(tutor_page, ':has-text("Available Balance"), :has-text("Pending"), :has-text("Total")')
         available = tutor_page.locator(
             ':has-text("Available Balance"), [data-testid="available-balance"]'
         ).count()
