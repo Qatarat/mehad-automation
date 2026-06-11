@@ -140,7 +140,23 @@ def _login(pg: Page, phone: str, otp: str) -> None:
     otp_in.fill(otp)
     pg.wait_for_timeout(600)
     dlg.locator('button:has-text("Continue")').first.click()
-    pg.wait_for_timeout(4000)
+    pg.wait_for_timeout(5000)
+    try:
+        pg.wait_for_selector('[role="dialog"]', state="hidden", timeout=8000)
+    except Exception:
+        pass
+
+    # Mehad stays at /en after login — check user avatar not Login button
+    pg.wait_for_timeout(1000)
+    has_account = (
+        pg.locator('[aria-label="Open account switcher"]').count() > 0
+        or pg.locator('button:has-text("student"), button:has-text("Student")').count() > 0
+        or pg.locator('button[class*="account"]').count() > 0
+    )
+    if not has_account:
+        raise RuntimeError(
+            f"Login failed — user avatar not visible. phone={phone} url={pg.url}"
+        )
 
 
 # ── Auth fixtures ─────────────────────────────────────────────────────────────

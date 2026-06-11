@@ -131,7 +131,27 @@ def _otp_login(pg: Page, phone: str, otp: str, country: str = "+880") -> None:
     otp_in.fill(otp)
     pg.wait_for_timeout(600)
     dlg.locator('button:has-text("Continue")').first.click()
-    pg.wait_for_timeout(4000)
+    # Wait for dialog to close — indicates login was processed
+    pg.wait_for_timeout(5000)
+    try:
+        pg.wait_for_selector('[role="dialog"]', state="hidden", timeout=8000)
+    except Exception:
+        pass  # dialog may already be gone
+
+    # Verify login: check for user avatar/account button.
+    # Mehad stays at /en after login (no redirect) but swaps Login → user avatar.
+    # Selectors: "Open account switcher" aria-label or any button with user initial.
+    pg.wait_for_timeout(1000)
+    has_account = (
+        pg.locator('[aria-label="Open account switcher"]').count() > 0
+        or pg.locator('button:has-text("student"), button:has-text("Student")').count() > 0
+        or pg.locator('button[class*="account"], button[class*="user-"]').count() > 0
+    )
+    if not has_account:
+        raise RuntimeError(
+            f"Login failed — user avatar not visible after OTP. "
+            f"phone={phone} url={pg.url}"
+        )
 
 
 def _base() -> str:
@@ -315,7 +335,7 @@ class TestDF01StudentPayment:
 
     def test_df01_wallet_page_loads(self, student_page: Page):
         student_page.goto(_url("/dashboard/wallet"), wait_until="commit", timeout=30000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
         assert "500" not in student_page.title()
         assert "404" not in student_page.title()
         _record("DF-01", "Page load", "Browser", "Student Wallet",
@@ -323,7 +343,7 @@ class TestDF01StudentPayment:
 
     def test_df01_wallet_no_mock_data(self, student_page: Page):
         student_page.goto(_url("/dashboard/wallet"), wait_until="commit", timeout=30000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
         body = student_page.inner_text("body").lower()
         mock_hits = [s for s in [
             "lorem ipsum", "sample tutor", "test tutor", "demo student",
@@ -335,7 +355,7 @@ class TestDF01StudentPayment:
 
     def test_df01_transactions_have_required_fields(self, student_page: Page):
         student_page.goto(_url("/dashboard/wallet"), wait_until="commit", timeout=30000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
 
         # Check page has either a "Recent Transactions" section header (real data)
         # or an explicit no-data indicator. Wallet uses generic divs, not table rows.
@@ -367,7 +387,7 @@ class TestDF01StudentPayment:
 
     def test_df01_no_zero_amount_on_paid_rows(self, student_page: Page):
         student_page.goto(_url("/dashboard/wallet"), wait_until="commit", timeout=30000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
         rows = student_page.locator('tbody tr, .transaction-item, [class*="transaction"]')
         for i in range(min(rows.count(), 10)):
             t = rows.nth(i).inner_text().lower()
@@ -387,14 +407,14 @@ class TestDF02StudentBookings:
 
     def test_df02_bookings_page_loads(self, student_page: Page):
         student_page.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=30000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
         assert "500" not in student_page.title()
         _record("DF-02", "Page load", "Browser", "Student My Bookings",
                 "PASS", student_page.url)
 
     def test_df02_tabs_present(self, student_page: Page):
         student_page.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=30000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
         up = student_page.locator(
             'button:has-text("Upcoming"), [data-tab="upcoming"], :has-text("Upcoming")'
         ).count()
@@ -411,7 +431,7 @@ class TestDF02StudentBookings:
 
     def test_df02_booking_cards_have_schedule_and_tutor(self, student_page: Page):
         student_page.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=30000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
         cards = student_page.locator(
             '[data-testid="booking-card"], .booking-card, .session-card, '
             '[class*="booking"], [class*="session-item"]'
@@ -435,7 +455,7 @@ class TestDF02StudentBookings:
 
     def test_df02_booking_id_format_is_real(self, student_page: Page):
         student_page.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=30000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
         ids = BID_RE.findall(student_page.content())
         if not ids:
             _record("DF-02", "Booking IDs", "Bookings DB", "My Bookings UI",
@@ -488,7 +508,7 @@ class TestDF03SessionRecordings:
 
     def test_df03_history_tab_loads(self, student_page: Page):
         student_page.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=30000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
         tab = student_page.locator(
             'button:has-text("Session History"), button:has-text("History")'
         ).first
@@ -503,7 +523,7 @@ class TestDF03SessionRecordings:
     def test_df03_recording_absent_in_upcoming(self, student_page: Page):
         """View Recording button must NOT appear in Upcoming tab."""
         student_page.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=30000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
         up_tab = student_page.locator(
             'button:has-text("Upcoming"), [data-tab="upcoming"]'
         ).first
@@ -523,7 +543,7 @@ class TestDF03SessionRecordings:
 
     def test_df03_completed_session_recording_has_valid_link(self, student_page: Page):
         student_page.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=30000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
         tab = student_page.locator(
             'button:has-text("Session History"), button:has-text("History")'
         ).first
@@ -552,7 +572,7 @@ class TestDF04AdminSessions:
 
     def test_df04_admin_sessions_page_accessible(self, tutor_page: Page):
         tutor_page.goto(_url("/admin/sessions"), wait_until="commit", timeout=25000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         if "/admin" not in tutor_page.url and "super-admin" not in tutor_page.url:
             _record("DF-04", "Admin access", "Auth", "Super Admin Sessions",
                     "SKIP", "Tutor account has no admin access — needs SUPER_ADMIN_EMAIL")
@@ -563,7 +583,7 @@ class TestDF04AdminSessions:
 
     def test_df04_sessions_table_required_columns(self, tutor_page: Page):
         tutor_page.goto(_url("/admin/sessions"), wait_until="commit", timeout=25000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         if "/admin" not in tutor_page.url:
             pytest.skip("No admin access")
         table = tutor_page.locator('table, [data-testid="sessions-table"]')
@@ -581,7 +601,7 @@ class TestDF04AdminSessions:
 
     def test_df04_no_mock_data(self, tutor_page: Page):
         tutor_page.goto(_url("/admin/sessions"), wait_until="commit", timeout=25000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         if "/admin" not in tutor_page.url:
             pytest.skip("No admin access")
         body = tutor_page.inner_text("body").lower()
@@ -593,7 +613,7 @@ class TestDF04AdminSessions:
 
     def test_df04_status_filter_functional(self, tutor_page: Page):
         tutor_page.goto(_url("/admin/sessions"), wait_until="commit", timeout=25000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         if "/admin" not in tutor_page.url:
             pytest.skip("No admin access")
         filt = tutor_page.locator(
@@ -618,14 +638,14 @@ class TestDF05TutorCalendar:
 
     def test_df05_calendar_page_loads(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/availability"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         assert "500" not in tutor_page.title()
         _record("DF-05", "Calendar page load", "Browser", "Tutor Calendar", "PASS",
                 tutor_page.url)
 
     def test_df05_calendar_widget_visible(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/availability"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         widget = tutor_page.locator(
             '.fc, .rbc-calendar, .calendar, [data-testid="calendar"], '
             '.fc-view-harness, [class*="calendar"]'
@@ -655,7 +675,7 @@ class TestDF05TutorCalendar:
 
     def test_df05_no_mock_data_in_calendar(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/availability"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         body = tutor_page.inner_text("body").lower()
         hits = [s for s in ["lorem ipsum", "sample", "placeholder"] if s in body]
         _record("DF-05", "Mock data check", "Availability DB", "Tutor Calendar UI",
@@ -672,14 +692,14 @@ class TestDF06TutorBookedSessions:
 
     def test_df06_booked_sessions_page_loads(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/booked-sessions"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         assert "500" not in tutor_page.title()
         _record("DF-06", "Page load", "Browser", "Tutor Booked Sessions", "PASS",
                 tutor_page.url)
 
     def test_df06_all_sessions_heading(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/booked-sessions"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         assert "500" not in tutor_page.title()
         page_text = tutor_page.inner_text("body")
         has_heading = "All Sessions" in page_text
@@ -690,7 +710,7 @@ class TestDF06TutorBookedSessions:
 
     def test_df06_upcoming_and_history_tabs(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/booked-sessions"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         up = tutor_page.locator('button:has-text("Upcoming Sessions")').count()
         hi = tutor_page.locator('button:has-text("Session History")').count()
         _record("DF-06", "Tabs: Upcoming Sessions + Session History",
@@ -702,7 +722,7 @@ class TestDF06TutorBookedSessions:
 
     def test_df06_search_input_present(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/booked-sessions"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         s = tutor_page.locator('input[placeholder="Search sessions..."]').count()
         _record("DF-06", "Search input", "UI", "Tutor Booked Sessions",
                 "PASS" if s > 0 else "FAIL")
@@ -710,7 +730,7 @@ class TestDF06TutorBookedSessions:
 
     def test_df06_empty_state_or_real_sessions(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/booked-sessions"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         empty = tutor_page.locator(
             ':has-text("No upcoming sessions"), :has-text("No sessions")'
         ).count()
@@ -725,7 +745,7 @@ class TestDF06TutorBookedSessions:
 
     def test_df06_history_tab_no_js_errors(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/booked-sessions"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         errors: list = []
         tutor_page.on("pageerror", lambda e: errors.append(str(e)))
         tab = tutor_page.locator('button:has-text("Session History")').first
@@ -749,7 +769,7 @@ class TestDF07CourseCreation:
         for path in ["/dashboard/group-sessions", "/dashboard/courses",
                      "/dashboard/sessions"]:
             tutor_page.goto(_url(path), wait_until="commit", timeout=20000)
-            tutor_page.wait_for_timeout(2500)
+            tutor_page.wait_for_timeout(4000)
             if "404" not in tutor_page.title() and "500" not in tutor_page.title():
                 _record("DF-07", f"Course listing at {path}", "Courses DB",
                         "Tutor Course Listing", "PASS")
@@ -761,7 +781,7 @@ class TestDF07CourseCreation:
     def test_df07_no_mock_data_in_courses(self, tutor_page: Page):
         for path in ["/dashboard/group-sessions", "/dashboard/courses"]:
             tutor_page.goto(_url(path), wait_until="commit", timeout=20000)
-            tutor_page.wait_for_timeout(2500)
+            tutor_page.wait_for_timeout(4000)
             if "404" not in tutor_page.title():
                 break
         else:
@@ -775,7 +795,7 @@ class TestDF07CourseCreation:
 
     def test_df07_courses_visible_in_student_find_tutors(self, student_page: Page):
         student_page.goto(_url(f"/tutor/{TUTOR_ID}"), wait_until="commit", timeout=25000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
         if "404" in student_page.title():
             _record("DF-07", f"Tutor {TUTOR_ID} profile", "Courses DB",
                     "Student Tutor Profile", "SKIP", "Profile 404")
@@ -794,7 +814,7 @@ class TestDF07CourseCreation:
         # Verify: (a) group sessions page loads with real heading, (b) availability page
         # has group session creation affordance.
         tutor_page.goto(_url("/dashboard/group-sessions"), wait_until="commit", timeout=25000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
 
         if "404" in tutor_page.title() or "500" in tutor_page.title():
             _record("DF-07", "Group sessions page", "Courses DB",
@@ -808,7 +828,7 @@ class TestDF07CourseCreation:
 
         # Check availability calendar has group session creation button
         tutor_page.goto(_url("/dashboard/availability"), wait_until="commit", timeout=25000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         cal_text = tutor_page.inner_text("body")
         has_group_btn = any(kw in cal_text.lower() for kw in ["group session", "group", "create"])
 
@@ -830,14 +850,14 @@ class TestDF08TutorEarnings:
 
     def test_df08_earnings_page_loads(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/earnings"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         assert "500" not in tutor_page.title()
         _record("DF-08", "Earnings page load", "Browser", "Tutor Earnings & Payouts",
                 "PASS", tutor_page.url)
 
     def test_df08_three_balance_sections(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/earnings"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         available = tutor_page.locator(
             ':has-text("Available Balance"), [data-testid="available-balance"]'
         ).count()
@@ -857,7 +877,7 @@ class TestDF08TutorEarnings:
 
     def test_df08_no_mock_data_in_earnings(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/earnings"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         body = tutor_page.inner_text("body").lower()
         hits = [s for s in ["lorem ipsum", "sample tutor", "placeholder"] if s in body]
         _record("DF-08", "Mock data check", "Earnings DB", "Tutor Earnings UI",
@@ -866,7 +886,7 @@ class TestDF08TutorEarnings:
 
     def test_df08_transaction_refs_use_real_booking_ids(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/earnings"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         ids = BID_RE.findall(tutor_page.content())
         if not ids:
             _record("DF-08", "Booking ID refs", "Earnings DB", "Tutor Earnings UI",
@@ -881,7 +901,7 @@ class TestDF08TutorEarnings:
 
     def test_df08_complete_payouts_section_exists(self, tutor_page: Page):
         tutor_page.goto(_url("/dashboard/earnings"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         payouts = tutor_page.locator(
             ':has-text("Complete Payouts"), :has-text("Payout"), '
             '[data-testid="complete-payouts"]'
@@ -902,11 +922,11 @@ class TestCCCrossModuleConsistency:
         self, student_page: Page, tutor_page: Page
     ):
         student_page.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=30000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
         student_ids = set(BID_RE.findall(student_page.content()))
 
         tutor_page.goto(_url("/dashboard/booked-sessions"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         tutor_ids = set(BID_RE.findall(tutor_page.content()))
 
         if not student_ids or not tutor_ids:
@@ -950,11 +970,11 @@ class TestCCCrossModuleConsistency:
     ):
         """1-to-1 / Group Session labels same across Student and Tutor dashboards."""
         student_page.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=30000)
-        student_page.wait_for_timeout(2500)
+        student_page.wait_for_timeout(4000)
         s_text = student_page.content().lower()
 
         tutor_page.goto(_url("/dashboard/booked-sessions"), wait_until="commit", timeout=30000)
-        tutor_page.wait_for_timeout(2500)
+        tutor_page.wait_for_timeout(4000)
         t_text = tutor_page.content().lower()
 
         for label in ["1-to-1", "group"]:
