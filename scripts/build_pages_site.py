@@ -1351,8 +1351,13 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
              if s.get("step", "").startswith(mid) or mid in s.get("module", "")),
             None
         )
-        icon = "✅" if (not step_match or step_match.get("status") == "PASS") else "❌"
-        bg   = "#f0fdf4" if icon == "✅" else "#fee2e2"
+        st = step_match.get("status") if step_match else None
+        if st == "PASS":
+            icon, bg = "✅", "#f0fdf4"
+        elif st in ("SKIP", "XFAIL") or st is None:
+            icon, bg = "⏭", "#fefce8"   # yellow = skipped/no data
+        else:
+            icon, bg = "❌", "#fee2e2"
         mod_rows += (
             f'<tr style="background:{bg}">'
             f'<td style="font-weight:700;font-size:13px">{icon} {mid}</td>'
