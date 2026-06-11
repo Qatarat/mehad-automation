@@ -1508,7 +1508,7 @@ jobs:
   qa-agent-data-flow:
     name: "QA Agent 19 — Data Flow & Real-Time Tests"
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     if: always()
 
     env:

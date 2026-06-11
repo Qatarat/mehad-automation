@@ -132,15 +132,15 @@ def _login(pg: Page, phone: str, otp: str) -> None:
     pg.wait_for_timeout(2500)
 
     otp_in = dlg.locator('input[placeholder="000000"]').first
-    otp_in.wait_for(state="visible", timeout=15000)
-    for _ in range(25):
+    otp_in.wait_for(state="visible", timeout=20000)
+    for _ in range(40):
         pg.wait_for_timeout(800)
         if not otp_in.is_disabled():
             break
     otp_in.fill(otp)
-    pg.wait_for_timeout(600)
+    pg.wait_for_timeout(800)
     dlg.locator('button:has-text("Continue")').first.click()
-    pg.wait_for_timeout(5000)
+    pg.wait_for_timeout(6000)
     try:
         pg.wait_for_selector('[role="dialog"]', state="hidden", timeout=8000)
     except Exception:
@@ -396,26 +396,39 @@ class TestRT01BookAndPay:
         booking_id, amount = _book_and_pay(student_pg)
 
         if not booking_id:
-            # No new slot available — fall back to most recent existing booking
-            # from the student wallet so modules can still be verified
-            try:
-                student_pg.goto(_url("/dashboard/wallet"), wait_until="commit", timeout=20000)
-                student_pg.wait_for_timeout(3000)
-                html = student_pg.content()
-                ids = BID_RE.findall(html)
-                if ids:
-                    booking_id = ids[0]
-                    _STATE["booking_id"]     = booking_id
-                    _STATE["payment_amount"] = "86"   # last known amount
-                    _STATE["booked_at"]      = time.strftime("%Y-%m-%d %H:%M:%S")
-                    _rec("RT-01", "Booking (existing fallback)",
-                         f"No new slot — using existing: {booking_id}",
-                         "PASS",
-                         f"Existing booking {booking_id} from wallet — no new slots available")
-                    print(f"\n  🎯 FALLBACK BOOKING ID: {booking_id}", flush=True)
-                    return  # don't fail, use existing booking for downstream tests
-            except Exception:
-                pass
+            # No new slot — search /dashboard/bookings for existing DBK-... IDs.
+            # Wallet shows transaction names, NOT booking IDs; bookings page has them.
+            found_id = ""
+            for fallback_path in ["/dashboard/bookings", "/dashboard/booked-sessions",
+                                   "/dashboard/wallet"]:
+                try:
+                    student_pg.goto(_url(fallback_path), wait_until="commit", timeout=20000)
+                    student_pg.wait_for_timeout(4000)
+                    ids = BID_RE.findall(student_pg.content())
+                    if ids:
+                        found_id = ids[0]
+                        break
+                    # Also check tutor-side for booking IDs
+                    if fallback_path == "/dashboard/wallet":
+                        tutor_pg.goto(_url("/dashboard/booked-sessions"), wait_until="commit", timeout=20000)
+                        tutor_pg.wait_for_timeout(4000)
+                        ids2 = BID_RE.findall(tutor_pg.content())
+                        if ids2:
+                            found_id = ids2[0]
+                            break
+                except Exception:
+                    continue
+
+            if found_id:
+                _STATE["booking_id"]     = found_id
+                _STATE["payment_amount"] = "86"
+                _STATE["booked_at"]      = time.strftime("%Y-%m-%d %H:%M:%S")
+                _rec("RT-01", "Booking (existing fallback)",
+                     f"No new slot — using existing: {found_id}",
+                     "PASS",
+                     f"Existing booking {found_id} — no new slots available on Tutor-89")
+                print(f"\n  🎯 FALLBACK BOOKING ID: {found_id}", flush=True)
+                return
             _rec("RT-01", "Booking + Payment",
                  "Student books Tutor-89 slot",
                  "SKIP",

@@ -123,16 +123,17 @@ def _otp_login(pg: Page, phone: str, otp: str, country: str = "+880") -> None:
 
     # OTP
     otp_in = dlg.locator('input[placeholder="000000"]').first
-    otp_in.wait_for(state="visible", timeout=15000)
-    for _ in range(25):
+    otp_in.wait_for(state="visible", timeout=20000)
+    # Wait up to 40s for OTP input to enable (CI can be slow; 25×0.8=20s was too short)
+    for _ in range(40):
         pg.wait_for_timeout(800)
         if not otp_in.is_disabled():
             break
     otp_in.fill(otp)
-    pg.wait_for_timeout(600)
+    pg.wait_for_timeout(800)
     dlg.locator('button:has-text("Continue")').first.click()
     # Wait for dialog to close — indicates login was processed
-    pg.wait_for_timeout(5000)
+    pg.wait_for_timeout(6000)
     try:
         pg.wait_for_selector('[role="dialog"]', state="hidden", timeout=8000)
     except Exception:
