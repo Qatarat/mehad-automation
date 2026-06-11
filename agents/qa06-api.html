@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA — Run #72 · 2026-06-10 17:07:28</title>
+<title>Mehad QA — Run #73 · 2026-06-11 03:25:24</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
@@ -538,7 +538,7 @@ ol.steps li{margin-bottom:5px}
   <div class="crumbs">
     <a href="index.html">Mehad QA</a>
     <span class="sep">/</span>
-    <span class="current">Run #72</span>
+    <span class="current">Run #73</span>
   </div>
   <button class="btn primary" onclick="window.print()">Export PDF</button>
 </nav>
@@ -553,13 +553,13 @@ ol.steps li{margin-bottom:5px}
 <!-- ── Run header ── -->
 <section class="commit">
   <div class="badge-row">
-    <span class="pill run">Run #72</span>
+    <span class="pill run">Run #73</span>
     <span class="pill">dev.mehadedu.com/en</span>
     <span class="pill fail">Needs review</span>
   </div>
   <h1>90.9% — 1 test(s) need attention</h1>
   <div class="commit-meta">
-    <span><b>Date:</b> 2026-06-10 17:07:28</span>
+    <span><b>Date:</b> 2026-06-11 03:25:24</span>
     <span><b>Model:</b> qwen2.5-coder:7b</span>
     <span><b>Specs:</b> 1</span>
     <span><b>Tests:</b> 11</span>
@@ -648,7 +648,7 @@ ol.steps li{margin-bottom:5px}
     <input id="testSearch" type="text" placeholder="Search tests…"/>
   </div>
   <div id="tests-body">
-    <div class="group" data-spec="qa06_api"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa06_api</span><span class="count">10 pass · 1 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_json_responses_are_well_formed</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-10 17:07:26</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -001">QA-06 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Every application/json response on homepage load must parse and
+    <div class="group" data-spec="qa06_api"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa06_api</span><span class="count">10 pass · 1 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_json_responses_are_well_formed</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-11 03:25:23</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -001">QA-06 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Every application/json response on homepage load must parse and
 be a dict or list (not a stray string or null). Catches malformed
 JSON, accidental HTML error pages served with json content-type,
 and truncated responses — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Every application/json response on homepage load must parse and</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">ModuleNotFoundError: No module named 'jsonschema'</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:2114: in test_qa06_json_responses_are_well_formed
@@ -657,7 +657,7 @@ E   ModuleNotFoundError: No module named 'jsonschema'
 
 tests/test_qa_comprehensive.py:2114: in test_qa06_json_responses_are_well_formed
     from jsonschema import validate, ValidationError
-E   ModuleNotFoundError: No module named 'jsonschema'</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_all_requests_use_https</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_all_requests_use_https</dd><dt>What it checks</dt><dd>Every outbound request on the homepage must use HTTPS.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>10.84s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_homepage_returns_2xx</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_homepage_returns_2xx</dd><dt>What it checks</dt><dd>Homepage initial response must be 2xx.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>12.83s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_no_5xx_responses_during_load</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_no_5xx_responses_during_load</dd><dt>What it checks</dt><dd>No network response must be 5xx on full homepage load.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>12.08s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_content_type_header_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_content_type_header_present</dd><dt>What it checks</dt><dd>Homepage HTML response must include Content-Type header.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>8.42s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_no_sensitive_headers_exposed</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_no_sensitive_headers_exposed</dd><dt>What it checks</dt><dd>Response headers must not expose server technology details.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>9.28s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_api_calls_on_load_are_reasonable</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_api_calls_on_load_are_reasonable</dd><dt>What it checks</dt><dd>Homepage must not make an excessive number of API calls (&gt; 50) on load.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>7.62s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_find_tutors_api_returns_data</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_find_tutors_api_returns_data</dd><dt>What it checks</dt><dd>Find-tutors page must issue at least one API/data fetch request.</dd><dt>Duration</dt><dd>6.68s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_no_auth_tokens_in_url_params</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_no_auth_tokens_in_url_params</dd><dt>What it checks</dt><dd>Auth tokens must never appear in URL query parameters.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>6.08s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_csp_header_present_or_meta</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_csp_header_present_or_meta</dd><dt>What it checks</dt><dd>Content-Security-Policy should be set (header or meta tag).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>8.21s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_find_tutors_no_cors_error</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_find_tutors_no_cors_error</dd><dt>What it checks</dt><dd>Find-tutors page must not log CORS errors in the console.</dd><dt>Duration</dt><dd>8.51s</dd></dl></div></div></div></div>
+E   ModuleNotFoundError: No module named 'jsonschema'</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_all_requests_use_https</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_all_requests_use_https</dd><dt>What it checks</dt><dd>Every outbound request on the homepage must use HTTPS.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.86s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_homepage_returns_2xx</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_homepage_returns_2xx</dd><dt>What it checks</dt><dd>Homepage initial response must be 2xx.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.51s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_no_5xx_responses_during_load</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_no_5xx_responses_during_load</dd><dt>What it checks</dt><dd>No network response must be 5xx on full homepage load.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>11.17s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_content_type_header_present</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_content_type_header_present</dd><dt>What it checks</dt><dd>Homepage HTML response must include Content-Type header.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.48s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_no_sensitive_headers_exposed</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_no_sensitive_headers_exposed</dd><dt>What it checks</dt><dd>Response headers must not expose server technology details.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.01s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_api_calls_on_load_are_reasonable</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_api_calls_on_load_are_reasonable</dd><dt>What it checks</dt><dd>Homepage must not make an excessive number of API calls (&gt; 50) on load.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.02s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_find_tutors_api_returns_data</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_find_tutors_api_returns_data</dd><dt>What it checks</dt><dd>Find-tutors page must issue at least one API/data fetch request.</dd><dt>Duration</dt><dd>6.32s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_no_auth_tokens_in_url_params</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_no_auth_tokens_in_url_params</dd><dt>What it checks</dt><dd>Auth tokens must never appear in URL query parameters.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.69s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_csp_header_present_or_meta</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_csp_header_present_or_meta</dd><dt>What it checks</dt><dd>Content-Security-Policy should be set (header or meta tag).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.17s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_find_tutors_no_cors_error</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_find_tutors_no_cors_error</dd><dt>What it checks</dt><dd>Find-tutors page must not log CORS errors in the console.</dd><dt>Duration</dt><dd>4.37s</dd></dl></div></div></div></div>
   </div>
 </section>
 
@@ -696,7 +696,7 @@ E   ModuleNotFoundError: No module named 'jsonschema'</div></div></div></div><di
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_json_responses_are_well_formed</code></span>
-        <span>2026-06-10 17:07:26</span>
+        <span>2026-06-11 03:25:23</span>
         <span>0.00s</span>
         
         
@@ -811,8 +811,8 @@ E   ModuleNotFoundError: No module named 'jsonschema'</pre>
   <div class="card" style="margin-bottom:16px">
     <div class="card-head"><h4>Run Info</h4></div>
     <dl class="run-dl">
-      <dt>Run #</dt><dd>72</dd>
-      <dt>Date</dt><dd>2026-06-10 17:07:28</dd>
+      <dt>Run #</dt><dd>73</dd>
+      <dt>Date</dt><dd>2026-06-11 03:25:24</dd>
       <dt>Target URL</dt><dd style="word-break:break-all">https://dev.mehadedu.com/en</dd>
       <dt>AI Model</dt><dd>qwen2.5-coder:7b</dd>
       <dt>Browser</dt><dd>Chromium (headless)</dd>
@@ -861,9 +861,9 @@ E   ModuleNotFoundError: No module named 'jsonschema'</pre>
     </div>
   </div>
   <div>
-    <div class="col-head">Run #72</div>
+    <div class="col-head">Run #73</div>
     <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
-      2026-06-10 17:07:28<br/>
+      2026-06-11 03:25:24<br/>
       11 tests<br/>
       1 specs<br/>
       90.9% pass rate
