@@ -61,6 +61,8 @@ AGENT_REPORTS = [
     ("agent-qa20_fuzzing.html",         "qa20-fuzzing.html",         "QA-20 Property-Based Fuzz", "🎲"),
     ("agent-qa22_vision.html",          "qa22-vision.html",          "QA-22 Vision-LLM UI Review","👁️"),
     ("agent-login.html",                "ai-test-agent.html",        "AI Test Agent (auto-gen)",  "🛠️"),
+    ("data-flow-e2e.html",              "data-flow-e2e.html",        "DF-E2E Data Flow (8 modules)","📊"),
+    ("realtime-data-flow.html",         "realtime-data-flow.html",   "DF-RT Real-Time Booking",   "📡"),
 ]
 
 
@@ -1271,14 +1273,15 @@ def _inject_data_flow_banner(report_html: "Path") -> None:
     html = report_html.read_text(encoding="utf-8")
     if "data-flow.html" in html:
         return  # already injected
-    html = html.replace("<body", banner + "<body", 1)
-    if banner not in html:
-        # fallback: prepend before first <div or <nav
-        for tag in ("<div", "<nav", "<header"):
+    # Insert banner as first element INSIDE <body>
+    injected = re.sub(r'(<body[^>]*>)', r'\1' + banner.replace('\\', '\\\\'), html, count=1)
+    if "data-flow.html" not in injected:
+        # fallback: append banner before first <div / <nav
+        for tag in ("<div", "<nav", "<header", "<main"):
             if tag in html:
-                html = html.replace(tag, banner + tag, 1)
+                injected = html.replace(tag, banner + tag, 1)
                 break
-    report_html.write_text(html, encoding="utf-8")
+    report_html.write_text(injected, encoding="utf-8")
     print("  ✅ Data Flow banner injected into report.html")
 
 

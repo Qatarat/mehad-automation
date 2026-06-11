@@ -651,6 +651,8 @@ def build_consolidated_results(base_url: str) -> dict:
         "qa22_vision":           ("QA-22 Vision-LLM UI Review","QA22"),
         "qa21_spec_validation_a": ("QA-21 Spec Validation — A", "QA21A"),
         "qa21_spec_validation_b": ("QA-21 Spec Validation — B", "QA21B"),
+        "data_flow_e2e":        ("DF — Data Flow E2E (8 modules)", "DF-E2E"),
+        "realtime_flow":        ("DF — Real-Time Booking Flow",    "DF-RT"),
     }
 
     for file_stem, (group_name, prefix) in qa_groups.items():
