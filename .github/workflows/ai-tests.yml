@@ -1533,6 +1533,16 @@ jobs:
         run: |
           python3 -m py_compile tests/test_data_flow_e2e.py && echo "✅ test_data_flow_e2e.py"
           python3 -m py_compile tests/test_realtime_data_flow.py && echo "✅ test_realtime_data_flow.py"
+      - name: Setup Test Data (create slots + booking before tests)
+        continue-on-error: true
+        run: |
+          BASE_URL=${{ env.BASE_URL }} \
+          STUDENT_PHONE=${{ env.STUDENT_PHONE }} \
+          STUDENT_OTP=${{ env.STUDENT_OTP }} \
+          TEACHER_PHONE=${{ env.TEACHER_PHONE }} \
+          TEACHER_OTP=${{ env.TEACHER_OTP }} \
+          python3 tests/setup_test_data.py 2>&1 | tee reports/setup-test-data.txt
+          echo "=== Setup complete ===" && cat reports/setup-test-data.txt || true
       - name: Run Data Flow E2E Tests
         continue-on-error: true
         run: |
