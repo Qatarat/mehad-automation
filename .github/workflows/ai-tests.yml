@@ -1505,6 +1505,93 @@ jobs:
           retention-days: 30
           if-no-files-found: warn
 
+  qa-agent-data-flow:
+    name: "QA Agent 19 — Data Flow & Real-Time Tests"
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: always()
+
+    env:
+      BASE_URL:       ${{ github.event.inputs.base_url || 'https://dev.mehadedu.com/en' }}
+      STUDENT_PHONE:  "98765432"
+      STUDENT_OTP:    "123456"
+      TEACHER_PHONE:  "98976564"
+      TEACHER_OTP:    "123456"
+      TEST_COUNTRY:   "+880"
+
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.12", cache: "pip" }
+      - name: Install dependencies
+        run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
+      - name: Install Playwright Chromium
+        run: playwright install chromium --with-deps
+      - name: Prepare reports directory
+        run: mkdir -p reports reports/screenshots reports/evidence
+      - name: Syntax check
+        run: |
+          python3 -m py_compile tests/test_data_flow_e2e.py && echo "✅ test_data_flow_e2e.py"
+          python3 -m py_compile tests/test_realtime_data_flow.py && echo "✅ test_realtime_data_flow.py"
+      - name: Run Data Flow E2E Tests
+        continue-on-error: true
+        run: |
+          BASE_URL=${{ env.BASE_URL }} \
+          STUDENT_PHONE=${{ env.STUDENT_PHONE }} \
+          STUDENT_OTP=${{ env.STUDENT_OTP }} \
+          TEACHER_PHONE=${{ env.TEACHER_PHONE }} \
+          TEACHER_OTP=${{ env.TEACHER_OTP }} \
+          TEST_COUNTRY=${{ env.TEST_COUNTRY }} \
+          python3 -m pytest tests/test_data_flow_e2e.py \
+            --timeout=90 --timeout-method=thread \
+            --tb=short -v -p no:warnings \
+            --html=reports/data-flow-e2e.html --self-contained-html \
+            --json-report --json-report-file=reports/data_flow_e2e_results.json \
+            -p no:cacheprovider 2>&1 | tee reports/data-flow-e2e.txt
+      - name: Run Real-Time Data Flow Tests
+        continue-on-error: true
+        run: |
+          BASE_URL=${{ env.BASE_URL }} \
+          STUDENT_PHONE=${{ env.STUDENT_PHONE }} \
+          STUDENT_OTP=${{ env.STUDENT_OTP }} \
+          TEACHER_PHONE=${{ env.TEACHER_PHONE }} \
+          TEACHER_OTP=${{ env.TEACHER_OTP }} \
+          TEST_COUNTRY=${{ env.TEST_COUNTRY }} \
+          python3 -m pytest tests/test_realtime_data_flow.py \
+            --timeout=180 --timeout-method=thread \
+            --tb=short -v -p no:warnings \
+            --html=reports/realtime-data-flow.html --self-contained-html \
+            --json-report --json-report-file=reports/realtime_flow_results.json \
+            -p no:cacheprovider 2>&1 | tee reports/realtime-data-flow.txt
+      - name: Write Data Flow Summary
+        if: always()
+        run: |
+          echo "## QA Agent 19 — Data Flow & Real-Time Tests" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Suite | Report |" >> "$GITHUB_STEP_SUMMARY"
+          echo "|-------|--------|" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Data Flow E2E (8 modules) | data-flow-e2e.html |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| Real-Time Booking Flow | realtime-data-flow.html |" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          for f in reports/data-flow-e2e.txt reports/realtime-data-flow.txt; do
+            [ -f "$f" ] && tail -3 "$f" >> "$GITHUB_STEP_SUMMARY" || true
+          done
+          python3 -c "import json,os; f='reports/realtime_flow_report.json'; b=json.load(open(f)).get('booking',{}) if os.path.exists(f) else {}; [print('- **'+k+'**: '+str(b.get(v,'N/A'))) for k,v in [('Booking ID','booking_id'),('Amount SAR','payment_amount'),('Tutor','tutor_name'),('Booked At','booked_at')]] if b else print('No booking data yet')" >> "$GITHUB_STEP_SUMMARY" || true
+      - name: Upload Data Flow Reports
+        uses: actions/upload-artifact@v5
+        if: always()
+        with:
+          name: qa-agent-data-flow-reports-${{ github.run_number }}
+          path: |
+            reports/data-flow*
+            reports/realtime*
+            reports/data_flow*
+            reports/realtime_flow*
+            reports/screenshots/
+            reports/evidence/
+          retention-days: 30
+          if-no-files-found: warn
+
   # ─────────────────────────────────────────────────────────────────────────────
   # CONSOLIDATE — Merges ALL QA agent results into one master bug-report.html
   # Runs after every other job completes (pass or fail).
@@ -1535,6 +1622,7 @@ jobs:
       - qa-agent-17-fuzzing
       - qa-agent-18-vision-ui
       - qa-spec-validation
+      - qa-agent-data-flow
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
@@ -1659,6 +1747,12 @@ jobs:
         with:
           name: qa-agent-18-reports-${{ github.run_number }}
           path: reports/agent-18/
+      - name: Download QA Agent 19 artifacts (data flow)
+        uses: actions/download-artifact@v5
+        continue-on-error: true
+        with:
+          name: qa-agent-data-flow-reports-${{ github.run_number }}
+          path: reports/
       - name: Download Spec Validation artifacts (all 68 specs)
         uses: actions/download-artifact@v5
         continue-on-error: true
