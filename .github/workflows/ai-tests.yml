@@ -1653,6 +1653,8 @@ jobs:
             reports/realtime*
             reports/data_flow*
             reports/realtime_flow*
+            reports/setup_data_summary.json
+            reports/setup_booking_id.txt
             reports/screenshots/
             reports/evidence/
           retention-days: 30

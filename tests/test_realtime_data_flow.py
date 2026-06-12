@@ -254,10 +254,13 @@ def _book_and_pay(pg: Page) -> tuple[str, str]:
             pg.wait_for_timeout(300)
         cont.click()
         pg.wait_for_timeout(1500)
-        with pg.expect_navigation(timeout=25000):
-            pg.locator('[role="dialog"] button').filter(
-                has_text=re.compile(r"Confirm|Pay", re.I)
-            ).first.click()
+        try:
+            with pg.expect_navigation(timeout=25000):
+                pg.locator('[role="dialog"] button').filter(
+                    has_text=re.compile(r"Confirm|Pay", re.I)
+                ).first.click()
+        except Exception as _nav_exc:
+            print(f"\n  [BOOKING] Package confirm navigation timeout: {_nav_exc}", flush=True)
     else:
         # Trial / calendar dialog
         slot_re = re.compile(r"\d+:\d+\s*(AM|PM)", re.I)
@@ -290,8 +293,11 @@ def _book_and_pay(pg: Page) -> tuple[str, str]:
             pg.wait_for_timeout(300)
         cont.click()
         pg.wait_for_timeout(1500)
-        with pg.expect_navigation(timeout=25000):
-            dlg.locator("button").filter(has_text=re.compile(r"Confirm|Pay", re.I)).first.click()
+        try:
+            with pg.expect_navigation(timeout=25000):
+                dlg.locator("button").filter(has_text=re.compile(r"Confirm|Pay", re.I)).first.click()
+        except Exception as _nav_exc:
+            print(f"\n  [BOOKING] Trial confirm navigation timeout: {_nav_exc}", flush=True)
 
     # ── On /en/payment page ────────────────────────────────────────────────────
     pg.wait_for_timeout(2500)

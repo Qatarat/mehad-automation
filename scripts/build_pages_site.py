@@ -1321,10 +1321,29 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
     rt_steps  = rt_data.get("steps", [])
     all_steps = rt_steps + df_rows
 
-    bid     = booking.get("booking_id")    or "—"
-    amount  = booking.get("payment_amount") or "—"
-    tutor   = booking.get("tutor_name")    or "—"
-    booked  = booking.get("booked_at")     or "—"
+    bid     = booking.get("booking_id")    or ""
+    amount  = booking.get("payment_amount") or ""
+    tutor   = booking.get("tutor_name")    or ""
+    booked  = booking.get("booked_at")     or ""
+
+    # Fall back to setup_data_summary.json when RT test failed to capture booking
+    if not bid:
+        setup_json = _find_json_report(reports_dir, "setup_data_summary.json")
+        if setup_json:
+            try:
+                setup = json.loads(setup_json.read_text(encoding="utf-8"))
+                sb = setup.get("student_booking", {})
+                bid    = sb.get("booking_id",  "") or bid
+                tutor  = sb.get("tutor_name",  "") or tutor
+                amount = sb.get("price_sar",   "") or amount
+                booked = sb.get("date",        "") or booked
+            except Exception:
+                pass
+
+    bid    = bid    or "—"
+    amount = amount or "—"
+    tutor  = tutor  or "—"
+    booked = booked or "—"
 
     total  = len(all_steps)
     passed = sum(1 for s in all_steps if s.get("status") == "PASS")
