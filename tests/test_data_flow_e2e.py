@@ -80,15 +80,19 @@ def _record(
 # ── Auth helpers ──────────────────────────────────────────────────────────────
 
 def _otp_login(pg, phone: str, otp: str, country: str = "+880") -> None:
-    """Proven OTP login — exact copy of test_specs_all.py pattern confirmed in CI."""
+    """OTP login for CI. Uses .last to pick desktop button not hb-login-mb mobile.
+    force=True bypasses viewport check (desktop button confirmed in-viewport at 1280px)."""
     pg.goto(BASE_URL, wait_until="commit", timeout=25000)
     pg.wait_for_timeout(2000)
+    # hb-login-mb is the mobile button outside the 1280px viewport.
+    # .last picks the desktop header button; force=True skips viewport check.
     login_btn = pg.locator(
-        'button:not([aria-label]):has-text("Log In"), '
+        'button:not([aria-label="Login"]):has-text("Log In"), '
         'button:not([aria-label="Login"]):has-text("Login")'
-    ).first
+    ).last
     login_btn.wait_for(state='visible', timeout=10000)
-    login_btn.click()
+    login_btn.scroll_into_view_if_needed()
+    login_btn.click(force=True)
     pg.wait_for_selector('[role="dialog"]', state='visible', timeout=10000)
     pg.wait_for_timeout(1000)
     container = pg.locator('[role="dialog"]')

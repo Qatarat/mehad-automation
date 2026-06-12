@@ -38,11 +38,12 @@ def _otp_login(pg: Page, phone: str, otp: str) -> None:
     pg.goto(BASE_URL, wait_until="commit", timeout=25000)
     pg.wait_for_timeout(2000)
     login_btn = pg.locator(
-        'button:not([aria-label]):has-text("Log In"), '
+        'button:not([aria-label="Login"]):has-text("Log In"), '
         'button:not([aria-label="Login"]):has-text("Login")'
-    ).first
+    ).last
     login_btn.wait_for(state='visible', timeout=10000)
-    login_btn.click()
+    login_btn.scroll_into_view_if_needed()
+    login_btn.click(force=True)
     pg.wait_for_selector('[role="dialog"]', state='visible', timeout=10000)
     pg.wait_for_timeout(1000)
     container = pg.locator('[role="dialog"]')
