@@ -1285,20 +1285,32 @@ def _inject_data_flow_banner(report_html: "Path") -> None:
     print("  ✅ Data Flow banner injected into report.html")
 
 
+def _find_json_report(reports_dir: "Path", filename: str) -> "Path | None":
+    """Find a JSON report by trying direct path first, then recursive search.
+    Handles CI artifact download path duplication (reports/ → reports/reports/)."""
+    direct = reports_dir / filename
+    if direct.exists():
+        return direct
+    for hit in reports_dir.rglob(filename):
+        if hit.is_file():
+            return hit
+    return None
+
+
 def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
     """Generate gh-pages-site/data-flow.html from realtime + DF JSON reports."""
-    rt_json  = reports_dir / "realtime_flow_report.json"
-    df_json  = reports_dir / "data_flow_report.json"
+    rt_json  = _find_json_report(reports_dir, "realtime_flow_report.json")
+    df_json  = _find_json_report(reports_dir, "data_flow_report.json")
 
     rt_data: dict = {}
     df_rows: list = []
 
-    if rt_json.exists():
+    if rt_json:
         try:
             rt_data = json.loads(rt_json.read_text(encoding="utf-8"))
         except Exception:
             pass
-    if df_json.exists():
+    if df_json:
         try:
             raw = json.loads(df_json.read_text(encoding="utf-8"))
             df_rows = raw if isinstance(raw, list) else []
