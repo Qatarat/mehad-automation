@@ -58,8 +58,8 @@ def _load_payloads(fname: str, limit: int = 8) -> list[str]:
     return [l.strip() for l in p.read_text().splitlines()
             if l.strip() and not l.startswith("#")][:limit]
 
-XSS_PAYLOADS  = _load_payloads("xss.txt", 6)
-SQLI_PAYLOADS = _load_payloads("sqli.txt", 6)
+XSS_PAYLOADS  = _load_payloads("xss.txt", 10)
+SQLI_PAYLOADS = _load_payloads("sqli.txt", 10)
 SSTI_PAYLOADS = _load_payloads("ssti.txt", 4)
 OPEN_REDIRECT = _load_payloads("open_redirect.txt", 4)
 BAD_EMAILS    = _load_payloads("invalid_email.txt", 6)
@@ -932,7 +932,7 @@ def _class_for_spec(compiled: dict, spec_name: str) -> str:
             add(f"")
 
     # ── 4. Requirement tests — smart assertions ──────────────────────────────
-    for i_r, req in enumerate(reqs[:10]):
+    for i_r, req in enumerate(reqs[:20]):
         import re as _re
         req_short = _re.sub(r'["\']', '', req[:80])
         add(
@@ -972,12 +972,12 @@ def _class_for_spec(compiled: dict, spec_name: str) -> str:
     # ── 7. XSS security — all input fields ──────────────────────────────────
     input_sels = {k: v for k, v in sels.items()
                   if any(w in k.lower() for w in ("input","field","email","password","name","text","search"))}
-    for sel_name, sel_data in list(input_sels.items())[:4]:
+    for sel_name, sel_data in list(input_sels.items())[:8]:
         hint = _clean_hint(sel_data.get("hint", ""))
         if not hint:
             continue
         add(
-            f"    @pytest.mark.parametrize('xss_p', {_repr(XSS_PAYLOADS[:4] or ['<script>alert(1)</script>'])})",
+            f"    @pytest.mark.parametrize('xss_p', {_repr(XSS_PAYLOADS[:6] or ['<script>alert(1)</script>'])})",
             f"    @pytest.mark.security",
             f"    def test_xss_{_slug(sel_name)}_{idx():04d}(self, page: Page, xss_p: str):",
             f'        """XSS payload must not execute in {sel_name}."""',
@@ -998,12 +998,12 @@ def _class_for_spec(compiled: dict, spec_name: str) -> str:
     # ── 8. SQLi security — all input fields ─────────────────────────────────
     db_error_kws = ["sql syntax", "mysql_fetch", "pg_query", "sqlite_", "ORA-", "SQLSTATE", "syntax error"]
     _sqli_default = ["' OR '1'='1", "1; DROP TABLE users--", "' OR 1=1--", "admin'--"]
-    for sel_name, sel_data in list(input_sels.items())[:4]:
+    for sel_name, sel_data in list(input_sels.items())[:8]:
         hint = _clean_hint(sel_data.get("hint", ""))
         if not hint:
             continue
         add(
-            f"    @pytest.mark.parametrize('sqli_p', {_repr(SQLI_PAYLOADS[:4] or _sqli_default)})",
+            f"    @pytest.mark.parametrize('sqli_p', {_repr(SQLI_PAYLOADS[:6] or _sqli_default)})",
             f"    @pytest.mark.security",
             f"    def test_sqli_{_slug(sel_name)}_{idx():04d}(self, page: Page, sqli_p: str):",
             f'        """SQLi must not expose DB errors in {sel_name}."""',
@@ -1101,6 +1101,155 @@ def _class_for_spec(compiled: dict, spec_name: str) -> str:
         f"        page.goto(BASE_URL + {page_path!r}, wait_until='commit', timeout=30000)",
         f"        elapsed = time.time() - t0",
         f"        assert elapsed < {LOAD_LIMIT}, f'{page_name} took {{elapsed:.1f}}s (limit {LOAD_LIMIT}s)'",
+        f"",
+    )
+
+    # ── 12b. Mandatory: page title not empty ────────────────────────────────
+    add(
+        f"    @pytest.mark.smoke",
+        f"    def test_title_not_empty_{idx():04d}(self, page: Page):",
+        f'        """{page_name} page must have a non-empty, non-default title."""',
+        f"        page.goto(BASE_URL + {page_path!r}, wait_until='commit', timeout=30000)",
+        f"        page.wait_for_timeout(1200)",
+        f"        title = page.title()",
+        f"        assert title, f'{page_name}: page title is empty'",
+        f"        assert '404' not in title, f'{page_name}: title says 404: {{title}}'",
+        f"        assert '500' not in title, f'{page_name}: title says 500: {{title}}'",
+        f"",
+    )
+
+    # ── 12c. Mandatory: no 5xx on mobile viewport ────────────────────────────
+    add(
+        f"    @pytest.mark.responsive",
+        f"    def test_viewport_mobile_{idx():04d}(self, page: Page):",
+        f'        """Page must not return 5xx at 375px mobile viewport."""',
+        f"        page.set_viewport_size({{'width': 375, 'height': 667}})",
+        f"        page.goto(BASE_URL + {page_path!r}, wait_until='commit', timeout=30000)",
+        f"        page.wait_for_timeout(800)",
+        f"        title = page.title()",
+        f"        assert '500' not in title, f'{page_name} mobile viewport 500: {{title}}'",
+        f"        assert '502' not in title, f'{page_name} mobile viewport 502: {{title}}'",
+        f"        page.set_viewport_size({{'width': 1280, 'height': 720}})",
+        f"",
+    )
+
+    # ── 12d. Mandatory: no 5xx on tablet viewport ────────────────────────────
+    add(
+        f"    @pytest.mark.responsive",
+        f"    def test_viewport_tablet_{idx():04d}(self, page: Page):",
+        f'        """Page must not return 5xx at 768px tablet viewport."""',
+        f"        page.set_viewport_size({{'width': 768, 'height': 1024}})",
+        f"        page.goto(BASE_URL + {page_path!r}, wait_until='commit', timeout=30000)",
+        f"        page.wait_for_timeout(800)",
+        f"        title = page.title()",
+        f"        assert '500' not in title, f'{page_name} tablet viewport 500: {{title}}'",
+        f"        page.set_viewport_size({{'width': 1280, 'height': 720}})",
+        f"",
+    )
+
+    # ── 12e. Mandatory: no uncaught JS errors ────────────────────────────────
+    add(
+        f"    @pytest.mark.smoke",
+        f"    def test_no_uncaught_js_error_{idx():04d}(self, page: Page):",
+        f'        """Page must not produce uncaught JavaScript exceptions."""',
+        f"        errors: list = []",
+        f"        page.on('pageerror', lambda e: errors.append(str(e)))",
+        f"        page.goto(BASE_URL + {page_path!r}, wait_until='commit', timeout=30000)",
+        f"        page.wait_for_timeout(1500)",
+        f"        critical = [e for e in errors if not any(k in e.lower() for k in",
+        f"                    ('script error', 'cross-origin', 'cancelled', 'network'))]",
+        f"        assert not critical, f'{page_name} uncaught JS errors: {{critical[:3]}}'",
+        f"",
+    )
+
+    # ── 12f. Mandatory: unique canonical URL check ───────────────────────────
+    add(
+        f"    @pytest.mark.navigation",
+        f"    def test_url_no_redirect_loop_{idx():04d}(self, page: Page):",
+        f'        """Page navigation must settle on a real URL (no redirect loop / blank)."""',
+        f"        page.goto(BASE_URL + {page_path!r}, wait_until='commit', timeout=30000)",
+        f"        page.wait_for_timeout(1000)",
+        f"        final_url = page.url",
+        f"        assert final_url, f'{page_name}: final URL is empty after navigation'",
+        f"        assert 'about:blank' not in final_url, f'{page_name}: stuck on about:blank'",
+        f"",
+    )
+
+    # ── 12g. Mandatory: page body has content ────────────────────────────────
+    add(
+        f"    @pytest.mark.smoke",
+        f"    def test_body_content_not_empty_{idx():04d}(self, page: Page):",
+        f'        """{page_name} body must render visible text (not a blank/white page)."""',
+        f"        page.goto(BASE_URL + {page_path!r}, wait_until='commit', timeout=30000)",
+        f"        page.wait_for_timeout(1500)",
+        f"        body = (page.text_content('body') or '').strip()",
+        f"        assert len(body) > 50, f'{page_name}: body text too short ({{len(body)}} chars) — blank page?'",
+        f"",
+    )
+
+    # ── 12h. Mandatory: heading structure ────────────────────────────────────
+    add(
+        f"    @pytest.mark.smoke",
+        f"    def test_heading_exists_{idx():04d}(self, page: Page):",
+        f'        """{page_name} must have at least one heading element (h1/h2)."""',
+        f"        page.goto(BASE_URL + {page_path!r}, wait_until='commit', timeout=30000)",
+        f"        page.wait_for_timeout(1500)",
+        f"        h1 = page.locator('h1, h2, h3').count()",
+        f"        assert h1 > 0, f'{page_name}: no heading element found — page may not have loaded'",
+        f"",
+    )
+
+    # ── 12i. Mandatory: no inline JS errors in page source ───────────────────
+    add(
+        f"    @pytest.mark.security",
+        f"    def test_no_debug_info_exposed_{idx():04d}(self, page: Page):",
+        f'        """{page_name} must not expose debug/stack traces in page source."""',
+        f"        page.goto(BASE_URL + {page_path!r}, wait_until='commit', timeout=30000)",
+        f"        page.wait_for_timeout(1200)",
+        f"        html = page.content().lower()",
+        f"        leaks = [k for k in ['traceback (most recent', 'at line ', 'syntaxerror:', 'fatal error']",
+        f"                 if k in html]",
+        f"        assert not leaks, f'{page_name}: debug info in source: {{leaks}}'",
+        f"",
+    )
+
+    # ── 12j. Mandatory: large-viewport (1920px) no server error ──────────────
+    add(
+        f"    @pytest.mark.responsive",
+        f"    def test_viewport_large_{idx():04d}(self, page: Page):",
+        f'        """Page must not error at 1920px wide desktop viewport."""',
+        f"        page.set_viewport_size({{'width': 1920, 'height': 1080}})",
+        f"        page.goto(BASE_URL + {page_path!r}, wait_until='commit', timeout=30000)",
+        f"        page.wait_for_timeout(600)",
+        f"        assert '500' not in page.title(), f'{page_name} 1920px 500: {{page.title()}}'",
+        f"        page.set_viewport_size({{'width': 1280, 'height': 720}})",
+        f"",
+    )
+
+    # ── 12k. Mandatory: RTL (Arabic) locale page loads ───────────────────────
+    add(
+        f"    @pytest.mark.i18n",
+        f"    def test_arabic_url_not_500_{idx():04d}(self, page: Page):",
+        f'        """Arabic (/ar) version of this page must not return a server error."""',
+        f"        ar_url = BASE_URL.replace('/en', '/ar', 1) + {page_path!r}",
+        f"        page.goto(ar_url, wait_until='commit', timeout=30000)",
+        f"        page.wait_for_timeout(800)",
+        f"        title = page.title()",
+        f"        assert '500' not in title, f'{page_name} AR version 500: {{title}}'",
+        f"        assert '404' not in title or 'not found' in title.lower(), (",
+        f"            f'{page_name} AR version 404: {{title}}')",
+        f"",
+    )
+
+    # ── 12l. Mandatory: HTTPS enforced (no mixed content warning key) ─────────
+    add(
+        f"    @pytest.mark.security",
+        f"    def test_https_no_mixed_content_{idx():04d}(self, page: Page):",
+        f'        """Page URL must be served over HTTPS, not HTTP."""',
+        f"        page.goto(BASE_URL + {page_path!r}, wait_until='commit', timeout=30000)",
+        f"        page.wait_for_timeout(600)",
+        f"        assert page.url.startswith('https://') or page.url.startswith('http://localhost'), (",
+        f"            f'{page_name}: served over HTTP, not HTTPS: {{page.url}}')",
         f"",
     )
 
