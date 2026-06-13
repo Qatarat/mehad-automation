@@ -653,10 +653,20 @@ def book_slot_as_student(pg: Page) -> str:
     if existing:
         bid = existing[0]
         print(f"[SETUP]   Existing booking found: {bid}", flush=True)
+        # Capture tutor name from the booking card if possible
+        tutor_name_existing = ""
+        try:
+            tutor_name_existing = pg.locator('[class*="tutor"], [class*="teacher"]').first.inner_text(timeout=2000).strip().splitlines()[0]
+        except Exception:
+            pass
         _SUMMARY["student_booking"].update({
-            "booking_id": bid,
-            "status": "existing_booking",
+            "booking_id":  bid,
+            "tutor_name":  tutor_name_existing or f"Tutor {TUTOR_ID}",
+            "status":      "existing_booking",
         })
+        # Always write the file so RT test can use this ID
+        (_REPORTS / "setup_booking_id.txt").write_text(bid)
+        print(f"[SETUP]   ✓ setup_booking_id.txt written: {bid}", flush=True)
         return bid
 
     # Navigate to tutor profile
@@ -699,13 +709,20 @@ def book_slot_as_student(pg: Page) -> str:
     })
 
     # Click "Book Trial Lesson" (specific button from spec)
+    # Retry reload up to 3 times — slots may take a moment to appear after tutor creation
     book_btn = pg.locator(
         'button:has-text("Book Trial Lesson"), '
         'button:has-text("Book Trial"), '
         'button:has-text("Book")'
     ).first
-    if not book_btn.is_visible(timeout=10000):
-        err = f"No booking button on tutor {TUTOR_ID} profile — no available slots"
+    for _attempt in range(3):
+        if book_btn.is_visible(timeout=8000):
+            break
+        print(f"[SETUP]   Book button not visible (attempt {_attempt+1}/3) — reloading tutor profile", flush=True)
+        pg.reload(wait_until="commit", timeout=20000)
+        pg.wait_for_timeout(3000)
+    else:
+        err = f"No booking button on tutor {TUTOR_ID} profile — no available slots (3 attempts)"
         print(f"[SETUP]   ✗ {err}", flush=True)
         _SUMMARY["errors"].append(err)
         _SUMMARY["student_booking"]["status"] = "no_book_button"

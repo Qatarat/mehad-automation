@@ -1326,7 +1326,7 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
     tutor   = booking.get("tutor_name")    or ""
     booked  = booking.get("booked_at")     or ""
 
-    # Fall back to setup_data_summary.json when RT test failed to capture booking
+    # Fallback 1: setup_data_summary.json (setup_test_data.py output)
     if not bid:
         setup_json = _find_json_report(reports_dir, "setup_data_summary.json")
         if setup_json:
@@ -1337,6 +1337,36 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
                 tutor  = sb.get("tutor_name",  "") or tutor
                 amount = sb.get("price_sar",   "") or amount
                 booked = sb.get("date",        "") or booked
+            except Exception:
+                pass
+
+    # Fallback 2: setup_booking_id.txt plain-text file
+    if not bid:
+        txt_file = _find_json_report(reports_dir, "setup_booking_id.txt")
+        if txt_file:
+            try:
+                bid = txt_file.read_text(encoding="utf-8").strip() or bid
+            except Exception:
+                pass
+
+    # Fallback 3: scan ALL step data in all_steps for any booking_id field
+    if not bid:
+        for s in all_steps:
+            cand = s.get("booking_id") or s.get("bid") or ""
+            if cand and cand != "—":
+                bid = cand
+                break
+
+    # Fallback 4: last-resort regex scan across all downloaded JSON reports
+    if not bid:
+        import re as _re
+        _bid_re = _re.compile(r"[D]?BK-\d{8}-[A-Z0-9]{4,8}")
+        for _jf in sorted(reports_dir.rglob("*.json")):
+            try:
+                _hits = _bid_re.findall(_jf.read_text(encoding="utf-8", errors="ignore"))
+                if _hits:
+                    bid = _hits[0]
+                    break
             except Exception:
                 pass
 
