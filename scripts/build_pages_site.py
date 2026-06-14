@@ -61,6 +61,7 @@ AGENT_REPORTS = [
     ("agent-qa20_fuzzing.html",         "qa20-fuzzing.html",         "QA-20 Property-Based Fuzz", "🎲"),
     ("agent-qa22_vision.html",          "qa22-vision.html",          "QA-22 Vision-LLM UI Review","👁️"),
     ("agent-login.html",                "ai-test-agent.html",        "AI Test Agent (auto-gen)",  "🛠️"),
+    ("e2e-create-book-verify.html",     "e2e-create-book-verify.html","E2E Create+Book+Verify (8-point)","🔄"),
     ("data-flow-e2e.html",              "data-flow-e2e.html",        "DF-E2E Data Flow (8 modules)","📊"),
     ("realtime-data-flow.html",         "realtime-data-flow.html",   "DF-RT Real-Time Booking",   "📡"),
 ]
@@ -1317,7 +1318,8 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
         except Exception:
             pass
 
-    booking   = rt_data.get("booking", {})
+    booking      = rt_data.get("booking", {})
+    created_data = rt_data.get("created_data", {})
     rt_steps  = rt_data.get("steps", [])
     all_steps = rt_steps + df_rows
 
@@ -1325,6 +1327,38 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
     amount  = booking.get("payment_amount") or ""
     tutor   = booking.get("tutor_name")    or ""
     booked  = booking.get("booked_at")     or ""
+
+    # Created data (from Phase 1 of test_e2e_create_book_verify.py)
+    slot_data   = created_data.get("slot",   {})
+    course_data = created_data.get("course", {})
+    # Also try loading from setup_data_summary.json if not in realtime_flow_report
+    if not slot_data and not course_data:
+        setup_json2 = _find_json_report(reports_dir, "setup_data_summary.json")
+        if setup_json2:
+            try:
+                setup2 = json.loads(setup_json2.read_text(encoding="utf-8"))
+                avail = setup2.get("availability_slots", [])
+                if avail:
+                    s0 = avail[0]
+                    slot_data = {
+                        "date":       s0.get("date", ""),
+                        "day":        s0.get("day", ""),
+                        "start_time": s0.get("start_time", ""),
+                        "end_time":   s0.get("end_time", ""),
+                        "created":    s0.get("status") == "created",
+                    }
+                gs2 = setup2.get("group_session", {})
+                if gs2:
+                    course_data = {
+                        "name":       gs2.get("name", ""),
+                        "price_sar":  gs2.get("price_sar", ""),
+                        "date":       gs2.get("date", ""),
+                        "start_time": gs2.get("start_time", ""),
+                        "end_time":   gs2.get("end_time", ""),
+                        "created":    gs2.get("created", False),
+                    }
+            except Exception:
+                pass
 
     # Fallback 1: setup_data_summary.json (setup_test_data.py output)
     if not bid:
@@ -1453,6 +1487,54 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
                      "color:#94a3b8'>No data yet — run tests/test_data_flow_e2e.py and "
                      "tests/test_realtime_data_flow.py to populate this report.</td></tr>")
 
+    # ── "What automation created" section ────────────────────────────────────────
+    def _field(k: str, v: str) -> str:
+        return (f'<div class="field"><div class="k">{k}</div>'
+                f'<div class="v" style="font-size:14px">{v or "—"}</div></div>')
+
+    slot_ok   = slot_data.get("created", False)
+    course_ok = course_data.get("created", False)
+    slot_icon   = "✅" if slot_ok   else "⏳"
+    course_icon = "✅" if course_ok else "⏳"
+
+    slot_fields   = ""
+    course_fields = ""
+    if slot_data:
+        slot_fields = (
+            _field("Date",       slot_data.get("date", ""))
+            + _field("Day",      slot_data.get("day", ""))
+            + _field("Time",     f"{slot_data.get('start_time','')}–{slot_data.get('end_time','')}")
+            + _field("Status",   "Created ✅" if slot_ok else "Attempted ⏳")
+        )
+    if course_data:
+        course_fields = (
+            _field("Name",       course_data.get("name", ""))
+            + _field("Price",    f"{course_data.get('price_sar','')} SAR / student")
+            + _field("Date",     course_data.get("date", ""))
+            + _field("Time",     f"{course_data.get('start_time','')}–{course_data.get('end_time','')}")
+            + _field("Status",   "Created ✅" if course_ok else "Attempted ⏳")
+        )
+
+    if slot_data or course_data:
+        created_data_html = f"""
+<div class="booking-card" style="border-color:#16a34a;margin-top:16px">
+  <h3 style="color:#166534">📋 What Automation Created During This Run</h3>
+  <div style="display:flex;gap:32px;flex-wrap:wrap">
+    <div>
+      <div style="font-size:12px;font-weight:700;color:#4b5563;text-transform:uppercase;
+                  letter-spacing:.05em;margin-bottom:8px">{slot_icon} 1-to-1 Availability Slot</div>
+      {slot_fields or "<span style='color:#94a3b8;font-size:13px'>Not created this run</span>"}
+    </div>
+    <div style="border-left:1px solid #e2e8f0;padding-left:32px">
+      <div style="font-size:12px;font-weight:700;color:#4b5563;text-transform:uppercase;
+                  letter-spacing:.05em;margin-bottom:8px">{course_icon} Group Session / Course</div>
+      {course_fields or "<span style='color:#94a3b8;font-size:13px'>Not created this run</span>"}
+    </div>
+  </div>
+</div>"""
+    else:
+        created_data_html = ""
+
     flow_items = [
         ("Student books slot", "→", f"Booking ID: {bid}", "Immediate"),
         ("Student pays (MyFatoorah)", "→", f"Transaction: {amount} SAR", "On payment success"),
@@ -1531,6 +1613,7 @@ footer{{text-align:center;padding:24px;font-size:12px;color:#94a3b8;border-top:1
     The Booking ID, amount, and tutor name are all from the actual database.
   </div>
 </div>
+{created_data_html}
 <div class="card">
   <h3>📡 Real-Time Data Flow Map</h3>
   {flow_html}

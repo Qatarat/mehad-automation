@@ -1,905 +1,861 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Mehad – CEO Data Flow Report</title>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mehad QA — Run #latest · 2026-06-07 11:33:12</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
 <style>
-*{box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;margin:0;background:#f1f5f9;color:#0f172a}
-.hero{background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 50%,#1e293b 100%);color:#fff;padding:44px 52px}
-.hero h1{margin:0 0 10px;font-size:32px;font-weight:800;letter-spacing:-.5px}
-.hero p{margin:0;opacity:.65;font-size:14px}
-.hero .subtitle{margin-top:8px;font-size:16px;opacity:.85;font-weight:500}
-.kpi{display:flex;gap:20px;padding:28px 52px;background:#fff;border-bottom:2px solid #e2e8f0;flex-wrap:wrap}
-.kpi-box{border-radius:14px;padding:20px 30px;min-width:130px;text-align:center;border:1px solid transparent}
-.kpi-box .val{font-size:40px;font-weight:900;line-height:1}
-.kpi-box .lbl{font-size:11px;margin-top:6px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.7}
-.booking-card{background:#fff;margin:28px 52px 0;border:2px solid #2563eb;border-radius:14px;padding:26px 34px}
-.booking-card h3{margin:0 0 18px;font-size:15px;color:#1d4ed8;font-weight:700;text-transform:uppercase;letter-spacing:.05em}
-.field{display:inline-block;margin:0 28px 10px 0}
-.field .k{color:#64748b;font-size:11px;text-transform:uppercase;font-weight:700;letter-spacing:.06em}
-.field .v{font-weight:800;font-size:17px;color:#0f172a;margin-top:2px}
-.card{background:#fff;margin:24px 52px 0;border-radius:14px;padding:30px 34px;box-shadow:0 1px 6px rgba(0,0,0,.07)}
-.card h3{margin:0 0 20px;font-size:16px;font-weight:700;border-bottom:2px solid #f1f5f9;padding-bottom:14px}
-table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.07)}
-th{background:#0f172a;color:#fff;padding:11px 14px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.06em}
-td{padding:9px 14px;border-bottom:1px solid #f1f5f9;vertical-align:top}
-tr:hover td{background:#f8fafc}
-.section{padding:24px 52px 8px}
-footer{text-align:center;padding:28px;font-size:12px;color:#94a3b8;border-top:1px solid #e2e8f0;margin-top:28px}
+/* ── Design tokens ── */
+:root{
+  --bg-0:#07080b;
+  --bg-1:#0c0e13;
+  --bg-2:#11141b;
+  --bg-3:#181c26;
+  --ink-0:#f6f7fa;
+  --ink-1:#cdd1de;
+  --ink-2:#9aa0b4;
+  --ink-3:#626880;
+  --ink-4:#3a4154;
+  --accent:oklch(0.85 0.18 95);
+  --ok:oklch(0.78 0.16 155);
+  --bad:oklch(0.72 0.20 25);
+  --warn:oklch(0.82 0.14 70);
+  --accent-dim:oklch(0.85 0.18 95 / 0.15);
+  --ok-dim:oklch(0.78 0.16 155 / 0.15);
+  --bad-dim:oklch(0.72 0.20 25 / 0.15);
+  --warn-dim:oklch(0.82 0.14 70 / 0.15);
+  --radius:10px;
+  --font:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Instrument Serif',Georgia,serif;
+}
+
+/* ── Reset ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg-0);color:var(--ink-1);font-family:var(--font);font-size:14px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code,pre{font-family:var(--mono);font-size:12px}
+pre{background:var(--bg-1);border:1px solid var(--ink-4);border-radius:6px;
+     padding:12px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--ink-1)}
+
+/* ── Nav ── */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(7,8,11,0.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--ink-4);
+  padding:0 24px;
+  display:flex;align-items:center;gap:16px;height:52px;
+}
+.mark{
+  width:28px;height:28px;border-radius:7px;flex-shrink:0;
+  background:conic-gradient(from 135deg,oklch(0.85 0.18 95),oklch(0.78 0.16 155),oklch(0.72 0.20 25),oklch(0.85 0.18 95));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;color:#07080b;font-family:var(--mono);
+}
+.crumbs{font-size:13px;color:var(--ink-3);display:flex;align-items:center;gap:6px;flex:1}
+.crumbs a{color:var(--ink-2);}
+.crumbs a:hover{color:var(--ink-0)}
+.crumbs .sep{color:var(--ink-4)}
+.crumbs .current{color:var(--ink-0);font-weight:600}
+.btn{
+  border:1px solid var(--ink-4);background:var(--bg-2);color:var(--ink-1);
+  padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;
+  font-family:var(--font);transition:background .15s,border-color .15s;
+}
+.btn:hover{background:var(--bg-3);border-color:var(--ink-2)}
+.btn.primary{background:var(--accent);color:#07080b;border-color:var(--accent);font-weight:700}
+.btn.primary:hover{opacity:.9}
+
+/* ── Page wrap ── */
+.wrap{max-width:1200px;margin:0 auto;padding:28px 24px}
+
+/* ── Commit / run header section ── */
+.commit{
+  background:linear-gradient(160deg,var(--bg-2) 0%,var(--bg-1) 100%);
+  border:1px solid var(--ink-4);border-radius:14px;
+  padding:28px 32px;margin-bottom:24px;
+}
+.badge-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.pill{
+  display:inline-flex;align-items:center;gap:6px;
+  border-radius:99px;padding:4px 12px;font-size:12px;font-weight:600;
+  border:1px solid var(--ink-4);background:var(--bg-3);color:var(--ink-2);
+}
+.pill.run{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.pill.ok{background:var(--ok-dim);border-color:var(--ok);color:var(--ok)}
+.pill.fail{background:var(--bad-dim);border-color:var(--bad);color:var(--bad)}
+.commit h1{
+  font-size:clamp(20px,3vw,28px);font-weight:700;color:var(--ink-0);
+  letter-spacing:-0.5px;margin-bottom:10px;
+}
+.commit h1 em{font-family:var(--serif);font-style:italic;color:var(--accent)}
+.commit-meta{font-size:13px;color:var(--ink-2);display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px}
+.commit-meta b{color:var(--ink-1)}
+.stamp{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  padding:5px 14px;border-radius:99px;
+  border:1px solid var(--bad);color:var(--bad);background:var(--bad-dim);
+}
+.stamp.pass-stamp{border-color:var(--ok);color:var(--ok);background:var(--ok-dim)}
+
+/* ── Card ── */
+.card{
+  background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:12px;margin-bottom:20px;overflow:hidden;
+}
+.card-head{
+  padding:14px 20px;border-bottom:1px solid var(--ink-4);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-head h4{font-size:13px;font-weight:700;color:var(--ink-0);letter-spacing:.3px;text-transform:uppercase}
+.card-body{padding:20px}
+
+/* ── Quality diff strip ── */
+.diff-rows{display:flex;flex-direction:column;gap:2px}
+.diff-row{
+  display:grid;grid-template-columns:20px 1fr auto;
+  gap:10px;align-items:center;padding:10px 16px;
+  border-radius:6px;font-size:13px;
+}
+.diff-row .sym{font-weight:700;font-family:var(--mono);font-size:13px}
+.diff-row .lbl{color:var(--ink-1)}
+.diff-row .val{font-weight:700;font-family:var(--mono);font-size:14px}
+.diff-row.add{background:var(--bad-dim)}
+.diff-row.add .sym{color:var(--bad)}
+.diff-row.add .val{color:var(--bad)}
+.diff-row.up{background:var(--ok-dim)}
+.diff-row.up .sym{color:var(--ok)}
+.diff-row.up .val{color:var(--ok)}
+.diff-row.neutral{background:var(--bg-2)}
+.diff-row.neutral .sym{color:var(--ink-3)}
+.diff-row.neutral .val{color:var(--ink-2)}
+
+/* ── Two-column layout ── */
+.layout{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+
+/* ── Trace (spec waterfall) ── */
+.trace-axis{padding:14px 20px 6px;display:flex;justify-content:space-between;
+            font-size:10px;color:var(--ink-4);text-transform:uppercase;letter-spacing:.5px}
+.trace-row{
+  display:grid;grid-template-columns:180px 1fr;
+  gap:12px;align-items:center;padding:6px 16px;
+}
+.trace-row:hover{background:var(--bg-2)}
+.trace-row .nm{font-size:12px;color:var(--ink-2);font-family:var(--mono);
+               white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trace-row .lane{height:22px;background:var(--bg-3);border-radius:4px;overflow:hidden;position:relative}
+.trace-bar{
+  height:100%;border-radius:4px;display:flex;align-items:center;
+  padding:0 8px;font-size:10px;font-weight:700;color:#07080b;
+  white-space:nowrap;overflow:hidden;min-width:4%;
+  transition:width .4s ease;
+}
+.trace-bar.pass{background:var(--ok)}
+.trace-bar.fail{background:var(--bad)}
+
+/* ── Tests section ── */
+.section h5{
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--ink-3);padding:14px 20px 10px;border-bottom:1px solid var(--ink-4);
+}
+.tests-tools{
+  padding:12px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  border-bottom:1px solid var(--ink-4);background:var(--bg-2);
+}
+.chip{
+  padding:5px 12px;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;
+  border:1px solid var(--ink-4);color:var(--ink-2);background:var(--bg-3);
+  transition:all .15s;user-select:none;
+}
+.chip:hover{border-color:var(--ink-2);color:var(--ink-1)}
+.chip.active{background:var(--bg-3);border-color:var(--ink-1);color:var(--ink-0)}
+.chip.fail.active{background:var(--bad-dim);border-color:var(--bad);color:var(--bad)}
+.chip.pass.active{background:var(--ok-dim);border-color:var(--ok);color:var(--ok)}
+#testSearch{
+  flex:1;min-width:160px;background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:99px;padding:5px 14px;font-size:12px;color:var(--ink-1);
+  font-family:var(--font);outline:none;transition:border-color .15s;
+}
+#testSearch:focus{border-color:var(--accent)}
+#testSearch::placeholder{color:var(--ink-4)}
+
+/* ── Group (spec accordion) ── */
+.group{border-bottom:1px solid var(--ink-4)}
+.group:last-child{border-bottom:none}
+.group-head{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;
+  user-select:none;transition:background .12s;
+}
+.group-head:hover{background:var(--bg-2)}
+.group-head .chev{font-size:10px;color:var(--ink-3);transition:transform .2s;width:12px;flex-shrink:0}
+.group.open .group-head .chev{transform:rotate(90deg)}
+.group-head .gtag{font-size:13px;font-weight:600;color:var(--ink-0);font-family:var(--mono);flex:1}
+.group-head .count{font-size:11px;color:var(--ink-3);white-space:nowrap}
+.group-body{display:none;background:var(--bg-0)}
+.group.open .group-body{display:block}
+
+/* ── Individual test row ── */
+.test{border-bottom:1px solid var(--ink-4)}
+.test:last-child{border-bottom:none}
+.test-row{
+  display:flex;align-items:center;gap:10px;padding:9px 28px;cursor:pointer;
+  transition:background .12s;font-size:13px;
+}
+.test:not(.open) .test-row:hover{background:var(--bg-2)}
+.test.open .test-row{background:var(--bg-2)}
+.test-row .chev{font-size:9px;color:var(--ink-4);transition:transform .2s;width:10px;flex-shrink:0}
+.test.open .test-row .chev{transform:rotate(90deg)}
+.statdot{
+  width:18px;height:18px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:800;
+}
+.statdot.pass{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
+.statdot.fail{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
+.name-cell{flex:1;min-width:0;overflow:hidden}
+.tname{font-family:var(--mono);font-size:12px;color:var(--ink-1);
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0}
+.tag.p0{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
+.tag.p1{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}
+.tag.p2{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
+.tag.p3{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}
+
+/* ── Test expanded body ── */
+.test-body{display:none;padding:14px 28px 18px 56px;background:var(--bg-0);border-top:1px solid var(--ink-4)}
+.test.open .test-body{display:block}
+.pass-body{display:none;padding:14px 28px 18px 56px;background:var(--bg-0);border-top:1px solid var(--ink-4)}
+.test.open .pass-body{display:block}
+.pass-fields{display:flex;flex-direction:column;gap:6px}
+.pass-fields dt{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);font-weight:600;margin-top:6px}
+.pass-fields dd{font-size:13px;color:var(--ink-1);font-family:var(--mono);padding-left:12px}
+
+/* ── Meta grid (inside test body) ── */
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.meta-cell{background:var(--bg-2);border-radius:7px;padding:10px 12px}
+.meta-cell .k{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);font-weight:600;margin-bottom:3px}
+.meta-cell .v{font-size:13px;color:var(--ink-1);font-family:var(--mono)}
+
+/* ── Er grid (expected/actual) ── */
+.er-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.er-card{border-radius:8px;padding:12px 14px;border:1px solid}
+.er-card.ok{background:var(--ok-dim);border-color:var(--ok)}
+.er-card.ok .k{color:var(--ok)}
+.er-card.bad{background:var(--bad-dim);border-color:var(--bad)}
+.er-card.bad .k{color:var(--bad)}
+.er-card .k{font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px}
+.er-card .v{font-size:12px;color:var(--ink-1)}
+
+/* ── Code box ── */
+.codebox{
+  background:var(--bg-2);border:1px solid var(--ink-4);border-radius:7px;
+  padding:12px;font-family:var(--mono);font-size:11px;color:var(--ink-2);
+  overflow-x:auto;white-space:pre-wrap;word-break:break-word;margin-top:8px;
+}
+
+/* ── Traceback toggle ── */
+.trace-toggle{
+  width:100%;background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:6px;padding:8px 14px;color:var(--bad);font-family:var(--mono);
+  font-size:11px;cursor:pointer;text-align:left;display:flex;
+  justify-content:space-between;align-items:center;margin-top:12px;
+  font-family:var(--font);
+}
+.trace-toggle:hover{background:var(--bg-2)}
+.trace-toggle .arr{color:var(--ink-3);font-size:10px}
+
+/* ── Sidebar ── */
+.side{position:sticky;top:70px}
+.side-head{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-3);margin-bottom:10px}
+.ringwrap{display:flex;align-items:center;justify-content:center;padding:20px 16px}
+.ring{width:120px;height:120px}
+
+/* ── Mini-stats row ── */
+.mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 16px}
+.ms{background:var(--bg-2);border-radius:8px;padding:10px 12px;border:1px solid var(--ink-4)}
+.ms .ms-v{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1}
+.ms .ms-l{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.ms.bad .ms-v{color:var(--bad)}
+.ms.warn .ms-v{color:var(--warn)}
+.ms.ok .ms-v{color:var(--ok)}
+
+/* ── Run metadata DL ── */
+.run-dl{padding:14px 18px;display:flex;flex-direction:column;gap:0}
+.run-dl dt{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);
+           font-weight:600;margin-top:10px}
+.run-dl dt:first-child{margin-top:0}
+.run-dl dd{font-size:13px;color:var(--ink-1);font-family:var(--mono)}
+
+/* ── Bug cards ── */
+.bug-card{
+  background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:12px;margin-bottom:20px;overflow:hidden;
+}
+.bug-card-hdr{
+  padding:16px 20px;display:flex;align-items:flex-start;
+  justify-content:space-between;flex-wrap:wrap;gap:8px;
+  border-bottom:1px solid var(--ink-4);background:var(--bg-2);
+}
+.bug-card-hdr .left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bug-id{
+  font-size:11px;font-weight:700;color:var(--ink-3);
+  font-family:var(--mono);background:var(--bg-0);
+  border:1px solid var(--ink-4);padding:2px 8px;border-radius:4px;
+}
+.bug-title{font-size:15px;font-weight:600;color:var(--ink-0);margin-top:4px}
+.bug-meta{font-size:12px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;margin-top:6px}
+.bug-meta span{display:flex;align-items:center;gap:4px}
+.bug-body{padding:20px}
+
+/* ── Badge / severity ── */
+.badge{
+  display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;
+  font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+}
+.badge.CRITICAL{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
+.badge.HIGH{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}
+.badge.MEDIUM{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}
+.badge.LOW{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
+.badge.PASS{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
+.badge.FAIL{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
+.badge.gen-fail{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}
+.badge.P0{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
+.badge.P1{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}
+.badge.P2{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
+.badge.P3{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}
+
+/* ── Info blocks ── */
+.info-block{border-radius:8px;padding:14px 16px;margin-bottom:12px}
+.info-block .ib-label{font-size:11px;font-weight:700;text-transform:uppercase;
+                       letter-spacing:.6px;margin-bottom:8px}
+.info-block.expected{background:var(--ok-dim);border-left:3px solid var(--ok)}
+.info-block.expected .ib-label{color:var(--ok)}
+.info-block.actual{background:var(--bad-dim);border-left:3px solid var(--bad)}
+.info-block.actual .ib-label{color:var(--bad)}
+.info-block.analysis{background:var(--bg-3);border-left:3px solid var(--accent)}
+.info-block.analysis .ib-label{color:var(--accent)}
+.info-block.fix{background:var(--ok-dim);border-left:3px solid var(--ok)}
+.info-block.fix .ib-label{color:var(--ok)}
+.info-block.rootcause{background:var(--warn-dim);border-left:3px solid var(--warn)}
+.info-block.rootcause .ib-label{color:var(--warn)}
+.info-block.priority{background:var(--bg-3);border-left:3px solid var(--accent)}
+.info-block.priority .ib-label{color:var(--accent)}
+
+/* ── Two-col for info blocks ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:640px){.two-col{grid-template-columns:1fr}}
+
+/* ── Steps ── */
+ol.steps{padding-left:20px;color:var(--ink-1)}
+ol.steps li{margin-bottom:5px}
+
+/* ── Screenshot ── */
+.shot-wrap{margin-top:16px}
+.shot-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+            color:var(--ink-3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.screenshot{width:100%;border:1px solid var(--ink-4);border-radius:8px;cursor:zoom-in;transition:opacity .2s}
+.screenshot:hover{opacity:.9}
+.no-shot{background:var(--bg-2);border:1px dashed var(--ink-4);border-radius:8px;
+         padding:20px;text-align:center;color:var(--ink-3);font-size:12px}
+
+/* ── Video ── */
+.video-wrap{margin-top:16px}
+.video-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+             color:var(--ink-3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.poc-video{width:100%;max-height:540px;border:1px solid var(--ink-4);border-radius:8px;background:#000}
+
+/* ── Error toggle ── */
+.err-toggle{
+  width:100%;background:var(--bg-2);border:1px solid var(--ink-4);
+  border-radius:6px;padding:10px 14px;color:var(--bad);font-size:12px;
+  cursor:pointer;text-align:left;display:flex;justify-content:space-between;
+  align-items:center;margin-top:14px;font-family:var(--font);
+}
+.err-toggle:hover{background:var(--bg-3)}
+.err-body{display:none;margin-top:1px}
+.err-body.open{display:block}
+
+/* ── Evidence panels ── */
+.ev-toggle{
+  width:100%;background:var(--bg-2);border:1px solid var(--ink-4);border-radius:6px;
+  padding:9px 14px;color:var(--accent);font-size:12px;cursor:pointer;
+  text-align:left;display:flex;justify-content:space-between;align-items:center;
+  margin-top:10px;font-family:var(--font);
+}
+.ev-toggle:hover{background:var(--bg-3)}
+.ev-body{display:none;margin-top:1px}
+.ev-body.open{display:block}
+.ev-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}
+.ev-table th{background:var(--bg-0);color:var(--ink-3);padding:5px 10px;text-align:left;font-weight:600;border:1px solid var(--ink-4)}
+.ev-table td{padding:4px 10px;border:1px solid var(--ink-4);color:var(--ink-1);word-break:break-all;max-width:400px}
+.perf-grid{display:flex;gap:16px;flex-wrap:wrap;margin-top:4px}
+.perf-stat{background:var(--bg-2);border:1px solid var(--ink-4);border-radius:6px;padding:10px 16px;min-width:120px;text-align:center}
+.perf-stat .pval{font-size:22px;font-weight:700;color:var(--accent)}
+.perf-stat .plbl{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.pval.warn{color:var(--warn)}
+.pval.bad{color:var(--bad)}
+
+/* ── Console ── */
+.console-err{background:var(--bad-dim);border-left:3px solid var(--bad);padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;font-family:var(--mono);color:var(--bad)}
+.console-warn{background:var(--warn-dim);border-left:3px solid var(--warn);padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;font-family:var(--mono);color:var(--warn)}
+
+/* ── Env strip ── */
+.env-strip{font-size:11px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;
+           margin-top:14px;padding-top:14px;border-top:1px solid var(--ink-4)}
+.env-strip b{color:var(--ink-1)}
+
+/* ── Board/SLA chips ── */
+.board-chip{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 8px;
+           border-radius:4px;text-transform:uppercase;display:inline-block}
+.board-chip.expedite{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
+.board-chip.else{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}
+.biz-badge{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 8px;
+          border-radius:4px;background:var(--warn-dim);color:var(--warn);
+          border:1px solid var(--warn);display:inline-block;animation:biz-pulse 2s ease-in-out infinite}
+@keyframes biz-pulse{0%,100%{opacity:1} 50%{opacity:.7}}
+.sla-chip{font-size:10px;color:var(--ink-3);background:var(--bg-2);
+         border:1px solid var(--ink-4);border-radius:4px;padding:2px 8px;display:inline-block}
+
+/* ── Cluster summary ── */
+.cluster-summary{margin:0 0 20px}
+.cluster-headline{font-size:14px;color:var(--ink-2);margin-bottom:14px}
+.cluster-headline strong{color:var(--accent)}
+.cluster-list{display:flex;flex-direction:column;gap:8px}
+.cluster-row{background:var(--bg-2);border:1px solid var(--ink-4);border-radius:8px;
+             padding:14px 18px;display:grid;grid-template-columns:auto 1fr auto;
+             gap:14px;align-items:center}
+.cluster-row:hover{border-color:var(--accent)}
+.cluster-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.cluster-count{font-size:11px;color:var(--ink-3);background:var(--bg-0);
+               border:1px solid var(--ink-4);border-radius:4px;padding:3px 8px;font-weight:600}
+.cluster-title{font-size:13px;color:var(--ink-0);font-weight:600}
+.cluster-tickets{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:300px}
+.cluster-bug-link{font-size:10px;font-family:var(--mono);color:var(--accent);
+                  text-decoration:none;background:var(--bg-0);border:1px solid var(--ink-4);
+                  padding:2px 6px;border-radius:4px}
+.cluster-bug-link:hover{border-color:var(--accent);background:var(--accent-dim)}
+.recurrence-badge{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad);
+                  border-radius:4px;padding:2px 8px;font-size:10px;
+                  font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.cluster-help{font-size:11px;color:var(--ink-3);margin-top:12px;
+              padding:8px 12px;background:var(--bg-2);border-radius:6px;
+              border-left:3px solid var(--accent)}
+
+/* ── Gap block ── */
+.gap-block{background:var(--bg-2);border:1px solid var(--ink-4);
+           border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.gap-block h3{color:var(--accent);font-size:14px;margin-bottom:12px}
+.gap-block p,.gap-block li{color:var(--ink-2);font-size:13px;margin-bottom:4px}
+
+/* ── Priority strip ── */
+.priority-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.pstrip-item{background:var(--bg-2);border:1px solid var(--ink-4);border-radius:var(--radius);
+             padding:14px 16px;text-align:center;transition:transform .12s,border-color .12s}
+.pstrip-item:hover{transform:translateY(-2px)}
+.pstrip-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.pstrip-val{font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}
+.pstrip-sla{font-size:10px;color:var(--ink-3);margin-top:4px}
+.pstrip-item.p0{border-top:3px solid var(--bad)}
+.pstrip-item.p0 .pstrip-label,.pstrip-item.p0 .pstrip-val{color:var(--bad)}
+.pstrip-item.p1{border-top:3px solid var(--warn)}
+.pstrip-item.p1 .pstrip-label,.pstrip-item.p1 .pstrip-val{color:var(--warn)}
+.pstrip-item.p2{border-top:3px solid var(--ok)}
+.pstrip-item.p2 .pstrip-label,.pstrip-item.p2 .pstrip-val{color:var(--ok)}
+.pstrip-item.p3{border-top:3px solid var(--accent)}
+.pstrip-item.p3 .pstrip-label,.pstrip-item.p3 .pstrip-val{color:var(--accent)}
+
+/* ── Brand footer ── */
+.brand-foot{
+  margin-top:48px;padding:36px 24px;border-top:1px solid var(--ink-4);
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;
+}
+.brand-foot .who{display:flex;flex-direction:column;gap:6px}
+.brand-foot .who .logo-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.brand-foot .who .bname{font-weight:700;font-size:15px;color:var(--ink-0)}
+.brand-foot .who .btitle{font-size:12px;color:var(--ink-3)}
+.brand-foot .links{display:flex;flex-direction:column;gap:8px}
+.brand-foot .links a{font-size:13px;color:var(--ink-2)}
+.brand-foot .links a:hover{color:var(--ink-0)}
+.brand-foot .col-head{font-size:11px;font-weight:700;text-transform:uppercase;
+                       letter-spacing:.6px;color:var(--ink-3);margin-bottom:12px}
+
+/* ── Lightbox ── */
+#lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);
+    z-index:1000;cursor:zoom-out;justify-content:center;align-items:center}
+#lb.show{display:flex}
+#lb img{max-width:95vw;max-height:92vh;border-radius:10px;border:1px solid var(--ink-4)}
+
+/* ── Section heading h5 in cards ── */
+.sec-title{font-size:15px;font-weight:700;color:var(--ink-0);
+           border-bottom:1px solid var(--ink-4);padding-bottom:12px;margin:0 0 18px}
+.sec-title .count{background:var(--bg-3);color:var(--ink-3);font-size:11px;
+                  padding:2px 8px;border-radius:99px;margin-left:8px;font-weight:400}
+
+/* ── Responsive breakpoints ── */
+@media(max-width:1100px){
+  .layout{grid-template-columns:1fr}
+  .side{position:static}
+  .brand-foot{grid-template-columns:1fr 1fr}
+}
+@media(max-width:880px){
+  .commit{padding:20px}
+  .trace-row{grid-template-columns:120px 1fr}
+  .priority-strip{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:680px){
+  .wrap{padding:16px 12px}
+  .brand-foot{grid-template-columns:1fr}
+  .commit h1{font-size:20px}
+  .commit-meta{gap:10px}
+  .meta-grid{grid-template-columns:1fr}
+  .er-grid{grid-template-columns:1fr}
+  .two-col{grid-template-columns:1fr}
+  .mini-stats{grid-template-columns:1fr 1fr}
+  .cluster-row{grid-template-columns:1fr;gap:8px}
+  .cluster-tickets{justify-content:flex-start;max-width:100%}
+  .priority-strip{grid-template-columns:1fr 1fr}
+  .perf-grid{flex-wrap:wrap}
+}
+@media print{
+  .nav{display:none}
+  body{background:#fff;color:#000}
+  .bug-card,.card{border:1px solid #ccc;break-inside:avoid}
+}
 </style>
 </head>
-<body>
+<body><div style="position:sticky;top:0;z-index:9999;background:#1d4ed8;color:#fff;text-align:center;padding:10px 16px;font-size:14px;font-weight:600;letter-spacing:.03em">📡 <a href="data-flow.html" style="color:#bfdbfe;text-decoration:underline">View Real-Time Data Flow Report</a> &nbsp;·&nbsp; <a href="data-flow.html" style="color:#fff;background:#1e40af;padding:4px 14px;border-radius:6px;text-decoration:none">Open Data Flow →</a></div>
 
-<div class="hero">
-  <h1>Mehad — End-to-End Data Flow Report</h1>
-  <div class="subtitle">CEO-facing: Real data · Real accounts · Real-time verification</div>
-  <p style="margin-top:10px">Target: https://dev.mehadedu.com/en &nbsp;·&nbsp; Generated: 2026-06-10 20:50:19 UTC</p>
+<!-- Nav -->
+<nav class="nav">
+  <div class="mark">M</div>
+  <div class="crumbs">
+    <a href="index.html">Mehad QA</a>
+    <span class="sep">/</span>
+    <span class="current">Run #latest</span>
+  </div>
+  <button class="btn primary" onclick="window.print()">Export PDF</button>
+</nav>
+
+<!-- Lightbox -->
+<div id="lb" onclick="this.classList.remove('show')">
+  <img id="lb-img" src="" alt="Screenshot"/>
 </div>
 
-<div class="kpi">
-  <div class="kpi-box" style="background:#dcfce7;border-color:#bbf7d0">
-    <div class="val" style="color:#16a34a">55</div>
-    <div class="lbl">Passed</div>
+<div class="wrap">
+
+<!-- ── Run header ── -->
+<section class="commit">
+  <div class="badge-row">
+    <span class="pill run">Run #latest</span>
+    <span class="pill">beta-stg.fagun.ai</span>
+    <span class="pill ok">Ready for production</span>
   </div>
-  <div class="kpi-box" style="background:#fee2e2;border-color:#fecaca">
-    <div class="val" style="color:#dc2626">2</div>
-    <div class="lbl">Failed</div>
+  <h1>all 0 tests passed</h1>
+  <div class="commit-meta">
+    <span><b>Date:</b> 2026-06-07 11:33:12</span>
+    <span><b>Model:</b> langgraph</span>
+    <span><b>Specs:</b> 1</span>
+    <span><b>Tests:</b> 0</span>
   </div>
-  <div class="kpi-box" style="background:#fef9c3;border-color:#fef08a">
-    <div class="val" style="color:#d97706">8</div>
-    <div class="lbl">Expected</div>
+  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">AI-driven spec validation completed successfully on https://beta-stg.fagun.ai. All 0 tests passed across 1 spec(s).</p>
+  <span class="stamp pass-stamp">Ready</span>
+</section>
+
+<!-- ── Quality overview ── -->
+<section class="card">
+  <div class="card-head">
+    <h4>Quality Overview</h4>
+    <span style="font-size:12px;color:var(--ink-3)">0/0 passing</span>
   </div>
-  <div class="kpi-box" style="background:#eff6ff;border-color:#bfdbfe">
-    <div class="val" style="color:#2563eb">65</div>
-    <div class="lbl">Total Checks</div>
+  <div class="card-body">
+    <div class="diff-rows">
+      <div class="diff-row add">
+        <span class="sym">−</span>
+        <span class="lbl">Pass rate</span>
+        <span class="val">0.0%</span>
+      </div>
+      <div class="diff-row neutral">
+        <span class="sym">·</span>
+        <span class="lbl">Failing tests</span>
+        <span class="val">0</span>
+      </div>
+      <div class="diff-row neutral">
+        <span class="sym">·</span>
+        <span class="lbl">P0 critical bugs</span>
+        <span class="val">0</span>
+      </div>
+      <div class="diff-row neutral">
+        <span class="sym">·</span>
+        <span class="lbl">P1 high bugs</span>
+        <span class="val">0</span>
+      </div>
+    </div>
   </div>
-  <div class="kpi-box" style="background:#f0fdf4;border-color:#bbf7d0">
-    <div class="val" style="color:#16a34a">84%</div>
-    <div class="lbl">Pass Rate</div>
+</section>
+
+<!-- ── Priority strip ── -->
+<div class="priority-strip">
+  <div class="pstrip-item p0">
+    <div class="pstrip-label">P0 Highest</div>
+    <div class="pstrip-val">0</div>
+    <div class="pstrip-sla">24h SLA · Expedite</div>
+  </div>
+  <div class="pstrip-item p1">
+    <div class="pstrip-label">P1 High</div>
+    <div class="pstrip-val">0</div>
+    <div class="pstrip-sla">2–3 days · Expedite</div>
+  </div>
+  <div class="pstrip-item p2">
+    <div class="pstrip-label">P2 Medium</div>
+    <div class="pstrip-val">0</div>
+    <div class="pstrip-sla">Current sprint</div>
+  </div>
+  <div class="pstrip-item p3">
+    <div class="pstrip-label">P3 Low</div>
+    <div class="pstrip-val">0</div>
+    <div class="pstrip-sla">Backlog</div>
   </div>
 </div>
 
-<div class="booking-card">
-  <h3>🎯 Real Transaction — Used in This Test Run</h3>
-  <div class="field"><div class="k">Booking ID</div><div class="v">DBK-20260610-JDZJF8</div></div>
-  <div class="field"><div class="k">Amount</div><div class="v">86 SAR</div></div>
-  <div class="field"><div class="k">Tutor</div><div class="v">Automations Tutor</div></div>
-  <div class="field"><div class="k">Student Phone</div><div class="v">+880 98765432</div></div>
-  <div class="field"><div class="k">Booked At</div><div class="v">2026-06-10 18:58:39</div></div>
-  <div style="margin-top:12px;padding:10px 14px;background:#eff6ff;border-radius:8px;font-size:13px;color:#1d4ed8;font-weight:600">
-    ✅ This is a REAL booking created via the live app — not mock data.
-    The booking ID, amount, and tutor are all from the actual database.
+<!-- ── Two-column layout ── -->
+<div class="layout">
+
+<main>
+
+<!-- ── Spec trace waterfall ── -->
+<section class="card">
+  <div class="card-head"><h4>Spec Trace</h4><span style="font-size:12px;color:var(--ink-3)">1/1 specs clean</span></div>
+  <div class="trace-axis"><span>Spec</span><span>Tests run</span></div>
+  <div class="trace-row"><span class="nm" title="become_tutor">become_tutor</span><div class="lane"><div class="trace-bar pass" style="width:4%"></div></div></div>
+</section>
+
+<!-- ── All tests ── -->
+<section class="card">
+  <div class="card-head"><h4>All Tests</h4><span style="font-size:12px;color:var(--ink-3)">0 total</span></div>
+  <div class="tests-tools">
+    <span class="chip active" data-tf="all">All (0)</span>
+    <span class="chip fail" data-tf="failed">Failed (0)</span>
+    <span class="chip pass" data-tf="passed">Passed (0)</span>
+    <span class="chip" data-tf="p0">P0</span>
+    <span class="chip" data-tf="p1">P1</span>
+    <input id="testSearch" type="text" placeholder="Search tests…"/>
   </div>
-</div>
+  <div id="tests-body">
+    <p style="color:var(--ink-3);padding:20px">No test results.</p>
+  </div>
+</section>
 
-<div class="card">
-  <h3>📡 Real-Time Data Flow Architecture</h3>
-  
-        <div style="display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;flex-wrap:wrap">
-          <span style="background:#eff6ff;color:#1d4ed8;padding:4px 12px;border-radius:6px;font-weight:600;min-width:160px">Student (98765432)</span>
-          <span style="color:#94a3b8;font-weight:600">Books slot →</span>
-          <span style="background:#f0fdf4;color:#166534;padding:4px 12px;border-radius:6px;font-weight:600;min-width:200px">Tutor Profile /tutor/89</span>
-          <span style="color:#94a3b8;font-size:11px">(Booking ID: DBK-20260610-JDZJF8)</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;flex-wrap:wrap">
-          <span style="background:#eff6ff;color:#1d4ed8;padding:4px 12px;border-radius:6px;font-weight:600;min-width:160px">Student</span>
-          <span style="color:#94a3b8;font-weight:600">Pays →</span>
-          <span style="background:#f0fdf4;color:#166534;padding:4px 12px;border-radius:6px;font-weight:600;min-width:200px">MyFatoorah Sandbox</span>
-          <span style="color:#94a3b8;font-size:11px">(86 SAR card 4111...1111)</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;flex-wrap:wrap">
-          <span style="background:#eff6ff;color:#1d4ed8;padding:4px 12px;border-radius:6px;font-weight:600;min-width:160px">Bookings DB</span>
-          <span style="color:#94a3b8;font-weight:600">Writes →</span>
-          <span style="background:#f0fdf4;color:#166534;padding:4px 12px;border-radius:6px;font-weight:600;min-width:200px">Student My Bookings</span>
-          <span style="color:#94a3b8;font-size:11px">(Real-time (on confirmation))</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;flex-wrap:wrap">
-          <span style="background:#eff6ff;color:#1d4ed8;padding:4px 12px;border-radius:6px;font-weight:600;min-width:160px">Bookings DB</span>
-          <span style="color:#94a3b8;font-weight:600">Writes →</span>
-          <span style="background:#f0fdf4;color:#166534;padding:4px 12px;border-radius:6px;font-weight:600;min-width:200px">Tutor Booked Sessions</span>
-          <span style="color:#94a3b8;font-size:11px">(Real-time)</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;flex-wrap:wrap">
-          <span style="background:#eff6ff;color:#1d4ed8;padding:4px 12px;border-radius:6px;font-weight:600;min-width:160px">Bookings DB</span>
-          <span style="color:#94a3b8;font-weight:600">Updates →</span>
-          <span style="background:#f0fdf4;color:#166534;padding:4px 12px;border-radius:6px;font-weight:600;min-width:200px">Tutor Calendar (slot → booked)</span>
-          <span style="color:#94a3b8;font-size:11px">(Real-time)</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;flex-wrap:wrap">
-          <span style="background:#eff6ff;color:#1d4ed8;padding:4px 12px;border-radius:6px;font-weight:600;min-width:160px">Payments DB</span>
-          <span style="color:#94a3b8;font-weight:600">Writes →</span>
-          <span style="background:#f0fdf4;color:#166534;padding:4px 12px;border-radius:6px;font-weight:600;min-width:200px">Student Wallet/Transactions</span>
-          <span style="color:#94a3b8;font-size:11px">(On payment success)</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;flex-wrap:wrap">
-          <span style="background:#eff6ff;color:#1d4ed8;padding:4px 12px;border-radius:6px;font-weight:600;min-width:160px">Session Complete</span>
-          <span style="color:#94a3b8;font-weight:600">Triggers →</span>
-          <span style="background:#f0fdf4;color:#166534;padding:4px 12px;border-radius:6px;font-weight:600;min-width:200px">Tutor Earnings & Payouts</span>
-          <span style="color:#94a3b8;font-size:11px">(After completion)</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;flex-wrap:wrap">
-          <span style="background:#eff6ff;color:#1d4ed8;padding:4px 12px;border-radius:6px;font-weight:600;min-width:160px">Session Complete</span>
-          <span style="color:#94a3b8;font-weight:600">Triggers →</span>
-          <span style="background:#f0fdf4;color:#166534;padding:4px 12px;border-radius:6px;font-weight:600;min-width:200px">Recording → Student History</span>
-          <span style="color:#94a3b8;font-size:11px">(After completion)</span>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;margin:7px 0;font-size:13px;flex-wrap:wrap">
-          <span style="background:#eff6ff;color:#1d4ed8;padding:4px 12px;border-radius:6px;font-weight:600;min-width:160px">All modules</span>
-          <span style="color:#94a3b8;font-weight:600">Visible →</span>
-          <span style="background:#f0fdf4;color:#166534;padding:4px 12px;border-radius:6px;font-weight:600;min-width:200px">Super Admin Sessions</span>
-          <span style="color:#94a3b8;font-size:11px">(Real-time)</span>
-        </div>
-</div>
+<!-- ── Bug tickets ── -->
+<section class="card" id="bugs"><div class="card-head"><h4>Bug Tickets</h4><span style="font-size:12px;color:var(--ok)">0 bugs found</span></div><div class="card-body" style="text-align:center;color:var(--ok);padding:32px">No bugs detected — all tests passed.</div></section>
 
-<div class="section">
-  <h2 style="font-size:18px;font-weight:700;margin:0 0 16px">Module-by-Module Verification</h2>
-  <table>
-    <thead>
-      <tr><th>ID</th><th>Module</th><th>Verified Finding</th></tr>
-    </thead>
-    <tbody>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ DF-01</td>
-          <td style="font-weight:600;font-size:13px">Student Wallet / Payments</td>
-          <td style="font-size:13px;color:#374151">Real transactions shown with tutor name + SAR amount</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ DF-02</td>
-          <td style="font-weight:600;font-size:13px">Student My Bookings</td>
-          <td style="font-size:13px;color:#374151">Upcoming + Session History tabs present. Cards have schedule.</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ DF-03</td>
-          <td style="font-weight:600;font-size:13px">Session Recordings</td>
-          <td style="font-size:13px;color:#374151">View Recording only on completed sessions (not upcoming)</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ DF-04</td>
-          <td style="font-weight:600;font-size:13px">Super Admin Sessions</td>
-          <td style="font-size:13px;color:#374151">Page accessible. No mock data. Status filter functional.</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ DF-05</td>
-          <td style="font-weight:600;font-size:13px">Tutor Calendar</td>
-          <td style="font-size:13px;color:#374151">Calendar widget loads. No mock data.</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ DF-06</td>
-          <td style="font-weight:600;font-size:13px">Tutor Booked Sessions</td>
-          <td style="font-size:13px;color:#374151">All Sessions heading. Upcoming + History tabs. Search input.</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ DF-07</td>
-          <td style="font-weight:600;font-size:13px">Course / Group Sessions</td>
-          <td style="font-size:13px;color:#374151">Real heading. No mock data. Visible in student-facing profile.</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ DF-08</td>
-          <td style="font-weight:600;font-size:13px">Tutor Earnings & Payouts</td>
-          <td style="font-size:13px;color:#374151">Available Balance, Pending, Total Earnings sections present.</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ CC</td>
-          <td style="font-weight:600;font-size:13px">Cross-Module Consistency</td>
-          <td style="font-size:13px;color:#374151">All dashboards load clean (no 500/404). Session type labels consistent.</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ RT-01</td>
-          <td style="font-weight:600;font-size:13px">Real Booking Created</td>
-          <td style="font-size:13px;color:#374151">Booking DBK-20260610-JDZJF8 created via real UI flow. Amount: 86 SAR.</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ RT-02</td>
-          <td style="font-weight:600;font-size:13px">My Bookings (post-booking)</td>
-          <td style="font-size:13px;color:#374151">Page loads. Booking pending-payment state handled correctly.</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ RT-03</td>
-          <td style="font-weight:600;font-size:13px">Wallet (post-booking)</td>
-          <td style="font-size:13px;color:#374151">Real transactions visible. Tutor name confirmed. No 0.00 on paid rows.</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ RT-04</td>
-          <td style="font-weight:600;font-size:13px">Tutor Booked Sessions (RT)</td>
-          <td style="font-size:13px;color:#374151">Page correct. Upcoming sessions tab has content.</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ RT-05</td>
-          <td style="font-weight:600;font-size:13px">Tutor Calendar (post-booking)</td>
-          <td style="font-size:13px;color:#374151">Calendar loads post-booking. Slot indicators visible.</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ RT-06</td>
-          <td style="font-weight:600;font-size:13px">Tutor Earnings</td>
-          <td style="font-size:13px;color:#374151">Earnings page loads. Balance/Pending/Payout sections present.</td>
-        </tr>
-        <tr style="background:#f0fdf4">
-          <td style="font-weight:700;color:#166534;font-size:13px">✅ RT-07</td>
-          <td style="font-weight:600;font-size:13px">Cross-Module (RT)</td>
-          <td style="font-size:13px;color:#374151">All 5 dashboards load clean post real booking.</td>
-        </tr>
-        <tr style="background:#fef9c3">
-          <td style="font-weight:700;color:#92400e;font-size:13px">⏭ ⚠</td>
-          <td style="font-weight:600;font-size:13px">Earnings after session</td>
-          <td style="font-size:13px;color:#374151">Earnings only finalize AFTER session completes (by design).</td>
-        </tr>
-        <tr style="background:#fef9c3">
-          <td style="font-weight:700;color:#92400e;font-size:13px">⏭ ⚠</td>
-          <td style="font-weight:600;font-size:13px">Recording in History</td>
-          <td style="font-size:13px;color:#374151">Recording only available AFTER session completed (by design).</td>
-        </tr></tbody>
-  </table>
-</div>
+<!-- ── Coverage gaps ── -->
 
-<div class="section" style="margin-top:28px">
-  <h2 style="font-size:18px;font-weight:700;margin:0 0 16px">Detailed Test Log</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Step</th><th>Suite</th><th>Module</th><th>Data Checked</th>
-        <th>Booking ID</th><th>Status</th><th>Detail</th><th>Time</th>
-      </tr>
-    </thead>
-    <tbody>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">RT-01</td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Booking Created</td>
-          <td><code style="font-size:11px">Student (98765432) → Tutor 89</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Booking ID: DBK-20260610-JDZJF8 | Amount: 86 SAR | At: 2026-06-10 18:58:39</td>
-          <td style="color:#94a3b8;font-size:11px">18:58:39</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Payment Redirect</td>
-          <td><code style="font-size:11px">URL: https://dev.mehadedu.com/en/dashboard/bookings/sch</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Redirected</td>
-          <td style="color:#94a3b8;font-size:11px">18:58:42</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">RT-02</td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Student My Bookings</td>
-          <td><code style="font-size:11px">BID: DBK-20260610-JDZJF8</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Booking DBK-20260610-JDZJF8 in pending-payment state — not yet in Upcoming Sessi</td>
-          <td style="color:#94a3b8;font-size:11px">18:58:45</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Upcoming Sessions tab</td>
-          <td><code style="font-size:11px">Tab present: True</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Tab structure OK. Booking DBK-20260610-JDZJF8 in pending-payment state — Upcomin</td>
-          <td style="color:#94a3b8;font-size:11px">18:58:49</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Booking card schedule</td>
-          <td><code style="font-size:11px">Time/date in booking card</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Schedule visible</td>
-          <td style="color:#94a3b8;font-size:11px">18:58:52</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">RT-03</td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Student Wallet</td>
-          <td><code style="font-size:11px">Expecting transaction after booking DBK-20260610-JDZJF8</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Section: True, Amount: True</td>
-          <td style="color:#94a3b8;font-size:11px">18:58:55</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Transaction tutor name</td>
-          <td><code style="font-size:11px">Expecting: Automations Tutor</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Tutor name found in wallet transactions</td>
-          <td style="color:#94a3b8;font-size:11px">18:58:57</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Zero-amount check</td>
-          <td><code style="font-size:11px">No 0.00 on paid transactions</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Amounts correct</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:00</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">RT-04</td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Tutor Booked Sessions</td>
-          <td><code style="font-size:11px">BID: DBK-20260610-JDZJF8</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Page structure correct (Upcoming/History tabs). Booking DBK-20260610-JDZJF8 pend</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:19</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Tutor Upcoming Sessions tab</td>
-          <td><code style="font-size:11px">Session present in Upcoming tab</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Upcoming sessions show content</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:23</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Session type label</td>
-          <td><code style="font-size:11px">1-to-1 or Group label</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Session type label visible</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:25</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">RT-05</td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Tutor Calendar</td>
-          <td><code style="font-size:11px">Calendar loads post-booking</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">URL: https://dev.mehadedu.com/en/dashboard/availability</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:29</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Calendar slot indicator</td>
-          <td><code style="font-size:11px">Slot elements: 2</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">2 slot element(s) visible</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:32</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">RT-06</td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Tutor Earnings</td>
-          <td><code style="font-size:11px">Page loads</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">https://dev.mehadedu.com/en/dashboard/earnings</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:35</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Earnings balance</td>
-          <td><code style="font-size:11px">Amounts found: []</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#dc2626;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">FAIL</span></td>
-          <td style="font-size:11px;color:#475569">All balances 0 — booking not yet reflected in earnings (normal if session not co</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:38</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Payouts section</td>
-          <td><code style="font-size:11px">Payout section visible</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569"></td>
-          <td style="color:#94a3b8;font-size:11px">18:59:41</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">RT-07</td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>CC: Booking ID in Wallet</td>
-          <td><code style="font-size:11px">BID: DBK-20260610-JDZJF8</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Wallet has real transactions with SAR amounts. Booking DBK-20260610-JDZJF8 pendi</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:43</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>CC: Amount consistency</td>
-          <td><code style="font-size:11px">Amount 86 SAR in student wallet</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Amount consistent</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:46</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Post-booking: Student Bookings</td>
-          <td><code style="font-size:11px">https://dev.mehadedu.com/en/dashboard/bookings</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Mehad - Saudi Arabia's #1 Learning Platform</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:47</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Post-booking: Student Wallet</td>
-          <td><code style="font-size:11px">https://dev.mehadedu.com/en/dashboard/wallet</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Mehad - Saudi Arabia's #1 Learning Platform</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:49</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Post-booking: Tutor Booked Sessions</td>
-          <td><code style="font-size:11px">https://dev.mehadedu.com/en/dashboard/booked-sessions</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Mehad - Saudi Arabia's #1 Learning Platform</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:51</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Post-booking: Tutor Earnings</td>
-          <td><code style="font-size:11px">https://dev.mehadedu.com/en/dashboard/earnings</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Mehad - Saudi Arabia's #1 Learning Platform</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:52</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">RT</td>
-          <td>Post-booking: Tutor Calendar</td>
-          <td><code style="font-size:11px">https://dev.mehadedu.com/en/dashboard/availability</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>DBK-20260610-JDZJF8</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Mehad - Saudi Arabia's #1 Learning Platform</td>
-          <td style="color:#94a3b8;font-size:11px">18:59:54</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">DF-01</td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Page load</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">URL: https://dev.mehadedu.com/en/dashboard/wallet</td>
-          <td style="color:#94a3b8;font-size:11px">19:00:42</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Mock data check</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">[]</td>
-          <td style="color:#94a3b8;font-size:11px">19:00:45</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Page content sample: '026\n-\n86.00\nMath - Automations</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Amount/SAR visible</td>
-          <td style="color:#94a3b8;font-size:11px">19:00:48</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Zero-amount check</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569"></td>
-          <td style="color:#94a3b8;font-size:11px">19:00:50</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">DF-02</td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Page load</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">https://dev.mehadedu.com/en/dashboard/bookings</td>
-          <td style="color:#94a3b8;font-size:11px">19:00:53</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Upcoming + History tabs</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Upcoming tabs: 16, History tabs: 1</td>
-          <td style="color:#94a3b8;font-size:11px">19:00:56</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Booking cards</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#d97706;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">SKIP</span></td>
-          <td style="font-size:11px;color:#475569">No bookings yet</td>
-          <td style="color:#94a3b8;font-size:11px">19:00:58</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Booking IDs</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#d97706;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">SKIP</span></td>
-          <td style="font-size:11px;color:#475569">No booking IDs visible</td>
-          <td style="color:#94a3b8;font-size:11px">19:01:01</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Auth protection (unauthenticated)</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#dc2626;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">FAIL</span></td>
-          <td style="font-size:11px;color:#475569">URL: https://dev.mehadedu.com/en/dashboard/bookings — NO REDIRECT — auth guard m</td>
-          <td style="color:#94a3b8;font-size:11px">19:01:03</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">DF-03</td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Session History tab</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569"></td>
-          <td style="color:#94a3b8;font-size:11px">19:01:08</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Recording visibility in Upcoming</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Recording buttons found in Upcoming: 0</td>
-          <td style="color:#94a3b8;font-size:11px">19:01:11</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Recording links</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#d97706;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">SKIP</span></td>
-          <td style="font-size:11px;color:#475569">No completed sessions with recordings yet</td>
-          <td style="color:#94a3b8;font-size:11px">19:01:16</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">DF-04</td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Admin page load</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">https://dev.mehadedu.com/en/admin/sessions</td>
-          <td style="color:#94a3b8;font-size:11px">19:01:35</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Sessions table</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#d97706;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">SKIP</span></td>
-          <td style="font-size:11px;color:#475569">No table found — may need admin creds</td>
-          <td style="color:#94a3b8;font-size:11px">19:01:38</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Mock data check</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">[]</td>
-          <td style="color:#94a3b8;font-size:11px">19:01:40</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Status filter</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#d97706;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">SKIP</span></td>
-          <td style="font-size:11px;color:#475569">No filter found</td>
-          <td style="color:#94a3b8;font-size:11px">19:01:43</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">DF-05</td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Calendar page load</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">https://dev.mehadedu.com/en/dashboard/availability</td>
-          <td style="color:#94a3b8;font-size:11px">19:01:46</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Calendar widget/heading</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569"></td>
-          <td style="color:#94a3b8;font-size:11px">19:01:48</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Time slots</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#d97706;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">SKIP</span></td>
-          <td style="font-size:11px;color:#475569">No slots visible — tutor may not have created slots yet</td>
-          <td style="color:#94a3b8;font-size:11px">19:01:51</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Mock data check</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">[]</td>
-          <td style="color:#94a3b8;font-size:11px">19:01:54</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">DF-06</td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Page load</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">https://dev.mehadedu.com/en/dashboard/booked-sessions</td>
-          <td style="color:#94a3b8;font-size:11px">19:01:57</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">All Sessions heading</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">'All Sessions' text present</td>
-          <td style="color:#94a3b8;font-size:11px">19:01:59</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Tabs: Upcoming Sessions + Session History</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Upcoming: 1, History: 1</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:02</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Search input</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569"></td>
-          <td style="color:#94a3b8;font-size:11px">19:02:04</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Empty: 14, Rows: 0</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Empty state OR real rows</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:07</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Session History tab</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">No JS errors</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:11</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">DF-07</td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Course listing at /dashboard/group-sessions</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569"></td>
-          <td style="color:#94a3b8;font-size:11px">19:02:14</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Mock data check</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">[]</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:17</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Tutor 89 profile</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">No mock data</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:20</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Group Sessions page + Availability Calendar</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Heading: True, No-mock: True, Calendar-group: True</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:25</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">DF-08</td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Earnings page load</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">https://dev.mehadedu.com/en/dashboard/earnings</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:27</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Balance sections</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Available:15 Pending:15 Total:15</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:30</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Mock data check</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">[]</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:33</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Booking ID refs</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#d97706;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">SKIP</span></td>
-          <td style="font-size:11px;color:#475569">No booking IDs — no completed sessions yet</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:35</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Complete Payouts section</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569"></td>
-          <td style="color:#94a3b8;font-size:11px">19:02:38</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">CC-01</td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Student IDs: set(), Tutor IDs: set()</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#d97706;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">SKIP</span></td>
-          <td style="font-size:11px;color:#475569">Not enough bookings in both views for CC check</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:43</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">CC-02</td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Student Bookings</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Title: "Mehad - Saudi Arabia's #1 Learning Platform"</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:46</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Student Wallet</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Title: "Mehad - Saudi Arabia's #1 Learning Platform"</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:48</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Tutor Earnings</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Title: "Mehad - Saudi Arabia's #1 Learning Platform"</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:51</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Tutor Booked Sessions</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Title: "Mehad - Saudi Arabia's #1 Learning Platform"</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:54</td>
-        </tr>
-        <tr>
-          <td></td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Tutor Calendar</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569">Title: "Mehad - Saudi Arabia's #1 Learning Platform"</td>
-          <td style="color:#94a3b8;font-size:11px">19:02:56</td>
-        </tr>
-        <tr>
-          <td style="font-weight:700;white-space:nowrap">CC-03</td>
-          <td style="color:#64748b;font-size:11px">DF</td>
-          <td></td>
-          <td><code style="font-size:11px">Session type labels</code></td>
-          <td style="font-size:11px;color:#2563eb"><code>—</code></td>
-          <td><span style="background:#16a34a;color:#fff;padding:2px 9px;border-radius:4px;font-size:11px;font-weight:700">PASS</span></td>
-          <td style="font-size:11px;color:#475569"></td>
-          <td style="color:#94a3b8;font-size:11px">19:03:02</td>
-        </tr></tbody>
-  </table>
-</div>
 
-<footer>
-  Mehad Autonomous QA Platform · Spec: data_flow_e2e.md ·
-  Student +880 98765432 → Tutor /tutor/89 ·
-  All data real (no mocks) · 2026-06-10
+<!-- ── Extra section (cross-spec etc.) ── -->
+
+
+</main>
+
+<!-- ── Sidebar ── -->
+<aside class="side">
+  <!-- Ring gauge -->
+  <div class="card" style="margin-bottom:16px">
+    <div style="padding:14px 18px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-3)">Pass Rate</div>
+    <div class="ringwrap">
+      <svg class="ring" viewBox="0 0 44 44">
+        <circle cx="22" cy="22" r="18" fill="none" stroke="var(--bg-3)" stroke-width="5"/>
+        <circle cx="22" cy="22" r="18" fill="none" stroke="oklch(0.85 0.18 25)" stroke-width="5"
+          stroke-dasharray="113.1" stroke-dashoffset="113.1"
+          stroke-linecap="round" transform="rotate(-90 22 22)"/>
+        <text x="22" y="25" text-anchor="middle" font-size="8" font-weight="700"
+          fill="oklch(0.85 0.18 25)" font-family="'JetBrains Mono',monospace">0.0%</text>
+      </svg>
+    </div>
+    <div class="mini-stats">
+      <div class="ms ">
+        <div class="ms-v">0</div>
+        <div class="ms-l">P0 bugs</div>
+      </div>
+      <div class="ms ">
+        <div class="ms-v">0</div>
+        <div class="ms-l">P1 bugs</div>
+      </div>
+      <div class="ms ">
+        <div class="ms-v">0</div>
+        <div class="ms-l">P2 bugs</div>
+      </div>
+      <div class="ms">
+        <div class="ms-v">0</div>
+        <div class="ms-l">P3 bugs</div>
+      </div>
+    </div>
+  </div>
+  <!-- Run metadata -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-head"><h4>Run Info</h4></div>
+    <dl class="run-dl">
+      <dt>Run #</dt><dd>latest</dd>
+      <dt>Date</dt><dd>2026-06-07 11:33:12</dd>
+      <dt>Target URL</dt><dd style="word-break:break-all">https://beta-stg.fagun.ai</dd>
+      <dt>AI Model</dt><dd>langgraph</dd>
+      <dt>Browser</dt><dd>Chromium (headless)</dd>
+    </dl>
+  </div>
+  <!-- Priority breakdown -->
+  <div class="card">
+    <div class="card-head"><h4>Priority Breakdown</h4></div>
+    <dl class="run-dl">
+      <dt>Critical (P0)</dt><dd style="color:var(--bad)">0 · 24h SLA</dd>
+      <dt>High (P1)</dt><dd style="color:var(--warn)">0 · 2–3 days</dd>
+      <dt>Medium (P2)</dt><dd style="color:var(--ok)">0 · current sprint</dd>
+      <dt>Low (P3)</dt><dd style="color:var(--accent)">0 · backlog</dd>
+      <dt>Severity: Critical</dt><dd style="color:var(--bad)">0</dd>
+      <dt>Severity: High</dt><dd style="color:var(--warn)">0</dd>
+      <dt>Severity: Medium</dt><dd style="color:var(--accent)">0</dd>
+      <dt>Severity: Low</dt><dd style="color:var(--ok)">0</dd>
+    </dl>
+  </div>
+</aside>
+
+</div><!-- /layout -->
+
+<!-- ── Footer ── -->
+<footer class="brand-foot">
+  <div class="who">
+    <div class="logo-row">
+      <div class="mark">M</div>
+      <span class="bname">Mehad QA</span>
+    </div>
+    <span class="btitle">AI-driven spec validation · autonomous · intent-based</span>
+    <span style="font-size:12px;color:var(--ink-3);margin-top:8px">Built by Mejbaur Bahar Fagun</span>
+    <span style="font-size:12px;color:var(--ink-3)">Senior Software Engineer QA (IV) · Markopolo.ai</span>
+  </div>
+  <div>
+    <div class="col-head">Links</div>
+    <div class="links">
+      <a href="https://www.linkedin.com/in/mejbaur/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://beta-stg.fagun.ai" target="_blank" rel="noopener">Target App</a>
+    </div>
+  </div>
+  <div>
+    <div class="col-head">Report</div>
+    <div class="links">
+      <a href="#" onclick="window.print();return false">Export PDF</a>
+    </div>
+  </div>
+  <div>
+    <div class="col-head">Run #latest</div>
+    <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
+      2026-06-07 11:33:12<br/>
+      0 tests<br/>
+      1 specs<br/>
+      0.0% pass rate
+    </div>
+  </div>
 </footer>
+
+</div><!-- /wrap -->
+
+<script>
+(function(){
+  // Group toggle
+  document.querySelectorAll('.group-head').forEach(function(gh){
+    gh.addEventListener('click', function(){
+      gh.closest('.group').classList.toggle('open');
+    });
+  });
+  // Test row toggle
+  document.querySelectorAll('.test-row').forEach(function(tr){
+    tr.addEventListener('click', function(){
+      tr.closest('.test').classList.toggle('open');
+    });
+  });
+  // Chip filter
+  var chips = document.querySelectorAll('[data-tf]');
+  var searchEl = document.getElementById('testSearch');
+  var currentMode = 'all';
+  chips.forEach(function(chip){
+    chip.addEventListener('click', function(){
+      chips.forEach(function(c){c.classList.remove('active')});
+      chip.classList.add('active');
+      currentMode = chip.dataset.tf;
+      doFilter();
+    });
+  });
+  if(searchEl) searchEl.addEventListener('input', doFilter);
+  function doFilter(){
+    var q = searchEl ? searchEl.value.toLowerCase().trim() : '';
+    document.querySelectorAll('.test').forEach(function(t){
+      var out = t.dataset.outcome || '';
+      var pri = (t.dataset.pri || '').toLowerCase();
+      var nm = (t.querySelector('.tname')||{}).textContent||'';
+      var mOk = currentMode==='all'||
+        (currentMode==='failed'&&out==='fail')||
+        (currentMode==='passed'&&out==='pass')||
+        (currentMode==='p0'&&pri==='p0')||
+        (currentMode==='p1'&&pri==='p1');
+      var qOk = !q||nm.toLowerCase().includes(q);
+      t.style.display=(mOk&&qOk)?'':'none';
+    });
+    document.querySelectorAll('.group').forEach(function(g){
+      var vis=Array.from(g.querySelectorAll('.test')).some(function(t){return t.style.display!=='none'});
+      g.style.display=vis?'':'none';
+    });
+  }
+  // Traceback toggles
+  document.querySelectorAll('.trace-toggle').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var wrap=btn.nextElementSibling;
+      if(wrap){wrap.style.display=wrap.style.display==='block'?'none':'block'}
+      btn.querySelector('.arr').textContent=btn.nextElementSibling&&btn.nextElementSibling.style.display==='block'?'▼':'▶';
+    });
+  });
+  // Error toggle
+  function toggleErr(id){
+    var el=document.getElementById(id);
+    var btn=el.previousElementSibling;
+    if(el.classList.contains('open')){el.classList.remove('open');btn.querySelector('span').textContent='▶ Show error details';}
+    else{el.classList.add('open');btn.querySelector('span').textContent='▼ Hide error details';}
+  }
+  window.toggleErr = toggleErr;
+  // Evidence toggle
+  function toggleEv(id){
+    var el=document.getElementById(id);
+    var btn=el.previousElementSibling;
+    var arrow=btn.querySelectorAll('span')[1];
+    if(el.classList.contains('open')){el.classList.remove('open');if(arrow)arrow.textContent='▶ Show';}
+    else{el.classList.add('open');if(arrow)arrow.textContent='▼ Hide';}
+  }
+  window.toggleEv = toggleEv;
+  // Bug filter
+  function applyBugFilter(sev){
+    document.querySelectorAll('.bug-card').forEach(function(c){
+      if(sev==='all'){c.style.display='';return;}
+      var match;
+      if(/^P[0-3]$/.test(sev)){match=c.dataset.priority===sev;}
+      else{match=c.querySelector('.badge.'+sev)!==null;}
+      c.style.display=match?'':'none';
+    });
+  }
+  window.applyBugFilter = applyBugFilter;
+  // Lightbox
+  document.addEventListener('click',function(e){
+    if(e.target.matches('.poc img,.screenshot')){
+      document.getElementById('lb-img').src=e.target.src;
+      document.getElementById('lb').classList.add('show');
+    }
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape') document.getElementById('lb').classList.remove('show');
+  });
+})();
+</script>
 </body>
 </html>
