@@ -1409,7 +1409,9 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
     for mid, name, finding in modules:
         step_match = next(
             (s for s in all_steps
-             if s.get("step", "").startswith(mid) or mid in s.get("module", "")),
+             if s.get("step", "").startswith(mid)
+             or s.get("requirement", "").startswith(mid)
+             or mid in s.get("module", "")),
             None
         )
         st = step_match.get("status") if step_match else None
@@ -1433,13 +1435,16 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
         step = s.get("step") or s.get("requirement", "")
         sc = f'<td style="font-weight:700;white-space:nowrap">{step}</td>' if step != prev_step else "<td></td>"
         prev_step = step
+        _mod = (s.get('module')
+                or (f"{s.get('source_module','')} → {s.get('dest_module','')}"
+                    if s.get('source_module') or s.get('dest_module') else ''))
         step_rows += (
             f"<tr>{sc}"
-            f"<td>{s.get('module','')}</td>"
-            f"<td><code style='font-size:11px'>{str(s.get('data_used') or s.get('data',''))[:55]}</code></td>"
+            f"<td style='font-size:12px;color:#374151'>{_mod}</td>"
+            f"<td><code style='font-size:11px'>{str(s.get('data_used') or s.get('data',''))[:100]}</code></td>"
             f"<td><code style='font-size:11px;color:#2563eb'>{s.get('booking_id','') or '—'}</code></td>"
             f"<td>{badge(s.get('status',''))}</td>"
-            f"<td style='font-size:11px;color:#475569'>{str(s.get('detail',''))[:80]}</td>"
+            f"<td style='font-size:11px;color:#475569'>{str(s.get('detail',''))[:120]}</td>"
             f"<td style='font-size:11px;color:#94a3b8'>{s.get('ts','')}</td></tr>"
         )
 
