@@ -1664,6 +1664,7 @@ jobs:
 
       - name: Setup Test Data (create slots + group session + booking)
         continue-on-error: true
+        timeout-minutes: 5
         run: |
           echo "=== Running setup_test_data.py ==="
           echo "  Target: ${{ env.BASE_URL }}"
