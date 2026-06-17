@@ -1663,6 +1663,7 @@ jobs:
           fi
 
       - name: Setup Test Data (create slots + group session + booking)
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
         timeout-minutes: 5
         run: |
@@ -1697,6 +1698,7 @@ jobs:
             echo "⚠ setup_data_summary.json not created — server may be unreachable"
           fi
       - name: Run Data Flow E2E Tests
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
         run: |
           BASE_URL=${{ env.BASE_URL }} \
@@ -1712,6 +1714,7 @@ jobs:
             --json-report --json-report-file=reports/data_flow_e2e_results.json \
             -p no:cacheprovider 2>&1 | tee reports/data-flow-e2e.txt
       - name: Run Real-Time Data Flow Tests
+        if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
         continue-on-error: true
         run: |
           BASE_URL=${{ env.BASE_URL }} \
