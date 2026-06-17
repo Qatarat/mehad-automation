@@ -30,6 +30,12 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
+# Keep report publishing deterministic: runs on the same branch should queue
+# instead of racing each other to update gh-pages.
+concurrency:
+  group: mehad-autonomous-ai-testing-${{ github.ref }}
+  cancel-in-progress: false
+
 # Grant write access to contents so the gh-pages deploy can push.
 # Default GITHUB_TOKEN only has Contents:read which causes
 #   "remote: Permission to ... denied to github-actions[bot]" → git exit 128.
@@ -1415,6 +1421,13 @@ jobs:
       TEACHER_OTP:     ${{ secrets.TEACHER_OTP     || '123456' }}
       STUDENT_PHONE:   ${{ secrets.STUDENT_PHONE   || '98765432' }}
       STUDENT_OTP:     ${{ secrets.STUDENT_OTP     || '123456' }}
+      SUPER_ADMIN_EMAIL:     ${{ secrets.SUPER_ADMIN_EMAIL     || '' }}
+      SUPER_ADMIN_PHONE:     ${{ secrets.SUPER_ADMIN_PHONE     || '' }}
+      SUPER_ADMIN_PASS:      ${{ secrets.SUPER_ADMIN_PASS      || '' }}
+      SUPER_ADMIN_OTP:       ${{ secrets.SUPER_ADMIN_OTP       || '123456' }}
+      SUPER_ADMIN_LOGIN_URL: ${{ secrets.SUPER_ADMIN_LOGIN_URL || '' }}
+      SUPER_ADMIN_COUNTRY:   ${{ secrets.SUPER_ADMIN_COUNTRY   || 'Bangladesh' }}
+      SUPER_ADMIN_COUNTRY_CODE: ${{ secrets.SUPER_ADMIN_COUNTRY_CODE || '+880' }}
       # ── WAHA (WhatsApp HTTP API) — Docker service above exposes :3000 ────────
       WAHA_URL:        http://localhost:3000
       WAHA_SESSION:    ${{ secrets.WAHA_SESSION  || 'default' }}
@@ -1477,6 +1490,13 @@ jobs:
         env:
           BASE_URL:     ${{ env.BASE_URL }}
           PYTHONPATH:   ${{ github.workspace }}
+          SUPER_ADMIN_EMAIL:     ${{ env.SUPER_ADMIN_EMAIL }}
+          SUPER_ADMIN_PHONE:     ${{ env.SUPER_ADMIN_PHONE }}
+          SUPER_ADMIN_PASS:      ${{ env.SUPER_ADMIN_PASS }}
+          SUPER_ADMIN_OTP:       ${{ env.SUPER_ADMIN_OTP }}
+          SUPER_ADMIN_LOGIN_URL: ${{ env.SUPER_ADMIN_LOGIN_URL }}
+          SUPER_ADMIN_COUNTRY:   ${{ env.SUPER_ADMIN_COUNTRY }}
+          SUPER_ADMIN_COUNTRY_CODE: ${{ env.SUPER_ADMIN_COUNTRY_CODE }}
         run: |
           python3 -m pytest tests/test_specs_all.py \
             -m "smoke or navigation" \
@@ -1492,6 +1512,13 @@ jobs:
         env:
           BASE_URL:     ${{ env.BASE_URL }}
           PYTHONPATH:   ${{ github.workspace }}
+          SUPER_ADMIN_EMAIL:     ${{ env.SUPER_ADMIN_EMAIL }}
+          SUPER_ADMIN_PHONE:     ${{ env.SUPER_ADMIN_PHONE }}
+          SUPER_ADMIN_PASS:      ${{ env.SUPER_ADMIN_PASS }}
+          SUPER_ADMIN_OTP:       ${{ env.SUPER_ADMIN_OTP }}
+          SUPER_ADMIN_LOGIN_URL: ${{ env.SUPER_ADMIN_LOGIN_URL }}
+          SUPER_ADMIN_COUNTRY:   ${{ env.SUPER_ADMIN_COUNTRY }}
+          SUPER_ADMIN_COUNTRY_CODE: ${{ env.SUPER_ADMIN_COUNTRY_CODE }}
         run: |
           CLASSES=$(python3 -c "
           import re
@@ -1513,6 +1540,13 @@ jobs:
         env:
           BASE_URL:     ${{ env.BASE_URL }}
           PYTHONPATH:   ${{ github.workspace }}
+          SUPER_ADMIN_EMAIL:     ${{ env.SUPER_ADMIN_EMAIL }}
+          SUPER_ADMIN_PHONE:     ${{ env.SUPER_ADMIN_PHONE }}
+          SUPER_ADMIN_PASS:      ${{ env.SUPER_ADMIN_PASS }}
+          SUPER_ADMIN_OTP:       ${{ env.SUPER_ADMIN_OTP }}
+          SUPER_ADMIN_LOGIN_URL: ${{ env.SUPER_ADMIN_LOGIN_URL }}
+          SUPER_ADMIN_COUNTRY:   ${{ env.SUPER_ADMIN_COUNTRY }}
+          SUPER_ADMIN_COUNTRY_CODE: ${{ env.SUPER_ADMIN_COUNTRY_CODE }}
         run: |
           CLASSES=$(python3 -c "
           import re
@@ -1557,6 +1591,13 @@ jobs:
       TEACHER_PHONE:  "98976564"
       TEACHER_OTP:    "123456"
       TEST_COUNTRY:   "+880"
+      SUPER_ADMIN_EMAIL:     ${{ secrets.SUPER_ADMIN_EMAIL     || '' }}
+      SUPER_ADMIN_PHONE:     ${{ secrets.SUPER_ADMIN_PHONE     || '' }}
+      SUPER_ADMIN_PASS:      ${{ secrets.SUPER_ADMIN_PASS      || '' }}
+      SUPER_ADMIN_OTP:       ${{ secrets.SUPER_ADMIN_OTP       || '123456' }}
+      SUPER_ADMIN_LOGIN_URL: ${{ secrets.SUPER_ADMIN_LOGIN_URL || '' }}
+      SUPER_ADMIN_COUNTRY:   ${{ secrets.SUPER_ADMIN_COUNTRY   || 'Bangladesh' }}
+      SUPER_ADMIN_COUNTRY_CODE: ${{ secrets.SUPER_ADMIN_COUNTRY_CODE || '+880' }}
 
     steps:
       - uses: actions/checkout@v5
@@ -1583,8 +1624,13 @@ jobs:
           TEACHER_PHONE=${{ env.TEACHER_PHONE }} \
           TEACHER_OTP=${{ env.TEACHER_OTP }} \
           TEST_COUNTRY=${{ env.TEST_COUNTRY }} \
-          SUPER_ADMIN_EMAIL=${{ secrets.SUPER_ADMIN_EMAIL || '' }} \
-          SUPER_ADMIN_PASS=${{ secrets.SUPER_ADMIN_PASS || '' }} \
+          SUPER_ADMIN_EMAIL=${{ env.SUPER_ADMIN_EMAIL }} \
+          SUPER_ADMIN_PHONE=${{ env.SUPER_ADMIN_PHONE }} \
+          SUPER_ADMIN_PASS=${{ env.SUPER_ADMIN_PASS }} \
+          SUPER_ADMIN_OTP=${{ env.SUPER_ADMIN_OTP }} \
+          SUPER_ADMIN_LOGIN_URL=${{ env.SUPER_ADMIN_LOGIN_URL }} \
+          SUPER_ADMIN_COUNTRY=${{ env.SUPER_ADMIN_COUNTRY }} \
+          SUPER_ADMIN_COUNTRY_CODE=${{ env.SUPER_ADMIN_COUNTRY_CODE }} \
           python3 -m pytest tests/test_e2e_create_book_verify.py \
             --timeout=180 --timeout-method=thread \
             --tb=short -v -p no:warnings \
@@ -1917,8 +1963,13 @@ jobs:
       TEACHER_OTP:       ${{ secrets.TEACHER_OTP  || '123456' }}
       STUDENT_PHONE:     "98765432"
       STUDENT_OTP:       "123456"
-      SUPER_ADMIN_EMAIL: ${{ secrets.SUPER_ADMIN_EMAIL || '' }}
-      SUPER_ADMIN_PASS:  ${{ secrets.SUPER_ADMIN_PASS  || '' }}
+      SUPER_ADMIN_EMAIL:     ${{ secrets.SUPER_ADMIN_EMAIL     || '' }}
+      SUPER_ADMIN_PHONE:     ${{ secrets.SUPER_ADMIN_PHONE     || '' }}
+      SUPER_ADMIN_PASS:      ${{ secrets.SUPER_ADMIN_PASS      || '' }}
+      SUPER_ADMIN_OTP:       ${{ secrets.SUPER_ADMIN_OTP       || '123456' }}
+      SUPER_ADMIN_LOGIN_URL: ${{ secrets.SUPER_ADMIN_LOGIN_URL || '' }}
+      SUPER_ADMIN_COUNTRY:   ${{ secrets.SUPER_ADMIN_COUNTRY   || 'Bangladesh' }}
+      SUPER_ADMIN_COUNTRY_CODE: ${{ secrets.SUPER_ADMIN_COUNTRY_CODE || '+880' }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v5
@@ -1932,7 +1983,15 @@ jobs:
       - name: Run Live Session & Super Admin Tests
         continue-on-error: true
         run: |
-          BASE_URL=${{ env.BASE_URL }} python3 -m pytest \
+          BASE_URL=${{ env.BASE_URL }} \
+          SUPER_ADMIN_EMAIL=${{ env.SUPER_ADMIN_EMAIL }} \
+          SUPER_ADMIN_PHONE=${{ env.SUPER_ADMIN_PHONE }} \
+          SUPER_ADMIN_PASS=${{ env.SUPER_ADMIN_PASS }} \
+          SUPER_ADMIN_OTP=${{ env.SUPER_ADMIN_OTP }} \
+          SUPER_ADMIN_LOGIN_URL=${{ env.SUPER_ADMIN_LOGIN_URL }} \
+          SUPER_ADMIN_COUNTRY=${{ env.SUPER_ADMIN_COUNTRY }} \
+          SUPER_ADMIN_COUNTRY_CODE=${{ env.SUPER_ADMIN_COUNTRY_CODE }} \
+          python3 -m pytest \
             tests/test_live_session_superadmin.py \
             --timeout=90 --timeout-method=thread --tb=short -v -p no:warnings \
             --html=reports/qa22-live-session.html --self-contained-html \

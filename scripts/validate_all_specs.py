@@ -873,7 +873,7 @@ def _class_for_spec(compiled: dict, spec_name: str) -> str:
     if spec_name in admin_only_specs:
         add(
             f"    pytestmark = pytest.mark.skipif(",
-            f"        not (_os.getenv('SUPER_ADMIN_EMAIL') and _os.getenv('SUPER_ADMIN_PASS')),",
+            f"        not ((_os.getenv('SUPER_ADMIN_EMAIL') or _os.getenv('SUPER_ADMIN_PHONE')) and _os.getenv('SUPER_ADMIN_PASS')),",
             f"        reason='Super Admin credentials not configured; admin-only spec skipped until credentials are provided',",
             f"    )",
             f"",

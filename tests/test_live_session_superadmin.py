@@ -11,8 +11,8 @@ Issue 1 — Live class not being conducted properly
 
 Issue 2 — Super Admin cannot find session completion history for automation user
     Session history tabs (teacher side) and super admin session records are
-    tested. Super admin login tests are skipped unless SUPER_ADMIN_EMAIL and
-    SUPER_ADMIN_PASS env vars are provided.
+    tested. Super admin login tests are skipped unless SUPER_ADMIN_EMAIL or
+    SUPER_ADMIN_PHONE plus SUPER_ADMIN_PASS env vars are provided.
 
 Issue 3 — Slots being created for future dates
     Slots for June 10 (Tuesday) and June 15 (group session Monday) are
@@ -25,16 +25,145 @@ import os
 import pytest
 from datetime import date
 from playwright.sync_api import Page
+from urllib.parse import quote
+import re
 
 # ── Constants ─────────────────────────────────────────────────────────────────
 BASE_URL          = os.getenv("BASE_URL", "https://dev.mehadedu.com/en")
-SUPER_ADMIN_EMAIL = os.getenv("SUPER_ADMIN_EMAIL", "")
-SUPER_ADMIN_PASS  = os.getenv("SUPER_ADMIN_PASS",  "")
+SUPER_ADMIN_EMAIL     = os.getenv("SUPER_ADMIN_EMAIL", "")
+SUPER_ADMIN_PHONE     = os.getenv("SUPER_ADMIN_PHONE", "")
+SUPER_ADMIN_PASS      = os.getenv("SUPER_ADMIN_PASS",  "")
+SUPER_ADMIN_OTP       = os.getenv("SUPER_ADMIN_OTP", os.getenv("TEST_OTP", "123456"))
+SUPER_ADMIN_LOGIN_URL = os.getenv("SUPER_ADMIN_LOGIN_URL", "")
+SUPER_ADMIN_COUNTRY   = os.getenv(
+    "SUPER_ADMIN_COUNTRY",
+    "Bangladesh" if os.getenv("SUPER_ADMIN_PHONE", "").startswith("01") else "",
+)
+SUPER_ADMIN_COUNTRY_CODE = os.getenv(
+    "SUPER_ADMIN_COUNTRY_CODE",
+    "+880" if SUPER_ADMIN_COUNTRY == "Bangladesh" else "+966",
+)
 TEACHER_PHONE     = os.getenv("TEACHER_PHONE", "98976564")
 STUDENT_PHONE     = os.getenv("STUDENT_PHONE", "98765432")
 
-_ADMIN_URL = BASE_URL.rstrip("/").replace("/en", "", 1) + "/en/super-admin-login"
-_HAS_ADMIN_CREDS = bool(SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASS)
+
+def _base() -> str:
+    return BASE_URL.rstrip("/").rsplit("/en", 1)[0].rsplit("/ar", 1)[0]
+
+
+def _admin_url() -> str:
+    if SUPER_ADMIN_LOGIN_URL:
+        return SUPER_ADMIN_LOGIN_URL
+    locale = "ar" if SUPER_ADMIN_PHONE and not SUPER_ADMIN_EMAIL else "en"
+    return f"{_base()}/{locale}/super-admin-login"
+
+
+def _admin_verify_url() -> str:
+    phone = re.sub(r"\D", "", SUPER_ADMIN_PHONE)
+    code = SUPER_ADMIN_COUNTRY_CODE.strip() or "+880"
+    if code in {"+880", "+966"} and phone.startswith("0"):
+        phone = phone[1:]
+    return _admin_url().rstrip("/") + f"/verify?phone={quote(code + phone)}"
+
+
+_HAS_ADMIN_CREDS = bool((SUPER_ADMIN_EMAIL or SUPER_ADMIN_PHONE) and SUPER_ADMIN_PASS)
+
+
+def _fill_first_visible(page: Page, selector: str, value: str, *, timeout: int = 8000) -> bool:
+    loc = page.locator(selector)
+    for i in range(min(loc.count(), 6)):
+        item = loc.nth(i)
+        try:
+            item.wait_for(state="visible", timeout=timeout if i == 0 else 1000)
+            item.fill(value)
+            return True
+        except Exception:
+            continue
+    return False
+
+
+def _click_first_visible(page: Page, selector: str, *, timeout: int = 8000) -> bool:
+    loc = page.locator(selector)
+    for i in range(min(loc.count(), 8)):
+        item = loc.nth(i)
+        try:
+            item.wait_for(state="visible", timeout=timeout if i == 0 else 1000)
+            item.click()
+            return True
+        except Exception:
+            continue
+    return False
+
+
+def _super_admin_login(page: Page) -> None:
+    """Log in as a real super admin; supports phone/password/OTP and email/password."""
+    page.goto(_admin_url(), wait_until="commit", timeout=30000)
+    page.wait_for_timeout(2000)
+
+    identity = SUPER_ADMIN_EMAIL or SUPER_ADMIN_PHONE
+    if SUPER_ADMIN_PHONE and SUPER_ADMIN_COUNTRY:
+        try:
+            page.locator('button:has-text("+")').first.click()
+            page.wait_for_timeout(500)
+            page.locator(f'button:has-text("{SUPER_ADMIN_COUNTRY}")').first.click()
+            page.wait_for_timeout(500)
+        except Exception:
+            pass
+
+    identity_selector = (
+        'input[type="email"], input[type="tel"], input[name*="phone" i], '
+        'input[name*="mobile" i], input[name*="email" i], input[type="text"]'
+    )
+    if not _fill_first_visible(page, identity_selector, identity):
+        raise RuntimeError("Super admin login identity field not found")
+    if not _fill_first_visible(page, 'input[type="password"], input[name*="password" i]', SUPER_ADMIN_PASS):
+        raise RuntimeError("Super admin login password field not found")
+
+    if not _click_first_visible(
+        page,
+        'button[type="submit"], button:has-text("Login"), button:has-text("Sign In"), '
+        'button:has-text("دخول"), button:has-text("تسجيل"), button:has-text("متابعة")',
+    ):
+        page.locator("button").first.click()
+
+    page.wait_for_timeout(2500)
+    if "super-admin-login" in page.url and "/verify" not in page.url:
+        body = page.inner_text("body")
+        if "Please wait before requesting another code" in body:
+            page.goto(_admin_verify_url(), wait_until="commit", timeout=20000)
+            page.wait_for_timeout(1500)
+
+    otp_selector = (
+        'input[placeholder="000000"], input[name*="otp" i], input[name*="code" i], '
+        'input[inputmode="numeric"], input[type="number"], input[maxlength="1"]'
+    )
+    try:
+        otp_inputs = page.locator(otp_selector)
+        if otp_inputs.count() >= len(SUPER_ADMIN_OTP):
+            otp_inputs.first.wait_for(state="visible", timeout=8000)
+            for i, digit in enumerate(SUPER_ADMIN_OTP):
+                otp_inputs.nth(i).fill(digit)
+        else:
+            otp = otp_inputs.first
+            otp.wait_for(state="visible", timeout=8000)
+            if not otp.is_disabled():
+                otp.fill(SUPER_ADMIN_OTP)
+        if otp_inputs.count() > 0:
+            _click_first_visible(
+                page,
+                'button[type="submit"], button:has-text("Continue"), button:has-text("Verify"), '
+                'button:has-text("تأكيد"), button:has-text("تحقق"), button:has-text("تحقق من الدخول"), '
+                'button:has-text("متابعة")',
+                timeout=5000,
+            )
+            page.wait_for_timeout(3000)
+    except Exception:
+        pass
+
+    if "500" in page.title():
+        raise RuntimeError("Server error after super admin login")
+    assert "super-admin-login" not in page.url, \
+        "Admin login did not redirect away from login page — credentials or OTP may be wrong"
 
 
 # ── Super admin page fixture ───────────────────────────────────────────────────
@@ -49,7 +178,7 @@ def admin_page(browser):
     )
     pg = ctx.new_page()
     pg.set_default_timeout(15000)
-    pg.goto(_ADMIN_URL, wait_until="commit", timeout=30000)
+    pg.goto(_admin_url(), wait_until="commit", timeout=30000)
     pg.wait_for_timeout(1500)
     yield pg
     ctx.close()
@@ -359,8 +488,8 @@ class TestSuperAdminSessionRecords:
     """
     Issue: Super Admin cannot find session completion history for automation user.
 
-    Full admin-login tests are skipped unless SUPER_ADMIN_EMAIL and
-    SUPER_ADMIN_PASS are set. The login page structure test runs always.
+    Full admin-login tests are skipped unless SUPER_ADMIN_EMAIL or
+    SUPER_ADMIN_PHONE plus SUPER_ADMIN_PASS are set. The login page structure test runs always.
     """
 
     def test_super_admin_login_page_accessible(self, admin_page: Page):
@@ -379,41 +508,25 @@ class TestSuperAdminSessionRecords:
 
     @pytest.mark.skipif(
         not _HAS_ADMIN_CREDS,
-        reason="Set SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASS env vars to run admin login tests",
+        reason="Set SUPER_ADMIN_EMAIL or SUPER_ADMIN_PHONE plus SUPER_ADMIN_PASS env vars to run admin login tests",
     )
     def test_super_admin_login_succeeds(self, admin_page: Page):
-        """Super Admin can log in with SUPER_ADMIN_EMAIL / SUPER_ADMIN_PASS credentials."""
-        admin_page.goto(_ADMIN_URL, wait_until="commit", timeout=30000)
-        admin_page.wait_for_timeout(1500)
-        admin_page.locator('input[type="email"]').first.fill(SUPER_ADMIN_EMAIL)
-        admin_page.locator('input[type="password"]').first.fill(SUPER_ADMIN_PASS)
-        admin_page.locator(
-            'button[type="submit"], button:has-text("Login"), button:has-text("Sign In")'
-        ).first.click()
-        admin_page.wait_for_timeout(3000)
-        assert "500" not in admin_page.title(), "Server error after super admin login"
-        assert "super-admin-login" not in admin_page.url, \
-            "Admin login did not redirect away from login page — credentials may be wrong"
+        """Super Admin can log in with configured real credentials."""
+        _super_admin_login(admin_page)
 
     @pytest.mark.skipif(
         not _HAS_ADMIN_CREDS,
-        reason="Set SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASS env vars to run admin login tests",
+        reason="Set SUPER_ADMIN_EMAIL or SUPER_ADMIN_PHONE plus SUPER_ADMIN_PASS env vars to run admin login tests",
     )
     def test_super_admin_can_view_sessions_section(self, admin_page: Page):
         """After login, Super Admin must be able to navigate to a sessions or reports section."""
-        admin_page.goto(_ADMIN_URL, wait_until="commit", timeout=30000)
-        admin_page.wait_for_timeout(1500)
-        admin_page.locator('input[type="email"]').first.fill(SUPER_ADMIN_EMAIL)
-        admin_page.locator('input[type="password"]').first.fill(SUPER_ADMIN_PASS)
-        admin_page.locator(
-            'button[type="submit"], button:has-text("Login"), button:has-text("Sign In")'
-        ).first.click()
-        admin_page.wait_for_timeout(3000)
+        _super_admin_login(admin_page)
 
         # Try to find sessions / reports link in the sidebar
         nav_link = admin_page.locator(
             'a:has-text("Sessions"), a:has-text("Reports"), '
-            'a:has-text("Bookings"), [data-testid="sessions-nav"]'
+            'a:has-text("Bookings"), a:has-text("الجلسات"), '
+            'a:has-text("التقارير"), [data-testid="sessions-nav"]'
         ).first
         try:
             nav_link.wait_for(state="visible", timeout=8000)
@@ -431,7 +544,7 @@ class TestSuperAdminSessionRecords:
 
     @pytest.mark.skipif(
         not _HAS_ADMIN_CREDS,
-        reason="Set SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASS env vars to run admin login tests",
+        reason="Set SUPER_ADMIN_EMAIL or SUPER_ADMIN_PHONE plus SUPER_ADMIN_PASS env vars to run admin login tests",
     )
     def test_super_admin_session_history_visible_for_automation_user(self, admin_page: Page):
         """
@@ -442,20 +555,13 @@ class TestSuperAdminSessionRecords:
         section. Either matching records appear, or a clear 'no results' state —
         an empty page with no message would be a bug.
         """
-        admin_page.goto(_ADMIN_URL, wait_until="commit", timeout=30000)
-        admin_page.wait_for_timeout(1500)
-        admin_page.locator('input[type="email"]').first.fill(SUPER_ADMIN_EMAIL)
-        admin_page.locator('input[type="password"]').first.fill(SUPER_ADMIN_PASS)
-        admin_page.locator(
-            'button[type="submit"], button:has-text("Login"), button:has-text("Sign In")'
-        ).first.click()
-        admin_page.wait_for_timeout(3000)
+        _super_admin_login(admin_page)
 
         # Navigate to sessions/reports
         try:
             admin_page.locator(
                 'a:has-text("Sessions"), a:has-text("Reports"), '
-                'a:has-text("Bookings")'
+                'a:has-text("Bookings"), a:has-text("الجلسات"), a:has-text("التقارير")'
             ).first.click()
             admin_page.wait_for_timeout(2000)
         except Exception:

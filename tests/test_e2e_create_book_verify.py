@@ -22,7 +22,7 @@ PHASE 3 — Verify 8 Data Flow Points
   DF-01: Student Wallet/Payments   → transaction record visible
   DF-02: Student My Bookings       → booking visible with real ID
   DF-03: Student Booking History   → recording section (EXPECTED: needs completed session)
-  DF-04: Super Admin Sessions      → session visible (requires SUPER_ADMIN_EMAIL+PASS)
+  DF-04: Super Admin Sessions      → session visible (requires SUPER_ADMIN_EMAIL/PASSWORD or PHONE/PASSWORD)
   DF-05: Tutor Calendar            → slot created shows on calendar
   DF-06: Tutor Booked Sessions     → booking from student appears
   DF-07: Tutor Group Sessions      → created course shows with real name+price
@@ -46,6 +46,7 @@ import time
 from datetime import date, timedelta
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote
 
 import pytest
 from playwright.sync_api import Page, Browser, BrowserContext
@@ -60,8 +61,19 @@ STUDENT_PHONE = os.getenv("STUDENT_PHONE",  "98765432")
 STUDENT_OTP   = os.getenv("STUDENT_OTP",    os.getenv("TEST_OTP",   "123456"))
 COUNTRY_NAME  = "Bangladesh"
 
-SUPER_ADMIN_EMAIL = os.getenv("SUPER_ADMIN_EMAIL", "")
-SUPER_ADMIN_PASS  = os.getenv("SUPER_ADMIN_PASS",  "")
+SUPER_ADMIN_EMAIL     = os.getenv("SUPER_ADMIN_EMAIL", "")
+SUPER_ADMIN_PHONE     = os.getenv("SUPER_ADMIN_PHONE", "")
+SUPER_ADMIN_PASS      = os.getenv("SUPER_ADMIN_PASS",  "")
+SUPER_ADMIN_OTP       = os.getenv("SUPER_ADMIN_OTP", os.getenv("TEST_OTP", "123456"))
+SUPER_ADMIN_LOGIN_URL = os.getenv("SUPER_ADMIN_LOGIN_URL", "")
+SUPER_ADMIN_COUNTRY   = os.getenv(
+    "SUPER_ADMIN_COUNTRY",
+    "Bangladesh" if os.getenv("SUPER_ADMIN_PHONE", "").startswith("01") else "",
+)
+SUPER_ADMIN_COUNTRY_CODE = os.getenv(
+    "SUPER_ADMIN_COUNTRY_CODE",
+    "+880" if SUPER_ADMIN_COUNTRY == "Bangladesh" else "+966",
+)
 
 _ROOT    = Path(__file__).parent.parent
 _REPORTS = _ROOT / "reports"
@@ -165,6 +177,124 @@ def _base() -> str:
 
 def _url(path: str) -> str:
     return f"{_base()}/en{path}"
+
+
+def _has_super_admin_creds() -> bool:
+    return bool((SUPER_ADMIN_EMAIL or SUPER_ADMIN_PHONE) and SUPER_ADMIN_PASS)
+
+
+def _super_admin_login_url() -> str:
+    if SUPER_ADMIN_LOGIN_URL:
+        return SUPER_ADMIN_LOGIN_URL
+    locale = "ar" if SUPER_ADMIN_PHONE and not SUPER_ADMIN_EMAIL else "en"
+    return f"{_base()}/{locale}/super-admin-login"
+
+
+def _super_admin_verify_url() -> str:
+    phone = re.sub(r"\D", "", SUPER_ADMIN_PHONE)
+    code = SUPER_ADMIN_COUNTRY_CODE.strip() or "+880"
+    if code in {"+880", "+966"} and phone.startswith("0"):
+        phone = phone[1:]
+    return _super_admin_login_url().rstrip("/") + f"/verify?phone={quote(code + phone)}"
+
+
+def _fill_first_visible(pg: Page, selector: str, value: str, *, timeout: int = 8000) -> bool:
+    loc = pg.locator(selector)
+    for i in range(min(loc.count(), 6)):
+        item = loc.nth(i)
+        try:
+            item.wait_for(state="visible", timeout=timeout if i == 0 else 1000)
+            item.fill(value)
+            return True
+        except Exception:
+            continue
+    return False
+
+
+def _click_first_visible(pg: Page, selector: str, *, timeout: int = 8000) -> bool:
+    loc = pg.locator(selector)
+    for i in range(min(loc.count(), 8)):
+        item = loc.nth(i)
+        try:
+            item.wait_for(state="visible", timeout=timeout if i == 0 else 1000)
+            item.click()
+            return True
+        except Exception:
+            continue
+    return False
+
+
+def _super_admin_login(pg: Page) -> None:
+    """Log in through the real super-admin form; supports email or phone + OTP."""
+    pg.goto(_super_admin_login_url(), wait_until="commit", timeout=30000)
+    pg.wait_for_timeout(2000)
+
+    identity = SUPER_ADMIN_EMAIL or SUPER_ADMIN_PHONE
+    if SUPER_ADMIN_PHONE and SUPER_ADMIN_COUNTRY:
+        try:
+            pg.locator('button:has-text("+")').first.click()
+            pg.wait_for_timeout(500)
+            pg.locator(f'button:has-text("{SUPER_ADMIN_COUNTRY}")').first.click()
+            pg.wait_for_timeout(500)
+        except Exception:
+            pass
+
+    identity_selector = (
+        'input[type="email"], input[type="tel"], input[name*="phone" i], '
+        'input[name*="mobile" i], input[name*="email" i], input[type="text"]'
+    )
+    if not _fill_first_visible(pg, identity_selector, identity):
+        raise RuntimeError("Super admin login identity field not found")
+    if not _fill_first_visible(pg, 'input[type="password"], input[name*="password" i]', SUPER_ADMIN_PASS):
+        raise RuntimeError("Super admin login password field not found")
+
+    if not _click_first_visible(
+        pg,
+        'button[type="submit"], button:has-text("Login"), button:has-text("Sign In"), '
+        'button:has-text("دخول"), button:has-text("تسجيل"), button:has-text("متابعة")',
+    ):
+        pg.locator("button").first.click()
+
+    pg.wait_for_timeout(2500)
+
+    if "super-admin-login" in pg.url and "/verify" not in pg.url:
+        body = pg.inner_text("body")
+        if "Please wait before requesting another code" in body:
+            pg.goto(_super_admin_verify_url(), wait_until="commit", timeout=20000)
+            pg.wait_for_timeout(1500)
+
+    otp_selector = (
+        'input[placeholder="000000"], input[name*="otp" i], input[name*="code" i], '
+        'input[inputmode="numeric"], input[type="number"], input[maxlength="1"]'
+    )
+    try:
+        otp_inputs = pg.locator(otp_selector)
+        if otp_inputs.count() >= len(SUPER_ADMIN_OTP):
+            otp_inputs.first.wait_for(state="visible", timeout=8000)
+            for i, digit in enumerate(SUPER_ADMIN_OTP):
+                otp_inputs.nth(i).fill(digit)
+        else:
+            otp = otp_inputs.first
+            otp.wait_for(state="visible", timeout=8000)
+            if not otp.is_disabled():
+                otp.fill(SUPER_ADMIN_OTP)
+        if otp_inputs.count() > 0:
+            _click_first_visible(
+                pg,
+                'button[type="submit"], button:has-text("Continue"), button:has-text("Verify"), '
+                'button:has-text("تأكيد"), button:has-text("تحقق"), button:has-text("تحقق من الدخول"), '
+                'button:has-text("متابعة")',
+                timeout=5000,
+            )
+            pg.wait_for_timeout(3000)
+    except Exception:
+        pass
+
+    if "500" in pg.title() or "404" in pg.title():
+        raise RuntimeError(f"Super admin login landed on error page: {pg.title()}")
+    if "super-admin-login" in pg.url:
+        body = pg.inner_text("body")[:500]
+        raise RuntimeError(f"Super admin login did not leave login page. Visible text: {body}")
 
 
 # ── OTP login ──────────────────────────────────────────────────────────────────
@@ -1066,13 +1196,12 @@ class TestPhase3DataFlowVerification:
     # ── DF-04: Super Admin Sessions ────────────────────────────────────────────
 
     @pytest.mark.skipif(
-        not (os.getenv("SUPER_ADMIN_EMAIL") and os.getenv("SUPER_ADMIN_PASS")),
-        reason="Set SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASS to run admin verification"
+        not _has_super_admin_creds(),
+        reason="Set SUPER_ADMIN_EMAIL or SUPER_ADMIN_PHONE plus SUPER_ADMIN_PASS to run admin verification"
     )
     def test_df04_super_admin_sessions(self, browser: Browser):
         """DF-04: Session visible in Super Admin sessions panel."""
         bid = _STATE["booking"].get("booking_id", "")
-        admin_login_url = _base() + "/en/super-admin-login"
 
         ctx = browser.new_context(
             viewport={"width": 1280, "height": 800},
@@ -1080,27 +1209,30 @@ class TestPhase3DataFlowVerification:
         )
         pg = ctx.new_page()
         try:
-            pg.goto(admin_login_url, wait_until="commit", timeout=25000)
-            pg.wait_for_timeout(2000)
-            pg.locator('input[type="email"], input[type="text"]').first.fill(SUPER_ADMIN_EMAIL)
-            pg.locator('input[type="password"]').first.fill(SUPER_ADMIN_PASS)
-            pg.locator('button[type="submit"], button:has-text("Login")').first.click()
-            pg.wait_for_timeout(4000)
+            _super_admin_login(pg)
 
             # Try to navigate to sessions
-            for sess_url in ["/en/admin/sessions", "/en/admin/bookings", "/en/admin"]:
-                pg.goto(_base() + sess_url, wait_until="commit", timeout=20000)
+            for sess_url in [
+                "/ar/admin/session-management", "/en/admin/session-management",
+                "/en/super-admin/sessions", "/ar/super-admin/sessions",
+                "/en/admin/sessions", "/ar/admin/sessions",
+                "/en/admin/bookings", "/ar/admin/bookings",
+                "/en/admin", "/ar/admin",
+            ]:
+                target = _base() + sess_url
+                pg.goto(target, wait_until="commit", timeout=20000)
                 pg.wait_for_timeout(2500)
                 if bid and bid in pg.content():
                     _rec("DF-04", "Super Admin Sessions",
                          f"BID {bid} in admin sessions",
-                         "PASS", f"Booking {bid} visible at {_base() + sess_url}")
+                         "PASS", f"Booking {bid} visible at {target}")
                     _STATE["verifications"]["df04"] = "PASS"
                     return
 
             # Check if admin can see sessions at all
             page_text = pg.inner_text("body")
             has_sessions = bool(re.search(r"Session|Booking|Student", page_text, re.I))
+            has_sessions = has_sessions or bool(re.search(r"الجلسات|إدارة الجلسات|المعلم والطالب", page_text))
             status = "PASS" if has_sessions else "FAIL"
             _rec("DF-04", "Super Admin Sessions",
                  f"Admin sessions page — BID: {bid}",
@@ -1117,12 +1249,12 @@ class TestPhase3DataFlowVerification:
 
     def test_df04_admin_skip_if_no_creds(self):
         """DF-04 skipped when no admin credentials — mark as EXPECTED."""
-        if SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASS:
+        if _has_super_admin_creds():
             pytest.skip("Admin creds available — running full admin test")
         _rec("DF-04", "Super Admin Sessions",
              "Admin sessions check (no creds configured)",
              "SKIP",
-             "Set SUPER_ADMIN_EMAIL + SUPER_ADMIN_PASS env vars to enable admin verification")
+             "Set SUPER_ADMIN_EMAIL or SUPER_ADMIN_PHONE plus SUPER_ADMIN_PASS to enable admin verification")
         _STATE["verifications"]["df04"] = "SKIP"
 
     # ── DF-05: Tutor Calendar ─────────────────────────────────────────────────
