@@ -373,11 +373,18 @@ def _otp_login(pg: Page, phone: str, otp: str, label: str = "", *, tutor: bool =
         pg.goto(_url("/dashboard/availability"), wait_until="commit", timeout=25000)
         pg.wait_for_timeout(2500)
         body = pg.inner_text("body")
+        if "/dashboard" not in pg.url:
+            raise RuntimeError(f"{phone} did not reach tutor dashboard after OTP login: {pg.url}")
         if "No Data Available" in body and "tutor profile" in body.lower():
             raise RuntimeError(
                 f"{phone} logged in without an approved tutor profile. "
                 "Use TEACHER_PHONE for a real tutor account."
             )
+    else:
+        pg.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=25000)
+        pg.wait_for_timeout(2000)
+        if "/dashboard" not in pg.url:
+            raise RuntimeError(f"{phone} did not reach student dashboard after OTP login: {pg.url}")
     print(f"[E2E] Login OK: {who} → {pg.url}", flush=True)
 
 
@@ -475,6 +482,7 @@ def _tutor_storage(browser: Browser, tmp_path_factory):
     except Exception as exc:
         _STATE["errors"].append(f"Tutor login failed: {exc}")
         print(f"[E2E] WARN: tutor login failed — {exc}", flush=True)
+        raise RuntimeError(f"Tutor login failed; real setup cannot continue: {exc}") from exc
     finally:
         ctx.close()
     yield str(sf)
@@ -494,6 +502,7 @@ def _student_storage(browser: Browser, tmp_path_factory):
     except Exception as exc:
         _STATE["errors"].append(f"Student login failed: {exc}")
         print(f"[E2E] WARN: student login failed — {exc}", flush=True)
+        raise RuntimeError(f"Student login failed; real booking cannot continue: {exc}") from exc
     finally:
         ctx.close()
     yield str(sf)
@@ -544,7 +553,7 @@ class TestPhase1TutorSetup:
         if "/dashboard" not in tutor_pg.url:
             _rec("P1-01", "Tutor Availability", "Tutor login check",
                  "FAIL", f"Not on dashboard: {tutor_pg.url}")
-            pytest.skip("Tutor not logged in / not on dashboard")
+            pytest.fail("Tutor not logged in / not on dashboard")
 
         add_btn = tutor_pg.locator(
             'button:has-text("Add Availability Time"), '
@@ -556,7 +565,7 @@ class TestPhase1TutorSetup:
         except Exception:
             _rec("P1-01", "Tutor Availability", f"Slot {SLOT_DATE_STR}",
                  "FAIL", "'Add Availability Time' button not visible")
-            pytest.skip("'Add Availability Time' button not found")
+            pytest.fail("'Add Availability Time' button not found")
 
         add_btn.click()
         tutor_pg.wait_for_timeout(1500)
@@ -565,7 +574,7 @@ class TestPhase1TutorSetup:
         except Exception:
             _rec("P1-01", "Tutor Availability", f"Slot {SLOT_DATE_STR}",
                  "FAIL", "Availability dialog did not open")
-            pytest.skip("Availability dialog did not open")
+            pytest.fail("Availability dialog did not open")
 
         dlg = tutor_pg.locator('[role="dialog"]')
         tutor_pg.wait_for_timeout(800)
@@ -639,7 +648,7 @@ class TestPhase1TutorSetup:
         except Exception:
             _rec("P1-02", "Tutor Group Sessions", COURSE_NAME,
                  "FAIL", "'Group sessions' button not visible")
-            pytest.skip("'Group sessions' button not found")
+            pytest.fail("'Group sessions' button not found")
 
         grp_btn.click()
         tutor_pg.wait_for_timeout(1500)
@@ -648,7 +657,7 @@ class TestPhase1TutorSetup:
         except Exception:
             _rec("P1-02", "Tutor Group Sessions", COURSE_NAME,
                  "FAIL", "Group session wizard did not open")
-            pytest.skip("Group session wizard did not open")
+            pytest.fail("Group session wizard did not open")
 
         dlg = tutor_pg.locator('[role="dialog"]')
         tutor_pg.wait_for_timeout(1000)
@@ -1446,8 +1455,8 @@ def _write_reports() -> None:
     # ── realtime_flow_report.json (primary — consumed by build_pages_site.py) ──
     rt_payload = {
         "booking": {
-            "booking_id":     bid    or "—",
-            "payment_amount": amount or "—",
+            "booking_id":     bid,
+            "payment_amount": amount,
             "tutor_name":     tutor  or f"Tutor {TUTOR_ID}",
             "booked_at":      booked or time.strftime("%Y-%m-%d %H:%M:%S"),
         },

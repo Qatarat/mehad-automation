@@ -275,11 +275,18 @@ def _otp_login(pg: Page, phone: str, otp: str, label: str = "", *, tutor: bool =
         pg.goto(_url("/dashboard/availability"), wait_until="commit", timeout=25000)
         pg.wait_for_timeout(2500)
         body = pg.inner_text("body")
+        if "/dashboard" not in pg.url:
+            raise RuntimeError(f"{phone} did not reach tutor dashboard after OTP login: {pg.url}")
         if "No Data Available" in body and "tutor profile" in body.lower():
             raise RuntimeError(
                 f"{phone} logged in without an approved tutor profile. "
                 "Use TEACHER_PHONE for a real tutor account."
             )
+    else:
+        pg.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=25000)
+        pg.wait_for_timeout(2000)
+        if "/dashboard" not in pg.url:
+            raise RuntimeError(f"{phone} did not reach student dashboard after OTP login: {pg.url}")
     print(f"[SETUP] Login OK ({who}) → {pg.url}", flush=True)
 
 

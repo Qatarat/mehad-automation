@@ -20,7 +20,7 @@ v2 architecture: MD → Spec Compiler → JSON → 22 test types → Validator �
 • Test data log   — written incrementally; CI always has data even if cancelled
 """
 
-import os, sys, json, ast, re, builtins, subprocess
+import os, sys, json, ast, re, builtins, subprocess, signal
 import concurrent.futures as _cf
 from pathlib import Path
 from datetime import datetime
@@ -1603,9 +1603,11 @@ def generate_all_22_types(spec: ParsedSpec) -> tuple[str, dict]:
 
 def _stream(cmd: list, env: dict, timeout: int = 300) -> tuple[int, str]:
     lines = []
+    proc = None
     try:
         proc = subprocess.Popen(cmd, env=env, stdout=subprocess.PIPE,
-                                stderr=subprocess.STDOUT, text=True, bufsize=1)
+                                stderr=subprocess.STDOUT, text=True, bufsize=1,
+                                start_new_session=True)
         for line in proc.stdout:
             s = line.rstrip()
             lines.append(s)
@@ -1613,7 +1615,15 @@ def _stream(cmd: list, env: dict, timeout: int = 300) -> tuple[int, str]:
         proc.wait(timeout=timeout)
         return proc.returncode, "\n".join(lines)
     except subprocess.TimeoutExpired:
-        proc.kill()
+        if proc and proc.poll() is None:
+            try:
+                os.killpg(proc.pid, signal.SIGTERM)
+                proc.wait(timeout=5)
+            except Exception:
+                try:
+                    os.killpg(proc.pid, signal.SIGKILL)
+                except Exception:
+                    proc.kill()
         return -1, "\n".join(lines) + "\n[TIMEOUT]"
     except Exception as e:
         return -1, f"[ERROR] {e}"
@@ -1646,8 +1656,7 @@ def run_tests(test_file: Path) -> dict:
         [sys.executable, "-m", "pytest", str(test_file),
          "-v", "--tb=short", "--no-header",
          "--browser=chromium",
-         "--json-report", f"--json-report-file={json_report}",
-         "--timeout=60"],
+         "--json-report", f"--json-report-file={json_report}"],
         env, timeout=420,
     )
 

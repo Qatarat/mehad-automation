@@ -48,7 +48,9 @@ jobs:
   autonomous-ai-test:
     name: AI Test Agent v5
     runs-on: ubuntu-latest
-    timeout-minutes: 90   # 7b model needs more time
+    timeout-minutes: 70   # AI job must not block report deploy forever
+    needs: qa-agent-data-flow
+    if: always()
 
     # WAHA provides a WhatsApp OTP reader for production tests.
     # Session needs one-time QR scan at http://localhost:3000/dashboard.
@@ -236,7 +238,7 @@ jobs:
 
       # ── 12. Run the AI agent ──────────────────────────────────────────────
       - name: Run AI Test Agent
-        timeout-minutes: 75   # hard limit on agent execution
+        timeout-minutes: 55   # hard limit on agent execution
         env:
           BASE_URL:              ${{ env.BASE_URL }}
           AI_MODEL:              ${{ env.AI_MODEL }}
@@ -1405,6 +1407,8 @@ jobs:
     name: "QA — Spec Validation (70 specs, 2000+ tests)"
     runs-on: ubuntu-latest
     timeout-minutes: 120
+    needs: qa-agent-data-flow
+    if: always()
 
     services:
       waha:
@@ -1586,11 +1590,11 @@ jobs:
 
     env:
       BASE_URL:       ${{ github.event.inputs.base_url || 'https://dev.mehadedu.com/en' }}
-      STUDENT_PHONE:  "98765432"
-      STUDENT_OTP:    "123456"
-      TEACHER_PHONE:  "98976564"
-      TEACHER_OTP:    "123456"
-      TEST_COUNTRY:   "+880"
+      STUDENT_PHONE:  ${{ secrets.STUDENT_PHONE || '98765432' }}
+      STUDENT_OTP:    ${{ secrets.STUDENT_OTP   || '123456' }}
+      TEACHER_PHONE:  ${{ secrets.TEACHER_PHONE || secrets.TEST_PHONE || '98976564' }}
+      TEACHER_OTP:    ${{ secrets.TEACHER_OTP   || secrets.TEST_OTP   || '123456' }}
+      TEST_COUNTRY:   ${{ secrets.TEST_COUNTRY  || '+880' }}
       SUPER_ADMIN_EMAIL:     ${{ secrets.SUPER_ADMIN_EMAIL     || '' }}
       SUPER_ADMIN_PHONE:     ${{ secrets.SUPER_ADMIN_PHONE     || '' }}
       SUPER_ADMIN_PASS:      ${{ secrets.SUPER_ADMIN_PASS      || '' }}
@@ -1671,6 +1675,7 @@ jobs:
           STUDENT_OTP=${{ env.STUDENT_OTP }} \
           TEACHER_PHONE=${{ env.TEACHER_PHONE }} \
           TEACHER_OTP=${{ env.TEACHER_OTP }} \
+          TEST_COUNTRY=${{ env.TEST_COUNTRY }} \
           python3 tests/setup_test_data.py 2>&1 | tee reports/setup-test-data.txt
           echo ""
           echo "=== Setup result ==="
@@ -1720,6 +1725,50 @@ jobs:
             --html=reports/realtime-data-flow.html --self-contained-html \
             --json-report --json-report-file=reports/realtime_flow_results.json \
             -p no:cacheprovider 2>&1 | tee reports/realtime-data-flow.txt
+      - name: Enforce real data-flow artifacts
+        if: always()
+        run: |
+          python3 - <<'PY'
+          import json, re
+          from pathlib import Path
+
+          p = Path("reports/e2e_data_flow_report.json")
+          if not p.exists():
+              raise SystemExit("reports/e2e_data_flow_report.json missing")
+
+          d = json.loads(p.read_text())
+          booking = d.get("booking", {})
+          created = d.get("created_data", {})
+          steps = d.get("steps", [])
+          bid = str(booking.get("booking_id") or "")
+          slot = created.get("slot") or {}
+          course = created.get("course") or {}
+          failures = []
+
+          if not re.search(r"\bD?BK-\d{8}-[A-Z0-9]{4,8}\b", bid, re.I):
+              failures.append(f"missing real booking_id (got {bid!r})")
+          if not slot.get("created") or not slot.get("date") or not slot.get("start_time"):
+              failures.append(f"slot not created with real date/time: {slot!r}")
+          if not course.get("created") or not course.get("name") or not course.get("price_sar"):
+              failures.append(f"course not created with real name/price: {course!r}")
+
+          failed_steps = [
+              f"{s.get('step')} {s.get('module')}: {s.get('detail')}"
+              for s in steps if s.get("status") == "FAIL"
+          ]
+          if failed_steps:
+              failures.append("failed data-flow checks: " + " | ".join(failed_steps[:8]))
+
+          if failures:
+              print("REAL DATA FLOW GATE FAILED")
+              for f in failures:
+                  print(" -", f)
+              raise SystemExit(1)
+
+          print(f"REAL DATA FLOW GATE PASSED: {bid}")
+          print(f"slot={slot}")
+          print(f"course={course}")
+          PY
       - name: Write Data Flow Summary
         if: always()
         run: |
@@ -1794,6 +1843,8 @@ jobs:
     name: "QA Agent 20 — Login & Signup E2E"
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    needs: qa-agent-data-flow
+    if: always()
     env:
       BASE_URL:      ${{ github.event.inputs.base_url || 'https://dev.mehadedu.com/en' }}
       TEST_OTP:      ${{ secrets.TEST_OTP     || '123456' }}
@@ -1877,6 +1928,8 @@ jobs:
     name: "QA Agent 21 — Payment & Become Tutor"
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    needs: qa-agent-data-flow
+    if: always()
     env:
       BASE_URL:      ${{ github.event.inputs.base_url || 'https://dev.mehadedu.com/en' }}
       TEST_OTP:      ${{ secrets.TEST_OTP     || '123456' }}
@@ -1955,6 +2008,8 @@ jobs:
     name: "QA Agent 22 — Live Session & Super Admin"
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    needs: qa-agent-data-flow
+    if: always()
     env:
       BASE_URL:          ${{ github.event.inputs.base_url || 'https://dev.mehadedu.com/en' }}
       TEST_OTP:          ${{ secrets.TEST_OTP     || '123456' }}
@@ -2024,7 +2079,6 @@ jobs:
     timeout-minutes: 15
     if: always()
     needs:
-      - autonomous-ai-test
       - qa-agent-1-functional
       - qa-agent-2-security-perf
       - qa-agent-3-api-accessibility
