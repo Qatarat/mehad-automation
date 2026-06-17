@@ -69,7 +69,7 @@ jobs:
       TEST_COUNTRY:          ${{ secrets.TEST_COUNTRY    || '+880' }}
       TEACHER_PHONE:         ${{ secrets.TEACHER_PHONE   || '98976564' }}
       TEACHER_OTP:           ${{ secrets.TEACHER_OTP     || '123456' }}
-      STUDENT_PHONE:         ${{ secrets.STUDENT_PHONE   || '98976564' }}
+      STUDENT_PHONE:         ${{ secrets.STUDENT_PHONE   || '98765432' }}
       STUDENT_OTP:           ${{ secrets.STUDENT_OTP     || '123456' }}
       # ── Production OTP (Twilio) — only active when BASE_URL=mehadedu.com ─
       PROD_OTP_BACKEND:      ${{ secrets.PROD_OTP_BACKEND }}
@@ -1391,7 +1391,7 @@ jobs:
           if-no-files-found: warn
 
   # ─────────────────────────────────────────────────────────────────────────────
-  # SPEC VALIDATION — Runs all 68 spec-driven tests (test_specs_all.py)
+  # SPEC VALIDATION — Runs all 70 spec-driven tests (test_specs_all.py)
   # Regenerates from scratch so specs added since last commit are always covered.
   # Results written as individual per-spec JSON files for per-group reporting.
   # ─────────────────────────────────────────────────────────────────────────────
@@ -1413,7 +1413,7 @@ jobs:
       TEST_COUNTRY:    ${{ secrets.TEST_COUNTRY    || '+880' }}
       TEACHER_PHONE:   ${{ secrets.TEACHER_PHONE   || '98976564' }}
       TEACHER_OTP:     ${{ secrets.TEACHER_OTP     || '123456' }}
-      STUDENT_PHONE:   ${{ secrets.STUDENT_PHONE   || '98976564' }}
+      STUDENT_PHONE:   ${{ secrets.STUDENT_PHONE   || '98765432' }}
       STUDENT_OTP:     ${{ secrets.STUDENT_OTP     || '123456' }}
       # ── WAHA (WhatsApp HTTP API) — Docker service above exposes :3000 ────────
       WAHA_URL:        http://localhost:3000
@@ -1444,16 +1444,32 @@ jobs:
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
 
-      - name: Regenerate test_specs_all.py from all 68 specs
+      - name: Regenerate test_specs_all.py from all 70 specs
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: |
-          echo "=== Regenerating tests from 68 spec files ==="
+          echo "=== Regenerating tests from 70 spec files ==="
           python3 scripts/validate_all_specs.py
           echo "Test functions: $(grep -c '^    def test_' tests/test_specs_all.py || echo '?')"
 
       - name: Verify generated test file syntax
         run: python3 -m py_compile tests/test_specs_all.py && echo "✅ Syntax OK"
+
+      - name: Run QA-23 Route Inventory Tests
+        continue-on-error: true
+        env:
+          BASE_URL:       ${{ env.BASE_URL }}
+          TEACHER_PHONE:  ${{ env.TEACHER_PHONE }}
+          TEACHER_OTP:    ${{ env.TEACHER_OTP }}
+          TEST_COUNTRY:   ${{ env.TEST_COUNTRY }}
+          PYTHONPATH:     ${{ github.workspace }}
+        run: |
+          python3 -m pytest tests/test_route_inventory.py \
+            --timeout=45 --timeout-method=thread \
+            --tb=short -v -p no:warnings \
+            --html=reports/route-inventory.html --self-contained-html \
+            --json-report --json-report-file=reports/qa23_route_inventory_results.json \
+            -p no:cacheprovider 2>&1 | tee reports/route-inventory.txt || true
 
       - name: Run all spec tests — Part A (first 35 spec classes)
         continue-on-error: true
@@ -1502,7 +1518,10 @@ jobs:
           name: qa-spec-validation-${{ github.run_number }}
           path: |
             reports/qa21_spec_validation*.json
+            reports/qa23_route_inventory_results.json
             reports/spec-validation*.html
+            reports/route-inventory.html
+            reports/route-inventory.txt
             reports/spec-validation*.txt
             reports/screenshots/
           retention-days: 30

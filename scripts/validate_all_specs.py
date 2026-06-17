@@ -838,6 +838,13 @@ def _class_for_spec(compiled: dict, spec_name: str) -> str:
     # Auth pages need unauthenticated context (stored session would redirect away)
     _auth_paths = ("/login", "/signup", "/register", "/reset", "/forgot", "/sign-up", "/sign_up")
     is_auth_page = any(page_path.startswith(p) for p in _auth_paths)
+    admin_only_specs = {
+        "add_admin", "add_super_admin", "change_2fa_number", "hours_packages",
+        "instructors", "login_reset", "notifications", "payout", "platfromfee",
+        "promo_codes", "reports", "reviews", "students", "subject_categories",
+        "subjects", "testimonials", "translations",
+    }
+    retired_specs = {"session"}
 
     lines: list[str] = []
     tc = [0]
@@ -862,6 +869,22 @@ def _class_for_spec(compiled: dict, spec_name: str) -> str:
         f"    PAGE_URL  = {page_url!r}",
         f"",
     )
+
+    if spec_name in admin_only_specs:
+        add(
+            f"    pytestmark = pytest.mark.skipif(",
+            f"        not (_os.getenv('SUPER_ADMIN_EMAIL') and _os.getenv('SUPER_ADMIN_PASS')),",
+            f"        reason='Super Admin credentials not configured; admin-only spec skipped until credentials are provided',",
+            f"    )",
+            f"",
+        )
+    elif spec_name in retired_specs:
+        add(
+            f"    pytestmark = pytest.mark.skip(",
+            f"        reason='Route no longer exists in current app; live session coverage moved to booked sessions and data-flow tests'",
+            f"    )",
+            f"",
+        )
 
     if is_auth_page:
         add(
@@ -1467,7 +1490,7 @@ def generate_test_file(all_specs: list[tuple]) -> tuple[str, int, list[dict]]:
                             pg.keyboard.press("Enter")
                     pg.wait_for_url(lambda u: "/login" not in u, timeout=30000)
                 else:
-                    _otp_login(pg, TEACHER_PHONE, TEACHER_OTP, TEACHER_CTRY, tutor=False)
+                    _otp_login(pg, TEACHER_PHONE, TEACHER_OTP, TEACHER_CTRY, tutor=True)
                 ctx.storage_state(path=str(sf))
             except Exception as exc:
                 ctx.close()

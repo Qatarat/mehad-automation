@@ -7,12 +7,12 @@
 ![Python](https://img.shields.io/badge/Python-3.12%2B-blue?logo=python)
 ![Playwright](https://img.shields.io/badge/Playwright-1.44%2B-green?logo=playwright)
 ![Tests](https://img.shields.io/badge/Tests-2000%2B-orange)
-![Specs](https://img.shields.io/badge/Specs-69%20pages-blueviolet)
+![Specs](https://img.shields.io/badge/Specs-70%20pages-blueviolet)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
 **Write a spec file describing your page → get 2000+ automated tests instantly.**
 
-*69 pages · 22 QA agent types · Spec-driven URLs · No hard-coded targets · Production E2E verified*
+*70 pages · 23 QA agent types · Spec-driven URLs · No hard-coded targets · Production E2E verified*
 
 [**View Live Report →**](https://qatarat.github.io/mehad-automation/)
 
@@ -429,7 +429,7 @@ pytest tests/test_qa_comprehensive.py::TestQA08MobileAndViewport -v # Mobile
 ### Spec-driven tests (all 68 pages)
 
 ```bash
-# Regenerate test_specs_all.py from the 68 spec files, then run
+# Regenerate test_specs_all.py from the 70 spec files, then run
 python3 scripts/validate_all_specs.py
 pytest tests/test_specs_all.py -v
 
@@ -500,7 +500,7 @@ pytest tests/ -v
 # Payment tests only (sandbox — no real charges)
 pytest tests/test_payment_flow.py -v
 
-# Spec-driven tests for all 69 pages
+# Spec-driven tests for all 70 pages
 pytest tests/test_specs_all.py -v
 
 # Single feature

@@ -60,6 +60,7 @@ AGENT_REPORTS = [
     ("agent-qa19_exploratory.html",     "qa19-exploratory.html",     "QA-19 Autonomous Explorer", "🤖"),
     ("agent-qa20_fuzzing.html",         "qa20-fuzzing.html",         "QA-20 Property-Based Fuzz", "🎲"),
     ("agent-qa22_vision.html",          "qa22-vision.html",          "QA-22 Vision-LLM UI Review","👁️"),
+    ("agent-qa23_route_inventory.html", "route-inventory.html",      "QA-23 Route Inventory",    "🧭"),
     ("agent-login.html",                "ai-test-agent.html",        "AI Test Agent (auto-gen)",  "🛠️"),
     ("e2e-create-book-verify.html",     "e2e-create-book-verify.html","E2E Create+Book+Verify (8-point)","🔄"),
     ("data-flow-e2e.html",              "data-flow-e2e.html",        "DF-E2E Data Flow (8 modules)","📊"),

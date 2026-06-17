@@ -1,16 +1,15 @@
 # Page: Student Find Group Course and Enroll
 
-**URL:** `https://dev.mehadedu.com/en/find-tutors?session=group`
+**URL:** `https://dev.mehadedu.com/en/group-sessions`
 
 ## Description
-Group course search and enrollment workflow. Students find group sessions via Find Tutors > Group Session dropdown, filter by subject/price/time, and enroll with payment.
+Group course search and enrollment workflow. Students find group sessions from the public Group Session route, filter by subject/price/time, and enroll with payment.
 
 ## UI Elements
 
 | Element | Selector | Notes |
 |---|---|---|
-| Find Tutors button | `button:has-text("Find Tutors")` | Required |
-| Group Session menu item | `[role="menuitem"]:has-text("Group Session")` | Required |
+| Group Session nav link | `a[href*="/group-sessions"], a:has-text("Group Session")` | Required |
 | Group session heading | `h1:has-text("Find your perfect tutor"), h1:has-text("group")` | Required |
 | Subject filter | `select, [placeholder*="All Subjects"], [aria-label*="Subject"]` | Optional |
 | Price filter | `[placeholder*="Any price"], [aria-label*="price"]` | Optional |
@@ -29,8 +28,8 @@ Group course search and enrollment workflow. Students find group sessions via Fi
 ### Flow 1: Enroll in Group Session
 1. Navigate to https://dev.mehadedu.com/en
 2. Login as student (phone 98976564, OTP 123456)
-3. Click "Find Tutors" in header
-4. Click "Group Session" from dropdown
+3. Click "Group Session" in header
+4. Navigate to `/en/group-sessions`
 5. Filter by subject (e.g., Math)
 6. Browse group session cards
 7. Click "Enroll Now" on desired session
@@ -57,7 +56,7 @@ Group course search and enrollment workflow. Students find group sessions via Fi
 → Expected: System prevents duplicate enrollment
 
 ## Requirements
-- REQ-01: Group Session accessible from Find Tutors dropdown
+- REQ-01: Group Session accessible from header navigation at `/en/group-sessions`
 - REQ-02: Group sessions page shows available courses
 - REQ-03: Subject, price, and time filters work correctly
 - REQ-04: Each course card shows tutor details and session info
