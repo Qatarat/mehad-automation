@@ -78,6 +78,89 @@ def _load_summary() -> dict:
         return {}
 
 
+def _fallback_summary_from_artifacts() -> dict:
+    """Build index stats from raw artifacts if consolidation failed.
+
+    The Pages job intentionally runs with if: always(), so a failed
+    consolidate step must not publish a misleading all-zero dashboard.
+    """
+    passed = failed = total = bugs = 0
+    sources: list[dict] = []
+    base_url = ""
+
+    skip_names = {
+        "consolidated_summary.json",
+        "trends.json",
+        "setup_data_summary.json",
+        "setup_data_summary.e2e.json",
+    }
+    for p in sorted(REPORTS_DIR.rglob("*.json")):
+        if p.name in skip_names:
+            continue
+        try:
+            data = json.loads(p.read_text(encoding="utf-8", errors="ignore"))
+        except Exception:
+            continue
+        if not isinstance(data, dict):
+            continue
+        base_url = base_url or str(data.get("base_url") or "")
+
+        src_p = src_f = src_t = 0
+        summary = data.get("summary")
+        if isinstance(summary, dict):
+            src_p = int(summary.get("passed") or 0)
+            src_f = int(summary.get("failed") or 0) + int(summary.get("error") or 0)
+            src_t = int(summary.get("total") or (src_p + src_f))
+        elif isinstance(data.get("tests"), list):
+            for item in data["tests"]:
+                if not isinstance(item, dict):
+                    continue
+                outcome = item.get("outcome")
+                if outcome == "passed":
+                    src_p += 1
+                elif outcome in ("failed", "error"):
+                    src_f += 1
+            src_t = src_p + src_f
+        elif isinstance(data.get("steps"), list):
+            for item in data["steps"]:
+                if not isinstance(item, dict):
+                    continue
+                status = item.get("status")
+                if status == "PASS":
+                    src_p += 1
+                elif status == "FAIL":
+                    src_f += 1
+            src_t = src_p + src_f
+
+        if src_t <= 0:
+            continue
+        passed += src_p
+        failed += src_f
+        total += src_t
+        bugs += src_f
+        sources.append({
+            "source": str(p.relative_to(REPORTS_DIR)),
+            "passed": src_p,
+            "failed": src_f,
+            "total": src_t,
+        })
+
+    if total <= 0:
+        return {}
+    return {
+        "total_passed": passed,
+        "total_failed": failed,
+        "total_tests": total,
+        "actual_tests_run": total,
+        "total_bugs": bugs,
+        "pass_rate": f"{passed / total * 100:.1f}%",
+        "sources": sources,
+        "base_url": base_url,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "fallback_summary": True,
+    }
+
+
 def _has_agent_report(*filenames: str) -> Path | None:
     """Find an agent's html report by trying multiple filename candidates.
     Walks REPORTS_DIR (artifacts may extract under nested subdirs)."""
@@ -1786,6 +1869,11 @@ def main() -> None:
 
     # 3. Build index.html
     summary = _load_summary()
+    if int(summary.get("total_tests") or 0) == 0:
+        fallback = _fallback_summary_from_artifacts()
+        if fallback:
+            summary = fallback
+            print("  ⚠️  using fallback artifact summary for index stats")
     # History sources, in priority order:
     #   (a) trends.json — cumulative across all runs (gh-pages backed),
     #       knows about runs even if their run-N.html was cleaned up
