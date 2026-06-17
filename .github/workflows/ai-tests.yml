@@ -1619,8 +1619,8 @@ jobs:
           python3 -m py_compile tests/test_realtime_data_flow.py && echo "✅ test_realtime_data_flow.py"
           python3 -m py_compile tests/test_e2e_create_book_verify.py && echo "✅ test_e2e_create_book_verify.py"
       - name: "Run Full E2E Create+Book+Verify (Phase 1-3 all-in-one)"
-        continue-on-error: true
         run: |
+          set -o pipefail
           echo "=== Full E2E: Tutor creates slot+course → Student books → Verify 8 data flow points ==="
           BASE_URL=${{ env.BASE_URL }} \
           STUDENT_PHONE=${{ env.STUDENT_PHONE }} \
@@ -1641,6 +1641,7 @@ jobs:
             --html=reports/e2e-create-book-verify.html --self-contained-html \
             --json-report --json-report-file=reports/e2e_cbv_results.json \
             -p no:cacheprovider 2>&1 | tee reports/e2e-create-book-verify.txt
+          cp reports/e2e_data_flow_report.json reports/e2e_data_flow_report.full.json
           echo ""
           echo "=== E2E create+book+verify result ==="
           if [ -f reports/e2e_data_flow_report.json ]; then
@@ -1736,9 +1737,11 @@ jobs:
           import json, re
           from pathlib import Path
 
-          p = Path("reports/e2e_data_flow_report.json")
+          p = Path("reports/e2e_data_flow_report.full.json")
           if not p.exists():
-              raise SystemExit("reports/e2e_data_flow_report.json missing")
+              p = Path("reports/e2e_data_flow_report.json")
+          if not p.exists():
+              raise SystemExit("reports/e2e_data_flow_report.full.json missing")
 
           d = json.loads(p.read_text())
           booking = d.get("booking", {})
@@ -1831,6 +1834,7 @@ jobs:
             reports/e2e-create-book-verify*
             reports/e2e_cbv*
             reports/e2e_data_flow_report.json
+            reports/e2e_data_flow_report.full.json
             reports/setup_data_summary.json
             reports/setup_data_summary.e2e.json
             reports/setup_data_summary.setup*.json

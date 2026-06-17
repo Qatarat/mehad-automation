@@ -1301,7 +1301,10 @@ def _find_json_report(reports_dir: "Path", filename: str) -> "Path | None":
 
 def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
     """Generate gh-pages-site/data-flow.html from realtime + DF JSON reports."""
-    e2e_json = _find_json_report(reports_dir, "e2e_data_flow_report.json")
+    e2e_json = (
+        _find_json_report(reports_dir, "e2e_data_flow_report.full.json")
+        or _find_json_report(reports_dir, "e2e_data_flow_report.json")
+    )
     rt_json  = _find_json_report(reports_dir, "realtime_flow_report.json")
     df_json  = _find_json_report(reports_dir, "data_flow_report.json")
 

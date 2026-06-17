@@ -301,6 +301,14 @@ def _super_admin_login(pg: Page) -> None:
 
 def _otp_login(pg: Page, phone: str, otp: str, label: str = "", *, tutor: bool = False) -> None:
     who = label or phone
+
+    def _debug_state() -> str:
+        try:
+            body = re.sub(r"\s+", " ", pg.inner_text("body")).strip()[:700]
+        except Exception:
+            body = "<body unavailable>"
+        return f"url={pg.url}; title={pg.title()!r}; text={body!r}"
+
     login_url = _url("/tutor-login") if tutor else BASE_URL
     pg.goto(login_url, wait_until="commit", timeout=30000)
     pg.wait_for_timeout(3000)
@@ -367,14 +375,22 @@ def _otp_login(pg: Page, phone: str, otp: str, label: str = "", *, tutor: bool =
     cont = container.locator('button:has-text("Continue"), button:has-text("continue")').first
     if cont.count() == 0:
         cont = pg.get_by_role("button", name=re.compile(r"^continue$|^Continue$", re.I)).first
-    cont.click()
-    pg.wait_for_timeout(4000)
+    cont.scroll_into_view_if_needed()
+    cont.click(force=True)
+    try:
+        pg.wait_for_load_state("networkidle", timeout=12000)
+    except Exception:
+        pass
+    try:
+        pg.wait_for_url(re.compile(r".*/dashboard.*"), timeout=12000)
+    except Exception:
+        pg.wait_for_timeout(4000)
     if tutor:
         pg.goto(_url("/dashboard/availability"), wait_until="commit", timeout=25000)
         pg.wait_for_timeout(2500)
         body = pg.inner_text("body")
         if "/dashboard" not in pg.url:
-            raise RuntimeError(f"{phone} did not reach tutor dashboard after OTP login: {pg.url}")
+            raise RuntimeError(f"{phone} did not reach tutor dashboard after OTP login: {_debug_state()}")
         if "No Data Available" in body and "tutor profile" in body.lower():
             raise RuntimeError(
                 f"{phone} logged in without an approved tutor profile. "
@@ -384,7 +400,7 @@ def _otp_login(pg: Page, phone: str, otp: str, label: str = "", *, tutor: bool =
         pg.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=25000)
         pg.wait_for_timeout(2000)
         if "/dashboard" not in pg.url:
-            raise RuntimeError(f"{phone} did not reach student dashboard after OTP login: {pg.url}")
+            raise RuntimeError(f"{phone} did not reach student dashboard after OTP login: {_debug_state()}")
     print(f"[E2E] Login OK: {who} → {pg.url}", flush=True)
 
 
@@ -966,6 +982,47 @@ class TestPhase2StudentBooking:
                  f"No booking ID captured — URL: {student_pg.url[:100]}")
 
 
+def _select_available_slot(pg: Page, dlg, slot_re: re.Pattern) -> bool:
+    """Pick the first visible available date/time in a booking dialog."""
+    for _nav in range(10):
+        slots = dlg.locator("button").filter(has_text=slot_re)
+        for i in range(min(slots.count(), 12)):
+            try:
+                slot = slots.nth(i)
+                if slot.is_visible() and not slot.is_disabled():
+                    slot.click()
+                    pg.wait_for_timeout(800)
+                    return True
+            except Exception:
+                continue
+
+        days = dlg.locator("button").filter(has_text=re.compile(r"^\d{1,2}$"))
+        clicked_day = False
+        for i in range(days.count()):
+            day = days.nth(i)
+            try:
+                if day.is_visible() and not day.is_disabled():
+                    day_txt = day.inner_text().strip()
+                    if day_txt.isdigit() and int(day_txt) >= int(SLOT_DAY_NUM):
+                        day.click()
+                        pg.wait_for_timeout(800)
+                        clicked_day = True
+                        break
+            except Exception:
+                continue
+
+        if clicked_day:
+            continue
+
+        nxt = dlg.locator('button:has-text("Next week"), button[aria-label*="next"]').first
+        try:
+            nxt.click()
+            pg.wait_for_timeout(600)
+        except Exception:
+            break
+    return False
+
+
 def _handle_package_dialog(pg: Page, dlg) -> str:
     """Handle package booking dialog. Returns booking ID string or ''."""
     pg.wait_for_timeout(1000)
@@ -982,6 +1039,19 @@ def _handle_package_dialog(pg: Page, dlg) -> str:
         if cont.is_enabled():
             break
         pg.wait_for_timeout(300)
+    if not cont.is_enabled():
+        _select_available_slot(pg, dlg, re.compile(r"\d+:\d+\s*(AM|PM)", re.I))
+        for _ in range(20):
+            if cont.is_enabled():
+                break
+            pg.wait_for_timeout(300)
+    if not cont.is_enabled():
+        try:
+            body = re.sub(r"\s+", " ", dlg.inner_text()).strip()[:500]
+        except Exception:
+            body = "<dialog text unavailable>"
+        print(f"[P2-01] Package Continue stayed disabled: {body}", flush=True)
+        return ""
     cont.click()
     pg.wait_for_timeout(1500)
 
@@ -1006,46 +1076,7 @@ def _handle_trial_dialog(pg: Page, dlg, slot_re: re.Pattern) -> str:
         dur.first.click()
         pg.wait_for_timeout(500)
 
-    # Navigate to the target Monday and pick a slot
-    for _nav in range(10):
-        slots = dlg.locator("button").filter(has_text=slot_re)
-        vis_slots = []
-        for i in range(min(slots.count(), 10)):
-            try:
-                s = slots.nth(i)
-                if s.is_visible() and not s.is_disabled():
-                    vis_slots.append(s)
-            except Exception:
-                pass
-
-        if vis_slots:
-            vis_slots[0].click()
-            pg.wait_for_timeout(800)
-            break
-
-        # Try clicking a day number to reveal slots
-        days = dlg.locator("button").filter(has_text=re.compile(r"^\d{1,2}$"))
-        clicked_day = False
-        for i in range(days.count()):
-            d = days.nth(i)
-            try:
-                if not d.is_disabled() and d.is_visible():
-                    day_txt = d.inner_text().strip()
-                    if day_txt.isdigit() and int(day_txt) >= int(SLOT_DAY_NUM):
-                        d.click()
-                        pg.wait_for_timeout(800)
-                        clicked_day = True
-                        break
-            except Exception:
-                continue
-
-        if not clicked_day:
-            nxt = dlg.locator('button:has-text("Next week"), button[aria-label*="next"]').first
-            try:
-                nxt.click()
-                pg.wait_for_timeout(600)
-            except Exception:
-                break
+    _select_available_slot(pg, dlg, slot_re)
 
     cont = dlg.locator('button:has-text("Continue"), button:has-text("Confirm")').first
     try:
