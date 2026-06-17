@@ -649,6 +649,7 @@ def build_consolidated_results(base_url: str) -> dict:
         "qa19_exploratory":      ("QA-19 Autonomous Exploratory","QA19"),
         "qa20_fuzzing":          ("QA-20 Property-Based Fuzz", "QA20"),
         "qa22_vision":           ("QA-22 Vision-LLM UI Review","QA22"),
+        "qa21_spec_validation_smoke": ("QA-21 Spec Validation — Smoke", "QA21S"),
         "qa21_spec_validation_a": ("QA-21 Spec Validation — A", "QA21A"),
         "qa21_spec_validation_b": ("QA-21 Spec Validation — B", "QA21B"),
         "qa23_route_inventory":   ("QA-23 Route Inventory",     "QA23"),

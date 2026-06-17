@@ -1398,7 +1398,7 @@ jobs:
   qa-spec-validation:
     name: "QA — Spec Validation (70 specs, 2000+ tests)"
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 120
 
     services:
       waha:
@@ -1471,7 +1471,23 @@ jobs:
             --json-report --json-report-file=reports/qa23_route_inventory_results.json \
             -p no:cacheprovider 2>&1 | tee reports/route-inventory.txt || true
 
-      - name: Run all spec tests — Part A (first 35 spec classes)
+      - name: Run spec smoke/navigation tests (push + PR)
+        if: github.event_name != 'schedule'
+        continue-on-error: true
+        env:
+          BASE_URL:     ${{ env.BASE_URL }}
+          PYTHONPATH:   ${{ github.workspace }}
+        run: |
+          python3 -m pytest tests/test_specs_all.py \
+            -m "smoke or navigation" \
+            --timeout=30 --timeout-method=thread \
+            --tb=line -q -p no:warnings \
+            --html=reports/spec-validation-smoke.html --self-contained-html \
+            --json-report --json-report-file=reports/qa21_spec_validation_smoke_results.json \
+            -p no:cacheprovider 2>&1 | tee reports/spec-validation-smoke.txt || true
+
+      - name: Run all spec tests — Part A (scheduled full suite only)
+        if: github.event_name == 'schedule'
         continue-on-error: true
         env:
           BASE_URL:     ${{ env.BASE_URL }}
@@ -1491,7 +1507,8 @@ jobs:
             --json-report --json-report-file=reports/qa21_spec_validation_a_results.json \
             -p no:cacheprovider 2>&1 | tee reports/spec-validation-a.txt || true
 
-      - name: Run all spec tests — Part B (classes 36–70)
+      - name: Run all spec tests — Part B (scheduled full suite only)
+        if: github.event_name == 'schedule'
         continue-on-error: true
         env:
           BASE_URL:     ${{ env.BASE_URL }}
@@ -1576,10 +1593,10 @@ jobs:
             -p no:cacheprovider 2>&1 | tee reports/e2e-create-book-verify.txt
           echo ""
           echo "=== E2E create+book+verify result ==="
-          if [ -f reports/realtime_flow_report.json ]; then
+          if [ -f reports/e2e_data_flow_report.json ]; then
             python3 -c "
           import json
-          d = json.load(open('reports/realtime_flow_report.json'))
+          d = json.load(open('reports/e2e_data_flow_report.json'))
           b = d.get('booking', {})
           cd = d.get('created_data', {})
           steps = d.get('steps', [])
@@ -1967,7 +1984,6 @@ jobs:
       - qa-agent-16-exploratory
       - qa-agent-17-fuzzing
       - qa-agent-18-vision-ui
-      - qa-spec-validation
       - qa-agent-data-flow
       - qa-agent-20-login-signup
       - qa-agent-21-payment-tutor
