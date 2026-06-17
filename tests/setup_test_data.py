@@ -32,6 +32,43 @@ _ROOT    = Path(__file__).parent.parent
 _REPORTS = _ROOT / "reports"
 _REPORTS.mkdir(exist_ok=True)
 
+
+def _summary_has_real_data(summary: dict) -> bool:
+    slots = summary.get("availability_slots", [])
+    group = summary.get("group_session", {})
+    booking = summary.get("student_booking", {})
+    return bool(
+        slots
+        or group.get("created")
+        or group.get("name")
+        or booking.get("booking_id")
+    )
+
+
+def _write_summary_preserving_real_data(summary: dict, *, suffix: str = "") -> Path:
+    """Write setup summary without replacing real data with an empty failed run."""
+    target = _REPORTS / "setup_data_summary.json"
+    if suffix:
+        target = _REPORTS / f"setup_data_summary.{suffix}.json"
+
+    if not suffix and not _summary_has_real_data(summary) and target.exists():
+        try:
+            existing = json.loads(target.read_text(encoding="utf-8"))
+        except Exception:
+            existing = {}
+        if _summary_has_real_data(existing):
+            failed_target = _REPORTS / "setup_data_summary.setup_failed.json"
+            failed_target.write_text(json.dumps(summary, indent=2, default=str))
+            print(
+                f"[SETUP] Kept existing setup_data_summary.json with real data; "
+                f"empty failed setup saved to {failed_target}",
+                flush=True,
+            )
+            return failed_target
+
+    target.write_text(json.dumps(summary, indent=2, default=str))
+    return target
+
 # ── Data summary (real values captured during setup) ───────────────────────────
 _SUMMARY: dict = {
     "run_at":         time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -150,14 +187,14 @@ def _check_site_up(url: str) -> bool:
 
 # ── OTP login ───────────────────────────────────────────────────────────────────
 
-def _otp_login(pg: Page, phone: str, otp: str, label: str = "") -> None:
+def _otp_login(pg: Page, phone: str, otp: str, label: str = "", *, tutor: bool = False) -> None:
     """
     OTP login. Tries mh-login-btn class (desktop header) first,
     then falls back to text-based selector.
     force=True on click skips viewport check — safe at 1280px.
     """
     who = label or phone
-    pg.goto(BASE_URL, wait_until="commit", timeout=30000)
+    pg.goto(_url("/tutor-login") if tutor else BASE_URL, wait_until="commit", timeout=30000)
     pg.wait_for_timeout(3000)
 
     # Detect Cloudflare/connection error — bail early with clear message
@@ -170,30 +207,35 @@ def _otp_login(pg: Page, phone: str, otp: str, label: str = "") -> None:
     if "404" in title or "Not Found" in title:
         raise RuntimeError(f"404 on {BASE_URL} — wrong BASE_URL?")
 
-    # Try desktop login button by class first (most reliable), then by text
-    login_btn = pg.locator("button.mh-login-btn").first
-    if not login_btn.is_visible(timeout=3000):
-        login_btn = pg.locator(
-            'button:not([aria-label="Login"]):has-text("Log In"), '
-            'button:not([aria-label="Login"]):has-text("Login")'
-        ).last
-    login_btn.wait_for(state="visible", timeout=12000)
-    login_btn.scroll_into_view_if_needed()
-    login_btn.click(force=True)
+    if tutor:
+        container = pg.locator("body")
+    else:
+        # Try desktop login button by class first (most reliable), then by text
+        login_btn = pg.locator("button.mh-login-btn").first
+        if not login_btn.is_visible(timeout=3000):
+            login_btn = pg.locator(
+                'button:not([aria-label="Login"]):has-text("Log In"), '
+                'button:not([aria-label="Login"]):has-text("Login")'
+            ).last
+        login_btn.wait_for(state="visible", timeout=12000)
+        login_btn.scroll_into_view_if_needed()
+        login_btn.click(force=True)
 
-    pg.wait_for_selector('[role="dialog"]', state="visible", timeout=12000)
-    pg.wait_for_timeout(1000)
-    container = pg.locator('[role="dialog"]')
+        pg.wait_for_selector('[role="dialog"]', state="visible", timeout=12000)
+        pg.wait_for_timeout(1000)
+        container = pg.locator('[role="dialog"]')
 
     # Country code
     cc_btn = container.locator(
-        'button[aria-label="Country code"], button:has-text("Country code")'
+        'button[aria-label="Country code"], button:has-text("Country code"), '
+        'button[name="countryCode"], button:has-text("+")'
     ).first
     cc_btn.wait_for(state="visible", timeout=8000)
     cc_btn.click()
     pg.wait_for_timeout(700)
     search = pg.locator(
-        '[role="listbox"] input[placeholder*="Search"], input[placeholder="Search..."]'
+        '[role="listbox"] input[placeholder*="Search"], input[placeholder="Search..."], '
+        'input[placeholder="search"]'
     ).first
     search.wait_for(state="visible", timeout=5000)
     search.fill(COUNTRY_NAME)
@@ -202,11 +244,17 @@ def _otp_login(pg: Page, phone: str, otp: str, label: str = "") -> None:
     pg.wait_for_timeout(500)
 
     # Phone number
-    phone_input = container.locator('input[type="tel"], input[placeholder*="123"]').first
+    phone_input = container.locator(
+        'input[type="tel"], input[placeholder*="123"], '
+        'input:not([placeholder="000000"]):not([placeholder="search"])'
+    ).first
     phone_input.wait_for(state="visible", timeout=8000)
     phone_input.fill(phone)
     pg.wait_for_timeout(400)
-    container.locator('button:has-text("Send Code")').first.click()
+    send = container.locator('button:has-text("Send Code"), button:has-text("sendCode")').first
+    if send.count() == 0:
+        send = pg.get_by_role("button", name=re.compile(r"sendCode|Send Code", re.I)).first
+    send.click()
     pg.wait_for_timeout(2000)
 
     # OTP
@@ -218,8 +266,20 @@ def _otp_login(pg: Page, phone: str, otp: str, label: str = "") -> None:
             break
     otp_input.fill(otp)
     pg.wait_for_timeout(800)
-    container.locator('button:has-text("Continue")').first.click()
+    cont = container.locator('button:has-text("Continue"), button:has-text("continue")').first
+    if cont.count() == 0:
+        cont = pg.get_by_role("button", name=re.compile(r"^continue$|^Continue$", re.I)).first
+    cont.click()
     pg.wait_for_timeout(4000)
+    if tutor:
+        pg.goto(_url("/dashboard/availability"), wait_until="commit", timeout=25000)
+        pg.wait_for_timeout(2500)
+        body = pg.inner_text("body")
+        if "No Data Available" in body and "tutor profile" in body.lower():
+            raise RuntimeError(
+                f"{phone} logged in without an approved tutor profile. "
+                "Use TEACHER_PHONE for a real tutor account."
+            )
     print(f"[SETUP] Login OK ({who}) → {pg.url}", flush=True)
 
 
@@ -252,6 +312,15 @@ def _pick_combobox(pg: Page, dlg_locator, index: int, value: str) -> bool:
 def _click_day_button(pg: Page, dlg_locator, day_index: int, day_letter: str) -> bool:
     """Click the Nth day toggle button (S M T W T F S — index 0–6)."""
     try:
+        names = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
+        if day_index < len(names):
+            named = dlg_locator.locator("button").filter(
+                has_text=re.compile(rf"^{names[day_index]}$")
+            )
+            if named.count() > 0:
+                named.first.click()
+                pg.wait_for_timeout(400)
+                return True
         # Single-letter buttons in the dialog row
         row = dlg_locator.locator("button").filter(
             has_text=re.compile(r"^[SMTWFsmtwf]$")
@@ -270,6 +339,18 @@ def _click_day_button(pg: Page, dlg_locator, day_index: int, day_letter: str) ->
             return True
     except Exception as e:
         print(f"[SETUP] day-button[{day_index}] error: {e}", flush=True)
+    return False
+
+
+def _wait_until_enabled(pg: Page, locator, timeout_ms: int = 8000) -> bool:
+    deadline = time.time() + timeout_ms / 1000
+    while time.time() < deadline:
+        try:
+            if locator.count() > 0 and locator.is_visible() and locator.is_enabled():
+                return True
+        except Exception:
+            pass
+        pg.wait_for_timeout(250)
     return False
 
 
@@ -342,7 +423,8 @@ def _create_one_availability_slot(
         'button:has-text("Apply"), button:has-text("Save"), button:has-text("Confirm")'
     ).first
     try:
-        apply.wait_for(state="enabled", timeout=6000)
+        if not _wait_until_enabled(pg, apply, 6000):
+            raise TimeoutError("Apply button stayed disabled")
         apply.click()
         pg.wait_for_timeout(2000)
         # Consider success if dialog closed or a toast appeared
@@ -404,9 +486,9 @@ def create_tutor_slots(pg: Page) -> None:
 def create_group_session(pg: Page) -> bool:
     """
     3-step wizard from /dashboard/availability → 'Group sessions' button.
-    Step 1: Session Name + Level + Description
-    Step 2: Date range + day + Start/End time + Max Students
-    Step 3: Price → Create
+    Step 1: Date range + day + Start/End time
+    Step 2: Course name + max/min students + price + description
+    Step 3: Review → Create
     """
     print("[SETUP] === Creating group session ===", flush=True)
     pg.goto(_url("/dashboard/availability"), wait_until="commit", timeout=25000)
@@ -436,98 +518,8 @@ def create_group_session(pg: Page) -> bool:
     dlg = pg.locator('[role="dialog"]')
     pg.wait_for_timeout(1000)
 
-    # ── Step 1: Session Info ──────────────────────────────────────────────────
-    print("[SETUP]   Step 1: Session Info", flush=True)
-
-    # Session Name
-    name_input = dlg.locator(
-        'input[placeholder*="Session Name"], input[name*="name"], '
-        '[aria-label*="Session Name"], textbox'
-    ).first
-    try:
-        name_input.wait_for(state="visible", timeout=5000)
-        name_input.fill(_GROUP_NAME)
-        pg.wait_for_timeout(400)
-        print(f"[SETUP]     Session Name: {_GROUP_NAME}", flush=True)
-    except Exception as e:
-        print(f"[SETUP]     Session Name fill failed: {e}", flush=True)
-
-    # Subject is read-only — capture auto-filled value
-    subject_val = ""
-    try:
-        subj_input = dlg.locator(
-            'input[readonly][placeholder*="Subject"], input[readonly][name*="subject"], '
-            'input[readonly]'
-        ).first
-        if subj_input.count() > 0:
-            subject_val = subj_input.input_value(timeout=3000)
-        if not subject_val:
-            # Try reading the field value text
-            subj_field = dlg.locator(':has-text("Subject")').first
-            if subj_field.count() > 0:
-                txt = subj_field.inner_text()
-                m = re.search(r"Subject[:\s]+(\w[\w\s]*)", txt)
-                if m:
-                    subject_val = m.group(1).strip()
-        subject_val = subject_val or _GROUP_SUBJECT
-        print(f"[SETUP]     Subject: {subject_val} (auto-filled, read-only)", flush=True)
-    except Exception:
-        subject_val = _GROUP_SUBJECT
-
-    # Level
-    level_set = False
-    try:
-        level_cb = dlg.locator(
-            'select[aria-label*="Level"], [role="combobox"][aria-label*="Level"], '
-            '[placeholder*="Level"], input[name*="level"]'
-        ).first
-        if level_cb.count() > 0:
-            tag = level_cb.evaluate("el => el.tagName.toLowerCase()")
-            if tag == "select":
-                level_cb.select_option(label=_GROUP_LEVEL)
-            else:
-                level_cb.click()
-                pg.wait_for_timeout(400)
-                opt = pg.locator(f'[role="option"]:has-text("{_GROUP_LEVEL}")').first
-                if opt.count() > 0:
-                    opt.click()
-            level_set = True
-            print(f"[SETUP]     Level: {_GROUP_LEVEL}", flush=True)
-        pg.wait_for_timeout(300)
-    except Exception as e:
-        print(f"[SETUP]     Level field: {e}", flush=True)
-
-    # Description (optional)
-    try:
-        desc = dlg.locator("textarea").first
-        if desc.count() > 0:
-            desc.fill(_GROUP_DESC)
-            pg.wait_for_timeout(300)
-    except Exception:
-        pass
-
-    # Click Next → Step 2
-    next_btn = dlg.locator(
-        'button:has-text("Next"), button:has-text("Continue"), button:has-text("Next Step")'
-    ).first
-    try:
-        next_btn.wait_for(state="enabled", timeout=6000)
-        next_btn.click()
-        pg.wait_for_timeout(1500)
-        print("[SETUP]     → Step 2", flush=True)
-    except Exception as e:
-        err = f"Group session Step1 Next failed: {e}"
-        print(f"[SETUP]   ✗ {err}", flush=True)
-        _SUMMARY["errors"].append(err)
-        try:
-            dlg.locator('button:has-text("Cancel")').first.click()
-        except Exception:
-            pass
-        return False
-
-    # ── Step 2: Schedule ──────────────────────────────────────────────────────
-    print("[SETUP]   Step 2: Schedule", flush=True)
-    pg.wait_for_timeout(800)
+    # ── Step 1: Schedule ──────────────────────────────────────────────────────
+    print("[SETUP]   Step 1: Schedule", flush=True)
 
     grp_date   = _next_weekday(MON, min_days_ahead=8)
     grp_ds     = _fmt(grp_date)
@@ -544,26 +536,67 @@ def create_group_session(pg: Page) -> bool:
     _pick_combobox(pg, dlg, 1, _GROUP_END)    # End Time
     pg.wait_for_timeout(300)
 
-    # Max Students
-    try:
-        max_inp = dlg.locator(
-            'input[placeholder*="Max"], input[name*="max"], '
-            'input[type="number"][aria-label*="Student"]'
-        ).first
-        if max_inp.count() > 0:
-            max_inp.fill(_GROUP_STUDENTS)
-            pg.wait_for_timeout(300)
-            print(f"[SETUP]     Max Students: {_GROUP_STUDENTS}", flush=True)
-    except Exception as e:
-        print(f"[SETUP]     Max Students field: {e}", flush=True)
-
     print(f"[SETUP]     Date: {grp_disp} | {_GROUP_START}–{_GROUP_END}", flush=True)
+
+    # Click Next → Step 2
+    next_btn = dlg.locator(
+        'button:has-text("Next"), button:has-text("Continue"), button:has-text("Next Step")'
+    ).first
+    try:
+        if not _wait_until_enabled(pg, next_btn, 6000):
+            raise TimeoutError("Step 1 Next button stayed disabled")
+        next_btn.click()
+        pg.wait_for_timeout(1500)
+        print("[SETUP]     → Step 2", flush=True)
+    except Exception as e:
+        err = f"Group session Step1 Next failed: {e}"
+        print(f"[SETUP]   ✗ {err}", flush=True)
+        _SUMMARY["errors"].append(err)
+        try:
+            dlg.locator('button:has-text("Cancel")').first.click()
+        except Exception:
+            pass
+        return False
+
+    # ── Step 2: Course Information ────────────────────────────────────────────
+    print("[SETUP]   Step 2: Course Information", flush=True)
+    pg.wait_for_timeout(800)
+
+    subject_val = _GROUP_SUBJECT
+    try:
+        subj_input = dlg.locator("input[readonly]").first
+        if subj_input.count() > 0:
+            subject_val = subj_input.input_value(timeout=3000) or _GROUP_SUBJECT
+    except Exception:
+        subject_val = _GROUP_SUBJECT
+
+    try:
+        editable = dlg.locator("input:not([readonly])")
+        editable.nth(0).fill(_GROUP_NAME)
+        editable.nth(1).fill(_GROUP_STUDENTS)
+        editable.nth(2).fill("1")
+        editable.nth(3).fill(_GROUP_PRICE)
+        desc = dlg.locator("textarea").first
+        if desc.count() > 0:
+            desc.fill(_GROUP_DESC)
+        pg.wait_for_timeout(500)
+        print(
+            f"[SETUP]     Course: {_GROUP_NAME} | max {_GROUP_STUDENTS} | "
+            f"min 1 | price {_GROUP_PRICE} SAR",
+            flush=True,
+        )
+    except Exception as e:
+        err = f"Group session course info fill failed: {e}"
+        print(f"[SETUP]   ✗ {err}", flush=True)
+        _SUMMARY["errors"].append(err)
+        return False
 
     next_btn2 = dlg.locator(
         'button:has-text("Next"), button:has-text("Continue"), button:has-text("Next Step")'
     ).first
     try:
-        next_btn2.wait_for(state="enabled", timeout=6000)
+        if not _wait_until_enabled(pg, next_btn2, 6000):
+            raise TimeoutError("Step 2 Next button stayed disabled")
         next_btn2.click()
         pg.wait_for_timeout(1500)
         print("[SETUP]     → Step 3", flush=True)
@@ -577,27 +610,16 @@ def create_group_session(pg: Page) -> bool:
             pass
         return False
 
-    # ── Step 3: Pricing ───────────────────────────────────────────────────────
-    print("[SETUP]   Step 3: Pricing", flush=True)
+    # ── Step 3: Review / Create ───────────────────────────────────────────────
+    print("[SETUP]   Step 3: Review", flush=True)
     pg.wait_for_timeout(800)
-
-    try:
-        price_inp = dlg.locator(
-            'input[placeholder*="Price"], input[name*="price"], '
-            'input[type="number"][aria-label*="Price"], input[type="number"]'
-        ).first
-        if price_inp.count() > 0:
-            price_inp.fill(_GROUP_PRICE)
-            pg.wait_for_timeout(300)
-            print(f"[SETUP]     Price: {_GROUP_PRICE} SAR per student", flush=True)
-    except Exception as e:
-        print(f"[SETUP]     Price field: {e}", flush=True)
 
     create_btn = dlg.locator(
         'button:has-text("Create"), button:has-text("Submit"), button:has-text("Publish")'
     ).first
     try:
-        create_btn.wait_for(state="enabled", timeout=6000)
+        if not _wait_until_enabled(pg, create_btn, 6000):
+            raise TimeoutError("Create button stayed disabled")
         create_btn.click()
         pg.wait_for_timeout(3000)
         # Check success: dialog closed OR toast appeared
@@ -609,7 +631,7 @@ def create_group_session(pg: Page) -> bool:
                 "created":      True,
                 "name":         _GROUP_NAME,
                 "subject":      subject_val,
-                "level":        _GROUP_LEVEL if level_set else "not set",
+                "level":        _GROUP_LEVEL,
                 "date":         grp_ds,
                 "display_date": grp_disp,
                 "start_time":   _GROUP_START,
@@ -1063,9 +1085,7 @@ def main() -> str:
         )
         print(msg, flush=True)
         _SUMMARY["errors"].append(f"Site unreachable: {BASE_URL}")
-        (_REPORTS / "setup_data_summary.json").write_text(
-            json.dumps(_SUMMARY, indent=2, default=str)
-        )
+        _write_summary_preserving_real_data(_SUMMARY)
         sys.exit(1)
     print(f"[SETUP] Site OK — starting setup\n", flush=True)
 
@@ -1079,7 +1099,7 @@ def main() -> str:
         )
         tutor_pg = tutor_ctx.new_page()
         try:
-            _otp_login(tutor_pg, TEACHER_PHONE, TEACHER_OTP, "tutor")
+            _otp_login(tutor_pg, TEACHER_PHONE, TEACHER_OTP, "tutor", tutor=True)
             create_tutor_slots(tutor_pg)
             create_group_session(tutor_pg)
         except Exception as e:
@@ -1112,7 +1132,7 @@ def main() -> str:
         )
         tutor_pg2 = tutor_ctx2.new_page()
         try:
-            _otp_login(tutor_pg2, TEACHER_PHONE, TEACHER_OTP, "tutor-verify")
+            _otp_login(tutor_pg2, TEACHER_PHONE, TEACHER_OTP, "tutor-verify", tutor=True)
             verify_tutor_data(tutor_pg2)
         except Exception as e:
             err = f"Tutor verify error: {e}"
@@ -1124,8 +1144,8 @@ def main() -> str:
         browser.close()
 
     # ── Save JSON report ──────────────────────────────────────────────────────────
-    report_path = _REPORTS / "setup_data_summary.json"
-    report_path.write_text(json.dumps(_SUMMARY, indent=2, default=str))
+    report_path = _write_summary_preserving_real_data(_SUMMARY)
+    _write_summary_preserving_real_data(_SUMMARY, suffix="setup")
 
     # ── Human-readable console report ────────────────────────────────────────────
     sb  = _SUMMARY["student_booking"]

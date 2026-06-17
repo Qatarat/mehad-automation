@@ -96,36 +96,51 @@ def _url(path: str) -> str:
 
 # ── OTP login ─────────────────────────────────────────────────────────────────
 
-def _login(pg, phone: str, otp: str, country: str = "+880") -> None:
+def _login(pg, phone: str, otp: str, country: str = "+880", *, tutor: bool = False) -> None:
     """Proven OTP login — same pattern as test_specs_all.py confirmed in CI."""
-    pg.goto(BASE_URL, wait_until="commit", timeout=25000)
+    pg.goto(_url("/tutor-login") if tutor else BASE_URL, wait_until="commit", timeout=25000)
     pg.wait_for_timeout(2000)
-    login_btn = pg.locator(
-        'button:not([aria-label="Login"]):has-text("Log In"), '
-        'button:not([aria-label="Login"]):has-text("Login")'
-    ).last
-    login_btn.wait_for(state='visible', timeout=10000)
-    login_btn.scroll_into_view_if_needed()
-    login_btn.click(force=True)
-    pg.wait_for_selector('[role="dialog"]', state='visible', timeout=10000)
-    pg.wait_for_timeout(1000)
-    container = pg.locator('[role="dialog"]')
-    cc_btn = container.locator('button[aria-label="Country code"], button:has-text("Country code")').first
+    if tutor:
+        container = pg.locator("body")
+    else:
+        login_btn = pg.locator(
+            'button:not([aria-label="Login"]):has-text("Log In"), '
+            'button:not([aria-label="Login"]):has-text("Login")'
+        ).last
+        login_btn.wait_for(state='visible', timeout=10000)
+        login_btn.scroll_into_view_if_needed()
+        login_btn.click(force=True)
+        pg.wait_for_selector('[role="dialog"]', state='visible', timeout=10000)
+        pg.wait_for_timeout(1000)
+        container = pg.locator('[role="dialog"]')
+    cc_btn = container.locator(
+        'button[aria-label="Country code"], button:has-text("Country code"), '
+        'button[name="countryCode"], button:has-text("+")'
+    ).first
     cc_btn.wait_for(state='visible', timeout=8000)
     cc_btn.click()
     pg.wait_for_timeout(700)
-    search_input = pg.locator('[role="listbox"] input[placeholder*="Search"], input[placeholder="Search..."]').first
+    search_input = pg.locator(
+        '[role="listbox"] input[placeholder*="Search"], input[placeholder="Search..."], '
+        'input[placeholder="search"]'
+    ).first
     search_input.wait_for(state='visible', timeout=5000)
     country_name = "Bangladesh" if country.startswith("+880") else country
     search_input.fill(country_name)
     pg.wait_for_timeout(600)
     pg.locator(f'[role="option"]:has-text("{country_name}")').first.click()
     pg.wait_for_timeout(500)
-    phone_input = container.locator('input[type="tel"], input[placeholder*="123"]').first
+    phone_input = container.locator(
+        'input[type="tel"], input[placeholder*="123"], '
+        'input:not([placeholder="000000"]):not([placeholder="search"])'
+    ).first
     phone_input.wait_for(state='visible', timeout=8000)
     phone_input.fill(phone)
     pg.wait_for_timeout(400)
-    container.locator('button:has-text("Send Code")').first.click()
+    send = container.locator('button:has-text("Send Code"), button:has-text("sendCode")').first
+    if send.count() == 0:
+        send = pg.get_by_role("button", name=re.compile(r"sendCode|Send Code", re.I)).first
+    send.click()
     pg.wait_for_timeout(2000)
     otp_input = container.locator('input[placeholder="000000"]').first
     otp_input.wait_for(state='visible', timeout=15000)
@@ -135,8 +150,20 @@ def _login(pg, phone: str, otp: str, country: str = "+880") -> None:
             break
     otp_input.fill(otp)
     pg.wait_for_timeout(800)
-    container.locator('button:has-text("Continue")').first.click()
+    cont = container.locator('button:has-text("Continue"), button:has-text("continue")').first
+    if cont.count() == 0:
+        cont = pg.get_by_role("button", name=re.compile(r"^continue$|^Continue$", re.I)).first
+    cont.click()
     pg.wait_for_timeout(4000)
+    if tutor:
+        pg.goto(_url("/dashboard/availability"), wait_until="commit", timeout=25000)
+        pg.wait_for_timeout(2500)
+        body = pg.inner_text("body")
+        if "No Data Available" in body and "tutor profile" in body.lower():
+            raise RuntimeError(
+                f"{phone} logged in without an approved tutor profile. "
+                "Use TEACHER_PHONE for a real tutor account."
+            )
 
 
 # ── Auth fixtures ─────────────────────────────────────────────────────────────
@@ -162,7 +189,7 @@ def _teacher_ss(browser: Browser, tmp_path_factory):
                                ignore_https_errors=True, locale="en-US")
     pg = ctx.new_page()
     try:
-        _login(pg, TEACHER_PHONE, TEACHER_OTP)
+        _login(pg, TEACHER_PHONE, TEACHER_OTP, tutor=True)
         ctx.storage_state(path=str(sf))
     finally:
         ctx.close()
@@ -923,7 +950,15 @@ def _write_report_at_end():
 def _write_json() -> None:
     out = _ROOT / "reports" / "realtime_flow_report.json"
     out.parent.mkdir(parents=True, exist_ok=True)
-    payload = {"booking": dict(_STATE), "steps": _ROWS}
+    created_data = {}
+    e2e_out = _ROOT / "reports" / "e2e_data_flow_report.json"
+    existing = e2e_out if e2e_out.exists() else out
+    if existing.exists():
+        try:
+            created_data = json.loads(existing.read_text()).get("created_data", {})
+        except Exception:
+            created_data = {}
+    payload = {"booking": dict(_STATE), "created_data": created_data, "steps": _ROWS}
     out.write_text(json.dumps(payload, indent=2))
     print(f"\n[RT REPORT] JSON → {out}")
 

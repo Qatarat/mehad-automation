@@ -1300,12 +1300,19 @@ def _find_json_report(reports_dir: "Path", filename: str) -> "Path | None":
 
 def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
     """Generate gh-pages-site/data-flow.html from realtime + DF JSON reports."""
+    e2e_json = _find_json_report(reports_dir, "e2e_data_flow_report.json")
     rt_json  = _find_json_report(reports_dir, "realtime_flow_report.json")
     df_json  = _find_json_report(reports_dir, "data_flow_report.json")
 
+    e2e_data: dict = {}
     rt_data: dict = {}
     df_rows: list = []
 
+    if e2e_json:
+        try:
+            e2e_data = json.loads(e2e_json.read_text(encoding="utf-8"))
+        except Exception:
+            pass
     if rt_json:
         try:
             rt_data = json.loads(rt_json.read_text(encoding="utf-8"))
@@ -1318,10 +1325,39 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
         except Exception:
             pass
 
-    booking      = rt_data.get("booking", {})
-    created_data = rt_data.get("created_data", {})
-    rt_steps  = rt_data.get("steps", [])
-    all_steps = rt_steps + df_rows
+    e2e_steps = e2e_data.get("steps", []) if isinstance(e2e_data.get("steps", []), list) else []
+    rt_steps  = rt_data.get("steps", []) if isinstance(rt_data.get("steps", []), list) else []
+    all_steps = e2e_steps + rt_steps + df_rows
+
+    def _real(v) -> str:
+        s = str(v or "").strip()
+        return "" if s in {"—", "-", "None", "null"} else s
+
+    def _has_slot(d: dict) -> bool:
+        return bool(d and (_real(d.get("date")) or _real(d.get("start_time")) or d.get("created")))
+
+    def _has_course(d: dict) -> bool:
+        return bool(d and (_real(d.get("name")) or _real(d.get("price_sar")) or d.get("created")))
+
+    def _merge_booking(*sources: dict) -> dict:
+        out: dict = {}
+        keys = ("booking_id", "payment_amount", "tutor_name", "student_name", "booked_at", "status")
+        for key in keys:
+            for src in sources:
+                val = _real(src.get(key, ""))
+                if val:
+                    out[key] = val
+                    break
+        return out
+
+    booking = _merge_booking(rt_data.get("booking", {}), e2e_data.get("booking", {}))
+
+    e2e_created = e2e_data.get("created_data", {})
+    rt_created = rt_data.get("created_data", {})
+    created_data = {
+        "slot": e2e_created.get("slot") or rt_created.get("slot") or {},
+        "course": e2e_created.get("course") or rt_created.get("course") or {},
+    }
 
     bid     = booking.get("booking_id")    or ""
     amount  = booking.get("payment_amount") or ""
@@ -1332,8 +1368,11 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
     slot_data   = created_data.get("slot",   {})
     course_data = created_data.get("course", {})
     # Also try loading from setup_data_summary.json if not in realtime_flow_report
-    if not slot_data and not course_data:
-        setup_json2 = _find_json_report(reports_dir, "setup_data_summary.json")
+    if not _has_slot(slot_data) and not _has_course(course_data):
+        setup_json2 = (
+            _find_json_report(reports_dir, "setup_data_summary.e2e.json")
+            or _find_json_report(reports_dir, "setup_data_summary.json")
+        )
         if setup_json2:
             try:
                 setup2 = json.loads(setup_json2.read_text(encoding="utf-8"))
@@ -1348,7 +1387,7 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
                         "created":    s0.get("status") == "created",
                     }
                 gs2 = setup2.get("group_session", {})
-                if gs2:
+                if _has_course(gs2):
                     course_data = {
                         "name":       gs2.get("name", ""),
                         "price_sar":  gs2.get("price_sar", ""),
@@ -1362,7 +1401,10 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
 
     # Fallback 1: setup_data_summary.json (setup_test_data.py output)
     if not bid:
-        setup_json = _find_json_report(reports_dir, "setup_data_summary.json")
+        setup_json = (
+            _find_json_report(reports_dir, "setup_data_summary.e2e.json")
+            or _find_json_report(reports_dir, "setup_data_summary.json")
+        )
         if setup_json:
             try:
                 setup = json.loads(setup_json.read_text(encoding="utf-8"))
@@ -1404,10 +1446,12 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
             except Exception:
                 pass
 
-    bid    = bid    or "—"
-    amount = amount or "—"
-    tutor  = tutor  or "—"
-    booked = booked or "—"
+    bid_missing = not _real(bid)
+    amount_missing = not _real(amount)
+    bid    = bid    or "not captured"
+    amount = amount or "not captured"
+    tutor  = tutor  or "not captured"
+    booked = booked or "not captured"
 
     total  = len(all_steps)
     passed = sum(1 for s in all_steps if s.get("status") == "PASS")
@@ -1422,16 +1466,29 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
                 f'border-radius:4px;font-size:11px;font-weight:700">{s}</span>')
 
     # Module verification table
+    slot_summary = (
+        f"Created slot: {slot_data.get('date', '')} "
+        f"{slot_data.get('start_time', '')}–{slot_data.get('end_time', '')}"
+        if _has_slot(slot_data) else
+        "No created slot captured in artifacts"
+    )
+    course_summary = (
+        f"Created course: {course_data.get('name', '')} · {course_data.get('price_sar', '')} SAR"
+        if _has_course(course_data) else
+        "No created course captured in artifacts"
+    )
+    amount_label = f"{amount} SAR" if not amount_missing else amount
+
     modules = [
         ("DF-01", "Student Wallet / Payments",     "Real transactions with tutor name + SAR amount"),
         ("DF-02", "Student My Bookings",           "Upcoming + Session History tabs. Cards have schedule."),
         ("DF-03", "Session Recordings",            "View Recording only on completed sessions (not upcoming)"),
         ("DF-04", "Super Admin Sessions",          "Page accessible. No mock data. Status filter works."),
-        ("DF-05", "Tutor Calendar",                "Calendar widget loads. Slot indicators visible."),
+        ("DF-05", "Tutor Calendar",                slot_summary),
         ("DF-06", "Tutor Booked Sessions",         "All Sessions heading. Upcoming + History tabs. Search input."),
-        ("DF-07", "Course / Group Sessions",       "Real heading. No mock data. Visible in student profile."),
+        ("DF-07", "Course / Group Sessions",       course_summary),
         ("DF-08", "Tutor Earnings & Payouts",      "Available Balance, Pending, Total Earnings sections."),
-        ("RT-01", "Real Booking Created",          f"Booking ID: {bid} · Amount: {amount} SAR"),
+        ("RT-01", "Real Booking Created",          f"Booking ID: {bid} · Amount: {amount_label}"),
         ("RT-02", "Student My Bookings (live)",    "Page OK after booking. State: pending-payment → appears on confirmation."),
         ("RT-03", "Student Wallet (live)",         "Recent Transactions section present. SAR amounts real."),
         ("RT-04", "Tutor Booked Sessions (live)",  "Page structure correct. Upcoming sessions content present."),
@@ -1449,6 +1506,12 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
             None
         )
         st = step_match.get("status") if step_match else None
+        if mid == "RT-01" and bid_missing:
+            st = "FAIL"
+        if mid == "DF-05" and not _has_slot(slot_data):
+            st = "SKIP"
+        if mid == "DF-07" and not _has_course(course_data):
+            st = "SKIP"
         if st == "PASS":
             icon, bg = "✅", "#f0fdf4"
         elif st in ("SKIP", "XFAIL") or st is None:
@@ -1499,14 +1562,14 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
 
     slot_fields   = ""
     course_fields = ""
-    if slot_data:
+    if _has_slot(slot_data):
         slot_fields = (
             _field("Date",       slot_data.get("date", ""))
             + _field("Day",      slot_data.get("day", ""))
             + _field("Time",     f"{slot_data.get('start_time','')}–{slot_data.get('end_time','')}")
             + _field("Status",   "Created ✅" if slot_ok else "Attempted ⏳")
         )
-    if course_data:
+    if _has_course(course_data):
         course_fields = (
             _field("Name",       course_data.get("name", ""))
             + _field("Price",    f"{course_data.get('price_sar','')} SAR / student")
@@ -1515,7 +1578,7 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
             + _field("Status",   "Created ✅" if course_ok else "Attempted ⏳")
         )
 
-    if slot_data or course_data:
+    if _has_slot(slot_data) or _has_course(course_data):
         created_data_html = f"""
 <div class="booking-card" style="border-color:#16a34a;margin-top:16px">
   <h3 style="color:#166534">📋 What Automation Created During This Run</h3>
@@ -1535,9 +1598,17 @@ def _build_data_flow_page(reports_dir: "Path", site_dir: "Path") -> None:
     else:
         created_data_html = ""
 
+    transaction_note = (
+        "✅ This is a REAL booking from the live app — not mock data. "
+        "The Booking ID, amount, and tutor name are all from the actual database."
+        if not bid_missing else
+        "⚠ No real booking ID was captured in the uploaded artifacts. "
+        "Run the Full E2E Create+Book+Verify job against a reachable site to populate this section."
+    )
+
     flow_items = [
         ("Student books slot", "→", f"Booking ID: {bid}", "Immediate"),
-        ("Student pays (MyFatoorah)", "→", f"Transaction: {amount} SAR", "On payment success"),
+        ("Student pays (MyFatoorah)", "→", f"Transaction: {amount}{'' if amount_missing else ' SAR'}", "On payment success"),
         ("Bookings DB", "→", "Student My Bookings (Upcoming tab)", "Real-time on confirmation"),
         ("Bookings DB", "→", "Tutor Booked Sessions", "Real-time"),
         ("Bookings DB", "→", "Tutor Calendar (slot → booked)", "Real-time"),
@@ -1605,12 +1676,11 @@ footer{{text-align:center;padding:24px;font-size:12px;color:#94a3b8;border-top:1
 <div class="booking-card">
   <h3>🎯 Real Transaction — Created in This CI Run</h3>
   <div class="field"><div class="k">Booking ID</div><div class="v">{bid}</div></div>
-  <div class="field"><div class="k">Amount</div><div class="v">{amount} SAR</div></div>
+  <div class="field"><div class="k">Amount</div><div class="v">{amount}{'' if amount_missing else ' SAR'}</div></div>
   <div class="field"><div class="k">Tutor</div><div class="v">{tutor}</div></div>
   <div class="field"><div class="k">Booked At</div><div class="v">{booked}</div></div>
   <div style="margin-top:10px;padding:10px;background:#eff6ff;border-radius:6px;font-size:13px;color:#1d4ed8;font-weight:600">
-    ✅ This is a REAL booking from the live app — not mock data.
-    The Booking ID, amount, and tutor name are all from the actual database.
+    {transaction_note}
   </div>
 </div>
 {created_data_html}

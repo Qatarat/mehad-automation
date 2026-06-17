@@ -1695,7 +1695,10 @@ jobs:
             reports/realtime_flow*
             reports/e2e-create-book-verify*
             reports/e2e_cbv*
+            reports/e2e_data_flow_report.json
             reports/setup_data_summary.json
+            reports/setup_data_summary.e2e.json
+            reports/setup_data_summary.setup*.json
             reports/setup_booking_id.txt
             reports/screenshots/
             reports/evidence/

@@ -13,6 +13,7 @@ tests/test_login_generated.py
 reports/*.html
 reports/*.json
 reports/*.md
+reports/setup_booking_id.txt
 .env
 *.log
 node_modules/

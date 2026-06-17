@@ -169,9 +169,10 @@ def _url(path: str) -> str:
 
 # ── OTP login ──────────────────────────────────────────────────────────────────
 
-def _otp_login(pg: Page, phone: str, otp: str, label: str = "") -> None:
+def _otp_login(pg: Page, phone: str, otp: str, label: str = "", *, tutor: bool = False) -> None:
     who = label or phone
-    pg.goto(BASE_URL, wait_until="commit", timeout=30000)
+    login_url = _url("/tutor-login") if tutor else BASE_URL
+    pg.goto(login_url, wait_until="commit", timeout=30000)
     pg.wait_for_timeout(3000)
 
     title = pg.title()
@@ -180,29 +181,34 @@ def _otp_login(pg: Page, phone: str, otp: str, label: str = "") -> None:
     if "404" in title:
         raise RuntimeError(f"404 on {BASE_URL}")
 
-    login_btn = pg.locator("button.mh-login-btn").first
-    if not login_btn.is_visible(timeout=3000):
-        login_btn = pg.locator(
-            'button:not([aria-label="Login"]):has-text("Log In"), '
-            'button:not([aria-label="Login"]):has-text("Login")'
-        ).last
-    login_btn.wait_for(state="visible", timeout=12000)
-    login_btn.scroll_into_view_if_needed()
-    login_btn.click(force=True)
+    if tutor:
+        container = pg.locator("body")
+    else:
+        login_btn = pg.locator("button.mh-login-btn").first
+        if not login_btn.is_visible(timeout=3000):
+            login_btn = pg.locator(
+                'button:not([aria-label="Login"]):has-text("Log In"), '
+                'button:not([aria-label="Login"]):has-text("Login")'
+            ).last
+        login_btn.wait_for(state="visible", timeout=12000)
+        login_btn.scroll_into_view_if_needed()
+        login_btn.click(force=True)
 
-    pg.wait_for_selector('[role="dialog"]', state="visible", timeout=12000)
-    pg.wait_for_timeout(1000)
-    container = pg.locator('[role="dialog"]')
+        pg.wait_for_selector('[role="dialog"]', state="visible", timeout=12000)
+        pg.wait_for_timeout(1000)
+        container = pg.locator('[role="dialog"]')
 
     cc_btn = container.locator(
-        'button[aria-label="Country code"], button:has-text("Country code")'
+        'button[aria-label="Country code"], button:has-text("Country code"), '
+        'button[name="countryCode"], button:has-text("+")'
     ).first
     cc_btn.wait_for(state="visible", timeout=8000)
     cc_btn.click()
     pg.wait_for_timeout(700)
 
     search = pg.locator(
-        '[role="listbox"] input[placeholder*="Search"], input[placeholder="Search..."]'
+        '[role="listbox"] input[placeholder*="Search"], input[placeholder="Search..."], '
+        'input[placeholder="search"]'
     ).first
     search.wait_for(state="visible", timeout=5000)
     search.fill(COUNTRY_NAME)
@@ -214,7 +220,10 @@ def _otp_login(pg: Page, phone: str, otp: str, label: str = "") -> None:
     phone_input.wait_for(state="visible", timeout=8000)
     phone_input.fill(phone)
     pg.wait_for_timeout(400)
-    container.locator('button:has-text("Send Code")').first.click()
+    send = container.locator('button:has-text("Send Code"), button:has-text("sendCode")').first
+    if send.count() == 0:
+        send = pg.get_by_role("button", name=re.compile(r"sendCode|Send Code", re.I)).first
+    send.click()
     pg.wait_for_timeout(2000)
 
     otp_input = container.locator('input[placeholder="000000"]').first
@@ -225,8 +234,20 @@ def _otp_login(pg: Page, phone: str, otp: str, label: str = "") -> None:
             break
     otp_input.fill(otp)
     pg.wait_for_timeout(800)
-    container.locator('button:has-text("Continue")').first.click()
+    cont = container.locator('button:has-text("Continue"), button:has-text("continue")').first
+    if cont.count() == 0:
+        cont = pg.get_by_role("button", name=re.compile(r"^continue$|^Continue$", re.I)).first
+    cont.click()
     pg.wait_for_timeout(4000)
+    if tutor:
+        pg.goto(_url("/dashboard/availability"), wait_until="commit", timeout=25000)
+        pg.wait_for_timeout(2500)
+        body = pg.inner_text("body")
+        if "No Data Available" in body and "tutor profile" in body.lower():
+            raise RuntimeError(
+                f"{phone} logged in without an approved tutor profile. "
+                "Use TEACHER_PHONE for a real tutor account."
+            )
     print(f"[E2E] Login OK: {who} → {pg.url}", flush=True)
 
 
@@ -273,8 +294,17 @@ def _fill_date_input(dlg, nth: int, date_str: str) -> bool:
 
 
 def _click_day_btn(pg: Page, dlg, day_idx: int) -> bool:
+    names = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"]
     letters = ["S", "M", "T", "W", "T", "F", "S"]
     try:
+        if day_idx < len(names):
+            named = dlg.locator("button").filter(
+                has_text=re.compile(rf"^{names[day_idx]}$")
+            )
+            if named.count() > 0:
+                named.first.click()
+                pg.wait_for_timeout(400)
+                return True
         row = dlg.locator("button").filter(has_text=re.compile(r"^[SMTWFsmtwf]$"))
         if row.count() >= day_idx + 1:
             row.nth(day_idx).click()
@@ -282,6 +312,18 @@ def _click_day_btn(pg: Page, dlg, day_idx: int) -> bool:
             return True
     except Exception as e:
         print(f"[E2E] day-btn[{day_idx}] error: {e}", flush=True)
+    return False
+
+
+def _wait_until_enabled(pg: Page, locator, timeout_ms: int = 8000) -> bool:
+    deadline = time.time() + timeout_ms / 1000
+    while time.time() < deadline:
+        try:
+            if locator.count() > 0 and locator.is_visible() and locator.is_enabled():
+                return True
+        except Exception:
+            pass
+        pg.wait_for_timeout(250)
     return False
 
 
@@ -298,7 +340,7 @@ def _tutor_storage(browser: Browser, tmp_path_factory):
     )
     pg = ctx.new_page()
     try:
-        _otp_login(pg, TEACHER_PHONE, TEACHER_OTP, "tutor")
+        _otp_login(pg, TEACHER_PHONE, TEACHER_OTP, "tutor", tutor=True)
         ctx.storage_state(path=str(sf))
     except Exception as exc:
         _STATE["errors"].append(f"Tutor login failed: {exc}")
@@ -413,7 +455,8 @@ class TestPhase1TutorSetup:
             'button:has-text("Apply"), button:has-text("Save"), button:has-text("Confirm")'
         ).first
         try:
-            apply_btn.wait_for(state="enabled", timeout=6000)
+            if not _wait_until_enabled(tutor_pg, apply_btn, 6000):
+                raise TimeoutError("Apply button stayed disabled")
             apply_btn.click()
             tutor_pg.wait_for_timeout(2500)
         except Exception as e:
@@ -480,47 +523,8 @@ class TestPhase1TutorSetup:
         dlg = tutor_pg.locator('[role="dialog"]')
         tutor_pg.wait_for_timeout(1000)
 
-        # ── Step 1: Session Info ──────────────────────────────────────────
-        print("[P1-02] Step 1: Session Info", flush=True)
-        name_input = dlg.locator(
-            'input[placeholder*="Session Name"], input[placeholder*="Name"], '
-            'input[name*="name"], textbox'
-        ).first
-        try:
-            name_input.wait_for(state="visible", timeout=6000)
-            name_input.fill(COURSE_NAME)
-            tutor_pg.wait_for_timeout(400)
-        except Exception as e:
-            print(f"[P1-02] Session name fill failed: {e}", flush=True)
-
-        # Description
-        try:
-            desc = dlg.locator("textarea").first
-            if desc.count() > 0:
-                desc.fill(COURSE_DESC)
-                tutor_pg.wait_for_timeout(300)
-        except Exception:
-            pass
-
-        next_btn = dlg.locator(
-            'button:has-text("Next"), button:has-text("Continue"), button:has-text("Next Step")'
-        ).first
-        try:
-            next_btn.wait_for(state="enabled", timeout=8000)
-            next_btn.click()
-            tutor_pg.wait_for_timeout(1500)
-            print("[P1-02] → Step 2", flush=True)
-        except Exception as e:
-            _rec("P1-02", "Tutor Group Sessions", COURSE_NAME,
-                 "FAIL", f"Step 1 Next failed: {e}")
-            try:
-                dlg.locator('button:has-text("Cancel")').first.click()
-            except Exception:
-                pass
-            return
-
-        # ── Step 2: Schedule ──────────────────────────────────────────────
-        print("[P1-02] Step 2: Schedule", flush=True)
+        # ── Step 1: Schedule ──────────────────────────────────────────────
+        print("[P1-02] Step 1: Schedule", flush=True)
         tutor_pg.wait_for_timeout(800)
 
         _fill_date_input(dlg, 0, GROUP_DATE_STR)
@@ -534,22 +538,50 @@ class TestPhase1TutorSetup:
         _pick_combobox(tutor_pg, dlg, 1, GROUP_END)
         tutor_pg.wait_for_timeout(300)
 
-        # Max students
+        next_btn = dlg.locator(
+            'button:has-text("Next"), button:has-text("Continue"), button:has-text("Next Step")'
+        ).first
         try:
-            max_inp = dlg.locator(
-                'input[placeholder*="Max"], input[name*="max"], input[type="number"]'
-            ).first
-            if max_inp.count() > 0:
-                max_inp.fill("5")
-                tutor_pg.wait_for_timeout(300)
-        except Exception:
-            pass
+            if not _wait_until_enabled(tutor_pg, next_btn, 8000):
+                raise TimeoutError("Step 1 Next button stayed disabled")
+            next_btn.click()
+            tutor_pg.wait_for_timeout(1500)
+            print("[P1-02] → Step 2", flush=True)
+        except Exception as e:
+            _rec("P1-02", "Tutor Group Sessions", COURSE_NAME,
+                 "FAIL", f"Step 1 Next failed: {e}")
+            try:
+                dlg.locator('button:has-text("Cancel")').first.click()
+            except Exception:
+                pass
+            return
+
+        # ── Step 2: Course Information ────────────────────────────────────
+        print("[P1-02] Step 2: Course Information", flush=True)
+        tutor_pg.wait_for_timeout(800)
+
+        # Live wizard fields: courseName, maximum, minimum, price.
+        try:
+            editable = dlg.locator("input:not([readonly])")
+            editable.nth(0).fill(COURSE_NAME)
+            editable.nth(1).fill("5")
+            editable.nth(2).fill("1")
+            editable.nth(3).fill(COURSE_PRICE)
+            desc = dlg.locator("textarea").first
+            if desc.count() > 0:
+                desc.fill(COURSE_DESC)
+            tutor_pg.wait_for_timeout(500)
+        except Exception as e:
+            _rec("P1-02", "Tutor Group Sessions", COURSE_NAME,
+                 "FAIL", f"Course info fill failed: {e}")
+            return
 
         next_btn2 = dlg.locator(
             'button:has-text("Next"), button:has-text("Continue"), button:has-text("Next Step")'
         ).first
         try:
-            next_btn2.wait_for(state="enabled", timeout=8000)
+            if not _wait_until_enabled(tutor_pg, next_btn2, 8000):
+                raise TimeoutError("Step 2 Next button stayed disabled")
             next_btn2.click()
             tutor_pg.wait_for_timeout(1500)
             print("[P1-02] → Step 3", flush=True)
@@ -562,25 +594,16 @@ class TestPhase1TutorSetup:
                 pass
             return
 
-        # ── Step 3: Pricing ───────────────────────────────────────────────
-        print("[P1-02] Step 3: Pricing", flush=True)
+        # ── Step 3: Review / Create ───────────────────────────────────────
+        print("[P1-02] Step 3: Review", flush=True)
         tutor_pg.wait_for_timeout(800)
-        try:
-            price_inp = dlg.locator(
-                'input[placeholder*="Price"], input[name*="price"], '
-                'input[type="number"][aria-label*="Price"], input[type="number"]'
-            ).first
-            if price_inp.count() > 0:
-                price_inp.fill(COURSE_PRICE)
-                tutor_pg.wait_for_timeout(300)
-        except Exception as e:
-            print(f"[P1-02] Price fill: {e}", flush=True)
 
         create_btn = dlg.locator(
             'button:has-text("Create"), button:has-text("Submit"), button:has-text("Publish")'
         ).first
         try:
-            create_btn.wait_for(state="enabled", timeout=8000)
+            if not _wait_until_enabled(tutor_pg, create_btn, 8000):
+                raise TimeoutError("Create button stayed disabled")
             create_btn.click()
             tutor_pg.wait_for_timeout(3000)
         except Exception as e:
@@ -887,7 +910,8 @@ def _handle_trial_dialog(pg: Page, dlg, slot_re: re.Pattern) -> str:
 
     cont = dlg.locator('button:has-text("Continue"), button:has-text("Confirm")').first
     try:
-        cont.wait_for(state="enabled", timeout=8000)
+        if not _wait_until_enabled(pg, cont, 8000):
+            raise TimeoutError("Continue button stayed disabled")
     except Exception:
         pass
     try:
@@ -1305,6 +1329,13 @@ def _write_reports() -> None:
     rt_out.write_text(json.dumps(rt_payload, indent=2, default=str), encoding="utf-8")
     print(f"\n[E2E REPORT] realtime_flow_report.json → {rt_out}", flush=True)
 
+    # Preserve the rich create+book+verify payload under a dedicated name.
+    # Later suites also write realtime_flow_report.json, so build_pages_site.py
+    # reads this file to keep slot/course data visible in data-flow.html.
+    e2e_out = _REPORTS / "e2e_data_flow_report.json"
+    e2e_out.write_text(json.dumps(rt_payload, indent=2, default=str), encoding="utf-8")
+    print(f"[E2E REPORT] e2e_data_flow_report.json → {e2e_out}", flush=True)
+
     # ── setup_data_summary.json (fallback) ─────────────────────────────────────
     summary = {
         "run_at":   time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -1355,6 +1386,10 @@ def _write_reports() -> None:
     su_out = _REPORTS / "setup_data_summary.json"
     su_out.write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
     print(f"[E2E REPORT] setup_data_summary.json → {su_out}", flush=True)
+
+    e2e_summary_out = _REPORTS / "setup_data_summary.e2e.json"
+    e2e_summary_out.write_text(json.dumps(summary, indent=2, default=str), encoding="utf-8")
+    print(f"[E2E REPORT] setup_data_summary.e2e.json → {e2e_summary_out}", flush=True)
 
     # ── also write setup_booking_id.txt for compatibility ──────────────────────
     if bid:
