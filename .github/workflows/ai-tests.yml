@@ -1590,6 +1590,8 @@ jobs:
 
     env:
       BASE_URL:       ${{ github.event.inputs.base_url || 'https://dev.mehadedu.com/en' }}
+      API_URL:        ${{ secrets.API_URL || 'https://api-tamkeen.prowhats.com/api/v1' }}
+      E2E_AUTH_MODE:  api
       STUDENT_PHONE:  ${{ secrets.STUDENT_PHONE || '98765432' }}
       STUDENT_OTP:    ${{ secrets.STUDENT_OTP   || '123456' }}
       TEACHER_PHONE:  ${{ secrets.TEACHER_PHONE || secrets.TEST_PHONE || '98976564' }}
