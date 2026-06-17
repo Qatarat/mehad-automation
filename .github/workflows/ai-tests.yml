@@ -1593,7 +1593,7 @@ jobs:
       STUDENT_PHONE:  ${{ secrets.STUDENT_PHONE || '98765432' }}
       STUDENT_OTP:    ${{ secrets.STUDENT_OTP   || '123456' }}
       TEACHER_PHONE:  ${{ secrets.TEACHER_PHONE || secrets.TEST_PHONE || '98976564' }}
-      TEACHER_OTP:    ${{ secrets.TEACHER_OTP   || secrets.TEST_OTP   || '123456' }}
+      TEACHER_OTP:    ${{ secrets.TEACHER_OTP   || '123456' }}
       TEST_COUNTRY:   ${{ secrets.TEST_COUNTRY  || '+880' }}
       SUPER_ADMIN_EMAIL:     ${{ secrets.SUPER_ADMIN_EMAIL     || '' }}
       SUPER_ADMIN_PHONE:     ${{ secrets.SUPER_ADMIN_PHONE     || '' }}
