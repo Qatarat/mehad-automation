@@ -6,7 +6,8 @@ on:
   pull_request:
     branches: [main]
   schedule:
-    - cron: "0 2 * * *"
+    # 10:00 AM Bangladesh time (UTC+6)
+    - cron: "0 4 * * *"
   workflow_dispatch:
     inputs:
       ai_model:
@@ -458,6 +459,13 @@ jobs:
 
     env:
       BASE_URL: ${{ github.event.inputs.base_url || 'https://dev.mehadedu.com/en' }}
+      API_URL:  ${{ secrets.API_URL || 'https://api-tamkeen.prowhats.com/api/v1' }}
+      TEST_COUNTRY:  ${{ secrets.TEST_COUNTRY || '+880' }}
+      TEST_OTP:      ${{ secrets.TEST_OTP || '123456' }}
+      TEACHER_PHONE: ${{ secrets.TEACHER_PHONE || secrets.TEST_PHONE || '98976564' }}
+      TEACHER_OTP:   ${{ secrets.TEACHER_OTP || secrets.TEST_OTP || '123456' }}
+      STUDENT_PHONE: ${{ secrets.STUDENT_PHONE || '98765432' }}
+      STUDENT_OTP:   ${{ secrets.STUDENT_OTP || secrets.TEST_OTP || '123456' }}
 
     steps:
       - name: Checkout repository

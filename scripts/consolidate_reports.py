@@ -406,6 +406,8 @@ def _bugs_from_pytest_json(data: dict, prefix: str, base_url: str) -> list:
     docstrings = _docstrings()
     testdata   = _testdata()
     for t in data.get("tests", []):
+        if not isinstance(t, dict):
+            continue
         if t.get("outcome") not in ("failed", "error"):
             continue
         nodeid  = t.get("nodeid", "")
@@ -488,6 +490,8 @@ def _passed_from_pytest_json(data: dict) -> list:
     testdata   = _testdata()
     out = []
     for t in data.get("tests", []):
+        if not isinstance(t, dict):
+            continue
         outcome = t.get("outcome", "")
         if outcome != "passed":
             continue
@@ -525,6 +529,8 @@ def _count_outcomes_excluding_selftests(data: dict) -> tuple[int, int, int]:
     self-tests so user-facing counts only reflect tests against their app."""
     p = f = 0
     for t in data.get("tests", []):
+        if not isinstance(t, dict):
+            continue
         nodeid  = t.get("nodeid", "")
         fn_name = nodeid.split("::")[-1].split("[")[0]
         if _is_system_selftest(nodeid, fn_name):

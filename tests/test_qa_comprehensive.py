@@ -21,6 +21,9 @@ Covers all scenario types:
 """
 
 import os, re, time, json, sys
+import urllib.error
+import urllib.request
+from datetime import date, timedelta
 import pytest
 from pathlib import Path
 from playwright.sync_api import Page, expect
@@ -73,8 +76,132 @@ TEST_COUNTRY_CODE = os.getenv("PROD_COUNTRY_CODE" if _IS_PROD else "TEST_COUNTRY
 TEST_PHONE        = os.getenv("PROD_TEST_PHONE"    if _IS_PROD else "TEST_PHONE",   "98976564")
 TEST_OTP          = os.getenv("TEST_OTP", "123456")   # staging fallback; overridden at runtime on prod
 TEST_USER_NAME    = "Automations Student"
+API_URL           = os.getenv("API_URL", "https://api-tamkeen.prowhats.com/api/v1").rstrip("/")
+TEACHER_PHONE     = os.getenv("TEACHER_PHONE", os.getenv("TEST_PHONE", "98976564"))
+TEACHER_OTP       = os.getenv("TEACHER_OTP", os.getenv("TEST_OTP", "123456"))
+STUDENT_PHONE     = os.getenv("STUDENT_PHONE", "98765432")
+STUDENT_OTP       = os.getenv("STUDENT_OTP", os.getenv("TEST_OTP", "123456"))
 
 PAYLOAD_DIR = Path(__file__).parent.parent / "payloads"
+
+
+def _qa_api_phone(phone: str) -> str:
+    phone = str(phone or "").strip()
+    if phone.startswith("+"):
+        return phone
+    digits = re.sub(r"\D", "", phone)
+    code = re.sub(r"\D", "", TEST_COUNTRY_CODE or "+880") or "880"
+    if digits.startswith(code):
+        return f"+{digits}"
+    return f"+{code}{digits}"
+
+
+def _qa_api_request(method: str, path: str, payload: dict | None = None, token: str = "") -> tuple[int, object]:
+    body = None if payload is None else json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        f"{API_URL}{path}",
+        data=body,
+        method=method,
+        headers={
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+            **({"Authorization": f"Bearer {token}"} if token else {}),
+        },
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=25) as res:
+            raw = res.read().decode("utf-8", errors="replace")
+            return res.status, json.loads(raw) if raw else {}
+    except urllib.error.HTTPError as exc:
+        raw = exc.read().decode("utf-8", errors="replace")
+        try:
+            data: object = json.loads(raw) if raw else {}
+        except Exception:
+            data = raw
+        return exc.code, data
+
+
+def _qa_api_auth(role: str, phone: str, otp: str) -> dict:
+    api_phone = _qa_api_phone(phone)
+    _qa_api_request("POST", f"/auth/login/{role}", {"phoneNumber": api_phone})
+    status, data = _qa_api_request(
+        "POST",
+        f"/auth/login/{role}/verify",
+        {"phoneNumber": api_phone, "otp": otp},
+    )
+    assert status < 400 and isinstance(data, dict), f"{role} API auth failed: HTTP {status} {data}"
+    token = data.get("access_token")
+    assert token, f"{role} API auth returned no access token: {data}"
+    return data
+
+
+def _qa_next_monday(min_days_ahead: int = 2) -> date:
+    today = date.today()
+    days = (0 - today.weekday()) % 7
+    if days < min_days_ahead:
+        days += 7
+    return today + timedelta(days=days)
+
+
+def _qa_flatten_calendar_slots(data: object) -> list[dict]:
+    if not isinstance(data, dict):
+        return []
+    items = data.get("data") or data.get("slots") or data.get("calendar") or []
+    out: list[dict] = []
+    if not isinstance(items, list):
+        return out
+    for item in items:
+        if isinstance(item, dict) and isinstance(item.get("slots"), list):
+            for nested in item["slots"]:
+                if isinstance(nested, dict):
+                    merged = dict(nested)
+                    merged.setdefault("date", item.get("date"))
+                    merged.setdefault("dayOfWeek", item.get("dayOfWeek"))
+                    out.append(merged)
+        elif isinstance(item, dict):
+            out.append(item)
+    return out
+
+
+def _qa_calendar_slots(token: str, slot_date: date) -> list[dict]:
+    status, data = _qa_api_request(
+        "GET",
+        f"/tutor/calendar?date={slot_date:%Y-%m-%d}&view=week&timezone=Asia/Dhaka",
+        token=token,
+    )
+    assert status < 400, f"tutor calendar API failed: HTTP {status} {data}"
+    return _qa_flatten_calendar_slots(data)
+
+
+def _qa_ensure_real_availability_slot(token: str) -> dict:
+    slot_date = _qa_next_monday()
+    existing = [
+        s for s in _qa_calendar_slots(token, slot_date)
+        if s.get("date") == f"{slot_date:%Y-%m-%d}" and s.get("sessionType", "one_to_one") == "one_to_one"
+    ]
+    if existing:
+        return existing[0]
+
+    attempts = [("10:00:00", "12:00:00"), ("08:00:00", "10:00:00"), ("16:00:00", "18:00:00")]
+    last: object = {}
+    for start, end in attempts:
+        payload = {
+            "dayOfWeek": (slot_date.weekday() + 1) % 7,
+            "startDate": f"{slot_date:%Y-%m-%d}",
+            "endDate": f"{slot_date:%Y-%m-%d}",
+            "startTime": start,
+            "endTime": end,
+            "sessionType": "one_to_one",
+            "timezone": "Asia/Dhaka",
+            "isActive": True,
+        }
+        status, data = _qa_api_request("POST", "/availability/settings", payload, token)
+        last = data
+        if status < 400 or "overlap" in str(data).lower() or "already" in str(data).lower():
+            slots = _qa_calendar_slots(token, slot_date)
+            if slots:
+                return slots[0]
+    pytest.fail(f"Could not create or find real availability slot for API test: {last}")
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Helpers
@@ -2142,6 +2269,75 @@ class TestQA06APIAndNetwork:
         if captured:
             print(f"  [QA-06 schema] validated {len(captured)} JSON response(s)")
         assert problems == [], f"Malformed/invalid JSON responses: {problems[:5]}"
+
+    def test_qa06_api_rejects_invalid_student_otp_without_token(self, page: Page):
+        """Real auth API must reject bad OTP and must not return any access token."""
+        phone = _qa_api_phone(STUDENT_PHONE)
+        _qa_api_request("POST", "/auth/login/student", {"phoneNumber": phone})
+        status, data = _qa_api_request(
+            "POST",
+            "/auth/login/student/verify",
+            {"phoneNumber": phone, "otp": "000000"},
+        )
+        assert status in (400, 401, 403, 422), f"Bad OTP returned unexpected HTTP {status}: {data}"
+        assert not (isinstance(data, dict) and data.get("access_token")), (
+            f"Bad OTP response leaked access token: {data}"
+        )
+
+    def test_qa06_api_student_auth_response_has_no_secret_fields(self, page: Page):
+        """Real student auth response must contain token/user but never password/OTP fields."""
+        data = _qa_api_auth("student", STUDENT_PHONE, STUDENT_OTP)
+        text = json.dumps(data, default=str).lower()
+        leaked = [k for k in ("password", "otp", "secret", "hash") if k in text]
+        assert leaked == [], f"Auth API response exposes sensitive field names: {leaked}"
+        user = data.get("user") or {}
+        assert isinstance(user, dict) and user.get("userId"), f"Auth API user object malformed: {user}"
+
+    def test_qa06_api_protected_tutor_calendar_requires_auth(self, page: Page):
+        """Tutor calendar API must reject unauthenticated direct access."""
+        slot_date = _qa_next_monday()
+        status, data = _qa_api_request(
+            "GET",
+            f"/tutor/calendar?date={slot_date:%Y-%m-%d}&view=week&timezone=Asia/Dhaka",
+        )
+        assert status in (401, 403), (
+            f"Protected tutor calendar allowed unauthenticated access: HTTP {status} {data}"
+        )
+
+    def test_qa06_api_can_generate_real_tutor_slot_and_calendar_contract(self, page: Page):
+        """Real tutor API must create/find an availability slot with stable calendar fields."""
+        tutor = _qa_api_auth("tutor", TEACHER_PHONE, TEACHER_OTP)
+        slot = _qa_ensure_real_availability_slot(tutor["access_token"])
+        required = ["date", "startTime", "endTime", "sessionType"]
+        missing = [k for k in required if not slot.get(k)]
+        assert missing == [], f"Calendar slot missing required fields {missing}: {slot}"
+        template_id = slot.get("templateId") or slot.get("availabilitySettingId") or slot.get("settingId")
+        assert template_id, f"Calendar slot missing booking template id: {slot}"
+        assert slot.get("sessionType") == "one_to_one", f"Unexpected sessionType in slot: {slot}"
+
+    def test_qa06_api_booking_checkout_rejects_invalid_payload(self, page: Page):
+        """Booking checkout API must validate required IDs and never create booking for bad payload."""
+        student = _qa_api_auth("student", STUDENT_PHONE, STUDENT_OTP)
+        status, data = _qa_api_request(
+            "POST",
+            "/bookings/checkout",
+            {
+                "tutorId": 999999999,
+                "availabilitySettingId": 999999999,
+                "scheduledDate": f"{_qa_next_monday():%Y-%m-%d}",
+                "startTime": "10:00:00",
+                "endTime": "12:00:00",
+                "sessionType": "one_to_one",
+                "timezone": "Asia/Dhaka",
+            },
+            student["access_token"],
+        )
+        assert status in (400, 401, 403, 404, 409, 422), (
+            f"Invalid checkout payload returned unexpected HTTP {status}: {data}"
+        )
+        assert not (isinstance(data, dict) and data.get("bookingNumber")), (
+            f"Invalid checkout payload created booking: {data}"
+        )
 
 
 # ─────────────────────────────────────────────────────────────────────────────
