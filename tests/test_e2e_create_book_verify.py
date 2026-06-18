@@ -65,6 +65,9 @@ STUDENT_OTP   = os.getenv("STUDENT_OTP",    os.getenv("TEST_OTP",   "123456"))
 COUNTRY_NAME  = "Bangladesh"
 COUNTRY_CODE  = os.getenv("TEST_COUNTRY_CODE", os.getenv("TEST_COUNTRY", "+880"))
 E2E_AUTH_MODE = os.getenv("E2E_AUTH_MODE", "ui").strip().lower()
+E2E_ALLOW_PENDING_BOOKING = os.getenv("E2E_ALLOW_PENDING_BOOKING", "0").strip().lower() in {
+    "1", "true", "yes", "on"
+}
 
 SUPER_ADMIN_EMAIL     = os.getenv("SUPER_ADMIN_EMAIL", "")
 SUPER_ADMIN_PHONE     = os.getenv("SUPER_ADMIN_PHONE", "")
@@ -110,6 +113,7 @@ _STATE: dict[str, Any] = {
     # Phase 2 — booking
     "booking": {
         "booking_id":     "",
+        "session_id":     "",
         "payment_amount": "",
         "tutor_name":     "",
         "booked_at":      "",
@@ -366,6 +370,125 @@ def _api_get(path: str, token: str) -> dict[str, Any]:
     return _api_request(path, None, token, method="GET")
 
 
+def _items_from_response(data: Any) -> list[dict[str, Any]]:
+    if isinstance(data, list):
+        return [x for x in data if isinstance(x, dict)]
+    if not isinstance(data, dict):
+        return []
+    for key in ("data", "sessions", "items", "results", "bookings"):
+        value = data.get(key)
+        if isinstance(value, list):
+            return [x for x in value if isinstance(x, dict)]
+        if isinstance(value, dict):
+            nested = _items_from_response(value)
+            if nested:
+                return nested
+    return []
+
+
+def _booking_number_from_session(session: dict[str, Any]) -> str:
+    booking = session.get("booking") if isinstance(session.get("booking"), dict) else {}
+    return str(
+        booking.get("bookingNumber")
+        or session.get("bookingNumber")
+        or session.get("booking_id")
+        or session.get("bookingId")
+        or ""
+    )
+
+
+def _session_tutor_id(session: dict[str, Any]) -> int | None:
+    booking = session.get("booking") if isinstance(session.get("booking"), dict) else {}
+    tutor = session.get("tutor") if isinstance(session.get("tutor"), dict) else {}
+    for value in (booking.get("tutorId"), tutor.get("tutorProfileId"), session.get("tutorId")):
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _hydrate_booking_from_session(session: dict[str, Any], source: str) -> bool:
+    bid = _booking_number_from_session(session)
+    if not BID_RE.search(bid):
+        return False
+
+    booking = session.get("booking") if isinstance(session.get("booking"), dict) else {}
+    tutor = session.get("tutor") if isinstance(session.get("tutor"), dict) else {}
+    tutor_name = " ".join(
+        str(x).strip() for x in [tutor.get("firstName"), tutor.get("lastName")] if str(x or "").strip()
+    ).strip() or _STATE["booking"].get("tutor_name") or f"Tutor {TUTOR_ID}"
+    amount = str(
+        booking.get("priceUsd")
+        or session.get("priceUsd")
+        or booking.get("totalAmount")
+        or _STATE["booking"].get("payment_amount")
+        or ""
+    )
+    status = str(session.get("status") or booking.get("status") or "").lower()
+    session_id = str(session.get("sessionId") or booking.get("sessionId") or "")
+
+    _STATE["booking"] = {
+        "booking_id": bid,
+        "session_id": session_id,
+        "payment_amount": amount,
+        "tutor_name": tutor_name,
+        "booked_at": str(booking.get("createdAt") or session.get("createdAt") or time.strftime("%Y-%m-%d %H:%M:%S")),
+        "status": status or source,
+    }
+    (_REPORTS / "setup_booking_id.txt").write_text(bid)
+    return True
+
+
+def _api_find_reusable_student_session() -> dict[str, Any]:
+    """Return latest real session that will not become a cancelled pending checkout."""
+    data = _api_auth("student", STUDENT_PHONE, STUDENT_OTP)
+    token = data["access_token"]
+
+    checks = [
+        ("/student/sessions/history?status=completed&page=1&limit=20", "completed"),
+        ("/student/sessions/upcoming?status=confirmed&page=1&limit=20", "confirmed"),
+        ("/student/sessions/history?page=1&limit=20", "history"),
+    ]
+    fallback: dict[str, Any] = {}
+    for path, expected in checks:
+        try:
+            sessions = _items_from_response(_api_get(path, token))
+        except Exception as exc:
+            print(f"[P2-01] Could not read {path}: {exc}", flush=True)
+            continue
+        for session in sessions:
+            status = str(session.get("status") or "").lower()
+            bid = _booking_number_from_session(session)
+            if not BID_RE.search(bid):
+                continue
+            if status in {"cancelled", "canceled", "pending_payment", "payment_pending"}:
+                continue
+            if _session_tutor_id(session) == TUTOR_ID:
+                return session
+            if not fallback and (expected in status or status in {"completed", "confirmed"}):
+                fallback = session
+    return fallback
+
+
+def _api_complete_student_session(session_id: str) -> bool:
+    if not session_id:
+        return False
+    data = _api_auth("student", STUDENT_PHONE, STUDENT_OTP)
+    try:
+        _api_request(
+            f"/student/sessions/{int(session_id)}/complete",
+            {"note": "Completed by automation data-flow verification."},
+            data["access_token"],
+            method="PATCH",
+        )
+        _STATE["booking"]["status"] = "completed"
+        return True
+    except Exception as exc:
+        print(f"[P2-02] Student complete API failed for session {session_id}: {exc}", flush=True)
+        return False
+
+
 def _api_create_availability_slot() -> bool:
     data = _api_auth("tutor", TEACHER_PHONE, TEACHER_OTP)
     token = data["access_token"]
@@ -583,6 +706,7 @@ def _api_create_booking() -> str:
     }
     _STATE["booking"] = {
         "booking_id": booking_id,
+        "session_id": str(created.get("sessionId") or created.get("session", {}).get("sessionId") or ""),
         "payment_amount": amount,
         "tutor_name": tutor_name,
         "booked_at": time.strftime("%Y-%m-%d %H:%M:%S"),
@@ -1232,7 +1356,7 @@ class TestPhase1TutorSetup:
 class TestPhase2StudentBooking:
 
     def test_p201_student_books_slot(self, student_pg: Page):
-        """Student navigates to tutor profile and books the Monday slot."""
+        """Student uses a real non-cancelled session; avoid unpaid checkout pollution."""
         print(f"\n[P2-01] Student booking tutor {TUTOR_ID}", flush=True)
         tutor_url = _url(f"/tutor/{TUTOR_ID}")
         student_pg.goto(tutor_url, wait_until="commit", timeout=25000)
@@ -1248,6 +1372,13 @@ class TestPhase2StudentBooking:
             _STATE["booking"]["tutor_name"] = f"Tutor {TUTOR_ID}"
 
         def _create_real_api_booking(reason: str) -> bool:
+            if not E2E_ALLOW_PENDING_BOOKING:
+                print(
+                    "[P2-01] Pending checkout creation disabled. "
+                    "Set E2E_ALLOW_PENDING_BOOKING=1 only when testing payment expiry/cancel flow.",
+                    flush=True,
+                )
+                return False
             try:
                 bid = _api_create_booking()
                 _rec("P2-01", "Student Booking",
@@ -1260,6 +1391,18 @@ class TestPhase2StudentBooking:
             except Exception as exc:
                 print(f"[P2-01] API booking fallback failed: {exc}", flush=True)
                 return False
+
+        if E2E_AUTH_MODE == "api" and not E2E_ALLOW_PENDING_BOOKING:
+            session = _api_find_reusable_student_session()
+            if session and _hydrate_booking_from_session(session, "reusable_session"):
+                bid = _STATE["booking"]["booking_id"]
+                _rec("P2-01", "Student Session",
+                     f"Reusable non-cancelled session: {bid}",
+                     "PASS",
+                     f"Status: {_STATE['booking']['status']} | Session: {_STATE['booking']['session_id']}",
+                     booking_id=bid)
+                print(f"[P2-01] Reusable session: {bid}", flush=True)
+                return
 
         if E2E_AUTH_MODE == "api" and _create_real_api_booking("CI API-auth mode"):
             return
@@ -1372,6 +1515,50 @@ class TestPhase2StudentBooking:
                  f"Tutor {TUTOR_ID} slot booking",
                  "FAIL",
                  f"No booking ID captured — URL: {student_pg.url[:100]}")
+
+    def test_p202_session_is_completed_or_confirmed_not_cancelled(self):
+        """Guardrail: data-flow session must not be cancelled/pending-payment."""
+        bid = _STATE["booking"].get("booking_id", "")
+        status = str(_STATE["booking"].get("status", "")).lower()
+        session_id = str(_STATE["booking"].get("session_id", ""))
+
+        if not bid:
+            pytest.skip("No booking/session selected in P2-01")
+
+        if status in {"cancelled", "canceled"}:
+            _rec("P2-02", "Session Status",
+                 f"Booking {bid} is cancelled",
+                 "FAIL",
+                 "Cancelled sessions cannot validate completion/history/earnings",
+                 booking_id=bid)
+            pytest.fail(f"Booking {bid} is {status}; automation must not use cancelled sessions")
+
+        if status in {"pending_payment", "payment_pending", "created_pending_payment"}:
+            _rec("P2-02", "Session Status",
+                 f"Booking {bid} is pending payment",
+                 "FAIL",
+                 "Pending checkout later becomes cancelled; use paid/completed session or run UI payment flow",
+                 booking_id=bid)
+            pytest.fail(
+                f"Booking {bid} is {status}; set E2E_ALLOW_PENDING_BOOKING=1 only for cancel-expiry tests"
+            )
+
+        if status == "existing":
+            session = _api_find_reusable_student_session()
+            if session and _booking_number_from_session(session).upper() == bid.upper():
+                _hydrate_booking_from_session(session, "existing_verified")
+                status = str(_STATE["booking"].get("status", "")).lower()
+
+        if status == "confirmed" and _api_complete_student_session(session_id):
+            status = "completed"
+
+        ok = status in {"completed", "confirmed", "reusable_session", "existing_verified"}
+        _rec("P2-02", "Session Status",
+             f"Booking {bid} status={status}",
+             "PASS" if ok else "FAIL",
+             "Session is safe for completion/history checks" if ok else "Unsupported session state",
+             booking_id=bid)
+        assert ok, f"Unsupported booking/session status for data flow: {status}"
 
 
 def _select_available_slot(pg: Page, dlg, slot_re: re.Pattern) -> bool:
@@ -1598,7 +1785,22 @@ class TestPhase3DataFlowVerification:
     # ── DF-03: Student Booking History / Recording ─────────────────────────────
 
     def test_df03_booking_history_recording(self, student_pg: Page):
-        """DF-03: Recording visible in My Booking History (needs completed session)."""
+        """DF-03: Selected booking must be completed and visible in history."""
+        bid = _STATE["booking"].get("booking_id", "")
+        state_status = str(_STATE["booking"].get("status", "")).lower()
+
+        if state_status == "confirmed":
+            _api_complete_student_session(str(_STATE["booking"].get("session_id", "")))
+            state_status = str(_STATE["booking"].get("status", "")).lower()
+
+        try:
+            session = _api_find_reusable_student_session()
+            if session and _booking_number_from_session(session).upper() == bid.upper():
+                _hydrate_booking_from_session(session, "df03_verified")
+                state_status = str(_STATE["booking"].get("status", "")).lower()
+        except Exception as exc:
+            print(f"[DF-03] API history verification failed: {exc}", flush=True)
+
         student_pg.goto(_url("/dashboard/bookings"), wait_until="commit", timeout=25000)
         student_pg.wait_for_timeout(3000)
 
@@ -1613,23 +1815,32 @@ class TestPhase3DataFlowVerification:
             pass
 
         page_text = student_pg.inner_text("body")
+        page_html = student_pg.content()
+        bid_visible = bool(bid and bid.upper() in page_html.upper())
         has_recording = bool(re.search(r"View Recording|Recording|recording", page_text))
         has_history_section = bool(re.search(
             r"Session History|Completed|Past Sessions|History", page_text, re.I
         ))
+        is_completed = state_status == "completed"
 
-        if has_recording:
+        if is_completed and (bid_visible or has_history_section):
             _rec("DF-03", "Student My Booking History",
-                 "Recording link visible in history",
-                 "PASS", "View Recording button found — session completed")
+                 f"Completed session history for {bid}",
+                 "PASS",
+                 f"Status completed. Recording visible: {has_recording}. History section present: {has_history_section}",
+                 booking_id=bid)
         else:
             _rec("DF-03", "Student My Booking History",
-                 "Recording in history (needs completed session)",
-                 "XFAIL",
-                 "Recording appears ONLY after session is completed — design intent. "
-                 f"History section present: {has_history_section}")
+                 f"Completion/history check for {bid}",
+                 "FAIL",
+                 f"status={state_status or 'unknown'}, bid_visible={bid_visible}, history={has_history_section}",
+                 booking_id=bid)
+            pytest.fail(
+                f"Selected booking {bid} is not verified as completed in history "
+                f"(status={state_status or 'unknown'})"
+            )
 
-        _STATE["verifications"]["df03"] = "XFAIL"
+        _STATE["verifications"]["df03"] = "PASS"
 
     # ── DF-04: Super Admin Sessions ────────────────────────────────────────────
 
@@ -1919,9 +2130,11 @@ def _write_reports() -> None:
     rt_payload = {
         "booking": {
             "booking_id":     bid,
+            "session_id":     _STATE["booking"].get("session_id", ""),
             "payment_amount": amount,
             "tutor_name":     tutor  or f"Tutor {TUTOR_ID}",
             "booked_at":      booked or time.strftime("%Y-%m-%d %H:%M:%S"),
+            "status":         _STATE["booking"].get("status", ""),
         },
         "created_data": {
             "slot":   slot,
