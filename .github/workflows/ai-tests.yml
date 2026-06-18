@@ -135,7 +135,8 @@ jobs:
 
       # ── 4. Playwright + Chromium ──────────────────────────────────────────
       - name: Install Playwright and Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
 
       # ── 5. Ollama ─────────────────────────────────────────────────────────
       - name: Install Ollama
@@ -481,7 +482,8 @@ jobs:
           pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
 
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
 
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
@@ -570,7 +572,8 @@ jobs:
           pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
 
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
 
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
@@ -655,7 +658,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run QA-06 API & Network Tests
@@ -707,7 +711,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run QA-08 Mobile & Viewport Tests
@@ -757,7 +762,8 @@ jobs:
           pip install langgraph langchain-core langchain-ollama playwright \
                       pytest pytest-playwright pytest-json-report pytest-html pytest-timeout Jinja2
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Install Ollama
         run: curl -fsSL https://ollama.ai/install.sh | sh
       - name: Cache Ollama models
@@ -816,7 +822,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run QA-09 SEO & Meta Tests
@@ -868,7 +875,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run QA-10 i18n & RTL Tests
@@ -925,7 +933,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence reports/visual-actuals reports/visual-diffs
       - name: Run QA-11 Visual Regression Tests
@@ -983,7 +992,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run QA-12 JS Error Sweeper Tests
@@ -1027,7 +1037,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run QA-13 Security Headers Tests
@@ -1067,7 +1078,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run QA-14 Cookie Security Tests
@@ -1107,7 +1119,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run QA-15 OWASP Surface Tests
@@ -1150,7 +1163,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run QA-16 Core Web Vitals Tests
@@ -1190,7 +1204,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run QA-17 Memory Leak Tests
@@ -1233,7 +1248,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run QA-18 Network Resilience Tests
@@ -1276,7 +1292,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run QA-19 Autonomous Exploratory Tests
@@ -1319,7 +1336,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run QA-20 Property-Based Fuzzing Tests
@@ -1365,7 +1383,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow ollama
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Install Ollama (only if vision QA enabled)
         if: env.ENABLE_VISION_QA == 'true'
         run: curl -fsSL https://ollama.ai/install.sh | sh
@@ -1463,7 +1482,8 @@ jobs:
                       pytest-timeout pytest-json-report Pillow
 
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
 
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
@@ -1619,7 +1639,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Syntax check
@@ -1878,7 +1899,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run Login E2E Tests
@@ -1961,7 +1983,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run Payment Flow Tests
@@ -2049,7 +2072,8 @@ jobs:
       - name: Install dependencies
         run: pip install playwright pytest pytest-playwright pytest-html pytest-timeout pytest-json-report Pillow
       - name: Install Playwright Chromium
-        run: playwright install chromium --with-deps
+        run: |
+          timeout 480 playwright install chromium --with-deps || timeout 240 playwright install chromium
       - name: Prepare reports directory
         run: mkdir -p reports reports/screenshots reports/evidence
       - name: Run Live Session & Super Admin Tests
