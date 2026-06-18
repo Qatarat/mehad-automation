@@ -31,11 +31,6 @@ on:
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
-# Keep newest branch run authoritative; stale long AI runs must not block fixes.
-concurrency:
-  group: mehad-autonomous-ai-testing-${{ github.ref }}
-  cancel-in-progress: true
-
 # Grant write access to contents so the gh-pages deploy can push.
 # Default GITHUB_TOKEN only has Contents:read which causes
 #   "remote: Permission to ... denied to github-actions[bot]" → git exit 128.
