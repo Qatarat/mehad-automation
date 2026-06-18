@@ -57,6 +57,30 @@ _wire_ai_callers()
 
 MEMORY = TestMemory()
 
+GRAPH_NODES = [
+    "load_spec",
+    "check_memory",
+    "generate_tests",
+    "validate_tests",
+    "run_tests",
+    "heal_tests",
+    "save_memory",
+    "finalize",
+]
+GRAPH_EDGES = [
+    ["load_spec", "check_memory"],
+    ["check_memory", "run_tests", "cache_hit"],
+    ["check_memory", "generate_tests", "cache_miss"],
+    ["generate_tests", "validate_tests"],
+    ["validate_tests", "run_tests", "valid_file"],
+    ["validate_tests", "generate_tests", "invalid_file_retry"],
+    ["run_tests", "heal_tests", "failed_with_retries_left"],
+    ["run_tests", "save_memory", "passed_or_retry_limit"],
+    ["heal_tests", "run_tests"],
+    ["save_memory", "finalize"],
+    ["finalize", "END"],
+]
+
 # ── State schema ──────────────────────────────────────────────────────────────
 
 class SpecState(TypedDict):
@@ -388,6 +412,46 @@ def build_graph():
     return builder.compile(checkpointer=checkpointer)
 
 
+def _write_graph_manifest(results: dict[str, dict]) -> None:
+    """Emit graph topology + outcomes as a CI artifact for auditability."""
+    REPORTS_DIR.mkdir(exist_ok=True)
+    manifest = {
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "engine": "langgraph",
+        "uses_state_graph": True,
+        "checkpointer": "MemorySaver",
+        "parallel_workers": 4,
+        "max_fix_retries": MAX_FIX_RETRIES,
+        "nodes": GRAPH_NODES,
+        "edges": [
+            {"from": edge[0], "to": edge[1], **({"condition": edge[2]} if len(edge) > 2 else {})}
+            for edge in GRAPH_EDGES
+        ],
+        "outcomes": results,
+        "totals": {
+            "passed": sum(r.get("passed", 0) for r in results.values()),
+            "failed": sum(r.get("failed", 0) for r in results.values()),
+            "tests": sum(r.get("total", 0) for r in results.values()),
+            "specs": len(results),
+        },
+    }
+    (REPORTS_DIR / "langgraph_manifest.json").write_text(
+        json.dumps(manifest, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    mermaid = ["flowchart TD"]
+    for edge in GRAPH_EDGES:
+        left, right = edge[0], edge[1]
+        if len(edge) > 2:
+            mermaid.append(f"  {left} -- {edge[2]} --> {right}")
+        else:
+            mermaid.append(f"  {left} --> {right}")
+    (REPORTS_DIR / "langgraph_graph.mmd").write_text("\n".join(mermaid) + "\n", encoding="utf-8")
+    log("  [GRAPH] Manifest emitted -> reports/langgraph_manifest.json")
+    log("  [GRAPH] Mermaid emitted -> reports/langgraph_graph.mmd")
+
+
 # ── Multi-spec runner ─────────────────────────────────────────────────────────
 
 _SKIP = {"TEMPLATE.md", "README.md", "EXAMPLE.md"}
@@ -486,6 +550,7 @@ if __name__ == "__main__":
 
     paths = [Path(s) for s in args.specs] if args.specs else None
     results = run_all_specs(paths)
+    _write_graph_manifest(results)
 
     # Write summary
     total_p = sum(r["passed"] for r in results.values())
