@@ -14,6 +14,61 @@ This document records the full production E2E test covering:
 3. Student logs in → finds tutor → books session
 4. Payment flow (live gateway)
 
+## Requirements
+
+- REQ-PROD-01: Production teacher signup must create a real pending tutor application, not a mock profile.
+- REQ-PROD-02: Admin approval must unlock the real tutor dashboard menus and public tutor profile.
+- REQ-PROD-03: Tutor availability must persist and become visible on the public tutor profile.
+- REQ-PROD-04: Student booking must create a real booking number with tutor, student, date, duration, price, and gateway URL.
+- REQ-PROD-05: Live production test-card payment failure must be reported as failed and must not be shown as a successful purchase.
+- REQ-PROD-06: Dev/sandbox payment success may complete the purchase only when the sandbox gateway returns a successful result.
+- REQ-PROD-07: Tutor earnings must appear only after a successful payment and completed session.
+- REQ-PROD-08: Admin/session/report views must use real booking, payment, and completion records only.
+- REQ-PROD-09: Cancelled, unpaid, failed, or future sessions must not be counted as completed classes or tutor earnings.
+- REQ-PROD-10: The final automation report must mark live-gateway limitations as blocked or expected-failure evidence, never as fake pass data.
+
+## User Flows
+
+### Flow 1: Teacher creates a production-ready profile
+1. Open the production become-a-tutor path.
+2. Register or login with a real phone number and OTP.
+3. Complete personal details, certification, subject expertise, and review steps.
+4. Submit the application.
+5. Verify the tutor profile remains pending until an admin approves it.
+6. After approval, verify the dashboard and public profile use the same real tutor record.
+
+### Flow 2: Teacher creates availability for paid classes
+1. Login as the approved tutor.
+2. Open the availability calendar.
+3. Add date range, weekdays, start time, and end time.
+4. Save the slot.
+5. Verify the slot appears in the tutor dashboard calendar.
+6. Open the public tutor profile and verify the same slot is available to students.
+
+### Flow 3: Student books and pays for a class
+1. Login as a real student.
+2. Open the approved tutor profile or find-tutors result.
+3. Select a visible slot and duration.
+4. Review teacher, subject, date, time, duration, price, and platform fee.
+5. Confirm the booking and capture the generated booking number.
+6. On production, submit a known test card only to verify the live gateway failure path.
+7. On dev/sandbox, submit the sandbox test card and verify successful redirect to bookings.
+8. Verify the booking status matches the gateway result and is visible in the correct dashboard.
+
+### Flow 4: Complete class and verify earnings where payment succeeded
+1. Use the dev/sandbox successful booking or a real production paid booking.
+2. Move the session through the real completion path after class time or through an authorized completion action.
+3. Verify student history shows the class as completed.
+4. Verify tutor booked sessions and calendar show the class as completed.
+5. Verify tutor earnings include the completed paid session.
+6. Verify admin sessions and reports show the same booking number, tutor, student, amount, and completed status.
+
+### Flow 5: Report only real production evidence
+1. Collect screenshots, pytest JSON, booking number, gateway status, and report rows for the run.
+2. Mark live card success as not-tested unless a real successful payment was made.
+3. Fail any report that shows cancelled, unpaid, or failed bookings as completed.
+4. Fail any report row that is not backed by an executed test artifact.
+
 ---
 
 ## Phase 1: New Teacher Onboarding
@@ -180,6 +235,8 @@ After a successful dev payment, the teacher's Earnings & Payouts page at `/en/da
 
 ## Production Test Data
 
+### Valid
+
 ### Teacher Account
 | Field | Value |
 |-------|-------|
@@ -209,6 +266,14 @@ After a successful dev payment, the teacher's Earnings & Payouts page at `/en/da
 | Duration | 60 minutes |
 | Amount | 100 SAR |
 | Status | Payment Failed (test card on live gateway) |
+
+### Invalid
+
+- Live production test card result shown as a successful payment.
+- Failed payment counted as tutor earnings.
+- Future booked session shown as a completed class without a completion action.
+- Cancelled session shown in completed-session totals.
+- Report pass row with no matching browser, gateway, pytest, or admin evidence.
 
 ---
 

@@ -715,10 +715,16 @@ def main():
     all_results = build_consolidated_results(base_url)
 
     if not all_results:
-        print("[CONSOLIDATE] No result files found — creating placeholder")
+        print("[CONSOLIDATE] No verified result files found — marking report incomplete")
         all_results = {"no_data": {
-            "status": "no_data", "passed": 0, "failed": 0, "total": 0,
-            "bugs": [], "gaps": "No test results collected yet.", "group": ""
+            "status": "incomplete_no_verified_results",
+            "passed": 0,
+            "failed": 0,
+            "total": 0,
+            "bugs": [],
+            "gaps": "No verified test result artifacts were collected. This run is incomplete and must not be treated as a pass.",
+            "group": "report-integrity",
+            "source": None,
         }}
 
     totals = compute_totals(all_results)

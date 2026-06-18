@@ -20,6 +20,47 @@ Only **completed** live classes trigger:
 - recording availability
 - report and admin panel updates
 
+## User Flows
+
+### Flow 1: Tutor creates a real one-to-one availability slot
+1. Login as an approved tutor with a completed instructor profile.
+2. Open the tutor availability calendar.
+3. Create a future availability slot with subject, date, start time, end time, duration, and price.
+4. Verify the slot appears on the tutor calendar with status `available`.
+5. Open the public tutor profile as a student-facing user.
+6. Verify the same slot is visible for booking with the same tutor, subject, date, time, duration, and price.
+
+### Flow 2: Tutor creates a real group course or class
+1. Login as an approved tutor.
+2. Open the course or group-session creation page.
+3. Submit a course with real title, subject, description, schedule, capacity, price, and meeting duration.
+4. Verify the course appears in the tutor course list with a system-generated course ID.
+5. Login as a student and search for the same subject or tutor.
+6. Verify the course appears in the student listing with matching tutor, schedule, capacity, and price.
+
+### Flow 3: Student purchases a class or slot using real records
+1. Login as a real student account.
+2. Open the tutor profile or course listing created in the previous flow.
+3. Select an available one-to-one slot or group course.
+4. Confirm booking details and proceed to payment.
+5. Complete payment in the dev sandbox gateway only; live production cards must not be faked.
+6. Capture the booking ID, payment reference, amount, tutor name, student name, and session type.
+7. Verify the booking appears in Student My Bookings, Tutor Booked Sessions, and Super Admin Sessions.
+
+### Flow 4: Complete a class and verify post-completion data
+1. Move the booked class through the real application completion path: live classroom completion, student completion action, tutor completion action, or authorized admin completion action.
+2. Verify the session status becomes `Completed` in Student My Bookings history.
+3. Verify the tutor calendar slot changes from `booked` to `completed`.
+4. Verify tutor earnings are created only after completion.
+5. Verify Super Admin Sessions shows the same booking ID with status `Completed`.
+6. Verify reports include the completed session without counting cancelled or unpaid bookings as earnings.
+
+### Flow 5: Verify reports and reject fake data
+1. Open the generated automation report after the run.
+2. Verify every displayed pass/fail row maps to a real executed test result artifact.
+3. Verify booking IDs, payment IDs, and session IDs are preserved in the report evidence.
+4. Fail the run if the report contains placeholder pass rows, fake booking IDs, mock names, or invalid screenshots.
+
 ## Data Flow Map
 
 ```
@@ -218,6 +259,25 @@ Session completed
 The following strings in any dashboard indicate mock/hardcoded data (FAIL):
 - `Sample Tutor`, `Test Tutor`, `Demo Student`
 - `Lorem ipsum`
+- `Student Unknown`, `Instructor Unknown`, `Automation Demo`
+- Static booking IDs that do not match an API/database record
+- Placeholder report rows that have no pytest JSON result, screenshot, trace, or logged evidence
+
+## Test Data
+
+### Valid
+- Tutor account: approved instructor with completed profile, subject `Math`, and real availability slot in a future date.
+- Student account: active student with verified login and enough wallet/gateway access to complete a sandbox payment.
+- One-to-one booking: future slot with real booking ID prefix `DBK-` or `BK-`, price, date, start time, end time, tutor ID, and student ID.
+- Group course booking: real course ID, capacity greater than zero, schedule, amount, and enrolled student ID.
+- Completion evidence: status `Completed`, matching booking ID across Student Bookings, Tutor Calendar, Tutor Earnings, Admin Sessions, and Reports.
+
+### Invalid
+- Cancelled booking shown as completed.
+- Unpaid booking counted as tutor earnings.
+- Future booked slot marked completed before the class completion action.
+- Mock student or tutor names used as report evidence.
+- Report pass row generated without a real test result artifact.
 - `John Doe`, `Jane Doe` (unless real registered user)
 - `XXX`, `TBD`, `Placeholder`
 - Booking ID: `12345`, `99999`, `0000` (non-system-format IDs)

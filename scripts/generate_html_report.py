@@ -94,14 +94,15 @@ def build_all_results(summary: dict, data_log: dict) -> dict:
     """
     specs_tested = summary.get("specs_tested", list(data_log.get("specs", {}).keys()))
 
-    # If nothing at all — make one placeholder entry so report isn't blank
+    # If nothing at all, create an explicit incomplete marker. It has zero
+    # pass/fail tests so it cannot be mistaken for executed app coverage.
     if not specs_tested:
         return {
             "no_data": {
-                "status":  "generation_failed",
+                "status":  "incomplete_no_verified_results",
                 "passed":  0, "failed": 0, "total": 0,
                 "bugs":    [],
-                "gaps":    "Job may have been cancelled before any specs completed.",
+                "gaps":    "No verified test result artifacts were collected. This report is incomplete and must not be treated as a pass.",
                 "partial": True,
             }
         }

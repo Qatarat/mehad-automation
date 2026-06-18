@@ -11,6 +11,36 @@ These are informational static pages accessible to all users without login. They
 ## Prerequisites
 - No login required
 
+## Requirements
+- REQ-SP-01: Public static pages must load without login.
+- REQ-SP-02: Public static pages must not show 404, 500, blank body, or client error overlays.
+- REQ-SP-03: Footer links must navigate to the expected localized URLs.
+- REQ-SP-04: Policy pages must show real policy content with a visible heading.
+- REQ-SP-05: A non-existent public URL must show a real not-found page and must not be reported as a passing static page.
+
+## Test Data
+
+### Valid
+| Field | Value |
+|---|---|
+| how_it_works_url | `https://dev.mehadedu.com/en/how-mehad-works` |
+| about_url | `https://dev.mehadedu.com/en/about-us` |
+| faqs_url | `https://dev.mehadedu.com/en/faqs` |
+| pricing_url | `https://dev.mehadedu.com/en/pricing` |
+| subjects_url | `https://dev.mehadedu.com/en/subjects` |
+| privacy_url | `https://dev.mehadedu.com/en/privacy-policy` |
+| terms_url | `https://dev.mehadedu.com/en/terms-conditions` |
+| refund_url | `https://dev.mehadedu.com/en/refund-policy` |
+| cookie_url | `https://dev.mehadedu.com/en/cookie-policy` |
+
+### Invalid
+| Field | Value |
+|---|---|
+| nonexistent_url | `https://dev.mehadedu.com/en/nonexistent-page-xyz` |
+| blank_body | Static page body containing only loading skeletons after page load |
+| broken_footer_url | Footer link with a broken localized URL |
+| fake_report_pass | Report row showing a static page as passed when the page returned 404 or blank content |
+
 ## Test Scenarios
 
 ### SP-01: How It Works page loads
