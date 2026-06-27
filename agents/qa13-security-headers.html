@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA — Run #123 · 2026-06-25 06:06:37</title>
+<title>Mehad QA — Run #125 · 2026-06-27 06:03:20</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
@@ -538,7 +538,7 @@ ol.steps li{margin-bottom:5px}
   <div class="crumbs">
     <a href="index.html">Mehad QA</a>
     <span class="sep">/</span>
-    <span class="current">Run #123</span>
+    <span class="current">Run #125</span>
   </div>
   <button class="btn primary" onclick="window.print()">Export PDF</button>
 </nav>
@@ -553,13 +553,13 @@ ol.steps li{margin-bottom:5px}
 <!-- ── Run header ── -->
 <section class="commit">
   <div class="badge-row">
-    <span class="pill run">Run #123</span>
+    <span class="pill run">Run #125</span>
     <span class="pill">dev.mehadedu.com/en</span>
     <span class="pill fail">No-Go for production</span>
   </div>
   <h1>0.0% — 6 test(s) need attention</h1>
   <div class="commit-meta">
-    <span><b>Date:</b> 2026-06-25 06:06:37</span>
+    <span><b>Date:</b> 2026-06-27 06:03:20</span>
     <span><b>Model:</b> unknown</span>
     <span><b>Specs:</b> 1</span>
     <span><b>Tests:</b> 6</span>
@@ -648,7 +648,7 @@ ol.steps li{margin-bottom:5px}
     <input id="testSearch" type="text" placeholder="Search tests…"/>
   </div>
   <div id="tests-body">
-    <div class="group" data-spec="qa13_security_headers"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa13_security_headers</span><span class="count">0 pass · 6 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_strict_transport_security_present</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-25 06:06:34</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -001">QA-13 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">HSTS header must be present on HTTPS responses (forces TLS) — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">HSTS header must be present on HTTPS responses (forces TLS).</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Missing Strict-Transport-Security header — HTTPS downgrade attacks possible. Recommend: max-age=63072000; includeSubDomains; preload</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3090: in test_qa13_strict_transport_security_present
+    <div class="group" data-spec="qa13_security_headers"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa13_security_headers</span><span class="count">0 pass · 6 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_strict_transport_security_present</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-27 06:03:17</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -001">QA-13 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">HSTS header must be present on HTTPS responses (forces TLS) — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">HSTS header must be present on HTTPS responses (forces TLS).</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Missing Strict-Transport-Security header — HTTPS downgrade attacks possible. Recommend: max-age=63072000; includeSubDomains; preload</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3090: in test_qa13_strict_transport_security_present
     assert hsts, (
 E   AssertionError: Missing Strict-Transport-Security header — HTTPS downgrade attacks possible. Recommend: max-age=63072000; includeSubDomains; preload
 E   assert ''
@@ -656,7 +656,7 @@ E   assert ''
 tests/test_qa_comprehensive.py:3090: in test_qa13_strict_transport_security_present
     assert hsts, (
 E   AssertionError: Missing Strict-Transport-Security header — HTTPS downgrade attacks possible. Recommend: max-age=63072000; includeSubDomains; preload
-E   assert ''</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_x_frame_options_or_csp_frame_ancestors</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-25 06:06:34</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -002">QA-13 -002</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Must protect against clickjacking via X-Frame-Options OR
+E   assert ''</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_x_frame_options_or_csp_frame_ancestors</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-27 06:03:17</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -002">QA-13 -002</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Must protect against clickjacking via X-Frame-Options OR
 CSP frame-ancestors — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Must protect against clickjacking via X-Frame-Options OR</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Page is clickjacking-vulnerable — missing both X-Frame-Options and CSP frame-ancestors. xfo='', csp=''</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3110: in test_qa13_x_frame_options_or_csp_frame_ancestors
     assert has_xfo or has_frame_ancestors, (
 E   AssertionError: Page is clickjacking-vulnerable — missing both X-Frame-Options and CSP frame-ancestors. xfo='', csp=''
@@ -665,7 +665,7 @@ E   assert (False or False)
 tests/test_qa_comprehensive.py:3110: in test_qa13_x_frame_options_or_csp_frame_ancestors
     assert has_xfo or has_frame_ancestors, (
 E   AssertionError: Page is clickjacking-vulnerable — missing both X-Frame-Options and CSP frame-ancestors. xfo='', csp=''
-E   assert (False or False)</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_x_content_type_options_nosniff</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-25 06:06:34</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -003">QA-13 -003</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">X-Content-Type-Options: nosniff prevents MIME-sniffing attacks — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">X-Content-Type-Options: nosniff prevents MIME-sniffing attacks.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">X-Content-Type-Options should be 'nosniff' to prevent MIME-sniffing attacks. Got: ''</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: X-Content-Type-Options should be 'nosniff' to prevent MIME-sniffing attacks. Got: ''
+E   assert (False or False)</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_x_content_type_options_nosniff</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-27 06:03:17</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -003">QA-13 -003</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">X-Content-Type-Options: nosniff prevents MIME-sniffing attacks — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">X-Content-Type-Options: nosniff prevents MIME-sniffing attacks.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">X-Content-Type-Options should be 'nosniff' to prevent MIME-sniffing attacks. Got: ''</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: X-Content-Type-Options should be 'nosniff' to prevent MIME-sniffing attacks. Got: ''
 E   assert '' == 'nosniff'
 E     
 E     - nosniff
@@ -675,7 +675,7 @@ tests/test_qa_comprehensive.py:3119: in test_qa13_x_content_type_options_nosniff
 E   AssertionError: X-Content-Type-Options should be 'nosniff' to prevent MIME-sniffing attacks. Got: ''
 E   assert '' == 'nosniff'
 E     
-E     - nosniff</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_referrer_policy_present</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-25 06:06:34</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -004">QA-13 -004</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Referrer-Policy controls what referrer info is leaked to other sites — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Referrer-Policy controls what referrer info is leaked to other sites.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Missing Referrer-Policy header — full URL referrers may leak to third-party sites. Recommend: strict-origin-when-cross-origin</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3128: in test_qa13_referrer_policy_present
+E     - nosniff</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_referrer_policy_present</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-27 06:03:17</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -004">QA-13 -004</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Referrer-Policy controls what referrer info is leaked to other sites — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Referrer-Policy controls what referrer info is leaked to other sites.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Missing Referrer-Policy header — full URL referrers may leak to third-party sites. Recommend: strict-origin-when-cross-origin</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3128: in test_qa13_referrer_policy_present
     assert rp, (
 E   AssertionError: Missing Referrer-Policy header — full URL referrers may leak to third-party sites. Recommend: strict-origin-when-cross-origin
 E   assert ''
@@ -683,13 +683,13 @@ E   assert ''
 tests/test_qa_comprehensive.py:3128: in test_qa13_referrer_policy_present
     assert rp, (
 E   AssertionError: Missing Referrer-Policy header — full URL referrers may leak to third-party sites. Recommend: strict-origin-when-cross-origin
-E   assert ''</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_content_security_policy_present</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-25 06:06:34</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -005">QA-13 -005</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">A Content-Security-Policy header should be set (XSS mitigation) — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">A Content-Security-Policy header should be set (XSS mitigation).</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payloads have no defense-in-depth mitigation</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3144: in test_qa13_content_security_policy_present
+E   assert ''</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_content_security_policy_present</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-27 06:03:17</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -005">QA-13 -005</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">A Content-Security-Policy header should be set (XSS mitigation) — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">A Content-Security-Policy header should be set (XSS mitigation).</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payloads have no defense-in-depth mitigation</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3144: in test_qa13_content_security_policy_present
     pytest.fail(
 E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payloads have no defense-in-depth mitigation
 
 tests/test_qa_comprehensive.py:3144: in test_qa13_content_security_policy_present
     pytest.fail(
-E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payloads have no defense-in-depth mitigation</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_no_server_version_disclosure</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-25 06:06:34</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -006">QA-13 -006</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Server / X-Powered-By headers should not disclose framework versions
+E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payloads have no defense-in-depth mitigation</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_no_server_version_disclosure</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-06-27 06:03:17</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -006">QA-13 -006</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Server / X-Powered-By headers should not disclose framework versions
 (e.g. 'nginx/1.18.0', 'Express') — info-disclosure issue — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Server / X-Powered-By headers should not disclose framework versions</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Server version disclosed in response headers: ['X-Powered-By: Next.js'] — helps attackers fingerprint vulnerable versions. Recommend: server_tokens off; (nginx) or x-powered-by removal</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3177: in test_qa13_no_server_version_disclosure
     assert not leaks, (
 E   AssertionError: Server version disclosed in response headers: ['X-Powered-By: Next.js'] — helps attackers fingerprint vulnerable versions. Recommend: server_tokens off; (nginx) or x-powered-by removal
@@ -787,8 +787,8 @@ E   assert not ['X-Powered-By: Next.js']</div></div></div></div></div></div>
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa13_strict_transport_security_present</code></span>
-        <span>2026-06-25 06:06:34</span>
-        <span>0.93s</span>
+        <span>2026-06-27 06:03:17</span>
+        <span>0.88s</span>
         
         
       </div>
@@ -874,8 +874,8 @@ E   assert ''</pre>
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa13_x_frame_options_or_csp_frame_ancestors</code></span>
-        <span>2026-06-25 06:06:34</span>
-        <span>0.72s</span>
+        <span>2026-06-27 06:03:17</span>
+        <span>0.52s</span>
         
         
       </div>
@@ -962,8 +962,8 @@ E   assert (False or False)</pre>
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa13_x_content_type_options_nosniff</code></span>
-        <span>2026-06-25 06:06:34</span>
-        <span>0.52s</span>
+        <span>2026-06-27 06:03:17</span>
+        <span>0.49s</span>
         
         
       </div>
@@ -1051,8 +1051,8 @@ E     - nosniff</pre>
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa13_referrer_policy_present</code></span>
-        <span>2026-06-25 06:06:34</span>
-        <span>0.67s</span>
+        <span>2026-06-27 06:03:17</span>
+        <span>0.44s</span>
         
         
       </div>
@@ -1138,8 +1138,8 @@ E   assert ''</pre>
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa13_content_security_policy_present</code></span>
-        <span>2026-06-25 06:06:34</span>
-        <span>0.49s</span>
+        <span>2026-06-27 06:03:17</span>
+        <span>0.42s</span>
         
         
       </div>
@@ -1223,8 +1223,8 @@ E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payl
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa13_no_server_version_disclosure</code></span>
-        <span>2026-06-25 06:06:34</span>
-        <span>0.47s</span>
+        <span>2026-06-27 06:03:17</span>
+        <span>0.55s</span>
         
         
       </div>
@@ -1345,8 +1345,8 @@ E   assert not ['X-Powered-By: Next.js']</pre>
   <div class="card" style="margin-bottom:16px">
     <div class="card-head"><h4>Run Info</h4></div>
     <dl class="run-dl">
-      <dt>Run #</dt><dd>123</dd>
-      <dt>Date</dt><dd>2026-06-25 06:06:37</dd>
+      <dt>Run #</dt><dd>125</dd>
+      <dt>Date</dt><dd>2026-06-27 06:03:20</dd>
       <dt>Target URL</dt><dd style="word-break:break-all">https://dev.mehadedu.com/en</dd>
       <dt>AI Model</dt><dd>unknown</dd>
       <dt>Browser</dt><dd>Chromium (headless)</dd>
@@ -1395,9 +1395,9 @@ E   assert not ['X-Powered-By: Next.js']</pre>
     </div>
   </div>
   <div>
-    <div class="col-head">Run #123</div>
+    <div class="col-head">Run #125</div>
     <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
-      2026-06-25 06:06:37<br/>
+      2026-06-27 06:03:20<br/>
       6 tests<br/>
       1 specs<br/>
       0.0% pass rate
