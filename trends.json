@@ -1,16 +1,6 @@
 {
   "runs": [
     {
-      "run_number": 61,
-      "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/27057882948",
-      "timestamp": "2026-06-06T10:10:18.231688Z",
-      "passed": 2075,
-      "failed": 28,
-      "total": 2103,
-      "bugs": 28,
-      "pass_rate": "98.7%"
-    },
-    {
       "run_number": 62,
       "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/27062392183",
       "timestamp": "2026-06-06T13:51:46.562653Z",
@@ -545,6 +535,17 @@
       "actual_tests_run": 4729,
       "bugs": 2295,
       "pass_rate": "51.5%"
+    },
+    {
+      "run_number": 130,
+      "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/28567212217",
+      "timestamp": "2026-07-02T06:05:04.076322Z",
+      "passed": 2434,
+      "failed": 2295,
+      "total": 4729,
+      "actual_tests_run": 4729,
+      "bugs": 2295,
+      "pass_rate": "51.5%"
     }
   ],
   "fingerprints": {
@@ -619,9 +620,8 @@
     },
     "9252bcf5ad3d": {
       "first_seen_run": 19,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
-        82,
         83,
         84,
         86,
@@ -650,14 +650,14 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "01cd6b2d1b53": {
       "first_seen_run": 19,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
-        82,
         83,
         84,
         86,
@@ -686,14 +686,14 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "3fb581456488": {
       "first_seen_run": 19,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
-        82,
         83,
         84,
         86,
@@ -722,7 +722,8 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "249110d9e8a6": {
@@ -752,9 +753,8 @@
     },
     "a7f290e2b3be": {
       "first_seen_run": 19,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
-        82,
         83,
         84,
         86,
@@ -783,14 +783,14 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "d89a19962de5": {
       "first_seen_run": 19,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
-        82,
         83,
         84,
         86,
@@ -819,14 +819,14 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "c0c999130a00": {
       "first_seen_run": 19,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
-        82,
         83,
         84,
         86,
@@ -855,7 +855,8 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "01585086b351": {
@@ -932,9 +933,8 @@
     },
     "61bdca766f4e": {
       "first_seen_run": 19,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
-        82,
         83,
         84,
         86,
@@ -963,14 +963,14 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "046ef2e7920e": {
       "first_seen_run": 22,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
-        83,
         84,
         85,
         86,
@@ -999,7 +999,8 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "236233a5f1e7": {
@@ -1083,9 +1084,8 @@
     },
     "318b5b7cebe6": {
       "first_seen_run": 26,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
-        82,
         83,
         84,
         86,
@@ -1114,7 +1114,8 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "533ca8e32f99": {
@@ -1141,9 +1142,8 @@
     },
     "48661fc6824b": {
       "first_seen_run": 30,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
-        82,
         83,
         84,
         86,
@@ -1172,7 +1172,8 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "20d965a77432": {
@@ -1556,7 +1557,7 @@
     },
     "4a1a882d5edf": {
       "first_seen_run": 67,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
         67,
         69,
@@ -1576,14 +1577,14 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "fd23cad9feca": {
       "first_seen_run": 67,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
-        82,
         83,
         84,
         86,
@@ -1612,7 +1613,8 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "b431c7cf0385": {
@@ -1842,11 +1844,12 @@
     },
     "0111531acaea": {
       "first_seen_run": 75,
-      "last_seen_run": 127,
+      "last_seen_run": 130,
       "runs_seen": [
         75,
         119,
-        127
+        127,
+        130
       ]
     },
     "7ef0aa01ae2c": {
@@ -2144,7 +2147,7 @@
     },
     "1ed052ee1522": {
       "first_seen_run": 108,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
         108,
         113,
@@ -2159,12 +2162,13 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "92b5903f61b4": {
       "first_seen_run": 108,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
         108,
         113,
@@ -2179,7 +2183,8 @@
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "1b38ec907c90": {
@@ -2219,14 +2224,15 @@
     },
     "0b2767b326e1": {
       "first_seen_run": 122,
-      "last_seen_run": 129,
+      "last_seen_run": 130,
       "runs_seen": [
         122,
         123,
         125,
         127,
         128,
-        129
+        129,
+        130
       ]
     },
     "7cd3213f6abb": {
@@ -2255,6 +2261,13 @@
       "last_seen_run": 129,
       "runs_seen": [
         129
+      ]
+    },
+    "58891d271ea6": {
+      "first_seen_run": 130,
+      "last_seen_run": 130,
+      "runs_seen": [
+        130
       ]
     }
   },
