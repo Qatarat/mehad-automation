@@ -1,17 +1,6 @@
 {
   "runs": [
     {
-      "run_number": 79,
-      "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/27324723954",
-      "timestamp": "2026-06-11T06:14:30.492643Z",
-      "passed": 2562,
-      "failed": 107,
-      "total": 2669,
-      "actual_tests_run": 2669,
-      "bugs": 107,
-      "pass_rate": "96.0%"
-    },
-    {
       "run_number": 80,
       "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/27330040612",
       "timestamp": "2026-06-11T08:27:18.565208Z",
@@ -549,6 +538,17 @@
       "actual_tests_run": 4749,
       "bugs": 2356,
       "pass_rate": "50.4%"
+    },
+    {
+      "run_number": 166,
+      "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/31150611827",
+      "timestamp": "2026-08-07T06:14:45.602149Z",
+      "passed": 2393,
+      "failed": 2356,
+      "total": 4749,
+      "actual_tests_run": 4749,
+      "bugs": 2356,
+      "pass_rate": "50.4%"
     }
   ],
   "fingerprints": {
@@ -623,9 +623,8 @@
     },
     "9252bcf5ad3d": {
       "first_seen_run": 19,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
-        99,
         108,
         113,
         115,
@@ -654,14 +653,14 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "01cd6b2d1b53": {
       "first_seen_run": 19,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
-        99,
         108,
         113,
         115,
@@ -690,14 +689,14 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "3fb581456488": {
       "first_seen_run": 19,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
-        97,
         99,
         108,
         113,
@@ -726,7 +725,8 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "249110d9e8a6": {
@@ -756,9 +756,8 @@
     },
     "a7f290e2b3be": {
       "first_seen_run": 19,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
-        99,
         108,
         113,
         115,
@@ -787,14 +786,14 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "d89a19962de5": {
       "first_seen_run": 19,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
-        99,
         108,
         113,
         115,
@@ -823,14 +822,14 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "c0c999130a00": {
       "first_seen_run": 19,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
-        99,
         108,
         113,
         115,
@@ -859,7 +858,8 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "01585086b351": {
@@ -936,9 +936,8 @@
     },
     "61bdca766f4e": {
       "first_seen_run": 19,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
-        99,
         108,
         113,
         115,
@@ -967,14 +966,14 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "046ef2e7920e": {
       "first_seen_run": 22,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
-        99,
         108,
         113,
         115,
@@ -1003,7 +1002,8 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "236233a5f1e7": {
@@ -1089,9 +1089,8 @@
     },
     "318b5b7cebe6": {
       "first_seen_run": 26,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
-        99,
         108,
         113,
         115,
@@ -1120,7 +1119,8 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "533ca8e32f99": {
@@ -1147,9 +1147,8 @@
     },
     "48661fc6824b": {
       "first_seen_run": 30,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
-        99,
         108,
         113,
         115,
@@ -1178,7 +1177,8 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "20d965a77432": {
@@ -1654,7 +1654,7 @@
     },
     "8ca35425dc86": {
       "first_seen_run": 68,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
         68,
         137,
@@ -1668,7 +1668,8 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "658b3916bc1d": {
@@ -2169,7 +2170,7 @@
     },
     "1ed052ee1522": {
       "first_seen_run": 108,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
         108,
         113,
@@ -2199,12 +2200,13 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "92b5903f61b4": {
       "first_seen_run": 108,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
         108,
         113,
@@ -2234,7 +2236,8 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "1b38ec907c90": {
@@ -2374,7 +2377,7 @@
     },
     "79e4a5c491a0": {
       "first_seen_run": 155,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
         155,
         156,
@@ -2386,12 +2389,13 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "4376bd4487b6": {
       "first_seen_run": 155,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
         155,
         156,
@@ -2403,7 +2407,8 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     },
     "8cbec1665c69": {
@@ -2420,7 +2425,7 @@
     },
     "f7e2b5623ece": {
       "first_seen_run": 155,
-      "last_seen_run": 165,
+      "last_seen_run": 166,
       "runs_seen": [
         155,
         156,
@@ -2432,7 +2437,8 @@
         162,
         163,
         164,
-        165
+        165,
+        166
       ]
     }
   },
