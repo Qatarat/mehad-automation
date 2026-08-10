@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Mehad QA — Run #169 · 2026-08-10 06:01:24</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
+<style>
+/* ── Design tokens ── */
+:root{
+  --bg-0:#07080b;
+  --bg-1:#0c0e13;
+  --bg-2:#11141b;
+  --bg-3:#181c26;
+  --ink-0:#f6f7fa;
+  --ink-1:#cdd1de;
+  --ink-2:#9aa0b4;
+  --ink-3:#626880;
+  --ink-4:#3a4154;
+  --accent:oklch(0.85 0.18 95);
+  --ok:oklch(0.78 0.16 155);
+  --bad:oklch(0.72 0.20 25);
+  --warn:oklch(0.82 0.14 70);
+  --accent-dim:oklch(0.85 0.18 95 / 0.15);
+  --ok-dim:oklch(0.78 0.16 155 / 0.15);
+  --bad-dim:oklch(0.72 0.20 25 / 0.15);
+  --warn-dim:oklch(0.82 0.14 70 / 0.15);
+  --radius:10px;
+  --font:'Inter',system-ui,sans-serif;
+  --mono:'JetBrains Mono',monospace;
+  --serif:'Instrument Serif',Georgia,serif;
+}
+
+/* ── Reset ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg-0);color:var(--ink-1);font-family:var(--font);font-size:14px;line-height:1.6}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code,pre{font-family:var(--mono);font-size:12px}
+pre{background:var(--bg-1);border:1px solid var(--ink-4);border-radius:6px;
+     padding:12px;overflow-x:auto;white-space:pre-wrap;word-break:break-word;color:var(--ink-1)}
+
+/* ── Nav ── */
+.nav{
+  position:sticky;top:0;z-index:100;
+  background:rgba(7,8,11,0.85);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--ink-4);
+  padding:0 24px;
+  display:flex;align-items:center;gap:16px;height:52px;
+}
+.mark{
+  width:28px;height:28px;border-radius:7px;flex-shrink:0;
+  background:conic-gradient(from 135deg,oklch(0.85 0.18 95),oklch(0.78 0.16 155),oklch(0.72 0.20 25),oklch(0.85 0.18 95));
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;color:#07080b;font-family:var(--mono);
+}
+.crumbs{font-size:13px;color:var(--ink-3);display:flex;align-items:center;gap:6px;flex:1}
+.crumbs a{color:var(--ink-2);}
+.crumbs a:hover{color:var(--ink-0)}
+.crumbs .sep{color:var(--ink-4)}
+.crumbs .current{color:var(--ink-0);font-weight:600}
+.btn{
+  border:1px solid var(--ink-4);background:var(--bg-2);color:var(--ink-1);
+  padding:6px 14px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;
+  font-family:var(--font);transition:background .15s,border-color .15s;
+}
+.btn:hover{background:var(--bg-3);border-color:var(--ink-2)}
+.btn.primary{background:var(--accent);color:#07080b;border-color:var(--accent);font-weight:700}
+.btn.primary:hover{opacity:.9}
+
+/* ── Page wrap ── */
+.wrap{max-width:1200px;margin:0 auto;padding:28px 24px}
+
+/* ── Commit / run header section ── */
+.commit{
+  background:linear-gradient(160deg,var(--bg-2) 0%,var(--bg-1) 100%);
+  border:1px solid var(--ink-4);border-radius:14px;
+  padding:28px 32px;margin-bottom:24px;
+}
+.badge-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.pill{
+  display:inline-flex;align-items:center;gap:6px;
+  border-radius:99px;padding:4px 12px;font-size:12px;font-weight:600;
+  border:1px solid var(--ink-4);background:var(--bg-3);color:var(--ink-2);
+}
+.pill.run{background:var(--accent-dim);border-color:var(--accent);color:var(--accent)}
+.pill.ok{background:var(--ok-dim);border-color:var(--ok);color:var(--ok)}
+.pill.fail{background:var(--bad-dim);border-color:var(--bad);color:var(--bad)}
+.commit h1{
+  font-size:clamp(20px,3vw,28px);font-weight:700;color:var(--ink-0);
+  letter-spacing:-0.5px;margin-bottom:10px;
+}
+.commit h1 em{font-family:var(--serif);font-style:italic;color:var(--accent)}
+.commit-meta{font-size:13px;color:var(--ink-2);display:flex;gap:20px;flex-wrap:wrap;margin-bottom:12px}
+.commit-meta b{color:var(--ink-1)}
+.stamp{
+  display:inline-flex;align-items:center;gap:8px;
+  font-size:12px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;
+  padding:5px 14px;border-radius:99px;
+  border:1px solid var(--bad);color:var(--bad);background:var(--bad-dim);
+}
+.stamp.pass-stamp{border-color:var(--ok);color:var(--ok);background:var(--ok-dim)}
+
+/* ── Card ── */
+.card{
+  background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:12px;margin-bottom:20px;overflow:hidden;
+}
+.card-head{
+  padding:14px 20px;border-bottom:1px solid var(--ink-4);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-head h4{font-size:13px;font-weight:700;color:var(--ink-0);letter-spacing:.3px;text-transform:uppercase}
+.card-body{padding:20px}
+
+/* ── Quality diff strip ── */
+.diff-rows{display:flex;flex-direction:column;gap:2px}
+.diff-row{
+  display:grid;grid-template-columns:20px 1fr auto;
+  gap:10px;align-items:center;padding:10px 16px;
+  border-radius:6px;font-size:13px;
+}
+.diff-row .sym{font-weight:700;font-family:var(--mono);font-size:13px}
+.diff-row .lbl{color:var(--ink-1)}
+.diff-row .val{font-weight:700;font-family:var(--mono);font-size:14px}
+.diff-row.add{background:var(--bad-dim)}
+.diff-row.add .sym{color:var(--bad)}
+.diff-row.add .val{color:var(--bad)}
+.diff-row.up{background:var(--ok-dim)}
+.diff-row.up .sym{color:var(--ok)}
+.diff-row.up .val{color:var(--ok)}
+.diff-row.neutral{background:var(--bg-2)}
+.diff-row.neutral .sym{color:var(--ink-3)}
+.diff-row.neutral .val{color:var(--ink-2)}
+
+/* ── Two-column layout ── */
+.layout{display:grid;grid-template-columns:1fr 340px;gap:20px;align-items:start}
+
+/* ── Trace (spec waterfall) ── */
+.trace-axis{padding:14px 20px 6px;display:flex;justify-content:space-between;
+            font-size:10px;color:var(--ink-4);text-transform:uppercase;letter-spacing:.5px}
+.trace-row{
+  display:grid;grid-template-columns:180px 1fr;
+  gap:12px;align-items:center;padding:6px 16px;
+}
+.trace-row:hover{background:var(--bg-2)}
+.trace-row .nm{font-size:12px;color:var(--ink-2);font-family:var(--mono);
+               white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.trace-row .lane{height:22px;background:var(--bg-3);border-radius:4px;overflow:hidden;position:relative}
+.trace-bar{
+  height:100%;border-radius:4px;display:flex;align-items:center;
+  padding:0 8px;font-size:10px;font-weight:700;color:#07080b;
+  white-space:nowrap;overflow:hidden;min-width:4%;
+  transition:width .4s ease;
+}
+.trace-bar.pass{background:var(--ok)}
+.trace-bar.fail{background:var(--bad)}
+
+/* ── Tests section ── */
+.section h5{
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--ink-3);padding:14px 20px 10px;border-bottom:1px solid var(--ink-4);
+}
+.tests-tools{
+  padding:12px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+  border-bottom:1px solid var(--ink-4);background:var(--bg-2);
+}
+.chip{
+  padding:5px 12px;border-radius:99px;font-size:12px;font-weight:600;cursor:pointer;
+  border:1px solid var(--ink-4);color:var(--ink-2);background:var(--bg-3);
+  transition:all .15s;user-select:none;
+}
+.chip:hover{border-color:var(--ink-2);color:var(--ink-1)}
+.chip.active{background:var(--bg-3);border-color:var(--ink-1);color:var(--ink-0)}
+.chip.fail.active{background:var(--bad-dim);border-color:var(--bad);color:var(--bad)}
+.chip.pass.active{background:var(--ok-dim);border-color:var(--ok);color:var(--ok)}
+#testSearch{
+  flex:1;min-width:160px;background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:99px;padding:5px 14px;font-size:12px;color:var(--ink-1);
+  font-family:var(--font);outline:none;transition:border-color .15s;
+}
+#testSearch:focus{border-color:var(--accent)}
+#testSearch::placeholder{color:var(--ink-4)}
+
+/* ── Group (spec accordion) ── */
+.group{border-bottom:1px solid var(--ink-4)}
+.group:last-child{border-bottom:none}
+.group-head{
+  display:flex;align-items:center;gap:10px;padding:12px 16px;cursor:pointer;
+  user-select:none;transition:background .12s;
+}
+.group-head:hover{background:var(--bg-2)}
+.group-head .chev{font-size:10px;color:var(--ink-3);transition:transform .2s;width:12px;flex-shrink:0}
+.group.open .group-head .chev{transform:rotate(90deg)}
+.group-head .gtag{font-size:13px;font-weight:600;color:var(--ink-0);font-family:var(--mono);flex:1}
+.group-head .count{font-size:11px;color:var(--ink-3);white-space:nowrap}
+.group-body{display:none;background:var(--bg-0)}
+.group.open .group-body{display:block}
+
+/* ── Individual test row ── */
+.test{border-bottom:1px solid var(--ink-4)}
+.test:last-child{border-bottom:none}
+.test-row{
+  display:flex;align-items:center;gap:10px;padding:9px 28px;cursor:pointer;
+  transition:background .12s;font-size:13px;
+}
+.test:not(.open) .test-row:hover{background:var(--bg-2)}
+.test.open .test-row{background:var(--bg-2)}
+.test-row .chev{font-size:9px;color:var(--ink-4);transition:transform .2s;width:10px;flex-shrink:0}
+.test.open .test-row .chev{transform:rotate(90deg)}
+.statdot{
+  width:18px;height:18px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:800;
+}
+.statdot.pass{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
+.statdot.fail{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
+.name-cell{flex:1;min-width:0;overflow:hidden}
+.tname{font-family:var(--mono);font-size:12px;color:var(--ink-1);
+        white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;flex-shrink:0}
+.tag.p0{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
+.tag.p1{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}
+.tag.p2{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
+.tag.p3{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}
+
+/* ── Test expanded body ── */
+.test-body{display:none;padding:14px 28px 18px 56px;background:var(--bg-0);border-top:1px solid var(--ink-4)}
+.test.open .test-body{display:block}
+.pass-body{display:none;padding:14px 28px 18px 56px;background:var(--bg-0);border-top:1px solid var(--ink-4)}
+.test.open .pass-body{display:block}
+.pass-fields{display:flex;flex-direction:column;gap:6px}
+.pass-fields dt{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);font-weight:600;margin-top:6px}
+.pass-fields dd{font-size:13px;color:var(--ink-1);font-family:var(--mono);padding-left:12px}
+
+/* ── Meta grid (inside test body) ── */
+.meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.meta-cell{background:var(--bg-2);border-radius:7px;padding:10px 12px}
+.meta-cell .k{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);font-weight:600;margin-bottom:3px}
+.meta-cell .v{font-size:13px;color:var(--ink-1);font-family:var(--mono)}
+
+/* ── Er grid (expected/actual) ── */
+.er-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.er-card{border-radius:8px;padding:12px 14px;border:1px solid}
+.er-card.ok{background:var(--ok-dim);border-color:var(--ok)}
+.er-card.ok .k{color:var(--ok)}
+.er-card.bad{background:var(--bad-dim);border-color:var(--bad)}
+.er-card.bad .k{color:var(--bad)}
+.er-card .k{font-size:10px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-bottom:4px}
+.er-card .v{font-size:12px;color:var(--ink-1)}
+
+/* ── Code box ── */
+.codebox{
+  background:var(--bg-2);border:1px solid var(--ink-4);border-radius:7px;
+  padding:12px;font-family:var(--mono);font-size:11px;color:var(--ink-2);
+  overflow-x:auto;white-space:pre-wrap;word-break:break-word;margin-top:8px;
+}
+
+/* ── Traceback toggle ── */
+.trace-toggle{
+  width:100%;background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:6px;padding:8px 14px;color:var(--bad);font-family:var(--mono);
+  font-size:11px;cursor:pointer;text-align:left;display:flex;
+  justify-content:space-between;align-items:center;margin-top:12px;
+  font-family:var(--font);
+}
+.trace-toggle:hover{background:var(--bg-2)}
+.trace-toggle .arr{color:var(--ink-3);font-size:10px}
+
+/* ── Sidebar ── */
+.side{position:sticky;top:70px}
+.side-head{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-3);margin-bottom:10px}
+.ringwrap{display:flex;align-items:center;justify-content:center;padding:20px 16px}
+.ring{width:120px;height:120px}
+
+/* ── Mini-stats row ── */
+.mini-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 16px}
+.ms{background:var(--bg-2);border-radius:8px;padding:10px 12px;border:1px solid var(--ink-4)}
+.ms .ms-v{font-size:22px;font-weight:700;font-family:var(--mono);line-height:1}
+.ms .ms-l{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.5px;margin-top:3px}
+.ms.bad .ms-v{color:var(--bad)}
+.ms.warn .ms-v{color:var(--warn)}
+.ms.ok .ms-v{color:var(--ok)}
+
+/* ── Run metadata DL ── */
+.run-dl{padding:14px 18px;display:flex;flex-direction:column;gap:0}
+.run-dl dt{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--ink-3);
+           font-weight:600;margin-top:10px}
+.run-dl dt:first-child{margin-top:0}
+.run-dl dd{font-size:13px;color:var(--ink-1);font-family:var(--mono)}
+
+/* ── Bug cards ── */
+.bug-card{
+  background:var(--bg-1);border:1px solid var(--ink-4);
+  border-radius:12px;margin-bottom:20px;overflow:hidden;
+}
+.bug-card-hdr{
+  padding:16px 20px;display:flex;align-items:flex-start;
+  justify-content:space-between;flex-wrap:wrap;gap:8px;
+  border-bottom:1px solid var(--ink-4);background:var(--bg-2);
+}
+.bug-card-hdr .left{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.bug-id{
+  font-size:11px;font-weight:700;color:var(--ink-3);
+  font-family:var(--mono);background:var(--bg-0);
+  border:1px solid var(--ink-4);padding:2px 8px;border-radius:4px;
+}
+.bug-title{font-size:15px;font-weight:600;color:var(--ink-0);margin-top:4px}
+.bug-meta{font-size:12px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;margin-top:6px}
+.bug-meta span{display:flex;align-items:center;gap:4px}
+.bug-body{padding:20px}
+
+/* ── Badge / severity ── */
+.badge{
+  display:inline-block;padding:3px 10px;border-radius:99px;font-size:11px;
+  font-weight:700;letter-spacing:.4px;text-transform:uppercase;
+}
+.badge.CRITICAL{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
+.badge.HIGH{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}
+.badge.MEDIUM{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}
+.badge.LOW{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
+.badge.PASS{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
+.badge.FAIL{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
+.badge.gen-fail{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}
+.badge.P0{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
+.badge.P1{background:var(--warn-dim);color:var(--warn);border:1px solid var(--warn)}
+.badge.P2{background:var(--ok-dim);color:var(--ok);border:1px solid var(--ok)}
+.badge.P3{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}
+
+/* ── Info blocks ── */
+.info-block{border-radius:8px;padding:14px 16px;margin-bottom:12px}
+.info-block .ib-label{font-size:11px;font-weight:700;text-transform:uppercase;
+                       letter-spacing:.6px;margin-bottom:8px}
+.info-block.expected{background:var(--ok-dim);border-left:3px solid var(--ok)}
+.info-block.expected .ib-label{color:var(--ok)}
+.info-block.actual{background:var(--bad-dim);border-left:3px solid var(--bad)}
+.info-block.actual .ib-label{color:var(--bad)}
+.info-block.analysis{background:var(--bg-3);border-left:3px solid var(--accent)}
+.info-block.analysis .ib-label{color:var(--accent)}
+.info-block.fix{background:var(--ok-dim);border-left:3px solid var(--ok)}
+.info-block.fix .ib-label{color:var(--ok)}
+.info-block.rootcause{background:var(--warn-dim);border-left:3px solid var(--warn)}
+.info-block.rootcause .ib-label{color:var(--warn)}
+.info-block.priority{background:var(--bg-3);border-left:3px solid var(--accent)}
+.info-block.priority .ib-label{color:var(--accent)}
+
+/* ── Two-col for info blocks ── */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+@media(max-width:640px){.two-col{grid-template-columns:1fr}}
+
+/* ── Steps ── */
+ol.steps{padding-left:20px;color:var(--ink-1)}
+ol.steps li{margin-bottom:5px}
+
+/* ── Screenshot ── */
+.shot-wrap{margin-top:16px}
+.shot-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+            color:var(--ink-3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.screenshot{width:100%;border:1px solid var(--ink-4);border-radius:8px;cursor:zoom-in;transition:opacity .2s}
+.screenshot:hover{opacity:.9}
+.no-shot{background:var(--bg-2);border:1px dashed var(--ink-4);border-radius:8px;
+         padding:20px;text-align:center;color:var(--ink-3);font-size:12px}
+
+/* ── Video ── */
+.video-wrap{margin-top:16px}
+.video-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+             color:var(--ink-3);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.poc-video{width:100%;max-height:540px;border:1px solid var(--ink-4);border-radius:8px;background:#000}
+
+/* ── Error toggle ── */
+.err-toggle{
+  width:100%;background:var(--bg-2);border:1px solid var(--ink-4);
+  border-radius:6px;padding:10px 14px;color:var(--bad);font-size:12px;
+  cursor:pointer;text-align:left;display:flex;justify-content:space-between;
+  align-items:center;margin-top:14px;font-family:var(--font);
+}
+.err-toggle:hover{background:var(--bg-3)}
+.err-body{display:none;margin-top:1px}
+.err-body.open{display:block}
+
+/* ── Evidence panels ── */
+.ev-toggle{
+  width:100%;background:var(--bg-2);border:1px solid var(--ink-4);border-radius:6px;
+  padding:9px 14px;color:var(--accent);font-size:12px;cursor:pointer;
+  text-align:left;display:flex;justify-content:space-between;align-items:center;
+  margin-top:10px;font-family:var(--font);
+}
+.ev-toggle:hover{background:var(--bg-3)}
+.ev-body{display:none;margin-top:1px}
+.ev-body.open{display:block}
+.ev-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:4px}
+.ev-table th{background:var(--bg-0);color:var(--ink-3);padding:5px 10px;text-align:left;font-weight:600;border:1px solid var(--ink-4)}
+.ev-table td{padding:4px 10px;border:1px solid var(--ink-4);color:var(--ink-1);word-break:break-all;max-width:400px}
+.perf-grid{display:flex;gap:16px;flex-wrap:wrap;margin-top:4px}
+.perf-stat{background:var(--bg-2);border:1px solid var(--ink-4);border-radius:6px;padding:10px 16px;min-width:120px;text-align:center}
+.perf-stat .pval{font-size:22px;font-weight:700;color:var(--accent)}
+.perf-stat .plbl{font-size:10px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.pval.warn{color:var(--warn)}
+.pval.bad{color:var(--bad)}
+
+/* ── Console ── */
+.console-err{background:var(--bad-dim);border-left:3px solid var(--bad);padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;font-family:var(--mono);color:var(--bad)}
+.console-warn{background:var(--warn-dim);border-left:3px solid var(--warn);padding:6px 10px;border-radius:4px;margin-bottom:4px;font-size:11px;font-family:var(--mono);color:var(--warn)}
+
+/* ── Env strip ── */
+.env-strip{font-size:11px;color:var(--ink-3);display:flex;gap:16px;flex-wrap:wrap;
+           margin-top:14px;padding-top:14px;border-top:1px solid var(--ink-4)}
+.env-strip b{color:var(--ink-1)}
+
+/* ── Board/SLA chips ── */
+.board-chip{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 8px;
+           border-radius:4px;text-transform:uppercase;display:inline-block}
+.board-chip.expedite{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad)}
+.board-chip.else{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent)}
+.biz-badge{font-size:10px;font-weight:700;letter-spacing:.4px;padding:2px 8px;
+          border-radius:4px;background:var(--warn-dim);color:var(--warn);
+          border:1px solid var(--warn);display:inline-block;animation:biz-pulse 2s ease-in-out infinite}
+@keyframes biz-pulse{0%,100%{opacity:1} 50%{opacity:.7}}
+.sla-chip{font-size:10px;color:var(--ink-3);background:var(--bg-2);
+         border:1px solid var(--ink-4);border-radius:4px;padding:2px 8px;display:inline-block}
+
+/* ── Cluster summary ── */
+.cluster-summary{margin:0 0 20px}
+.cluster-headline{font-size:14px;color:var(--ink-2);margin-bottom:14px}
+.cluster-headline strong{color:var(--accent)}
+.cluster-list{display:flex;flex-direction:column;gap:8px}
+.cluster-row{background:var(--bg-2);border:1px solid var(--ink-4);border-radius:8px;
+             padding:14px 18px;display:grid;grid-template-columns:auto 1fr auto;
+             gap:14px;align-items:center}
+.cluster-row:hover{border-color:var(--accent)}
+.cluster-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.cluster-count{font-size:11px;color:var(--ink-3);background:var(--bg-0);
+               border:1px solid var(--ink-4);border-radius:4px;padding:3px 8px;font-weight:600}
+.cluster-title{font-size:13px;color:var(--ink-0);font-weight:600}
+.cluster-tickets{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;max-width:300px}
+.cluster-bug-link{font-size:10px;font-family:var(--mono);color:var(--accent);
+                  text-decoration:none;background:var(--bg-0);border:1px solid var(--ink-4);
+                  padding:2px 6px;border-radius:4px}
+.cluster-bug-link:hover{border-color:var(--accent);background:var(--accent-dim)}
+.recurrence-badge{background:var(--bad-dim);color:var(--bad);border:1px solid var(--bad);
+                  border-radius:4px;padding:2px 8px;font-size:10px;
+                  font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.cluster-help{font-size:11px;color:var(--ink-3);margin-top:12px;
+              padding:8px 12px;background:var(--bg-2);border-radius:6px;
+              border-left:3px solid var(--accent)}
+
+/* ── Gap block ── */
+.gap-block{background:var(--bg-2);border:1px solid var(--ink-4);
+           border-radius:var(--radius);padding:20px;margin-bottom:16px}
+.gap-block h3{color:var(--accent);font-size:14px;margin-bottom:12px}
+.gap-block p,.gap-block li{color:var(--ink-2);font-size:13px;margin-bottom:4px}
+
+/* ── Priority strip ── */
+.priority-strip{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:20px}
+.pstrip-item{background:var(--bg-2);border:1px solid var(--ink-4);border-radius:var(--radius);
+             padding:14px 16px;text-align:center;transition:transform .12s,border-color .12s}
+.pstrip-item:hover{transform:translateY(-2px)}
+.pstrip-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.pstrip-val{font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}
+.pstrip-sla{font-size:10px;color:var(--ink-3);margin-top:4px}
+.pstrip-item.p0{border-top:3px solid var(--bad)}
+.pstrip-item.p0 .pstrip-label,.pstrip-item.p0 .pstrip-val{color:var(--bad)}
+.pstrip-item.p1{border-top:3px solid var(--warn)}
+.pstrip-item.p1 .pstrip-label,.pstrip-item.p1 .pstrip-val{color:var(--warn)}
+.pstrip-item.p2{border-top:3px solid var(--ok)}
+.pstrip-item.p2 .pstrip-label,.pstrip-item.p2 .pstrip-val{color:var(--ok)}
+.pstrip-item.p3{border-top:3px solid var(--accent)}
+.pstrip-item.p3 .pstrip-label,.pstrip-item.p3 .pstrip-val{color:var(--accent)}
+
+/* ── Brand footer ── */
+.brand-foot{
+  margin-top:48px;padding:36px 24px;border-top:1px solid var(--ink-4);
+  display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;
+}
+.brand-foot .who{display:flex;flex-direction:column;gap:6px}
+.brand-foot .who .logo-row{display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.brand-foot .who .bname{font-weight:700;font-size:15px;color:var(--ink-0)}
+.brand-foot .who .btitle{font-size:12px;color:var(--ink-3)}
+.brand-foot .links{display:flex;flex-direction:column;gap:8px}
+.brand-foot .links a{font-size:13px;color:var(--ink-2)}
+.brand-foot .links a:hover{color:var(--ink-0)}
+.brand-foot .col-head{font-size:11px;font-weight:700;text-transform:uppercase;
+                       letter-spacing:.6px;color:var(--ink-3);margin-bottom:12px}
+
+/* ── Lightbox ── */
+#lb{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);
+    z-index:1000;cursor:zoom-out;justify-content:center;align-items:center}
+#lb.show{display:flex}
+#lb img{max-width:95vw;max-height:92vh;border-radius:10px;border:1px solid var(--ink-4)}
+
+/* ── Section heading h5 in cards ── */
+.sec-title{font-size:15px;font-weight:700;color:var(--ink-0);
+           border-bottom:1px solid var(--ink-4);padding-bottom:12px;margin:0 0 18px}
+.sec-title .count{background:var(--bg-3);color:var(--ink-3);font-size:11px;
+                  padding:2px 8px;border-radius:99px;margin-left:8px;font-weight:400}
+
+/* ── Responsive breakpoints ── */
+@media(max-width:1100px){
+  .layout{grid-template-columns:1fr}
+  .side{position:static}
+  .brand-foot{grid-template-columns:1fr 1fr}
+}
+@media(max-width:880px){
+  .commit{padding:20px}
+  .trace-row{grid-template-columns:120px 1fr}
+  .priority-strip{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:680px){
+  .wrap{padding:16px 12px}
+  .brand-foot{grid-template-columns:1fr}
+  .commit h1{font-size:20px}
+  .commit-meta{gap:10px}
+  .meta-grid{grid-template-columns:1fr}
+  .er-grid{grid-template-columns:1fr}
+  .two-col{grid-template-columns:1fr}
+  .mini-stats{grid-template-columns:1fr 1fr}
+  .cluster-row{grid-template-columns:1fr;gap:8px}
+  .cluster-tickets{justify-content:flex-start;max-width:100%}
+  .priority-strip{grid-template-columns:1fr 1fr}
+  .perf-grid{flex-wrap:wrap}
+}
+@media print{
+  .nav{display:none}
+  body{background:#fff;color:#000}
+  .bug-card,.card{border:1px solid #ccc;break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<!-- Nav -->
+<nav class="nav">
+  <div class="mark">M</div>
+  <div class="crumbs">
+    <a href="index.html">Mehad QA</a>
+    <span class="sep">/</span>
+    <span class="current">Run #169</span>
+  </div>
+  <button class="btn primary" onclick="window.print()">Export PDF</button>
+</nav>
+
+<!-- Lightbox -->
+<div id="lb" onclick="this.classList.remove('show')">
+  <img id="lb-img" src="" alt="Screenshot"/>
+</div>
+
+<div class="wrap">
+
+<!-- ── Run header ── -->
+<section class="commit">
+  <div class="badge-row">
+    <span class="pill run">Run #169</span>
+    <span class="pill">dev.mehadedu.com/en</span>
+    <span class="pill fail">Needs review</span>
+  </div>
+  <h1>75.0% — 1 test(s) need attention</h1>
+  <div class="commit-meta">
+    <span><b>Date:</b> 2026-08-10 06:01:24</span>
+    <span><b>Model:</b> unknown</span>
+    <span><b>Specs:</b> 1</span>
+    <span><b>Tests:</b> 4</span>
+  </div>
+  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">AI-driven spec validation completed on https://dev.mehadedu.com/en. 0 critical, 0 high, 1 medium, 0 low priority bugs found across 1 spec(s).</p>
+  <span class="stamp ">Review</span>
+</section>
+
+<!-- ── Quality overview ── -->
+<section class="card">
+  <div class="card-head">
+    <h4>Quality Overview</h4>
+    <span style="font-size:12px;color:var(--ink-3)">3/4 passing</span>
+  </div>
+  <div class="card-body">
+    <div class="diff-rows">
+      <div class="diff-row neutral">
+        <span class="sym">·</span>
+        <span class="lbl">Pass rate</span>
+        <span class="val">75.0%</span>
+      </div>
+      <div class="diff-row add">
+        <span class="sym">+</span>
+        <span class="lbl">Failing tests</span>
+        <span class="val">1</span>
+      </div>
+      <div class="diff-row neutral">
+        <span class="sym">·</span>
+        <span class="lbl">P0 critical bugs</span>
+        <span class="val">0</span>
+      </div>
+      <div class="diff-row neutral">
+        <span class="sym">·</span>
+        <span class="lbl">P1 high bugs</span>
+        <span class="val">0</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Priority strip ── -->
+<div class="priority-strip">
+  <div class="pstrip-item p0">
+    <div class="pstrip-label">P0 Highest</div>
+    <div class="pstrip-val">0</div>
+    <div class="pstrip-sla">24h SLA · Expedite</div>
+  </div>
+  <div class="pstrip-item p1">
+    <div class="pstrip-label">P1 High</div>
+    <div class="pstrip-val">0</div>
+    <div class="pstrip-sla">2–3 days · Expedite</div>
+  </div>
+  <div class="pstrip-item p2">
+    <div class="pstrip-label">P2 Medium</div>
+    <div class="pstrip-val">1</div>
+    <div class="pstrip-sla">Current sprint</div>
+  </div>
+  <div class="pstrip-item p3">
+    <div class="pstrip-label">P3 Low</div>
+    <div class="pstrip-val">0</div>
+    <div class="pstrip-sla">Backlog</div>
+  </div>
+</div>
+
+<!-- ── Two-column layout ── -->
+<div class="layout">
+
+<main>
+
+<!-- ── Spec trace waterfall ── -->
+<section class="card">
+  <div class="card-head"><h4>Spec Trace</h4><span style="font-size:12px;color:var(--ink-3)">0/1 specs clean</span></div>
+  <div class="trace-axis"><span>Spec</span><span>Tests run</span></div>
+  <div class="trace-row"><span class="nm" title="qa18_network">qa18_network</span><div class="lane"><div class="trace-bar fail" style="width:100%">4</div></div></div>
+</section>
+
+<!-- ── All tests ── -->
+<section class="card">
+  <div class="card-head"><h4>All Tests</h4><span style="font-size:12px;color:var(--ink-3)">4 total</span></div>
+  <div class="tests-tools">
+    <span class="chip active" data-tf="all">All (4)</span>
+    <span class="chip fail" data-tf="failed">Failed (1)</span>
+    <span class="chip pass" data-tf="passed">Passed (3)</span>
+    <span class="chip" data-tf="p0">P0</span>
+    <span class="chip" data-tf="p1">P1</span>
+    <input id="testSearch" type="text" placeholder="Search tests…"/>
+  </div>
+  <div id="tests-body">
+    <div class="group" data-spec="qa18_network"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa18_network</span><span class="count">3 pass · 1 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa18_offline_does_not_crash_page</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-08-10 06:01:21</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-18 -001">QA-18 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Going offline mid-session must not produce uncaught JS errors — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Going offline mid-session must not produce uncaught JS errors.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Offline mode triggered uncaught JS exception(s): ['An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3591: in test_qa18_offline_does_not_crash_page
+    assert not real, (
+E   AssertionError: Offline mode triggered uncaught JS exception(s): ['An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.']
+E   assert not ['An error occurred in the Server Components rende
+
+tests/test_qa_comprehensive.py:3591: in test_qa18_offline_does_not_crash_page
+    assert not real, (
+E   AssertionError: Offline mode triggered uncaught JS exception(s): ['An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.']
+E   assert not ['An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.']</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_blocked_api_shows_no_white_screen</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_blocked_api_shows_no_white_screen</dd><dt>What it checks</dt><dd>If the main API is unreachable, the page must still render
+SOMETHING (loader, error message, fallback content) — never a
+completely blank white page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.97s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_slow_network_does_not_show_partial_data</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_slow_network_does_not_show_partial_data</dd><dt>What it checks</dt><dd>3G-throttled load must not display half-rendered components
+(e.g., 'undefined' user names from partial data).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.37s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_5xx_response_shown_friendly</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_5xx_response_shown_friendly</dd><dt>What it checks</dt><dd>If a backend route returns 500, the user-facing page should
+not display a raw stacktrace or framework debug page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.95s</dd></dl></div></div></div></div>
+  </div>
+</section>
+
+<!-- ── Bug tickets ── -->
+<section class="card" id="bugs"><div class="card-head"><h4>Bug Tickets</h4><span style="font-size:12px;color:var(--ink-3)">1 total</span></div><div class="card-body" style="padding:0">
+<section class="card">
+  <div class="card-head"><h4>Root-Cause Summary</h4><span style="font-size:12px;color:var(--ink-3)">1 clusters</span></div>
+  <div class="card-body">
+    <div class="cluster-headline">1 bug ticket(s) → <strong>1 unique root cause(s)</strong></div>
+    <div class="cluster-list">
+<div class="cluster-row">
+  <div class="cluster-meta">
+    <span class="badge MEDIUM">MEDIUM</span>
+    <span class="badge P2">P2</span>
+    <span class="cluster-count">1x affected</span>
+    <span class="recurrence-badge">30x consecutive</span>
+  </div>
+  <div class="cluster-title">Generic assertion failure</div>
+  <div class="cluster-tickets"><a href="#QA-18 -001" class="cluster-bug-link">QA-18 -001</a></div>
+</div></div>
+    <div class="cluster-help">
+      Bugs sharing a root cause are grouped here. Click any ticket ID to jump to its full bug card.
+    </div>
+  </div>
+</section><div id="bug-list" style="padding:20px">
+<div class="bug-card" id="QA-18 -001" data-priority="P2">
+  <div class="bug-card-hdr">
+    <div>
+      <div class="left">
+        <span class="bug-id">QA-18 -001</span>
+        <span class="badge MEDIUM">MEDIUM</span>
+        <span class="badge P2">P2</span>
+        
+      </div>
+      <div class="bug-title">Failed: Test qa18 offline does not crash page</div>
+      <div class="bug-meta">
+        <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
+        <span><code>test_qa18_offline_does_not_crash_page</code></span>
+        <span>2026-08-10 06:01:21</span>
+        <span>3.76s</span>
+        
+        
+      </div>
+    </div>
+  </div>
+  <div class="bug-body">
+    
+    
+<div class="info-block analysis" style="margin-bottom:16px">
+  <div class="ib-label">What this test was checking</div>
+  <div>Going offline mid-session must not produce uncaught JS errors — verified against https://dev.mehadedu.com/en.</div>
+</div>
+    
+<div class="info-block analysis" style="margin-bottom:16px">
+  <div class="ib-label">Test data used</div>
+  <div style="font-family:var(--mono);color:var(--accent);font-size:12px">BASE_URL</div>
+</div>
+    
+<div style="margin-bottom:16px">
+  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
+              color:var(--ink-3);margin-bottom:8px">Steps to Reproduce</div>
+  <ol class="steps"><li>Open a browser and go to https://dev.mehadedu.com/en</li><li>Observe the result: it does NOT match what the test expected (see Actual Behavior)</li></ol>
+</div>
+    
+<div class="two-col">
+  <div class="info-block expected">
+    <div class="ib-label">What should happen</div>
+    <div>Going offline mid-session must not produce uncaught JS errors.</div>
+  </div>
+  <div class="info-block actual">
+    <div class="ib-label">What actually happened</div>
+    <div>Offline mode triggered uncaught JS exception(s): ['An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of</div>
+  </div>
+</div>
+    
+<div class="shot-wrap">
+  <div class="shot-label">Proof of Concept — Screenshot</div>
+  <img class="screenshot" src="data:image/png;base64,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u2qZRUWFo0b1vOCCWWef3ey7YTE+4XgnaDuskPf5+ve59NJtCxZsmjkzsYeKcS6q/OSTBf/+70N//evIu3yH3nLLR1dcEQRB6WWXhZdd+OTee8P6jXFqJrhE5OYOf+KJyEk9QRBkdunSfdKkovHjZ3/ta62/rGObbpQLR42K3KjbtKly2bLoR4h91yUIgtoNG6pWrYq8AVs4evTyhD5L3Kr1ajw7b8laWNpon23/7tLE9VdiXKxiHCzx9flex7H1G6y22Gbtx1V3jH+llftFCWwUkrVArXniib5XXx05tNftK1+JDuCuEyeGX6GyuuldqHaIr25f+tLOKHjzzVjOkUlseU/8e4C7TpiQlpMTub3u2WeDxsa1zz0XHr7qOnFi9MCHXHVVZNuwdd68d8aPnzJgwFsjR84888zFt9666d13g6aDozEOltWt21GPPBKZALUbNsz5+tdfHzLk/fPPr92wIbL6OPLBB5u9hHKn445Lz8+f86//+vqQIa+Wls788pfnXHzxq6WlWz74IBwm8l+Rf3s5tJ9VUnLkww9HXu7a8vL3L7hgysCBM888M3IYOz03d+i99+ZGfRJ153M44YT0vLwZEya8OWzYqkcfDReq6KpJ2J4jGMsAiY/Lvv5cjPtw4e2t8+c3s2poaNi2cOHO5DvqqCAIPr7xxldLS8teeCG8f/opp4QTbuGPfhTev/BHP4rc2Zr9jH1OtYTnyb1Mypp166Yef/zU448Pr4DdfdKk0ssvX37//W8OGzb73HPD+fOQa64JNzZxTc2OAwYceuutkd+t3bBh9rnnThk4cPbXvtZ90qTIm2a7z/atG814F7fYZ7CO/foddtttkfipraiY/S//MmXgwPfPP79k8uRmRyTe4ZO4zonr0eKdQDEWWHJn/swuXY764x/DPbZP7r337eOOm3LYYdNPPXXxrbdGX7dj69y5C3/843cnTnxrxIgpAwZMPe64pXfeGXk+WT16hG9DJfCE452gzYzd8OHhUaTosUt4G9GSLe+/H/224Yj//d/j3npryD339Pr616MvarBPcc2T6557bvWf/hS5XXzGGcVf+lLeEUcc8r3vRe7Z9O67S++6K66pmfgScfzxQWPjO+PGvT5o0Mc33hiZuBmFhUN/85vITtgBu1HObzpTactHH+02T8a467JzHmjadS445pi2C923jj761dLS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779/2OOPJ+UJxztB44uf+GfatJyc6BNfI98/FATBltmz519/fe7QobmDB2d1756el5een9/Y0FBbXr5t3ryyl1769IknGqKvddfquajL5z8fvggV06ateOCByO0Nr7668pFHev3rv0aOspdeccWye+6JcWomvETUb90656KL+lx6abczz8zu3bt+8+aNr7++9K67Knc95fsA3CjXrF+//qWXIvvNxWecER3Ase+6BEHQrelt2PI33kjWN1O03c7bQbp9bJ9dmrj+SoyLVYyDten6vJWTL1nbrLaT9J2QVs7eCWwU2mKBWv34432+853wo9pr/vznPY8at9uCXL99+/zrr19+333dJ08uHD26Y2lpekFBQ3V17caNVatWbZoxY33U9xcktrynvLLrmTwAnxk5Awce2/T5kA2vvjrnoouSOzyfsRkgiTqfeGJ4KLpu69Y3jzrqwLloXDvr2L9/eB7T+pde+qDpAicHncJjjx0eiZDGxmknnVS5r89p7ymzuPj4qVMjbyPPufjiDc2d3hWjrJKS45vOoF7xu98tuuUWyztAjFK9BMBnVcnXvhbejv7e9mQNz2dsBkjOZjUzs/DYYw+NCpJPn3rqn7Z+P0sqpk/fkawpKb2/9a0EHqH3N74Rqd9NM2a0pn53f9hvfjNy6ayBN91kMgHsU7qXAPgMOOSqq7JKStY9//z2JUtqysqySkp6fO1rvZsupLltwYI1TzzRmuH5jM0AbaTgmGNGPPVU9D3lb70Vfs8QB7vFP/9557FjU1JTS845Z9ndd4eXjYlpfysvr8f55+94nNtu82ICCGCAVqzL8vN7nHdej/PO2/O/Ns+e/eG3v73bW3DxDs9nbAZoU5GPRW398MO1zz1X9sILrbn+FgeUbQsWvNa3b2K/W7dlyxtDhybrmVSvWfNq5LuvARDAwD+hpb/61db584snTuzYv39W9+6NDQ2169dv+eCDdc8/X/b3vzfW17dyeD5jM0Ab2TRjhiwBgAOZi2ABAADwT8FFsAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAABakNLY2OhVAAAA4DPPO8AAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAgAD2EgAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAEMBeAgAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAAAthLAAAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAABDAAAAAIYAAAADmr/H9wxaoKsE4wTAAAAAElFTkSuQmCC" alt="Test failure screenshot" title="Click to enlarge"/>
+</div>
+    
+<div class="video-wrap">
+  <div class="video-label">Proof of Concept — Screen Recording</div>
+  <video class="poc-video" controls preload="metadata" src="videos-embed/test_qa18_offline_does_not_crash_page.webm" type="video/webm">
+    Your browser does not support embedded video.
+  </video>
+  <div><a href="videos-embed/test_qa18_offline_does_not_crash_page.webm" download style="font-size:11px;color:var(--accent)">Download .webm</a></div>
+</div>
+    
+<button class="err-toggle" onclick="toggleErr('err-1')">
+  <span>▶ Show error details</span>
+  <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
+</button>
+<div class="err-body" id="err-1">
+  <pre style="margin-top:8px"><strong style="color:var(--bad)">tests/test_qa_comprehensive.py:3591: in test_qa18_offline_does_not_crash_page
+    assert not real, (
+E   AssertionError: Offline mode triggered uncaught JS exception(s): ['An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.']
+E   assert not ['An error occurred in the Server Components rende</strong>
+
+tests/test_qa_comprehensive.py:3591: in test_qa18_offline_does_not_crash_page
+    assert not real, (
+E   AssertionError: Offline mode triggered uncaught JS exception(s): ['An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.']
+E   assert not ['An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.']</pre>
+</div>
+    
+    <div style="margin-top:16px"></div>
+    <div class="env-strip">
+      <span><b>Browser:</b> Chromium</span>
+      <span><b>Viewport:</b> 1280x720</span>
+      <span><b>Env:</b> Staging</span>
+    </div>
+  </div>
+</div></div></div></section>
+
+<!-- ── Coverage gaps ── -->
+
+
+<!-- ── Extra section (cross-spec etc.) ── -->
+
+
+</main>
+
+<!-- ── Sidebar ── -->
+<aside class="side">
+  <!-- Ring gauge -->
+  <div class="card" style="margin-bottom:16px">
+    <div style="padding:14px 18px 0;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-3)">Pass Rate</div>
+    <div class="ringwrap">
+      <svg class="ring" viewBox="0 0 44 44">
+        <circle cx="22" cy="22" r="18" fill="none" stroke="var(--bg-3)" stroke-width="5"/>
+        <circle cx="22" cy="22" r="18" fill="none" stroke="oklch(0.92 0.14 85)" stroke-width="5"
+          stroke-dasharray="113.1" stroke-dashoffset="28.27"
+          stroke-linecap="round" transform="rotate(-90 22 22)"/>
+        <text x="22" y="25" text-anchor="middle" font-size="8" font-weight="700"
+          fill="oklch(0.92 0.14 85)" font-family="'JetBrains Mono',monospace">75.0%</text>
+      </svg>
+    </div>
+    <div class="mini-stats">
+      <div class="ms ">
+        <div class="ms-v">0</div>
+        <div class="ms-l">P0 bugs</div>
+      </div>
+      <div class="ms ">
+        <div class="ms-v">0</div>
+        <div class="ms-l">P1 bugs</div>
+      </div>
+      <div class="ms ok">
+        <div class="ms-v">1</div>
+        <div class="ms-l">P2 bugs</div>
+      </div>
+      <div class="ms">
+        <div class="ms-v">0</div>
+        <div class="ms-l">P3 bugs</div>
+      </div>
+    </div>
+  </div>
+  <!-- Run metadata -->
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-head"><h4>Run Info</h4></div>
+    <dl class="run-dl">
+      <dt>Run #</dt><dd>169</dd>
+      <dt>Date</dt><dd>2026-08-10 06:01:24</dd>
+      <dt>Target URL</dt><dd style="word-break:break-all">https://dev.mehadedu.com/en</dd>
+      <dt>AI Model</dt><dd>unknown</dd>
+      <dt>Browser</dt><dd>Chromium (headless)</dd>
+    </dl>
+  </div>
+  <!-- Priority breakdown -->
+  <div class="card">
+    <div class="card-head"><h4>Priority Breakdown</h4></div>
+    <dl class="run-dl">
+      <dt>Critical (P0)</dt><dd style="color:var(--bad)">0 · 24h SLA</dd>
+      <dt>High (P1)</dt><dd style="color:var(--warn)">0 · 2–3 days</dd>
+      <dt>Medium (P2)</dt><dd style="color:var(--ok)">1 · current sprint</dd>
+      <dt>Low (P3)</dt><dd style="color:var(--accent)">0 · backlog</dd>
+      <dt>Severity: Critical</dt><dd style="color:var(--bad)">0</dd>
+      <dt>Severity: High</dt><dd style="color:var(--warn)">0</dd>
+      <dt>Severity: Medium</dt><dd style="color:var(--accent)">1</dd>
+      <dt>Severity: Low</dt><dd style="color:var(--ok)">0</dd>
+    </dl>
+  </div>
+</aside>
+
+</div><!-- /layout -->
+
+<!-- ── Footer ── -->
+<footer class="brand-foot">
+  <div class="who">
+    <div class="logo-row">
+      <div class="mark">M</div>
+      <span class="bname">Mehad QA</span>
+    </div>
+    <span class="btitle">AI-driven spec validation · autonomous · intent-based</span>
+    <span style="font-size:12px;color:var(--ink-3);margin-top:8px">Built by Mejbaur Bahar Fagun</span>
+    <span style="font-size:12px;color:var(--ink-3)">Senior Software Engineer QA (IV) · Markopolo.ai</span>
+  </div>
+  <div>
+    <div class="col-head">Links</div>
+    <div class="links">
+      <a href="https://www.linkedin.com/in/mejbaur/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://dev.mehadedu.com/en" target="_blank" rel="noopener">Target App</a>
+    </div>
+  </div>
+  <div>
+    <div class="col-head">Report</div>
+    <div class="links">
+      <a href="#" onclick="window.print();return false">Export PDF</a>
+    </div>
+  </div>
+  <div>
+    <div class="col-head">Run #169</div>
+    <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
+      2026-08-10 06:01:24<br/>
+      4 tests<br/>
+      1 specs<br/>
+      75.0% pass rate
+    </div>
+  </div>
+</footer>
+
+</div><!-- /wrap -->
+
+<script>
+(function(){
+  // Group toggle
+  document.querySelectorAll('.group-head').forEach(function(gh){
+    gh.addEventListener('click', function(){
+      gh.closest('.group').classList.toggle('open');
+    });
+  });
+  // Test row toggle
+  document.querySelectorAll('.test-row').forEach(function(tr){
+    tr.addEventListener('click', function(){
+      tr.closest('.test').classList.toggle('open');
+    });
+  });
+  // Chip filter
+  var chips = document.querySelectorAll('[data-tf]');
+  var searchEl = document.getElementById('testSearch');
+  var currentMode = 'all';
+  chips.forEach(function(chip){
+    chip.addEventListener('click', function(){
+      chips.forEach(function(c){c.classList.remove('active')});
+      chip.classList.add('active');
+      currentMode = chip.dataset.tf;
+      doFilter();
+    });
+  });
+  if(searchEl) searchEl.addEventListener('input', doFilter);
+  function doFilter(){
+    var q = searchEl ? searchEl.value.toLowerCase().trim() : '';
+    document.querySelectorAll('.test').forEach(function(t){
+      var out = t.dataset.outcome || '';
+      var pri = (t.dataset.pri || '').toLowerCase();
+      var nm = (t.querySelector('.tname')||{}).textContent||'';
+      var mOk = currentMode==='all'||
+        (currentMode==='failed'&&out==='fail')||
+        (currentMode==='passed'&&out==='pass')||
+        (currentMode==='p0'&&pri==='p0')||
+        (currentMode==='p1'&&pri==='p1');
+      var qOk = !q||nm.toLowerCase().includes(q);
+      t.style.display=(mOk&&qOk)?'':'none';
+    });
+    document.querySelectorAll('.group').forEach(function(g){
+      var vis=Array.from(g.querySelectorAll('.test')).some(function(t){return t.style.display!=='none'});
+      g.style.display=vis?'':'none';
+    });
+  }
+  // Traceback toggles
+  document.querySelectorAll('.trace-toggle').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      var wrap=btn.nextElementSibling;
+      if(wrap){wrap.style.display=wrap.style.display==='block'?'none':'block'}
+      btn.querySelector('.arr').textContent=btn.nextElementSibling&&btn.nextElementSibling.style.display==='block'?'▼':'▶';
+    });
+  });
+  // Error toggle
+  function toggleErr(id){
+    var el=document.getElementById(id);
+    var btn=el.previousElementSibling;
+    if(el.classList.contains('open')){el.classList.remove('open');btn.querySelector('span').textContent='▶ Show error details';}
+    else{el.classList.add('open');btn.querySelector('span').textContent='▼ Hide error details';}
+  }
+  window.toggleErr = toggleErr;
+  // Evidence toggle
+  function toggleEv(id){
+    var el=document.getElementById(id);
+    var btn=el.previousElementSibling;
+    var arrow=btn.querySelectorAll('span')[1];
+    if(el.classList.contains('open')){el.classList.remove('open');if(arrow)arrow.textContent='▶ Show';}
+    else{el.classList.add('open');if(arrow)arrow.textContent='▼ Hide';}
+  }
+  window.toggleEv = toggleEv;
+  // Bug filter
+  function applyBugFilter(sev){
+    document.querySelectorAll('.bug-card').forEach(function(c){
+      if(sev==='all'){c.style.display='';return;}
+      var match;
+      if(/^P[0-3]$/.test(sev)){match=c.dataset.priority===sev;}
+      else{match=c.querySelector('.badge.'+sev)!==null;}
+      c.style.display=match?'':'none';
+    });
+  }
+  window.applyBugFilter = applyBugFilter;
+  // Lightbox
+  document.addEventListener('click',function(e){
+    if(e.target.matches('.poc img,.screenshot')){
+      document.getElementById('lb-img').src=e.target.src;
+      document.getElementById('lb').classList.add('show');
+    }
+  });
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape') document.getElementById('lb').classList.remove('show');
+  });
+})();
+</script>
+</body>
+</html>
