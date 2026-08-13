@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA — Run #171 · 2026-08-12 06:13:53</title>
+<title>Mehad QA — Run #172 · 2026-08-13 06:12:15</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
@@ -538,7 +538,7 @@ ol.steps li{margin-bottom:5px}
   <div class="crumbs">
     <a href="index.html">Mehad QA</a>
     <span class="sep">/</span>
-    <span class="current">Run #171</span>
+    <span class="current">Run #172</span>
   </div>
   <button class="btn primary" onclick="window.print()">Export PDF</button>
 </nav>
@@ -553,13 +553,13 @@ ol.steps li{margin-bottom:5px}
 <!-- ── Run header ── -->
 <section class="commit">
   <div class="badge-row">
-    <span class="pill run">Run #171</span>
+    <span class="pill run">Run #172</span>
     <span class="pill">dev.mehadedu.com/en</span>
     <span class="pill fail">Needs review</span>
   </div>
   <h1>70.0% — 3 test(s) need attention</h1>
   <div class="commit-meta">
-    <span><b>Date:</b> 2026-08-12 06:13:53</span>
+    <span><b>Date:</b> 2026-08-13 06:12:15</span>
     <span><b>Model:</b> unknown</span>
     <span><b>Specs:</b> 1</span>
     <span><b>Tests:</b> 10</span>
@@ -648,7 +648,7 @@ ol.steps li{margin-bottom:5px}
     <input id="testSearch" type="text" placeholder="Search tests…"/>
   </div>
   <div id="tests-body">
-    <div class="group" data-spec="qa08_mobile"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa08_mobile</span><span class="count">7 pass · 3 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa08_login_modal_usable_on_mobile</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-08-12 06:13:50</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-08 -001">QA-08 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Login modal must open and show phone input at 375px — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Login modal must open and show phone input at 375px.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test waited for an element to appear, but it never showed up within 20000ms. The element may not exist on the page, or the page is loading very slowly.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
+    <div class="group" data-spec="qa08_mobile"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa08_mobile</span><span class="count">7 pass · 3 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa08_login_modal_usable_on_mobile</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-08-13 06:12:13</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-08 -001">QA-08 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Login modal must open and show phone input at 375px — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Login modal must open and show phone input at 375px.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test waited for an element to appear, but it never showed up within 20000ms. The element may not exist on the page, or the page is loading very slowly.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 20000ms exceeded.
 E   Call log:
 E     - waiting for locator(&quot;button:not([aria-label=\&quot;Login\&quot;]):has-text(\&quot;Log In\&quot;), button:not([aria-label]):has-text(\&quot;Login\&quot;), button[aria-label=\&quot;تسجيل الدخول\&quot;]&quot;).last to be visible
@@ -669,7 +669,7 @@ tests/test_qa_comprehensive.py:236: in _open_login_modal
     raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 20000ms exceeded.
 E   Call log:
-E     - waiting for locator(&quot;button:not([aria-label=\&quot;Login\&quot;]):has-text(\&quot;Log In\&quot;), button:not([aria-label]):has-text(\&quot;Login\&quot;), button[aria-label=\&quot;تسجيل الدخول\&quot;]&quot;).last to be visible</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa08_wide_4k_no_layout_break</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-08-12 06:13:50</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-08 -002">QA-08 -002</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Homepage at 3840×2160 (4K) must not have a broken layout — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Homepage at 3840×2160 (4K) must not have a broken layout.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">H1 missing at 4K resolution</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: H1 missing at 4K resolution
+E     - waiting for locator(&quot;button:not([aria-label=\&quot;Login\&quot;]):has-text(\&quot;Log In\&quot;), button:not([aria-label]):has-text(\&quot;Login\&quot;), button[aria-label=\&quot;تسجيل الدخول\&quot;]&quot;).last to be visible</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa08_wide_4k_no_layout_break</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-08-13 06:12:13</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-08 -002">QA-08 -002</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Homepage at 3840×2160 (4K) must not have a broken layout — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Homepage at 3840×2160 (4K) must not have a broken layout.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">H1 missing at 4K resolution</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: H1 missing at 4K resolution
 E   assert 0 &gt; 0
 E    +  where 0 = count()
 E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='h1 &gt;&gt; nth=0'&gt;.count
@@ -679,7 +679,7 @@ tests/test_qa_comprehensive.py:2549: in test_qa08_wide_4k_no_layout_break
 E   AssertionError: H1 missing at 4K resolution
 E   assert 0 &gt; 0
 E    +  where 0 = count()
-E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='h1 &gt;&gt; nth=0'&gt;.count</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa08_find_tutors_mobile_shows_cards</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-08-12 06:13:50</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-08 -003">QA-08 -003</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Find-tutors page at mobile must show tutor card content — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Find-tutors page at mobile must show tutor card content.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">No tutor content visible on find-tutors at mobile</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:2569: in test_qa08_find_tutors_mobile_shows_cards
+E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehadedu.com/en'&gt; selector='h1 &gt;&gt; nth=0'&gt;.count</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa08_find_tutors_mobile_shows_cards</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-08-13 06:12:13</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-08 -003">QA-08 -003</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Find-tutors page at mobile must show tutor card content — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Find-tutors page at mobile must show tutor card content.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">No tutor content visible on find-tutors at mobile</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:2569: in test_qa08_find_tutors_mobile_shows_cards
     assert &quot;tutor&quot; in content or &quot;teacher&quot; in content or &quot;lesson&quot; in content, (
 E   AssertionError: No tutor content visible on find-tutors at mobile
 E   assert ('tutor' in 'application error: a server-side exception has occurred while loading dev.mehadedu.com (see the server logs for more information).\n\ndigest: 261192942' or 'teacher' in 'application error: a server-side exception has occurred while loading dev.m
@@ -687,7 +687,7 @@ E   assert ('tutor' in 'application error: a server-side exception has occurred 
 tests/test_qa_comprehensive.py:2569: in test_qa08_find_tutors_mobile_shows_cards
     assert &quot;tutor&quot; in content or &quot;teacher&quot; in content or &quot;lesson&quot; in content, (
 E   AssertionError: No tutor content visible on find-tutors at mobile
-E   assert ('tutor' in 'application error: a server-side exception has occurred while loading dev.mehadedu.com (see the server logs for more information).\n\ndigest: 261192942' or 'teacher' in 'application error: a server-side exception has occurred while loading dev.mehadedu.com (see the server logs for more information).\n\ndigest: 261192942' or 'lesson' in 'application error: a server-side exception has occurred while loading dev.mehadedu.com (see the server logs for more information).\n\ndigest: 261192942')</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_homepage_renders_at_mobile_375</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_homepage_renders_at_mobile_375</dd><dt>What it checks</dt><dd>Homepage must render without horizontal overflow at 375px width.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.68s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_homepage_renders_at_tablet_768</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_homepage_renders_at_tablet_768</dd><dt>What it checks</dt><dd>Homepage must render without overflow at tablet 768px width.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.61s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_hamburger_menu_visible_on_mobile</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_hamburger_menu_visible_on_mobile</dd><dt>What it checks</dt><dd>Hamburger/mobile menu button must be visible at 375px.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.58s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_touch_targets_large_enough</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_touch_targets_large_enough</dd><dt>What it checks</dt><dd>Interactive elements must be at least 44×44 CSS pixels (WCAG 2.5.5).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.56s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_font_size_readable_on_mobile</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_font_size_readable_on_mobile</dd><dt>What it checks</dt><dd>Body text font size must be at least 12px on mobile.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.55s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_desktop_1280_no_js_errors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_desktop_1280_no_js_errors</dd><dt>What it checks</dt><dd>Homepage at 1280×720 desktop must have no JS errors.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.52s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_arabic_rtl_layout_mobile</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_arabic_rtl_layout_mobile</dd><dt>What it checks</dt><dd>Arabic locale must render RTL correctly at 375px mobile.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>2.61s</dd></dl></div></div></div></div>
+E   assert ('tutor' in 'application error: a server-side exception has occurred while loading dev.mehadedu.com (see the server logs for more information).\n\ndigest: 261192942' or 'teacher' in 'application error: a server-side exception has occurred while loading dev.mehadedu.com (see the server logs for more information).\n\ndigest: 261192942' or 'lesson' in 'application error: a server-side exception has occurred while loading dev.mehadedu.com (see the server logs for more information).\n\ndigest: 261192942')</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_homepage_renders_at_mobile_375</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_homepage_renders_at_mobile_375</dd><dt>What it checks</dt><dd>Homepage must render without horizontal overflow at 375px width.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.30s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_homepage_renders_at_tablet_768</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_homepage_renders_at_tablet_768</dd><dt>What it checks</dt><dd>Homepage must render without overflow at tablet 768px width.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.28s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_hamburger_menu_visible_on_mobile</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_hamburger_menu_visible_on_mobile</dd><dt>What it checks</dt><dd>Hamburger/mobile menu button must be visible at 375px.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.26s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_touch_targets_large_enough</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_touch_targets_large_enough</dd><dt>What it checks</dt><dd>Interactive elements must be at least 44×44 CSS pixels (WCAG 2.5.5).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.27s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_font_size_readable_on_mobile</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_font_size_readable_on_mobile</dd><dt>What it checks</dt><dd>Body text font size must be at least 12px on mobile.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.15s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_desktop_1280_no_js_errors</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_desktop_1280_no_js_errors</dd><dt>What it checks</dt><dd>Homepage at 1280×720 desktop must have no JS errors.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.30s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_arabic_rtl_layout_mobile</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_arabic_rtl_layout_mobile</dd><dt>What it checks</dt><dd>Arabic locale must render RTL correctly at 375px mobile.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.25s</dd></dl></div></div></div></div>
   </div>
 </section>
 
@@ -736,8 +736,8 @@ E   assert ('tutor' in 'application error: a server-side exception has occurred 
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa08_login_modal_usable_on_mobile</code></span>
-        <span>2026-08-12 06:13:50</span>
-        <span>22.60s</span>
+        <span>2026-08-13 06:12:13</span>
+        <span>22.73s</span>
         
         
       </div>
@@ -832,8 +832,8 @@ E     - waiting for locator(&quot;button:not([aria-label=\&quot;Login\&quot;]):h
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa08_wide_4k_no_layout_break</code></span>
-        <span>2026-08-12 06:13:50</span>
-        <span>2.65s</span>
+        <span>2026-08-13 06:12:13</span>
+        <span>3.25s</span>
         
         
       </div>
@@ -921,8 +921,8 @@ E    +    where count = &lt;Locator frame=&lt;Frame name= url='https://dev.mehad
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa08_find_tutors_mobile_shows_cards</code></span>
-        <span>2026-08-12 06:13:50</span>
-        <span>4.46s</span>
+        <span>2026-08-13 06:12:13</span>
+        <span>5.19s</span>
         
         
       </div>
@@ -1038,8 +1038,8 @@ E   assert ('tutor' in 'application error: a server-side exception has occurred 
   <div class="card" style="margin-bottom:16px">
     <div class="card-head"><h4>Run Info</h4></div>
     <dl class="run-dl">
-      <dt>Run #</dt><dd>171</dd>
-      <dt>Date</dt><dd>2026-08-12 06:13:53</dd>
+      <dt>Run #</dt><dd>172</dd>
+      <dt>Date</dt><dd>2026-08-13 06:12:15</dd>
       <dt>Target URL</dt><dd style="word-break:break-all">https://dev.mehadedu.com/en</dd>
       <dt>AI Model</dt><dd>unknown</dd>
       <dt>Browser</dt><dd>Chromium (headless)</dd>
@@ -1088,9 +1088,9 @@ E   assert ('tutor' in 'application error: a server-side exception has occurred 
     </div>
   </div>
   <div>
-    <div class="col-head">Run #171</div>
+    <div class="col-head">Run #172</div>
     <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
-      2026-08-12 06:13:53<br/>
+      2026-08-13 06:12:15<br/>
       10 tests<br/>
       1 specs<br/>
       70.0% pass rate
