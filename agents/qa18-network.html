@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA — Run #176 · 2026-08-17 05:16:45</title>
+<title>Mehad QA — Run #177 · 2026-08-18 05:10:14</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
@@ -538,7 +538,7 @@ ol.steps li{margin-bottom:5px}
   <div class="crumbs">
     <a href="index.html">Mehad QA</a>
     <span class="sep">/</span>
-    <span class="current">Run #176</span>
+    <span class="current">Run #177</span>
   </div>
   <button class="btn primary" onclick="window.print()">Export PDF</button>
 </nav>
@@ -553,13 +553,13 @@ ol.steps li{margin-bottom:5px}
 <!-- ── Run header ── -->
 <section class="commit">
   <div class="badge-row">
-    <span class="pill run">Run #176</span>
+    <span class="pill run">Run #177</span>
     <span class="pill">dev.mehadedu.com/en</span>
     <span class="pill fail">Needs review</span>
   </div>
   <h1>75.0% — 1 test(s) need attention</h1>
   <div class="commit-meta">
-    <span><b>Date:</b> 2026-08-17 05:16:45</span>
+    <span><b>Date:</b> 2026-08-18 05:10:14</span>
     <span><b>Model:</b> unknown</span>
     <span><b>Specs:</b> 1</span>
     <span><b>Tests:</b> 4</span>
@@ -648,7 +648,7 @@ ol.steps li{margin-bottom:5px}
     <input id="testSearch" type="text" placeholder="Search tests…"/>
   </div>
   <div id="tests-body">
-    <div class="group" data-spec="qa18_network"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa18_network</span><span class="count">3 pass · 1 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa18_offline_does_not_crash_page</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-08-17 05:16:43</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-18 -001">QA-18 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Going offline mid-session must not produce uncaught JS errors — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Going offline mid-session must not produce uncaught JS errors.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Offline mode triggered uncaught JS exception(s): ['An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3591: in test_qa18_offline_does_not_crash_page
+    <div class="group" data-spec="qa18_network"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa18_network</span><span class="count">3 pass · 1 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa18_offline_does_not_crash_page</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-08-18 05:10:12</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-18 -001">QA-18 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Going offline mid-session must not produce uncaught JS errors — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Going offline mid-session must not produce uncaught JS errors.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Offline mode triggered uncaught JS exception(s): ['An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3591: in test_qa18_offline_does_not_crash_page
     assert not real, (
 E   AssertionError: Offline mode triggered uncaught JS exception(s): ['An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.']
 E   assert not ['An error occurred in the Server Components rende
@@ -658,9 +658,9 @@ tests/test_qa_comprehensive.py:3591: in test_qa18_offline_does_not_crash_page
 E   AssertionError: Offline mode triggered uncaught JS exception(s): ['An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.']
 E   assert not ['An error occurred in the Server Components render. The specific message is omitted in production builds to avoid leaking sensitive details. A digest property is included on this error instance which may provide additional details about the nature of the error.']</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_blocked_api_shows_no_white_screen</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_blocked_api_shows_no_white_screen</dd><dt>What it checks</dt><dd>If the main API is unreachable, the page must still render
 SOMETHING (loader, error message, fallback content) — never a
-completely blank white page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.46s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_slow_network_does_not_show_partial_data</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_slow_network_does_not_show_partial_data</dd><dt>What it checks</dt><dd>3G-throttled load must not display half-rendered components
+completely blank white page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.39s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_slow_network_does_not_show_partial_data</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_slow_network_does_not_show_partial_data</dd><dt>What it checks</dt><dd>3G-throttled load must not display half-rendered components
 (e.g., 'undefined' user names from partial data).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>4.78s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_5xx_response_shown_friendly</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_5xx_response_shown_friendly</dd><dt>What it checks</dt><dd>If a backend route returns 500, the user-facing page should
-not display a raw stacktrace or framework debug page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.41s</dd></dl></div></div></div></div>
+not display a raw stacktrace or framework debug page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>3.37s</dd></dl></div></div></div></div>
   </div>
 </section>
 
@@ -699,8 +699,8 @@ not display a raw stacktrace or framework debug page.</dd><dt>Test data</dt><dd>
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa18_offline_does_not_crash_page</code></span>
-        <span>2026-08-17 05:16:43</span>
-        <span>4.21s</span>
+        <span>2026-08-18 05:10:12</span>
+        <span>4.30s</span>
         
         
       </div>
@@ -820,8 +820,8 @@ E   assert not ['An error occurred in the Server Components render. The specific
   <div class="card" style="margin-bottom:16px">
     <div class="card-head"><h4>Run Info</h4></div>
     <dl class="run-dl">
-      <dt>Run #</dt><dd>176</dd>
-      <dt>Date</dt><dd>2026-08-17 05:16:45</dd>
+      <dt>Run #</dt><dd>177</dd>
+      <dt>Date</dt><dd>2026-08-18 05:10:14</dd>
       <dt>Target URL</dt><dd style="word-break:break-all">https://dev.mehadedu.com/en</dd>
       <dt>AI Model</dt><dd>unknown</dd>
       <dt>Browser</dt><dd>Chromium (headless)</dd>
@@ -870,9 +870,9 @@ E   assert not ['An error occurred in the Server Components render. The specific
     </div>
   </div>
   <div>
-    <div class="col-head">Run #176</div>
+    <div class="col-head">Run #177</div>
     <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
-      2026-08-17 05:16:45<br/>
+      2026-08-18 05:10:14<br/>
       4 tests<br/>
       1 specs<br/>
       75.0% pass rate
