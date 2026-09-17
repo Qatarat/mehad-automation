@@ -1,46 +1,57 @@
 # Teacher Dashboard Overview Spec
 
-**URL:** `https://dev.mehadedu.com/en/dashboard/availability`
+**URL:** `https://dev.mehadedu.com/en/dashboard/instructor-profile`
 
 ## Overview
-The Teacher (Tutor) Dashboard is accessible after logging in via `/en/tutor-login`. The teacher lands on the Availability Calendar (`/en/dashboard/availability`). The sidebar provides navigation to: Availability Calendar, Booked Sessions, Group Sessions, Messages, Earnings & Payouts, Reviews, Notifications (with unread badge), Instructor Profile, and Help Center. The account switcher shows the tutor name and role.
+CORRECTED 2026-09-17 after live verification against dev.mehadedu.com — the previous version of this spec was stale on every structural claim below (landing page, sidebar contents, and login credentials all no longer matched reality, which was the direct cause of the shared auth helper being broken; see `tutor_login_page.md` and the auth-fix commit).
+
+The Teacher (Tutor) Dashboard is accessible after logging in via `/en/tutor-login` (email + OTP, not phone — see `tutor_login_page.md`). The teacher lands on **Instructor Profile** (`/en/dashboard/instructor-profile`), not an Availability Calendar page. "Availability" is a **tab inside** Instructor Profile (alongside Personal Information, Certificates & Expertise, Teaching Subjects), not a separate sidebar route. The live-verified sidebar contains exactly four items: **Sessions, Bookings, Instructor Profile, Messages** (Messages shows an unread-count badge). There is no separate "Group Sessions", "Earnings & Payouts", "Reviews", "Notifications", or "Help Center" sidebar link — if the app exposes those areas at all, they are elsewhere (e.g. a header bell icon was observed for notifications) and need their own live re-verification rather than being assumed here.
+
+**Known follow-up:** the sibling specs `teacher_booked_sessions.md`, `teacher_earnings.md`, `teacher_group_sessions_page.md`, `teacher_notifications.md`, and `teacher_reviews_page.md` assume the same now-incorrect sidebar structure (standalone `/en/dashboard/earnings`, `/en/dashboard/reviews`, etc. routes) and should be re-verified against the live site the same way this file was, rather than trusted as-is.
 
 ## URL
-`/en/dashboard/availability` (default landing after teacher login)
+`/en/dashboard/instructor-profile` (default landing after tutor login)
 
 ## Roles
-- Teacher (authenticated)
+- Tutor (authenticated)
 
 ## Prerequisites
-- Teacher must be logged in via `/en/tutor-login`
-- Teacher credentials: Bangladesh +880, phone 98976564, OTP 123456
-- Expected teacher name: "Automations Tutor"
-- Login redirects to: `/en/dashboard/availability`
+- Tutor must be logged in via `/en/tutor-login`
+- Tutor credentials (dev, live-verified): email `rumelmhmd@gmail.com`, OTP `6789`
+- Expected tutor name (dev account): "Tester Teacher"
+- Login redirects to: `/en/dashboard/instructor-profile`
 
 ## Test Scenarios
 
-### TDO-01: After teacher login, redirects to availability calendar
-**Given** a teacher completes OTP login at `/en/tutor-login`
+### TDO-01: After tutor login, redirects to Instructor Profile
+**Given** a tutor completes OTP login at `/en/tutor-login`
 **When** authentication succeeds
-**Then** the browser navigates to `/en/dashboard/availability`
+**Then** the browser navigates to `/en/dashboard/instructor-profile`
 **Selectors:**
-- post-login url: `/en/dashboard/availability`
-- availability heading: `text="Availability Calendar"`
+- post-login url: `/en/dashboard/instructor-profile`
+- profile heading: `text="Instructor Profile"`
+- approved badge: `text="Approved"`
 
-### TDO-02: Teacher sidebar shows all navigation items
-**Given** a teacher is logged into the dashboard
+### TDO-02: Tutor sidebar shows exactly its four navigation items
+**Given** a tutor is logged into the dashboard
 **When** the user views the sidebar
-**Then** links for Availability Calendar, Booked Sessions, Group Sessions, Messages, Earnings & Payouts, Reviews, Notifications, Instructor Profile, and Help Center are all present
+**Then** links for Sessions, Bookings, Instructor Profile, and Messages are present — and no links exist for a standalone Availability Calendar, Group Sessions, Earnings & Payouts, Reviews, or Notifications page (those are not separate sidebar routes)
 **Selectors:**
-- availability link: `a[href="/en/dashboard/availability"]`
-- booked sessions link: `a[href="/en/dashboard/booked-sessions"]`
-- group sessions link: `a[href="/en/dashboard/group-sessions"]`
-- messages link: `a[href="/en/dashboard/messages"]`
-- earnings link: `a[href="/en/dashboard/earnings"]`
-- reviews link: `a[href="/en/dashboard/reviews"]`
-- notifications link: `a[href="/en/dashboard/notifications"]`
-- instructor profile link: `a[href="/en/dashboard/instructor-profile"]`
-- help center link: `a[href="/en/dashboard/help-center"]`
+- sessions link: `a:has-text("Sessions")`
+- bookings link: `a:has-text("Bookings")`
+- instructor profile link: `a:has-text("Instructor Profile")`
+- messages link: `a:has-text("Messages")`
+- messages unread badge: `a:has-text("Messages") >> text=/\\d+/`
+
+### TDO-02b: Instructor Profile has four sub-tabs including Availability
+**Given** a tutor is on the Instructor Profile page
+**When** the user views the tab strip below the page heading
+**Then** four tabs are shown: Personal Information, Certificates & Expertise, Teaching Subjects, and Availability
+**Selectors:**
+- personal info tab: `:text("Personal Information")`
+- certificates tab: `:text("Certificates & Expertise")`
+- subjects tab: `:text("Teaching Subjects")`
+- availability tab: `:text("Availability")`
 
 ### TDO-03: Notifications badge shows unread count
 **Given** a teacher has unread notifications
