@@ -1393,9 +1393,13 @@ def generate_test_file(all_specs: list[tuple]) -> tuple[str, int, list[dict]]:
         BASE_URL       = _os.getenv("BASE_URL",         "https://dev.mehadedu.com/en")
         TEST_EMAIL     = _os.getenv("TEST_EMAIL",       "")
         TEST_PASS      = _os.getenv("TEST_PASSWORD",    "")
-        # Teacher account — real phone registered as tutor in the system
-        TEACHER_PHONE  = _os.getenv("TEACHER_PHONE",   _os.getenv("TEST_PHONE", "98976564"))
-        TEACHER_OTP    = _os.getenv("TEACHER_OTP",     _os.getenv("TEST_OTP",   "123456"))
+        # Teacher/Tutor account — /en/tutor-login authenticates by EMAIL + OTP,
+        # not phone (live-verified 2026-09-17: heading "Tutor Login", an
+        # Email Address field, no country-code/tel input at all). TEACHER_PHONE
+        # here holds that email address despite the legacy variable name, kept
+        # for backward compatibility with existing CI secrets/env config.
+        TEACHER_PHONE  = _os.getenv("TEACHER_PHONE",   _os.getenv("TEST_PHONE", "rumelmhmd@gmail.com"))
+        TEACHER_OTP    = _os.getenv("TEACHER_OTP",     _os.getenv("TEST_OTP",   "6789"))
         TEACHER_CTRY   = _os.getenv("TEACHER_COUNTRY", _os.getenv("TEST_COUNTRY", "+880"))
         # Student account — different real phone registered as student
         STUDENT_PHONE  = _os.getenv("STUDENT_PHONE",   "98765432")
@@ -1407,25 +1411,81 @@ def generate_test_file(all_specs: list[tuple]) -> tuple[str, int, list[dict]]:
         TEST_COUNTRY   = TEACHER_CTRY
 
         def _otp_login(pg, phone: str, otp: str, country: str, tutor: bool = False):
-            \"\"\"Shared OTP login helper. tutor=True navigates to /en/tutor-login.\"\"\"
+            \"\"\"Shared OTP login helper.
+
+            tutor=True  -> /en/tutor-login. Live-verified 2026-09-17: this page
+              authenticates by EMAIL + OTP (heading "Tutor Login"), NOT phone +
+              country code. `phone` is treated as the tutor's email address in
+              this path (the fixture already passes TEACHER_PHONE for this —
+              callers should set it to the tutor's email, e.g. via
+              TEACHER_PHONE=rumelmhmd@gmail.com). This replaces a previous
+              version of this helper that always tried the phone/country-code
+              flow here, which timed out on every run because that page has no
+              country-code button or tel input at all.
+            tutor=False -> homepage modal. Live-verified 2026-09-17: the modal
+              defaults to the "Parent" tab, not "Student"; the country-code
+              button shows only the dial code (e.g. "+966") with a flag, never
+              the literal text "Country code".
+            \"\"\"
             login_url = _os.getenv("LOGIN_URL", BASE_URL)
             if tutor:
                 login_url = BASE_URL.rstrip("/").rsplit("/en", 1)[0] + "/en/tutor-login" if "/en" in BASE_URL else BASE_URL + "/tutor-login"
             pg.goto(login_url, wait_until="commit", timeout=25000)
             pg.wait_for_timeout(2000)
-            # For student: click header Login button to open dialog
-            # For tutor: the tutor-login page has the form directly (no dialog needed)
-            if not tutor:
-                login_btn = pg.locator('button:not([aria-label]):has-text("Log In"), button:not([aria-label="Login"]):has-text("Login")').first
-                login_btn.wait_for(state='visible', timeout=10000)
-                login_btn.click()
-                pg.wait_for_selector('[role="dialog"]', state='visible', timeout=10000)
-                pg.wait_for_timeout(1000)
-                container = pg.locator('[role="dialog"]')
-            else:
-                container = pg
-            # Country code
-            cc_btn = container.locator('button[aria-label="Country code"], button:has-text("Country code")').first
+
+            if tutor:
+                email_input = pg.locator('input[type="email"], input[placeholder*="email" i]').first
+                email_input.wait_for(state='visible', timeout=10000)
+                email_input.fill(phone)  # `phone` param carries the tutor's email for this path
+                pg.wait_for_timeout(400)
+                pg.locator('button:has-text("Send Code")').first.click()
+                pg.wait_for_timeout(2000)
+                otp_input = pg.locator('input[placeholder="0000"], input[placeholder="000000"]').first
+                otp_input.wait_for(state='visible', timeout=15000)
+                for _ in range(30):
+                    pg.wait_for_timeout(1000)
+                    if not otp_input.is_disabled():
+                        break
+                otp_input.fill(otp)
+                pg.wait_for_timeout(1500)
+                # This OTP field auto-submits on reaching its max length and
+                # immediately navigates to the dashboard (live-verified
+                # 2026-09-17: no "Continue" button ever appears in this flow).
+                # Only click Continue if the field genuinely requires it, so
+                # this stays robust if that behavior differs by build.
+                if pg.locator('button:has-text("Continue")').count() > 0:
+                    try:
+                        pg.locator('button:has-text("Continue")').first.click(timeout=5000)
+                    except Exception:
+                        pass
+                pg.wait_for_timeout(3000)
+                return
+
+            # ── Student/Parent path: homepage modal, phone + country code ──────
+            login_btn = pg.locator('button:not([aria-label]):has-text("Log In"), button:not([aria-label="Login"]):has-text("Login")').first
+            login_btn.wait_for(state='visible', timeout=10000)
+            login_btn.click()
+            pg.wait_for_selector('[role="dialog"]', state='visible', timeout=10000)
+            pg.wait_for_timeout(1000)
+            container = pg.locator('[role="dialog"]')
+            # Modal defaults to the "Parent" tab (verified live 2026-09-17) —
+            # this helper is used for Student-role login, so explicitly
+            # switch to the "Student" tab before filling the form.
+            try:
+                container.locator('[role="tab"]:has-text("Student"), button:has-text("Student"), :text-is("Student")').first.click(timeout=3000)
+                pg.wait_for_timeout(500)
+            except Exception:
+                pass
+            # Country code — the real UI shows only the dial code (e.g. "+966")
+            # with a flag icon, never the literal text "Country code". The old
+            # selector here only matched aria-label="Country code", which this
+            # component doesn't set, causing every authenticated test to fail
+            # at this step (confirmed: same failure predates this fix on main).
+            cc_btn = container.locator(
+                'button[aria-label="Country code"], button:has-text("Country code"), '
+                'button:has-text("+966"), button:has-text("+880"), '
+                'button:has-text("+971"), button:has-text("+1")'
+            ).first
             cc_btn.wait_for(state='visible', timeout=8000)
             cc_btn.click()
             pg.wait_for_timeout(700)
