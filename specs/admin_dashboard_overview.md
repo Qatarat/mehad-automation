@@ -1,36 +1,44 @@
 # Page: Admin Command Dashboard — Overview & Navigation
 
-**URL:** `https://dev.mehadedu.com/en/admin-login`
+**URL:** `https://dev.mehadedu.com/en/admin/dashboard`
 
 ## Description
-The main landing dashboard after Admin login — distinct from the Super Admin's account-management pages (`add_admin.md`, `add_super_admin.md`, `payout.md`, `platfromfee.md`, `reports.md`) which all live under `/en/super-admin-login`. This spec covers the day-one Admin experience: the command-center overview (stat cards, recent activity), the full sidebar navigation surface, notifications, and role-scoped access — closing the gap where "Admin Control Center" (dashboard.html's feature) had no dedicated overview/navigation spec of its own; `admin_lead_management.md` only covers the leads/bookings workflow once inside the dashboard.
+CORRECTED 2026-09-17 after live verification (logged in as Admin, dev.mehadedu.com, dev vault credentials: phone 5654565 BD, password Rumel1234, OTP 123456 — all confirmed working). The main landing dashboard after Admin login, at `/en/admin/dashboard` (not the login URL itself) — distinct from the Super Admin's account-management pages (`add_admin.md`, `add_super_admin.md`, `payout.md`, `platfromfee.md`, `reports.md`) which live under `/en/super-admin-login`. Real page heading: "Good morning, Admin" under an "OPERATIONS COMMAND CENTER" eyebrow label. The account switcher shows the literal seeded name "Test1 Admin" with role badge "Admin". Sidebar items confirmed live, exactly: **Dashboard, Teaching Requests, Messages, Bookings, Tutors, Students, Settings** — there is no separate "Leads", "Finance", or "Reports" sidebar item at the regular-Admin level (Reports may be Super-Admin-only, unverified). Dashboard widgets confirmed live: "Recent Tutor Requests" (columns: Request, Student, Assigned, Created, Action) and "Recent Notifications" (e.g. "New Tutor Joined the Platform").
 
 ## UI Elements
 
 | Element | Selector | Notes |
 |---|---|---|
-| Admin login phone/OTP form | `input[type="tel"], input[name="phone"]` | Required |
-| Admin login password field | `input[type="password"]` | Required — Admin auth uses phone+password+OTP per credential vault |
-| Dashboard heading | `h1:has-text("Dashboard"), h1:has-text("Overview")` | Required |
-| Stat cards (leads/bookings/revenue/active tutors) | `[data-testid="stat-card"], .stat-card` | Required |
-| Sidebar: Leads/Requests | `a:has-text("Leads"), a:has-text("Requests")` | Required |
+| Admin login phone field | `input[placeholder="50 123 4567"]` | Required — with country-code selector, default +966 |
+| Admin login password field | `input[type="password"], input[placeholder*="password" i]` | Required |
+| Admin login Continue button | `button:has-text("Continue")` | Required — submits phone+password, then navigates to a separate OTP verify step |
+| OTP verify heading | `h1:has-text("Verify your login")` | Required — at `/en/admin-login/verify?phone=...` |
+| OTP 6-box input | `input` (6 separate single-digit boxes) | Required — accepts the full 6-digit code typed in sequence, auto-advances between boxes |
+| Verify Login button | `button:has-text("Verify Login")` | Required |
+| Dashboard heading | `h1:has-text("Good morning, Admin"), :text("Operations Command Center")` | Required |
+| Recent Tutor Requests widget | `:text("Recent Tutor Requests")` | Required |
+| Recent Notifications widget | `:text("Recent Notifications")` | Required |
+| Stat cards | `[data-testid="stat-card"], .stat-card` | Present but exact metrics unverified — re-check on next pass |
+| Sidebar: Dashboard | `a:has-text("Dashboard")` | Required |
+| Sidebar: Teaching Requests | `a:has-text("Teaching Requests")` | Required — NOT "Leads" |
+| Sidebar: Messages | `a:has-text("Messages")` | Required |
 | Sidebar: Bookings | `a:has-text("Bookings")` | Required |
 | Sidebar: Tutors | `a:has-text("Tutors")` | Required |
-| Sidebar: Students/Parents | `a:has-text("Students"), a:has-text("Parents")` | Required |
-| Sidebar: Finance/Settings | `a:has-text("Finance"), a:has-text("Settings")` | Required |
-| Sidebar: Reports | `a:has-text("Reports")` | Optional — may be Super-Admin only |
-| Notifications bell | `button[aria-label*="notification" i]` | Required |
-| Notifications unread badge | `button[aria-label*="notification" i] span` | Conditional |
-| Account switcher (role badge) | `text="Admin"` | Required |
-| Logout action | `button:has-text("Logout"), a:has-text("Logout")` | Required |
+| Sidebar: Students | `a:has-text("Students")` | Required |
+| Sidebar: Settings | `a:has-text("Settings")` | Required |
+| Notifications bell | `button[aria-label*="notification" i], svg + [class*="badge"]` | Required — shows a "99+" style unread badge |
+| Account switcher (role badge) | `text="Admin"` | Required — shown under the account name "Test1 Admin" |
+| Logout action | `button:has-text("Logout"), a:has-text("Logout")` | Required — inside the account switcher dropdown |
 
 ## User Flows
 
 ### Flow 1: Admin Login and Dashboard Landing
 1. Navigate to `/en/admin-login`
-2. Enter phone `1926009607`, password, OTP per credential vault
-3. Submit
-→ Expected: Redirects to the main Admin dashboard with stat cards populated (not stuck loading, not showing raw `undefined`/`NaN`)
+2. Select country code Bangladesh (+880), enter phone `5654565`
+3. Enter password `Rumel1234`
+4. Click "Continue" — navigates to `/en/admin-login/verify?phone=%2B8805654565`
+5. Enter OTP `123456` into the 6-digit box
+→ Expected: Auto-navigates to `/en/admin/dashboard`, heading "Good morning, Admin" with "Recent Tutor Requests" and "Recent Notifications" widgets populated — confirmed live, works exactly as described
 
 ### Flow 2: Sidebar Navigation Covers Every Admin Area
 1. Log in as Admin
