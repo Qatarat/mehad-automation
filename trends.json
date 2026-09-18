@@ -540,15 +540,15 @@
       "pass_rate": "50.4%"
     },
     {
-      "run_number": 207,
-      "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/35202665570",
-      "timestamp": "2026-09-17T09:50:31.527510Z",
-      "passed": 2673,
-      "failed": 2280,
+      "run_number": 213,
+      "run_url": "https://github.com/Qatarat/mehad-automation/actions/runs/35325073820",
+      "timestamp": "2026-09-18T09:22:20.768931Z",
+      "passed": 2672,
+      "failed": 2281,
       "total": 4953,
       "actual_tests_run": 4953,
-      "bugs": 2280,
-      "pass_rate": "54.0%"
+      "bugs": 2281,
+      "pass_rate": "53.9%"
     }
   ],
   "fingerprints": {
@@ -623,7 +623,7 @@
     },
     "9252bcf5ad3d": {
       "first_seen_run": 19,
-      "last_seen_run": 207,
+      "last_seen_run": 213,
       "runs_seen": [
         108,
         113,
@@ -654,12 +654,12 @@
         163,
         164,
         165,
-        207
+        213
       ]
     },
     "01cd6b2d1b53": {
       "first_seen_run": 19,
-      "last_seen_run": 207,
+      "last_seen_run": 213,
       "runs_seen": [
         108,
         113,
@@ -690,7 +690,7 @@
         163,
         164,
         165,
-        207
+        213
       ]
     },
     "3fb581456488": {
@@ -756,7 +756,7 @@
     },
     "a7f290e2b3be": {
       "first_seen_run": 19,
-      "last_seen_run": 207,
+      "last_seen_run": 213,
       "runs_seen": [
         108,
         113,
@@ -787,12 +787,12 @@
         163,
         164,
         165,
-        207
+        213
       ]
     },
     "d89a19962de5": {
       "first_seen_run": 19,
-      "last_seen_run": 207,
+      "last_seen_run": 213,
       "runs_seen": [
         108,
         113,
@@ -823,12 +823,12 @@
         163,
         164,
         165,
-        207
+        213
       ]
     },
     "c0c999130a00": {
       "first_seen_run": 19,
-      "last_seen_run": 207,
+      "last_seen_run": 213,
       "runs_seen": [
         108,
         113,
@@ -859,12 +859,12 @@
         163,
         164,
         165,
-        207
+        213
       ]
     },
     "01585086b351": {
       "first_seen_run": 19,
-      "last_seen_run": 207,
+      "last_seen_run": 213,
       "runs_seen": [
         58,
         59,
@@ -895,7 +895,7 @@
         113,
         115,
         116,
-        207
+        213
       ]
     },
     "de41860e2619": {
@@ -936,7 +936,7 @@
     },
     "61bdca766f4e": {
       "first_seen_run": 19,
-      "last_seen_run": 207,
+      "last_seen_run": 213,
       "runs_seen": [
         108,
         113,
@@ -967,12 +967,12 @@
         163,
         164,
         165,
-        207
+        213
       ]
     },
     "046ef2e7920e": {
       "first_seen_run": 22,
-      "last_seen_run": 207,
+      "last_seen_run": 213,
       "runs_seen": [
         108,
         113,
@@ -1003,7 +1003,7 @@
         163,
         164,
         165,
-        207
+        213
       ]
     },
     "236233a5f1e7": {
@@ -1089,7 +1089,7 @@
     },
     "318b5b7cebe6": {
       "first_seen_run": 26,
-      "last_seen_run": 207,
+      "last_seen_run": 213,
       "runs_seen": [
         108,
         113,
@@ -1120,7 +1120,7 @@
         163,
         164,
         165,
-        207
+        213
       ]
     },
     "533ca8e32f99": {
@@ -1147,7 +1147,7 @@
     },
     "48661fc6824b": {
       "first_seen_run": 30,
-      "last_seen_run": 207,
+      "last_seen_run": 213,
       "runs_seen": [
         108,
         113,
@@ -1178,7 +1178,7 @@
         163,
         164,
         165,
-        207
+        213
       ]
     },
     "20d965a77432": {
@@ -1590,9 +1590,8 @@
     },
     "fd23cad9feca": {
       "first_seen_run": 67,
-      "last_seen_run": 135,
+      "last_seen_run": 213,
       "runs_seen": [
-        86,
         87,
         88,
         89,
@@ -1621,7 +1620,8 @@
         129,
         130,
         132,
-        135
+        135,
+        213
       ]
     },
     "b431c7cf0385": {
@@ -2204,7 +2204,7 @@
     },
     "92b5903f61b4": {
       "first_seen_run": 108,
-      "last_seen_run": 207,
+      "last_seen_run": 213,
       "runs_seen": [
         108,
         113,
@@ -2235,7 +2235,7 @@
         163,
         164,
         165,
-        207
+        213
       ]
     },
     "1b38ec907c90": {
@@ -2436,32 +2436,32 @@
         165
       ]
     },
-    "8cf7e47c49e7": {
-      "first_seen_run": 207,
-      "last_seen_run": 207,
+    "a81e2ee8b7ad": {
+      "first_seen_run": 213,
+      "last_seen_run": 213,
       "runs_seen": [
-        207
-      ]
-    },
-    "6f2b91e1badf": {
-      "first_seen_run": 207,
-      "last_seen_run": 207,
-      "runs_seen": [
-        207
-      ]
-    },
-    "5c566757175e": {
-      "first_seen_run": 207,
-      "last_seen_run": 207,
-      "runs_seen": [
-        207
+        213
       ]
     },
     "160140a0210a": {
-      "first_seen_run": 207,
-      "last_seen_run": 207,
+      "first_seen_run": 213,
+      "last_seen_run": 213,
       "runs_seen": [
-        207
+        213
+      ]
+    },
+    "6f2b91e1badf": {
+      "first_seen_run": 213,
+      "last_seen_run": 213,
+      "runs_seen": [
+        213
+      ]
+    },
+    "6f3eccf3ad3b": {
+      "first_seen_run": 213,
+      "last_seen_run": 213,
+      "runs_seen": [
+        213
       ]
     }
   },
