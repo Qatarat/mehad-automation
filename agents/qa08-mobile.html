@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA — Run #244 · 2026-10-19 10:10:39</title>
+<title>Mehad QA — Run #245 · 2026-10-20 09:45:00</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
@@ -538,7 +538,7 @@ ol.steps li{margin-bottom:5px}
   <div class="crumbs">
     <a href="index.html">Mehad QA</a>
     <span class="sep">/</span>
-    <span class="current">Run #244</span>
+    <span class="current">Run #245</span>
   </div>
   <button class="btn primary" onclick="window.print()">Export PDF</button>
 </nav>
@@ -553,13 +553,13 @@ ol.steps li{margin-bottom:5px}
 <!-- ── Run header ── -->
 <section class="commit">
   <div class="badge-row">
-    <span class="pill run">Run #244</span>
+    <span class="pill run">Run #245</span>
     <span class="pill">dev.mehadedu.com/en</span>
     <span class="pill fail">Needs review</span>
   </div>
   <h1>70.0% — 3 test(s) need attention</h1>
   <div class="commit-meta">
-    <span><b>Date:</b> 2026-10-19 10:10:39</span>
+    <span><b>Date:</b> 2026-10-20 09:45:00</span>
     <span><b>Model:</b> unknown</span>
     <span><b>Specs:</b> 1</span>
     <span><b>Tests:</b> 10</span>
@@ -648,7 +648,7 @@ ol.steps li{margin-bottom:5px}
     <input id="testSearch" type="text" placeholder="Search tests…"/>
   </div>
   <div id="tests-body">
-    <div class="group" data-spec="qa08_mobile"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa08_mobile</span><span class="count">7 pass · 3 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa08_login_modal_usable_on_mobile</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-10-19 10:10:37</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-08 -001">QA-08 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Login modal must open and show phone input at 375px — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Login modal must open and show phone input at 375px.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test waited for an element to appear, but it never showed up within 20000ms. The element may not exist on the page, or the page is loading very slowly.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
+    <div class="group" data-spec="qa08_mobile"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa08_mobile</span><span class="count">7 pass · 3 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa08_login_modal_usable_on_mobile</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-10-20 09:44:57</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-08 -001">QA-08 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Login modal must open and show phone input at 375px — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Login modal must open and show phone input at 375px.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test waited for an element to appear, but it never showed up within 20000ms. The element may not exist on the page, or the page is loading very slowly.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 20000ms exceeded.
 E   Call log:
 E     - waiting for locator(&quot;button:not([aria-label=\&quot;Login\&quot;]):has-text(\&quot;Log In\&quot;), button:not([aria-label]):has-text(\&quot;Login\&quot;), button[aria-label=\&quot;تسجيل الدخول\&quot;]&quot;).last to be visible
@@ -669,7 +669,7 @@ tests/test_qa_comprehensive.py:236: in _open_login_modal
     raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Locator.wait_for: Timeout 20000ms exceeded.
 E   Call log:
-E     - waiting for locator(&quot;button:not([aria-label=\&quot;Login\&quot;]):has-text(\&quot;Log In\&quot;), button:not([aria-label]):has-text(\&quot;Login\&quot;), button[aria-label=\&quot;تسجيل الدخول\&quot;]&quot;).last to be visible</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa08_desktop_1280_no_js_errors</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-10-19 10:10:37</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-08 -002">QA-08 -002</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Homepage at 1280×720 desktop must have no JS errors — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Homepage at 1280×720 desktop must have no JS errors.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">JS errors at 1280px desktop: ['Failed to load resource: the server responded with a status of 502 (Bad Gateway)']</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E     + [
+E     - waiting for locator(&quot;button:not([aria-label=\&quot;Login\&quot;]):has-text(\&quot;Log In\&quot;), button:not([aria-label]):has-text(\&quot;Login\&quot;), button[aria-label=\&quot;تسجيل الدخول\&quot;]&quot;).last to be visible</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa08_desktop_1280_no_js_errors</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-10-20 09:44:57</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-08 -002">QA-08 -002</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Homepage at 1280×720 desktop must have no JS errors — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Homepage at 1280×720 desktop must have no JS errors.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">JS errors at 1280px desktop: ['Failed to load resource: the server responded with a status of 502 (Bad Gateway)']</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E     + [
 E     +     'Failed to load resource: the server responded with a status of 502 (Bad '
 E     +     'Gateway)',
 E     + ]
@@ -686,7 +686,7 @@ E     - []
 E     + [
 E     +     'Failed to load resource: the server responded with a status of 502 (Bad '
 E     +     'Gateway)',
-E     + ]</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa08_find_tutors_mobile_shows_cards</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-10-19 10:10:37</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-08 -003">QA-08 -003</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Find-tutors page at mobile must show tutor card content — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Find-tutors page at mobile must show tutor card content.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">No tutor content visible on find-tutors at mobile</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:2569: in test_qa08_find_tutors_mobile_shows_cards
+E     + ]</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa08_find_tutors_mobile_shows_cards</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-10-20 09:44:57</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-08 -003">QA-08 -003</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Find-tutors page at mobile must show tutor card content — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Find-tutors page at mobile must show tutor card content.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">No tutor content visible on find-tutors at mobile</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:2569: in test_qa08_find_tutors_mobile_shows_cards
     assert &quot;tutor&quot; in content or &quot;teacher&quot; in content or &quot;lesson&quot; in content, (
 E   AssertionError: No tutor content visible on find-tutors at mobile
 E   assert ('tutor' in '502 bad gateway\nnginx' or 'teacher' in '502 bad gateway\nnginx' or 'lesson' in '502 bad gateway\nnginx')
@@ -694,7 +694,7 @@ E   assert ('tutor' in '502 bad gateway\nnginx' or 'teacher' in '502 bad gateway
 tests/test_qa_comprehensive.py:2569: in test_qa08_find_tutors_mobile_shows_cards
     assert &quot;tutor&quot; in content or &quot;teacher&quot; in content or &quot;lesson&quot; in content, (
 E   AssertionError: No tutor content visible on find-tutors at mobile
-E   assert ('tutor' in '502 bad gateway\nnginx' or 'teacher' in '502 bad gateway\nnginx' or 'lesson' in '502 bad gateway\nnginx')</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_homepage_renders_at_mobile_375</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_homepage_renders_at_mobile_375</dd><dt>What it checks</dt><dd>Homepage must render without horizontal overflow at 375px width.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.78s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_homepage_renders_at_tablet_768</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_homepage_renders_at_tablet_768</dd><dt>What it checks</dt><dd>Homepage must render without overflow at tablet 768px width.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.73s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_hamburger_menu_visible_on_mobile</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_hamburger_menu_visible_on_mobile</dd><dt>What it checks</dt><dd>Hamburger/mobile menu button must be visible at 375px.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.71s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_touch_targets_large_enough</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_touch_targets_large_enough</dd><dt>What it checks</dt><dd>Interactive elements must be at least 44×44 CSS pixels (WCAG 2.5.5).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.70s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_font_size_readable_on_mobile</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_font_size_readable_on_mobile</dd><dt>What it checks</dt><dd>Body text font size must be at least 12px on mobile.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.74s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_wide_4k_no_layout_break</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_wide_4k_no_layout_break</dd><dt>What it checks</dt><dd>Homepage at 3840×2160 (4K) must not have a broken layout.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.77s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_arabic_rtl_layout_mobile</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_arabic_rtl_layout_mobile</dd><dt>What it checks</dt><dd>Arabic locale must render RTL correctly at 375px mobile.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.70s</dd></dl></div></div></div></div>
+E   assert ('tutor' in '502 bad gateway\nnginx' or 'teacher' in '502 bad gateway\nnginx' or 'lesson' in '502 bad gateway\nnginx')</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_homepage_renders_at_mobile_375</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_homepage_renders_at_mobile_375</dd><dt>What it checks</dt><dd>Homepage must render without horizontal overflow at 375px width.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.66s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_homepage_renders_at_tablet_768</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_homepage_renders_at_tablet_768</dd><dt>What it checks</dt><dd>Homepage must render without overflow at tablet 768px width.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.64s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_hamburger_menu_visible_on_mobile</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_hamburger_menu_visible_on_mobile</dd><dt>What it checks</dt><dd>Hamburger/mobile menu button must be visible at 375px.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.60s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_touch_targets_large_enough</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_touch_targets_large_enough</dd><dt>What it checks</dt><dd>Interactive elements must be at least 44×44 CSS pixels (WCAG 2.5.5).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.60s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_font_size_readable_on_mobile</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_font_size_readable_on_mobile</dd><dt>What it checks</dt><dd>Body text font size must be at least 12px on mobile.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.59s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_wide_4k_no_layout_break</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_wide_4k_no_layout_break</dd><dt>What it checks</dt><dd>Homepage at 3840×2160 (4K) must not have a broken layout.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.59s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa08_arabic_rtl_layout_mobile</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa08_arabic_rtl_layout_mobile</dd><dt>What it checks</dt><dd>Arabic locale must render RTL correctly at 375px mobile.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.61s</dd></dl></div></div></div></div>
   </div>
 </section>
 
@@ -753,8 +753,8 @@ E   assert ('tutor' in '502 bad gateway\nnginx' or 'teacher' in '502 bad gateway
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa08_login_modal_usable_on_mobile</code></span>
-        <span>2026-10-19 10:10:37</span>
-        <span>22.73s</span>
+        <span>2026-10-20 09:44:57</span>
+        <span>22.57s</span>
         
         
       </div>
@@ -849,8 +849,8 @@ E     - waiting for locator(&quot;button:not([aria-label=\&quot;Login\&quot;]):h
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa08_desktop_1280_no_js_errors</code></span>
-        <span>2026-10-19 10:10:37</span>
-        <span>0.72s</span>
+        <span>2026-10-20 09:44:57</span>
+        <span>0.60s</span>
         
         
       </div>
@@ -945,8 +945,8 @@ E     + ]</pre>
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa08_find_tutors_mobile_shows_cards</code></span>
-        <span>2026-10-19 10:10:37</span>
-        <span>2.24s</span>
+        <span>2026-10-20 09:44:57</span>
+        <span>2.14s</span>
         
         
       </div>
@@ -1062,8 +1062,8 @@ E   assert ('tutor' in '502 bad gateway\nnginx' or 'teacher' in '502 bad gateway
   <div class="card" style="margin-bottom:16px">
     <div class="card-head"><h4>Run Info</h4></div>
     <dl class="run-dl">
-      <dt>Run #</dt><dd>244</dd>
-      <dt>Date</dt><dd>2026-10-19 10:10:39</dd>
+      <dt>Run #</dt><dd>245</dd>
+      <dt>Date</dt><dd>2026-10-20 09:45:00</dd>
       <dt>Target URL</dt><dd style="word-break:break-all">https://dev.mehadedu.com/en</dd>
       <dt>AI Model</dt><dd>unknown</dd>
       <dt>Browser</dt><dd>Chromium (headless)</dd>
@@ -1112,9 +1112,9 @@ E   assert ('tutor' in '502 bad gateway\nnginx' or 'teacher' in '502 bad gateway
     </div>
   </div>
   <div>
-    <div class="col-head">Run #244</div>
+    <div class="col-head">Run #245</div>
     <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
-      2026-10-19 10:10:39<br/>
+      2026-10-20 09:45:00<br/>
       10 tests<br/>
       1 specs<br/>
       70.0% pass rate
