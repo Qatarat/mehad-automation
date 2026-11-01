@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA — Run #256 · 2026-10-31 10:47:06</title>
+<title>Mehad QA — Run #257 · 2026-11-01 11:57:24</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
@@ -538,7 +538,7 @@ ol.steps li{margin-bottom:5px}
   <div class="crumbs">
     <a href="index.html">Mehad QA</a>
     <span class="sep">/</span>
-    <span class="current">Run #256</span>
+    <span class="current">Run #257</span>
   </div>
   <button class="btn primary" onclick="window.print()">Export PDF</button>
 </nav>
@@ -553,18 +553,18 @@ ol.steps li{margin-bottom:5px}
 <!-- ── Run header ── -->
 <section class="commit">
   <div class="badge-row">
-    <span class="pill run">Run #256</span>
+    <span class="pill run">Run #257</span>
     <span class="pill">dev.mehadedu.com/en</span>
     <span class="pill fail">No-Go for production</span>
   </div>
-  <h1>16.7% — 5 test(s) need attention</h1>
+  <h1>33.3% — 4 test(s) need attention</h1>
   <div class="commit-meta">
-    <span><b>Date:</b> 2026-10-31 10:47:06</span>
-    <span><b>Model:</b> unknown</span>
+    <span><b>Date:</b> 2026-11-01 11:57:24</span>
+    <span><b>Model:</b> qwen2.5-coder:7b</span>
     <span><b>Specs:</b> 1</span>
     <span><b>Tests:</b> 6</span>
   </div>
-  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">AI-driven spec validation completed on https://dev.mehadedu.com/en. 5 critical, 0 high, 0 medium, 0 low priority bugs found across 1 spec(s).</p>
+  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">AI-driven spec validation completed on https://dev.mehadedu.com/en. 4 critical, 0 high, 0 medium, 0 low priority bugs found across 1 spec(s).</p>
   <span class="stamp ">No-Go</span>
 </section>
 
@@ -572,24 +572,24 @@ ol.steps li{margin-bottom:5px}
 <section class="card">
   <div class="card-head">
     <h4>Quality Overview</h4>
-    <span style="font-size:12px;color:var(--ink-3)">1/6 passing</span>
+    <span style="font-size:12px;color:var(--ink-3)">2/6 passing</span>
   </div>
   <div class="card-body">
     <div class="diff-rows">
       <div class="diff-row add">
         <span class="sym">−</span>
         <span class="lbl">Pass rate</span>
-        <span class="val">16.7%</span>
+        <span class="val">33.3%</span>
       </div>
       <div class="diff-row add">
         <span class="sym">+</span>
         <span class="lbl">Failing tests</span>
-        <span class="val">5</span>
+        <span class="val">4</span>
       </div>
       <div class="diff-row add">
         <span class="sym">+</span>
         <span class="lbl">P0 critical bugs</span>
-        <span class="val">5</span>
+        <span class="val">4</span>
       </div>
       <div class="diff-row neutral">
         <span class="sym">·</span>
@@ -604,7 +604,7 @@ ol.steps li{margin-bottom:5px}
 <div class="priority-strip">
   <div class="pstrip-item p0">
     <div class="pstrip-label">P0 Highest</div>
-    <div class="pstrip-val">5</div>
+    <div class="pstrip-val">4</div>
     <div class="pstrip-sla">24h SLA · Expedite</div>
   </div>
   <div class="pstrip-item p1">
@@ -641,14 +641,14 @@ ol.steps li{margin-bottom:5px}
   <div class="card-head"><h4>All Tests</h4><span style="font-size:12px;color:var(--ink-3)">6 total</span></div>
   <div class="tests-tools">
     <span class="chip active" data-tf="all">All (6)</span>
-    <span class="chip fail" data-tf="failed">Failed (5)</span>
-    <span class="chip pass" data-tf="passed">Passed (1)</span>
+    <span class="chip fail" data-tf="failed">Failed (4)</span>
+    <span class="chip pass" data-tf="passed">Passed (2)</span>
     <span class="chip" data-tf="p0">P0</span>
     <span class="chip" data-tf="p1">P1</span>
     <input id="testSearch" type="text" placeholder="Search tests…"/>
   </div>
   <div id="tests-body">
-    <div class="group" data-spec="qa13_security_headers"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa13_security_headers</span><span class="count">1 pass · 5 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_strict_transport_security_present</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-10-31 10:47:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -001">QA-13 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">HSTS header must be present on HTTPS responses (forces TLS) — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">HSTS header must be present on HTTPS responses (forces TLS).</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Missing Strict-Transport-Security header — HTTPS downgrade attacks possible. Recommend: max-age=63072000; includeSubDomains; preload</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3090: in test_qa13_strict_transport_security_present
+    <div class="group" data-spec="qa13_security_headers"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa13_security_headers</span><span class="count">2 pass · 4 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_strict_transport_security_present</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-01 11:57:20</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -001">QA-13 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">HSTS header must be present on HTTPS responses (forces TLS) — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">HSTS header must be present on HTTPS responses (forces TLS).</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Missing Strict-Transport-Security header — HTTPS downgrade attacks possible. Recommend: max-age=63072000; includeSubDomains; preload</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3090: in test_qa13_strict_transport_security_present
     assert hsts, (
 E   AssertionError: Missing Strict-Transport-Security header — HTTPS downgrade attacks possible. Recommend: max-age=63072000; includeSubDomains; preload
 E   assert ''
@@ -656,7 +656,7 @@ E   assert ''
 tests/test_qa_comprehensive.py:3090: in test_qa13_strict_transport_security_present
     assert hsts, (
 E   AssertionError: Missing Strict-Transport-Security header — HTTPS downgrade attacks possible. Recommend: max-age=63072000; includeSubDomains; preload
-E   assert ''</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_x_frame_options_or_csp_frame_ancestors</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-10-31 10:47:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -002">QA-13 -002</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Must protect against clickjacking via X-Frame-Options OR
+E   assert ''</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_x_frame_options_or_csp_frame_ancestors</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-01 11:57:20</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -002">QA-13 -002</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Must protect against clickjacking via X-Frame-Options OR
 CSP frame-ancestors — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Must protect against clickjacking via X-Frame-Options OR</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Page is clickjacking-vulnerable — missing both X-Frame-Options and CSP frame-ancestors. xfo='', csp=''</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3110: in test_qa13_x_frame_options_or_csp_frame_ancestors
     assert has_xfo or has_frame_ancestors, (
 E   AssertionError: Page is clickjacking-vulnerable — missing both X-Frame-Options and CSP frame-ancestors. xfo='', csp=''
@@ -665,17 +665,7 @@ E   assert (False or False)
 tests/test_qa_comprehensive.py:3110: in test_qa13_x_frame_options_or_csp_frame_ancestors
     assert has_xfo or has_frame_ancestors, (
 E   AssertionError: Page is clickjacking-vulnerable — missing both X-Frame-Options and CSP frame-ancestors. xfo='', csp=''
-E   assert (False or False)</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_x_content_type_options_nosniff</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-10-31 10:47:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -003">QA-13 -003</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">X-Content-Type-Options: nosniff prevents MIME-sniffing attacks — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">X-Content-Type-Options: nosniff prevents MIME-sniffing attacks.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">X-Content-Type-Options should be 'nosniff' to prevent MIME-sniffing attacks. Got: ''</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E   AssertionError: X-Content-Type-Options should be 'nosniff' to prevent MIME-sniffing attacks. Got: ''
-E   assert '' == 'nosniff'
-E     
-E     - nosniff
-
-tests/test_qa_comprehensive.py:3119: in test_qa13_x_content_type_options_nosniff
-    assert xcto == &quot;nosniff&quot;, (
-E   AssertionError: X-Content-Type-Options should be 'nosniff' to prevent MIME-sniffing attacks. Got: ''
-E   assert '' == 'nosniff'
-E     
-E     - nosniff</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_referrer_policy_present</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-10-31 10:47:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -004">QA-13 -004</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Referrer-Policy controls what referrer info is leaked to other sites — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Referrer-Policy controls what referrer info is leaked to other sites.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Missing Referrer-Policy header — full URL referrers may leak to third-party sites. Recommend: strict-origin-when-cross-origin</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3128: in test_qa13_referrer_policy_present
+E   assert (False or False)</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_referrer_policy_present</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-01 11:57:20</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -003">QA-13 -003</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Referrer-Policy controls what referrer info is leaked to other sites — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Referrer-Policy controls what referrer info is leaked to other sites.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Missing Referrer-Policy header — full URL referrers may leak to third-party sites. Recommend: strict-origin-when-cross-origin</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3128: in test_qa13_referrer_policy_present
     assert rp, (
 E   AssertionError: Missing Referrer-Policy header — full URL referrers may leak to third-party sites. Recommend: strict-origin-when-cross-origin
 E   assert ''
@@ -683,23 +673,23 @@ E   assert ''
 tests/test_qa_comprehensive.py:3128: in test_qa13_referrer_policy_present
     assert rp, (
 E   AssertionError: Missing Referrer-Policy header — full URL referrers may leak to third-party sites. Recommend: strict-origin-when-cross-origin
-E   assert ''</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_content_security_policy_present</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-10-31 10:47:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -005">QA-13 -005</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">A Content-Security-Policy header should be set (XSS mitigation) — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">A Content-Security-Policy header should be set (XSS mitigation).</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payloads have no defense-in-depth mitigation</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3144: in test_qa13_content_security_policy_present
+E   assert ''</div></div></div></div><div class="test" data-outcome="fail" data-pri="p0"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa13_content_security_policy_present</div></div><span class="tag p0">P0</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-01 11:57:20</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-13 -004">QA-13 -004</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P0</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">A Content-Security-Policy header should be set (XSS mitigation) — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">A Content-Security-Policy header should be set (XSS mitigation).</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payloads have no defense-in-depth mitigation</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3144: in test_qa13_content_security_policy_present
     pytest.fail(
 E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payloads have no defense-in-depth mitigation
 
 tests/test_qa_comprehensive.py:3144: in test_qa13_content_security_policy_present
     pytest.fail(
-E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payloads have no defense-in-depth mitigation</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa13_no_server_version_disclosure</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa13_no_server_version_disclosure</dd><dt>What it checks</dt><dd>Server / X-Powered-By headers should not disclose framework versions
-(e.g. 'nginx/1.18.0', 'Express') — info-disclosure issue.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>0.62s</dd></dl></div></div></div></div>
+E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payloads have no defense-in-depth mitigation</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa13_x_content_type_options_nosniff</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa13_x_content_type_options_nosniff</dd><dt>What it checks</dt><dd>X-Content-Type-Options: nosniff prevents MIME-sniffing attacks.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>9.79s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa13_no_server_version_disclosure</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa13_no_server_version_disclosure</dd><dt>What it checks</dt><dd>Server / X-Powered-By headers should not disclose framework versions
+(e.g. 'nginx/1.18.0', 'Express') — info-disclosure issue.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>5.66s</dd></dl></div></div></div></div>
   </div>
 </section>
 
 <!-- ── Bug tickets ── -->
-<section class="card" id="bugs"><div class="card-head"><h4>Bug Tickets</h4><span style="font-size:12px;color:var(--ink-3)">5 total</span></div><div class="card-body" style="padding:0">
+<section class="card" id="bugs"><div class="card-head"><h4>Bug Tickets</h4><span style="font-size:12px;color:var(--ink-3)">4 total</span></div><div class="card-body" style="padding:0">
 <section class="card">
-  <div class="card-head"><h4>Root-Cause Summary</h4><span style="font-size:12px;color:var(--ink-3)">5 clusters</span></div>
+  <div class="card-head"><h4>Root-Cause Summary</h4><span style="font-size:12px;color:var(--ink-3)">4 clusters</span></div>
   <div class="card-body">
-    <div class="cluster-headline">5 bug ticket(s) → <strong>5 unique root cause(s)</strong></div>
+    <div class="cluster-headline">4 bug ticket(s) → <strong>4 unique root cause(s)</strong></div>
     <div class="cluster-list">
 <div class="cluster-row">
   <div class="cluster-meta">
@@ -728,7 +718,7 @@ E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payl
     <span class="cluster-count">1x affected</span>
     <span class="recurrence-badge">30x consecutive</span>
   </div>
-  <div class="cluster-title">Security: MIME-sniff protection missing</div>
+  <div class="cluster-title">Security: Referrer-Policy missing</div>
   <div class="cluster-tickets"><a href="#QA-13 -003" class="cluster-bug-link">QA-13 -003</a></div>
 </div>
 <div class="cluster-row">
@@ -738,18 +728,8 @@ E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payl
     <span class="cluster-count">1x affected</span>
     <span class="recurrence-badge">30x consecutive</span>
   </div>
-  <div class="cluster-title">Security: Referrer-Policy missing</div>
-  <div class="cluster-tickets"><a href="#QA-13 -004" class="cluster-bug-link">QA-13 -004</a></div>
-</div>
-<div class="cluster-row">
-  <div class="cluster-meta">
-    <span class="badge CRITICAL">CRITICAL</span>
-    <span class="badge P0">P0</span>
-    <span class="cluster-count">1x affected</span>
-    <span class="recurrence-badge">30x consecutive</span>
-  </div>
   <div class="cluster-title">Security: CSP not configured</div>
-  <div class="cluster-tickets"><a href="#QA-13 -005" class="cluster-bug-link">QA-13 -005</a></div>
+  <div class="cluster-tickets"><a href="#QA-13 -004" class="cluster-bug-link">QA-13 -004</a></div>
 </div></div>
     <div class="cluster-help">
       Bugs sharing a root cause are grouped here. Click any ticket ID to jump to its full bug card.
@@ -769,8 +749,8 @@ E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payl
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa13_strict_transport_security_present</code></span>
-        <span>2026-10-31 10:47:05</span>
-        <span>0.63s</span>
+        <span>2026-11-01 11:57:20</span>
+        <span>3.06s</span>
         
         
       </div>
@@ -856,8 +836,8 @@ E   assert ''</pre>
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa13_x_frame_options_or_csp_frame_ancestors</code></span>
-        <span>2026-10-31 10:47:05</span>
-        <span>0.65s</span>
+        <span>2026-11-01 11:57:20</span>
+        <span>4.65s</span>
         
         
       </div>
@@ -940,101 +920,12 @@ E   assert (False or False)</pre>
         <span class="badge P0">P0</span>
         
       </div>
-      <div class="bug-title">Failed: Test qa13 x content type options nosniff</div>
-      <div class="bug-meta">
-        <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
-        <span><code>test_qa13_x_content_type_options_nosniff</code></span>
-        <span>2026-10-31 10:47:05</span>
-        <span>0.69s</span>
-        
-        
-      </div>
-    </div>
-  </div>
-  <div class="bug-body">
-    
-    
-<div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">What this test was checking</div>
-  <div>X-Content-Type-Options: nosniff prevents MIME-sniffing attacks — verified against https://dev.mehadedu.com/en.</div>
-</div>
-    
-<div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">Test data used</div>
-  <div style="font-family:var(--mono);color:var(--accent);font-size:12px">BASE_URL</div>
-</div>
-    
-<div style="margin-bottom:16px">
-  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
-              color:var(--ink-3);margin-bottom:8px">Steps to Reproduce</div>
-  <ol class="steps"><li>Open a browser and go to https://dev.mehadedu.com/en</li><li>Observe the result: it does NOT match what the test expected (see Actual Behavior)</li></ol>
-</div>
-    
-<div class="two-col">
-  <div class="info-block expected">
-    <div class="ib-label">What should happen</div>
-    <div>X-Content-Type-Options: nosniff prevents MIME-sniffing attacks.</div>
-  </div>
-  <div class="info-block actual">
-    <div class="ib-label">What actually happened</div>
-    <div>X-Content-Type-Options should be 'nosniff' to prevent MIME-sniffing attacks. Got: ''</div>
-  </div>
-</div>
-    
-<div class="shot-wrap">
-  <div class="shot-label">Proof of Concept — Screenshot</div>
-  <img class="screenshot" src="data:image/png;base64,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8YvWHQxtd88HeBXa3qx/+OHwoKpwBdtl7NjYv8KztqoqPKdpak5O3yuvTOrYMfuEE4bed198Q66R/23u3/rggQcq6868lTd58oCbbkrr1SsxLa3joEH9rr46fz8bkcrCwkUXXxye7rfXxInhSaHbblREv9DtesopI595pvtZZ6V06ZKYkpKRnx++ydzCdWDbvYxsP5p9CHT3M88MDyMsmjOnwdsUzp4d+aKUpI4du3/mM5ufeSalS5ceEyb0+uh3I+3ZiVJa+v73vhe5HOPNyj/8cPFllx3zi1+k5eWlZGcPbvB7Ypuzy23zs8+GO7GOuvPOo+68MwiCgr///Z2vfrWRxXLx5Zcf89BDqT16pHTp8sm6L8OMqNq1a9nUqa31heaj674GsN5avrVOb3ggH8u+Bnzzmx0GDtwzoubPX//ww3sX2p/9rPv48ZHvd+00bFj+Ndes+d//bXzv78ILLhh02225kyYFCQmdhw8ftv9Z1NaPuvFB1epjuIXjOXYbHn008v2KdduZ2s37D+DC2bOTOnQYM3PmR+ZtcfF/rrkmXPu34qwo27jxzc99bujPfpY1cmRCYmL+NdfU2zbX1tRsePzxFT/4wf5ONRzLBLe3NUaMq802+vVWebzVu3ev/eUv+19/fWQf67G/+lXk+tX33nvEjTfG+Bd3v//+e7feetSddwYJCanduo344x8j1697+OHel14a38eJmxwPbbogt906vI2e9IOliZVtqy56Ma4imni+mj9saquqPnzqqehdQqVr1+7dHdk2L40O5JbloIv7hdZhtjTtd/f3qlXvfutbg6dPT0hM3O8Ktqljelfeeecnf/vbyJsZR956a+T8/EVz51Zs3Rp5pdesIdf4/zbrb1UUFCy65JJjH3oovW/fICEh/7rroqM3cur1BlVs2bJoypSRf/pT5Nil3MmTayoq3rv11rYbFfVe6HY65phjH3qo1V/kH94Le5wBHP10Fu4ngIvmzAm/KTR30qTNzzyzfNq0LX/9a7dx4zKHDk3t2TMlO7umrKxs3brCuXPXP/JI6Zo14Y6NWG4WBEHx22/P+/SncydN6n7mmR0HD07JyqouLa0oKCjftKlo7tzt//73zgbPcLMfBS++uOymm3pfcknHQYNiPxXhjoUL540fnzdlSvfx4zsMGpScmVldWlq6Zs32WbM2PP54+ebNh9A4OFiPJXv06L51R5tUl5Qs/8Y3osuktqpq6dSpx//tb5Ed3v2vv37rv/4V7vpqeNVQUrL85pvXPvhgr0mTsseM6ZCfn5yVVVNeXrl9e9mGDTsWLNj60ksH5lE3Oahadwy3fDzHaOu//lW+cWP4KZqiefMa+ax19a5diy+/vN/VV/c877z0vn2ri4u3v/rq6nvvrXda71acFWUbNiz8whe6fupTOeeckzVqVGpOTlJ6elVxcenatUVz52584onGT/AY4wS3qzVG7KvNtvj11nq8q++5p/zDD3tfckmHgQNrq6qKFy364IEHdixYEHsAB0Gw8fe/L12zJv/aazsPHx4kJOx+9931jzyy+S9/6X3ppXG+1IhhPLTdgtx2c7vtnvSDosnlsRUXvRhXEU2KY9hsfOKJfl/9anjozaY//nHf3mjT0dimW5ZD12G2NDXiw6eeKlu7Nv+66zqPGJGQmBhZwW6ZMSP8vtnwu3/2u/9ozpy3Jk3qf8MNWaNGJSQnl61bt/nZZ9f+4hfDn3gijiHX+P8292/tWrp0/hln9Jo4sftZZ2UOGZKcnV29c2fJ6tUFf/3rpqeeauxVx/r1iy6+eORTT0XOC937sstqKiradFTs94VuUVFVUVHp+vXFb7xRtGBB9HeINncd+HFY2BNe7tfP+guI3RFTp/a/4YY92/6bb9705JPR/9th4MBwV/rWf/xjSd1HhdutQ26CAasIaA86Dhp0Qt1HTLe98sriyy83TzgkJJoFQLNETpYYBEFNWVnsH3sDAA4nuRddFF7e+o9/mCEcKpLNAiBGCcnJXU46KTzp38Y//KGBr7kDAA4v/a+/Pi03d8uMGSWrVlUUFKTl5uZddFH4Kbbd775b73AwEMDAIW/UjBnRJxgsXbPmUDnPOQDQomDo3DlvypS8KVP2/a/iRYveueqqw+N81whggPpqq6rKN2/e9tJLa+6/v8kzXgAAh4HV9923a/nynLPP7jBwYFqvXrU1NZVbt+5csmTLjBkFL7xwIL91GVrOSbAAAAD4WHASLAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAID9SKitrTUXAAAAOOx5BxgAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAEMBmAQAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAAAWwWAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAAAQwGYBAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAAAQwAAAACGAAAAA4pP1/ggwlXCH5BCUAAAAASUVORK5CYII=" alt="Test failure screenshot" title="Click to enlarge"/>
-</div>
-    
-<div class="video-wrap">
-  <div class="video-label">Proof of Concept — Screen Recording</div>
-  <video class="poc-video" controls preload="metadata" src="videos-embed/test_qa13_x_content_type_options_nosniff.webm" type="video/webm">
-    Your browser does not support embedded video.
-  </video>
-  <div><a href="videos-embed/test_qa13_x_content_type_options_nosniff.webm" download style="font-size:11px;color:var(--accent)">Download .webm</a></div>
-</div>
-    
-<button class="err-toggle" onclick="toggleErr('err-3')">
-  <span>▶ Show error details</span>
-  <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
-</button>
-<div class="err-body" id="err-3">
-  <pre style="margin-top:8px"><strong style="color:var(--bad)">E   AssertionError: X-Content-Type-Options should be 'nosniff' to prevent MIME-sniffing attacks. Got: ''
-E   assert '' == 'nosniff'
-E     
-E     - nosniff</strong>
-
-tests/test_qa_comprehensive.py:3119: in test_qa13_x_content_type_options_nosniff
-    assert xcto == &quot;nosniff&quot;, (
-E   AssertionError: X-Content-Type-Options should be 'nosniff' to prevent MIME-sniffing attacks. Got: ''
-E   assert '' == 'nosniff'
-E     
-E     - nosniff</pre>
-</div>
-    
-    <div style="margin-top:16px"></div>
-    <div class="env-strip">
-      <span><b>Browser:</b> Chromium</span>
-      <span><b>Viewport:</b> 1280x720</span>
-      <span><b>Env:</b> Staging</span>
-    </div>
-  </div>
-</div>
-<div class="bug-card" id="QA-13 -004" data-priority="P0">
-  <div class="bug-card-hdr">
-    <div>
-      <div class="left">
-        <span class="bug-id">QA-13 -004</span>
-        <span class="badge CRITICAL">CRITICAL</span>
-        <span class="badge P0">P0</span>
-        
-      </div>
       <div class="bug-title">Failed: Test qa13 referrer policy present</div>
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa13_referrer_policy_present</code></span>
-        <span>2026-10-31 10:47:05</span>
-        <span>0.66s</span>
+        <span>2026-11-01 11:57:20</span>
+        <span>9.09s</span>
         
         
       </div>
@@ -1083,11 +974,11 @@ E     - nosniff</pre>
   <div><a href="videos-embed/test_qa13_referrer_policy_present.webm" download style="font-size:11px;color:var(--accent)">Download .webm</a></div>
 </div>
     
-<button class="err-toggle" onclick="toggleErr('err-4')">
+<button class="err-toggle" onclick="toggleErr('err-3')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-4">
+<div class="err-body" id="err-3">
   <pre style="margin-top:8px"><strong style="color:var(--bad)">tests/test_qa_comprehensive.py:3128: in test_qa13_referrer_policy_present
     assert rp, (
 E   AssertionError: Missing Referrer-Policy header — full URL referrers may leak to third-party sites. Recommend: strict-origin-when-cross-origin
@@ -1107,11 +998,11 @@ E   assert ''</pre>
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-13 -005" data-priority="P0">
+<div class="bug-card" id="QA-13 -004" data-priority="P0">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-13 -005</span>
+        <span class="bug-id">QA-13 -004</span>
         <span class="badge CRITICAL">CRITICAL</span>
         <span class="badge P0">P0</span>
         
@@ -1120,8 +1011,8 @@ E   assert ''</pre>
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa13_content_security_policy_present</code></span>
-        <span>2026-10-31 10:47:05</span>
-        <span>0.72s</span>
+        <span>2026-11-01 11:57:20</span>
+        <span>12.60s</span>
         
         
       </div>
@@ -1170,11 +1061,11 @@ E   assert ''</pre>
   <div><a href="videos-embed/test_qa13_content_security_policy_present.webm" download style="font-size:11px;color:var(--accent)">Download .webm</a></div>
 </div>
     
-<button class="err-toggle" onclick="toggleErr('err-5')">
+<button class="err-toggle" onclick="toggleErr('err-4')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-5">
+<div class="err-body" id="err-4">
   <pre style="margin-top:8px"><strong style="color:var(--bad)">tests/test_qa_comprehensive.py:3144: in test_qa13_content_security_policy_present
     pytest.fail(
 E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payloads have no defense-in-depth mitigation</strong>
@@ -1210,15 +1101,15 @@ E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payl
       <svg class="ring" viewBox="0 0 44 44">
         <circle cx="22" cy="22" r="18" fill="none" stroke="var(--bg-3)" stroke-width="5"/>
         <circle cx="22" cy="22" r="18" fill="none" stroke="oklch(0.85 0.18 25)" stroke-width="5"
-          stroke-dasharray="113.1" stroke-dashoffset="94.21"
+          stroke-dasharray="113.1" stroke-dashoffset="75.44"
           stroke-linecap="round" transform="rotate(-90 22 22)"/>
         <text x="22" y="25" text-anchor="middle" font-size="8" font-weight="700"
-          fill="oklch(0.85 0.18 25)" font-family="'JetBrains Mono',monospace">16.7%</text>
+          fill="oklch(0.85 0.18 25)" font-family="'JetBrains Mono',monospace">33.3%</text>
       </svg>
     </div>
     <div class="mini-stats">
       <div class="ms bad">
-        <div class="ms-v">5</div>
+        <div class="ms-v">4</div>
         <div class="ms-l">P0 bugs</div>
       </div>
       <div class="ms ">
@@ -1239,10 +1130,10 @@ E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payl
   <div class="card" style="margin-bottom:16px">
     <div class="card-head"><h4>Run Info</h4></div>
     <dl class="run-dl">
-      <dt>Run #</dt><dd>256</dd>
-      <dt>Date</dt><dd>2026-10-31 10:47:06</dd>
+      <dt>Run #</dt><dd>257</dd>
+      <dt>Date</dt><dd>2026-11-01 11:57:24</dd>
       <dt>Target URL</dt><dd style="word-break:break-all">https://dev.mehadedu.com/en</dd>
-      <dt>AI Model</dt><dd>unknown</dd>
+      <dt>AI Model</dt><dd>qwen2.5-coder:7b</dd>
       <dt>Browser</dt><dd>Chromium (headless)</dd>
     </dl>
   </div>
@@ -1250,11 +1141,11 @@ E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payl
   <div class="card">
     <div class="card-head"><h4>Priority Breakdown</h4></div>
     <dl class="run-dl">
-      <dt>Critical (P0)</dt><dd style="color:var(--bad)">5 · 24h SLA</dd>
+      <dt>Critical (P0)</dt><dd style="color:var(--bad)">4 · 24h SLA</dd>
       <dt>High (P1)</dt><dd style="color:var(--warn)">0 · 2–3 days</dd>
       <dt>Medium (P2)</dt><dd style="color:var(--ok)">0 · current sprint</dd>
       <dt>Low (P3)</dt><dd style="color:var(--accent)">0 · backlog</dd>
-      <dt>Severity: Critical</dt><dd style="color:var(--bad)">5</dd>
+      <dt>Severity: Critical</dt><dd style="color:var(--bad)">4</dd>
       <dt>Severity: High</dt><dd style="color:var(--warn)">0</dd>
       <dt>Severity: Medium</dt><dd style="color:var(--accent)">0</dd>
       <dt>Severity: Low</dt><dd style="color:var(--ok)">0</dd>
@@ -1289,12 +1180,12 @@ E   Failed: No Content-Security-Policy (nor CSP-Report-Only) header — XSS payl
     </div>
   </div>
   <div>
-    <div class="col-head">Run #256</div>
+    <div class="col-head">Run #257</div>
     <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
-      2026-10-31 10:47:06<br/>
+      2026-11-01 11:57:24<br/>
       6 tests<br/>
       1 specs<br/>
-      16.7% pass rate
+      33.3% pass rate
     </div>
   </div>
 </footer>
