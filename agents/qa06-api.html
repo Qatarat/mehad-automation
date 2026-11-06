@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA — Run #261 · 2026-11-05 12:46:09</title>
+<title>Mehad QA — Run #262 · 2026-11-06 12:26:34</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
@@ -538,7 +538,7 @@ ol.steps li{margin-bottom:5px}
   <div class="crumbs">
     <a href="index.html">Mehad QA</a>
     <span class="sep">/</span>
-    <span class="current">Run #261</span>
+    <span class="current">Run #262</span>
   </div>
   <button class="btn primary" onclick="window.print()">Export PDF</button>
 </nav>
@@ -553,18 +553,18 @@ ol.steps li{margin-bottom:5px}
 <!-- ── Run header ── -->
 <section class="commit">
   <div class="badge-row">
-    <span class="pill run">Run #261</span>
+    <span class="pill run">Run #262</span>
     <span class="pill">dev.mehadedu.com/en</span>
     <span class="pill fail">Needs review</span>
   </div>
-  <h1>0.0% — 16 test(s) need attention</h1>
+  <h1>18.8% — 13 test(s) need attention</h1>
   <div class="commit-meta">
-    <span><b>Date:</b> 2026-11-05 12:46:09</span>
-    <span><b>Model:</b> qwen2.5-coder:7b</span>
+    <span><b>Date:</b> 2026-11-06 12:26:34</span>
+    <span><b>Model:</b> unknown</span>
     <span><b>Specs:</b> 1</span>
     <span><b>Tests:</b> 16</span>
   </div>
-  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">AI-driven spec validation completed on https://dev.mehadedu.com/en. 0 critical, 5 high, 10 medium, 1 low priority bugs found across 1 spec(s).</p>
+  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">AI-driven spec validation completed on https://dev.mehadedu.com/en. 0 critical, 5 high, 8 medium, 0 low priority bugs found across 1 spec(s).</p>
   <span class="stamp ">Review</span>
 </section>
 
@@ -572,19 +572,19 @@ ol.steps li{margin-bottom:5px}
 <section class="card">
   <div class="card-head">
     <h4>Quality Overview</h4>
-    <span style="font-size:12px;color:var(--ink-3)">0/16 passing</span>
+    <span style="font-size:12px;color:var(--ink-3)">3/16 passing</span>
   </div>
   <div class="card-body">
     <div class="diff-rows">
       <div class="diff-row add">
         <span class="sym">−</span>
         <span class="lbl">Pass rate</span>
-        <span class="val">0.0%</span>
+        <span class="val">18.8%</span>
       </div>
       <div class="diff-row add">
         <span class="sym">+</span>
         <span class="lbl">Failing tests</span>
-        <span class="val">16</span>
+        <span class="val">13</span>
       </div>
       <div class="diff-row neutral">
         <span class="sym">·</span>
@@ -614,12 +614,12 @@ ol.steps li{margin-bottom:5px}
   </div>
   <div class="pstrip-item p2">
     <div class="pstrip-label">P2 Medium</div>
-    <div class="pstrip-val">10</div>
+    <div class="pstrip-val">8</div>
     <div class="pstrip-sla">Current sprint</div>
   </div>
   <div class="pstrip-item p3">
     <div class="pstrip-label">P3 Low</div>
-    <div class="pstrip-val">1</div>
+    <div class="pstrip-val">0</div>
     <div class="pstrip-sla">Backlog</div>
   </div>
 </div>
@@ -641,14 +641,14 @@ ol.steps li{margin-bottom:5px}
   <div class="card-head"><h4>All Tests</h4><span style="font-size:12px;color:var(--ink-3)">16 total</span></div>
   <div class="tests-tools">
     <span class="chip active" data-tf="all">All (16)</span>
-    <span class="chip fail" data-tf="failed">Failed (16)</span>
-    <span class="chip pass" data-tf="passed">Passed (0)</span>
+    <span class="chip fail" data-tf="failed">Failed (13)</span>
+    <span class="chip pass" data-tf="passed">Passed (3)</span>
     <span class="chip" data-tf="p0">P0</span>
     <span class="chip" data-tf="p1">P1</span>
     <input id="testSearch" type="text" placeholder="Search tests…"/>
   </div>
   <div id="tests-body">
-    <div class="group" data-spec="qa06_api"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa06_api</span><span class="count">0 pass · 16 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_all_requests_use_https</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -001">QA-06 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Every outbound request on the homepage must use HTTPS — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Every outbound request on the homepage must use HTTPS.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
+    <div class="group" data-spec="qa06_api"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa06_api</span><span class="count">3 pass · 13 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_all_requests_use_https</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -001">QA-06 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Every outbound request on the homepage must use HTTPS — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Every outbound request on the homepage must use HTTPS.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
 E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;
@@ -668,7 +668,7 @@ tests/test_qa_comprehensive.py:2134: in test_qa06_all_requests_use_https
     raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_homepage_returns_2xx</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -002">QA-06 -002</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Homepage initial response must be 2xx — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Homepage initial response must be 2xx.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
+E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_homepage_returns_2xx</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -002">QA-06 -002</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Homepage initial response must be 2xx — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Homepage initial response must be 2xx.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
 E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;
@@ -689,7 +689,7 @@ tests/test_qa_comprehensive.py:2142: in test_qa06_homepage_returns_2xx
     raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_no_5xx_responses_during_load</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -003">QA-06 -003</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">No network response must be 5xx on full homepage load — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">No network response must be 5xx on full homepage load.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
+E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_no_5xx_responses_during_load</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -003">QA-06 -003</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">No network response must be 5xx on full homepage load — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">No network response must be 5xx on full homepage load.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
 E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;
@@ -709,7 +709,7 @@ tests/test_qa_comprehensive.py:2151: in test_qa06_no_5xx_responses_during_load
     raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_content_type_header_present</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -004">QA-06 -004</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Homepage HTML response must include Content-Type header — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Homepage HTML response must include Content-Type header.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
+E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_content_type_header_present</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -004">QA-06 -004</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Homepage HTML response must include Content-Type header — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Homepage HTML response must include Content-Type header.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
 E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;
@@ -730,28 +730,7 @@ tests/test_qa_comprehensive.py:2157: in test_qa06_content_type_header_present
     raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_no_sensitive_headers_exposed</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -005">QA-06 -005</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Response headers must not expose server technology details — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Response headers must not expose server technology details.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;
-
-tests/test_qa_comprehensive.py:2165: in test_qa06_no_sensitive_headers_exposed
-    resp = page.goto(BASE_URL)
-           ^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py:18528: in goto
-    self._sync(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_page.py:564: in goto
-    return await self._main_frame.goto(**locals_to_params(locals()))
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_frame.py:157: in goto
-    await self._channel.send(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:78: in send
-    return await self._connection.wrap_api_call(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:636: in wrap_api_call
-    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_api_calls_on_load_are_reasonable</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -006">QA-06 -006</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Homepage must not make an excessive number of API calls (&gt; 50) on load — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Homepage must not make an excessive number of API calls (&gt; 50) on load.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
+E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_api_calls_on_load_are_reasonable</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -005">QA-06 -005</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Homepage must not make an excessive number of API calls (&gt; 50) on load — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Homepage must not make an excessive number of API calls (&gt; 50) on load.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
 E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;
@@ -771,68 +750,19 @@ tests/test_qa_comprehensive.py:2181: in test_qa06_api_calls_on_load_are_reasonab
     raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_find_tutors_api_returns_data</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -007">QA-06 -007</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Find-tutors page must issue at least one API/data fetch request — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Find-tutors page must issue at least one API/data fetch request.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en/find-tutors&quot;, waiting until &quot;load&quot;
+E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_no_auth_tokens_in_url_params</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -006">QA-06 -006</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Auth tokens must never appear in URL query parameters — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Auth tokens must never appear in URL query parameters.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Auth token in URL query param: 'https://eauthenticate.saudibusiness.gov.sa/EAuthSealApi/seal?token=R1JVYkIyaTdBa2VnWXM4L1M3YnRkQT09&amp;'</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">E     
+E     'token=' is contained here:
+E       https://eauthenticate.saudibusiness.gov.sa/eauthsealapi/seal?token=r1jvykiyatdba2vnwxm4l1m3ynrkqt09&amp;lang=en&amp;pos=top
+E     ?                                                              ++++++
 
-tests/test_qa_comprehensive.py:2192: in test_qa06_find_tutors_api_returns_data
-    page.goto(FIND_TUTORS_URL)
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py:18528: in goto
-    self._sync(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_page.py:564: in goto
-    return await self._main_frame.goto(**locals_to_params(locals()))
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_frame.py:157: in goto
-    await self._channel.send(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:78: in send
-    return await self._connection.wrap_api_call(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:636: in wrap_api_call
-    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en/find-tutors&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_no_auth_tokens_in_url_params</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -008">QA-06 -008</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Auth tokens must never appear in URL query parameters — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Auth tokens must never appear in URL query parameters.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;
-
-tests/test_qa_comprehensive.py:2203: in test_qa06_no_auth_tokens_in_url_params
-    page.goto(BASE_URL)
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py:18528: in goto
-    self._sync(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_page.py:564: in goto
-    return await self._main_frame.goto(**locals_to_params(locals()))
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_frame.py:157: in goto
-    await self._channel.send(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:78: in send
-    return await self._connection.wrap_api_call(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:636: in wrap_api_call
-    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p3"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_csp_header_present_or_meta</div></div><span class="tag p3">P3</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -009">QA-06 -009</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P3</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Content-Security-Policy should be set (header or meta tag) — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Content-Security-Policy should be set (header or meta tag).</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;
-
-tests/test_qa_comprehensive.py:2213: in test_qa06_csp_header_present_or_meta
-    resp = page.goto(BASE_URL)
-           ^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py:18528: in goto
-    self._sync(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_page.py:564: in goto
-    return await self._main_frame.goto(**locals_to_params(locals()))
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_frame.py:157: in goto
-    await self._channel.send(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:78: in send
-    return await self._connection.wrap_api_call(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:636: in wrap_api_call
-    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_find_tutors_no_cors_error</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -010">QA-06 -010</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Find-tutors page must not log CORS errors in the console — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Find-tutors page must not log CORS errors in the console.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
+tests/test_qa_comprehensive.py:2208: in test_qa06_no_auth_tokens_in_url_params
+    assert s not in url.lower(), (
+E   AssertionError: Auth token in URL query param: 'https://eauthenticate.saudibusiness.gov.sa/EAuthSealApi/seal?token=R1JVYkIyaTdBa2VnWXM4L1M3YnRkQT09&amp;'
+E   assert 'token=' not in 'https://eau...g=en&amp;pos=top'
+E     
+E     'token=' is contained here:
+E       https://eauthenticate.saudibusiness.gov.sa/eauthsealapi/seal?token=r1jvykiyatdba2vnwxm4l1m3ynrkqt09&amp;lang=en&amp;pos=top
+E     ?                                                              ++++++</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_find_tutors_no_cors_error</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -007">QA-06 -007</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Find-tutors page must not log CORS errors in the console — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Find-tutors page must not log CORS errors in the console.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">The test could not load the page within 15000ms — the server is too slow or unreachable.</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
 E     - navigating to &quot;https://dev.mehadedu.com/en/find-tutors&quot;, waiting until &quot;load&quot;
@@ -852,7 +782,7 @@ tests/test_qa_comprehensive.py:2226: in test_qa06_find_tutors_no_cors_error
     raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en/find-tutors&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_json_responses_are_well_formed</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -011">QA-06 -011</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Every application/json response on homepage load must parse and
+E     - navigating to &quot;https://dev.mehadedu.com/en/find-tutors&quot;, waiting until &quot;load&quot;</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_json_responses_are_well_formed</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -008">QA-06 -008</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Every application/json response on homepage load must parse and
 be a dict or list (not a stray string or null). Catches malformed
 JSON, accidental HTML error pages served with json content-type,
 and truncated responses — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Every application/json response on homepage load must parse and</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">ModuleNotFoundError: No module named 'jsonschema'</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:2241: in test_qa06_json_responses_are_well_formed
@@ -861,7 +791,7 @@ E   ModuleNotFoundError: No module named 'jsonschema'
 
 tests/test_qa_comprehensive.py:2241: in test_qa06_json_responses_are_well_formed
     from jsonschema import validate, ValidationError
-E   ModuleNotFoundError: No module named 'jsonschema'</div></div></div></div><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_api_rejects_invalid_student_otp_without_token</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -012">QA-06 -012</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Real auth API must reject bad OTP and must not return any access token — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Real auth API must reject bad OTP and must not return any access token.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    return self.do_open(http.client.HTTPSConnection, req,
+E   ModuleNotFoundError: No module named 'jsonschema'</div></div></div></div><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_api_rejects_invalid_student_otp_without_token</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -009">QA-06 -009</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Real auth API must reject bad OTP and must not return any access token — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Real auth API must reject bad OTP and must not return any access token.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    return self.do_open(http.client.HTTPSConnection, req,
 /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py:1360: in do_open
     raise URLError(err)
 E   urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;
@@ -895,7 +825,7 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
     with urllib.request.urlopen(req, timeout=25) as res:
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py:215: in urlopen
-    return ope</div></div></div></div><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_api_student_auth_response_has_no_secret_fields</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -013">QA-06 -013</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Real student auth response must contain token/user but never password/OTP fields — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Real student auth response must contain token/user but never password/OTP fields.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    return self.do_open(http.client.HTTPSConnection, req,
+    return ope</div></div></div></div><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_api_student_auth_response_has_no_secret_fields</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -010">QA-06 -010</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Real student auth response must contain token/user but never password/OTP fields — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Real student auth response must contain token/user but never password/OTP fields.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    return self.do_open(http.client.HTTPSConnection, req,
 /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py:1360: in do_open
     raise URLError(err)
 E   urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;
@@ -929,7 +859,7 @@ tests/test_qa_comprehensive.py:2289: in test_qa06_api_student_auth_response_has_
 tests/test_qa_comprehensive.py:126: in _qa_api_auth
     _qa_api_request(&quot;POST&quot;, f&quot;/auth/login/{role}&quot;, {&quot;phoneNumber&quot;: api_phone})
 tests/test_qa_comprehensive.py:112: in _qa_api_request
-    with urllib.request.ur</div></div></div></div><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_api_protected_tutor_calendar_requires_auth</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -014">QA-06 -014</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Tutor calendar API must reject unauthenticated direct access — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Tutor calendar API must reject unauthenticated direct access.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    return self.do_open(http.client.HTTPSConnection, req,
+    with urllib.request.ur</div></div></div></div><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_api_protected_tutor_calendar_requires_auth</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -011">QA-06 -011</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Tutor calendar API must reject unauthenticated direct access — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Tutor calendar API must reject unauthenticated direct access.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    return self.do_open(http.client.HTTPSConnection, req,
 /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py:1360: in do_open
     raise URLError(err)
 E   urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;
@@ -964,7 +894,7 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py:215: in urlopen
     return opener.open(url, data, timeout)
-           ^^</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_api_can_generate_real_tutor_slot_and_calendar_contract</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -015">QA-06 -015</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Real tutor API must create/find an availability slot with stable calendar fields — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Real tutor API must create/find an availability slot with stable calendar fields.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    return self.do_open(http.client.HTTPSConnection, req,
+           ^^</div></div></div></div><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_api_can_generate_real_tutor_slot_and_calendar_contract</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -012">QA-06 -012</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Real tutor API must create/find an availability slot with stable calendar fields — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Real tutor API must create/find an availability slot with stable calendar fields.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    return self.do_open(http.client.HTTPSConnection, req,
 /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py:1360: in do_open
     raise URLError(err)
 E   urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;
@@ -998,7 +928,7 @@ tests/test_qa_comprehensive.py:2309: in test_qa06_api_can_generate_real_tutor_sl
 tests/test_qa_comprehensive.py:126: in _qa_api_auth
     _qa_api_request(&quot;POST&quot;, f&quot;/auth/login/{role}&quot;, {&quot;phoneNumber&quot;: api_phone})
 tests/test_qa_comprehensive.py:112: in _qa_api_request
-    with urllib.requ</div></div></div></div><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_api_booking_checkout_rejects_invalid_payload</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-05 12:46:05</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -016">QA-06 -016</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Booking checkout API must validate required IDs and never create booking for bad payload — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Booking checkout API must validate required IDs and never create booking for bad payload.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    return self.do_open(http.client.HTTPSConnection, req,
+    with urllib.requ</div></div></div></div><div class="test" data-outcome="fail" data-pri="p1"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa06_api_booking_checkout_rejects_invalid_payload</div></div><span class="tag p1">P1</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-06 -013">QA-06 -013</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P1</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Booking checkout API must validate required IDs and never create booking for bad payload — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Booking checkout API must validate required IDs and never create booking for bad payload.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">    return self.do_open(http.client.HTTPSConnection, req,
 /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py:1360: in do_open
     raise URLError(err)
 E   urllib.error.URLError: &lt;urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for 'api-tamkeen.prowhats.com'. (_ssl.c:1011)&gt;
@@ -1032,27 +962,17 @@ tests/test_qa_comprehensive.py:2320: in test_qa06_api_booking_checkout_rejects_i
 tests/test_qa_comprehensive.py:126: in _qa_api_auth
     _qa_api_request(&quot;POST&quot;, f&quot;/auth/login/{role}&quot;, {&quot;phoneNumber&quot;: api_phone})
 tests/test_qa_comprehensive.py:112: in _qa_api_request
-    with urllib.reques</div></div></div></div></div></div>
+    with urllib.reques</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_no_sensitive_headers_exposed</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_no_sensitive_headers_exposed</dd><dt>What it checks</dt><dd>Response headers must not expose server technology details.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>9.75s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_find_tutors_api_returns_data</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_find_tutors_api_returns_data</dd><dt>What it checks</dt><dd>Find-tutors page must issue at least one API/data fetch request.</dd><dt>Duration</dt><dd>14.63s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa06_csp_header_present_or_meta</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa06_csp_header_present_or_meta</dd><dt>What it checks</dt><dd>Content-Security-Policy should be set (header or meta tag).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>14.34s</dd></dl></div></div></div></div>
   </div>
 </section>
 
 <!-- ── Bug tickets ── -->
-<section class="card" id="bugs"><div class="card-head"><h4>Bug Tickets</h4><span style="font-size:12px;color:var(--ink-3)">16 total</span></div><div class="card-body" style="padding:0">
+<section class="card" id="bugs"><div class="card-head"><h4>Bug Tickets</h4><span style="font-size:12px;color:var(--ink-3)">13 total</span></div><div class="card-body" style="padding:0">
 <section class="card">
-  <div class="card-head"><h4>Root-Cause Summary</h4><span style="font-size:12px;color:var(--ink-3)">3 clusters</span></div>
+  <div class="card-head"><h4>Root-Cause Summary</h4><span style="font-size:12px;color:var(--ink-3)">4 clusters</span></div>
   <div class="card-body">
-    <div class="cluster-headline">16 bug ticket(s) → <strong>3 unique root cause(s)</strong></div>
+    <div class="cluster-headline">13 bug ticket(s) → <strong>4 unique root cause(s)</strong></div>
     <div class="cluster-list">
-<div class="cluster-row">
-  <div class="cluster-meta">
-    <span class="badge HIGH">HIGH</span>
-    <span class="badge P1">P1</span>
-    <span class="cluster-count">10x affected</span>
-    <span class="recurrence-badge">30x consecutive</span>
-  </div>
-  <div class="cluster-title">Uncategorized failure</div>
-  <div class="cluster-tickets"><a href="#QA-06 -001" class="cluster-bug-link">QA-06 -001</a> <a href="#QA-06 -002" class="cluster-bug-link">QA-06 -002</a> <a href="#QA-06 -003" class="cluster-bug-link">QA-06 -003</a> <a href="#QA-06 -004" class="cluster-bug-link">QA-06 -004</a> <a href="#QA-06 -005" class="cluster-bug-link">QA-06 -005</a> <a href="#QA-06 -006" class="cluster-bug-link">QA-06 -006</a> <a href="#QA-06 -007" class="cluster-bug-link">QA-06 -007</a> <a href="#QA-06 -008" class="cluster-bug-link">QA-06 -008</a> <a href="#QA-06 -009" class="cluster-bug-link">QA-06 -009</a> <a href="#QA-06 -010" class="cluster-bug-link">QA-06 -010</a></div>
-</div>
 <div class="cluster-row">
   <div class="cluster-meta">
     <span class="badge HIGH">HIGH</span>
@@ -1061,7 +981,27 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
     
   </div>
   <div class="cluster-title">Uncategorized failure</div>
-  <div class="cluster-tickets"><a href="#QA-06 -012" class="cluster-bug-link">QA-06 -012</a> <a href="#QA-06 -013" class="cluster-bug-link">QA-06 -013</a> <a href="#QA-06 -014" class="cluster-bug-link">QA-06 -014</a> <a href="#QA-06 -015" class="cluster-bug-link">QA-06 -015</a> <a href="#QA-06 -016" class="cluster-bug-link">QA-06 -016</a></div>
+  <div class="cluster-tickets"><a href="#QA-06 -009" class="cluster-bug-link">QA-06 -009</a> <a href="#QA-06 -010" class="cluster-bug-link">QA-06 -010</a> <a href="#QA-06 -011" class="cluster-bug-link">QA-06 -011</a> <a href="#QA-06 -012" class="cluster-bug-link">QA-06 -012</a> <a href="#QA-06 -013" class="cluster-bug-link">QA-06 -013</a></div>
+</div>
+<div class="cluster-row">
+  <div class="cluster-meta">
+    <span class="badge HIGH">HIGH</span>
+    <span class="badge P1">P1</span>
+    <span class="cluster-count">1x affected</span>
+    
+  </div>
+  <div class="cluster-title">Uncategorized failure</div>
+  <div class="cluster-tickets"><a href="#QA-06 -006" class="cluster-bug-link">QA-06 -006</a></div>
+</div>
+<div class="cluster-row">
+  <div class="cluster-meta">
+    <span class="badge MEDIUM">MEDIUM</span>
+    <span class="badge P2">P2</span>
+    <span class="cluster-count">6x affected</span>
+    <span class="recurrence-badge">30x consecutive</span>
+  </div>
+  <div class="cluster-title">Uncategorized failure</div>
+  <div class="cluster-tickets"><a href="#QA-06 -001" class="cluster-bug-link">QA-06 -001</a> <a href="#QA-06 -002" class="cluster-bug-link">QA-06 -002</a> <a href="#QA-06 -003" class="cluster-bug-link">QA-06 -003</a> <a href="#QA-06 -004" class="cluster-bug-link">QA-06 -004</a> <a href="#QA-06 -005" class="cluster-bug-link">QA-06 -005</a> <a href="#QA-06 -007" class="cluster-bug-link">QA-06 -007</a></div>
 </div>
 <div class="cluster-row">
   <div class="cluster-meta">
@@ -1071,7 +1011,7 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
     <span class="recurrence-badge">30x consecutive</span>
   </div>
   <div class="cluster-title">Uncategorized failure</div>
-  <div class="cluster-tickets"><a href="#QA-06 -011" class="cluster-bug-link">QA-06 -011</a></div>
+  <div class="cluster-tickets"><a href="#QA-06 -008" class="cluster-bug-link">QA-06 -008</a></div>
 </div></div>
     <div class="cluster-help">
       Bugs sharing a root cause are grouped here. Click any ticket ID to jump to its full bug card.
@@ -1091,7 +1031,7 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_all_requests_use_https</code></span>
-        <span>2026-11-05 12:46:05</span>
+        <span>2026-11-06 12:26:30</span>
         <span>15.00s</span>
         
         
@@ -1183,7 +1123,7 @@ E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &qu
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_homepage_returns_2xx</code></span>
-        <span>2026-11-05 12:46:05</span>
+        <span>2026-11-06 12:26:30</span>
         <span>15.00s</span>
         
         
@@ -1276,7 +1216,7 @@ E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &qu
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_no_5xx_responses_during_load</code></span>
-        <span>2026-11-05 12:46:05</span>
+        <span>2026-11-06 12:26:30</span>
         <span>15.00s</span>
         
         
@@ -1368,7 +1308,7 @@ E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &qu
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_content_type_header_present</code></span>
-        <span>2026-11-05 12:46:05</span>
+        <span>2026-11-06 12:26:30</span>
         <span>15.00s</span>
         
         
@@ -1457,104 +1397,11 @@ E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &qu
         <span class="badge P2">P2</span>
         
       </div>
-      <div class="bug-title">Failed: Test qa06 no sensitive headers exposed</div>
-      <div class="bug-meta">
-        <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
-        <span><code>test_qa06_no_sensitive_headers_exposed</code></span>
-        <span>2026-11-05 12:46:05</span>
-        <span>15.01s</span>
-        
-        
-      </div>
-    </div>
-  </div>
-  <div class="bug-body">
-    
-    
-<div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">What this test was checking</div>
-  <div>Response headers must not expose server technology details — verified against https://dev.mehadedu.com/en.</div>
-</div>
-    
-<div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">Test data used</div>
-  <div style="font-family:var(--mono);color:var(--accent);font-size:12px">BASE_URL</div>
-</div>
-    
-<div style="margin-bottom:16px">
-  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
-              color:var(--ink-3);margin-bottom:8px">Steps to Reproduce</div>
-  <ol class="steps"><li>Open a browser and go to https://dev.mehadedu.com/en</li><li>Observe the result: it does NOT match what the test expected (see Actual Behavior)</li></ol>
-</div>
-    
-<div class="two-col">
-  <div class="info-block expected">
-    <div class="ib-label">What should happen</div>
-    <div>Response headers must not expose server technology details.</div>
-  </div>
-  <div class="info-block actual">
-    <div class="ib-label">What actually happened</div>
-    <div>The test could not load the page within 15000ms — the server is too slow or unreachable.</div>
-  </div>
-</div>
-    
-<div class="shot-wrap">
-  <div class="shot-label">Proof of Concept — Screenshot</div>
-  <div class="no-shot">No screenshot captured (test may have failed before page loaded)</div>
-</div>
-    
-    
-<button class="err-toggle" onclick="toggleErr('err-5')">
-  <span>▶ Show error details</span>
-  <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
-</button>
-<div class="err-body" id="err-5">
-  <pre style="margin-top:8px"><strong style="color:var(--bad)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</strong>
-
-tests/test_qa_comprehensive.py:2165: in test_qa06_no_sensitive_headers_exposed
-    resp = page.goto(BASE_URL)
-           ^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py:18528: in goto
-    self._sync(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_page.py:564: in goto
-    return await self._main_frame.goto(**locals_to_params(locals()))
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_frame.py:157: in goto
-    await self._channel.send(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:78: in send
-    return await self._connection.wrap_api_call(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:636: in wrap_api_call
-    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</pre>
-</div>
-    
-    <div style="margin-top:16px"></div>
-    <div class="env-strip">
-      <span><b>Browser:</b> Chromium</span>
-      <span><b>Viewport:</b> 1280x720</span>
-      <span><b>Env:</b> Staging</span>
-    </div>
-  </div>
-</div>
-<div class="bug-card" id="QA-06 -006" data-priority="P2">
-  <div class="bug-card-hdr">
-    <div>
-      <div class="left">
-        <span class="bug-id">QA-06 -006</span>
-        <span class="badge MEDIUM">MEDIUM</span>
-        <span class="badge P2">P2</span>
-        
-      </div>
       <div class="bug-title">Failed: Test qa06 api calls on load are reasonable</div>
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_api_calls_on_load_are_reasonable</code></span>
-        <span>2026-11-05 12:46:05</span>
+        <span>2026-11-06 12:26:30</span>
         <span>15.00s</span>
         
         
@@ -1597,11 +1444,11 @@ E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &qu
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-6')">
+<button class="err-toggle" onclick="toggleErr('err-5')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-6">
+<div class="err-body" id="err-5">
   <pre style="margin-top:8px"><strong style="color:var(--bad)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
@@ -1633,99 +1480,11 @@ E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &qu
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-06 -007" data-priority="P2">
+<div class="bug-card" id="QA-06 -006" data-priority="P1">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-06 -007</span>
-        <span class="badge MEDIUM">MEDIUM</span>
-        <span class="badge P2">P2</span>
-        
-      </div>
-      <div class="bug-title">Failed: Test qa06 find tutors api returns data</div>
-      <div class="bug-meta">
-        <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
-        <span><code>test_qa06_find_tutors_api_returns_data</code></span>
-        <span>2026-11-05 12:46:05</span>
-        <span>15.00s</span>
-        
-        
-      </div>
-    </div>
-  </div>
-  <div class="bug-body">
-    
-    
-<div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">What this test was checking</div>
-  <div>Find-tutors page must issue at least one API/data fetch request — verified against https://dev.mehadedu.com/en.</div>
-</div>
-    
-    
-<div style="margin-bottom:16px">
-  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
-              color:var(--ink-3);margin-bottom:8px">Steps to Reproduce</div>
-  <ol class="steps"><li>Open a browser and go to https://dev.mehadedu.com/en</li><li>Observe the result: it does NOT match what the test expected (see Actual Behavior)</li></ol>
-</div>
-    
-<div class="two-col">
-  <div class="info-block expected">
-    <div class="ib-label">What should happen</div>
-    <div>Find-tutors page must issue at least one API/data fetch request.</div>
-  </div>
-  <div class="info-block actual">
-    <div class="ib-label">What actually happened</div>
-    <div>The test could not load the page within 15000ms — the server is too slow or unreachable.</div>
-  </div>
-</div>
-    
-<div class="shot-wrap">
-  <div class="shot-label">Proof of Concept — Screenshot</div>
-  <div class="no-shot">No screenshot captured (test may have failed before page loaded)</div>
-</div>
-    
-    
-<button class="err-toggle" onclick="toggleErr('err-7')">
-  <span>▶ Show error details</span>
-  <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
-</button>
-<div class="err-body" id="err-7">
-  <pre style="margin-top:8px"><strong style="color:var(--bad)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en/find-tutors&quot;, waiting until &quot;load&quot;</strong>
-
-tests/test_qa_comprehensive.py:2192: in test_qa06_find_tutors_api_returns_data
-    page.goto(FIND_TUTORS_URL)
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py:18528: in goto
-    self._sync(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_page.py:564: in goto
-    return await self._main_frame.goto(**locals_to_params(locals()))
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_frame.py:157: in goto
-    await self._channel.send(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:78: in send
-    return await self._connection.wrap_api_call(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:636: in wrap_api_call
-    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en/find-tutors&quot;, waiting until &quot;load&quot;</pre>
-</div>
-    
-    <div style="margin-top:16px"></div>
-    <div class="env-strip">
-      <span><b>Browser:</b> Chromium</span>
-      <span><b>Viewport:</b> 1280x720</span>
-      <span><b>Env:</b> Staging</span>
-    </div>
-  </div>
-</div>
-<div class="bug-card" id="QA-06 -008" data-priority="P1">
-  <div class="bug-card-hdr">
-    <div>
-      <div class="left">
-        <span class="bug-id">QA-06 -008</span>
+        <span class="bug-id">QA-06 -006</span>
         <span class="badge HIGH">HIGH</span>
         <span class="badge P1">P1</span>
         
@@ -1734,8 +1493,8 @@ E     - navigating to &quot;https://dev.mehadedu.com/en/find-tutors&quot;, waiti
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_no_auth_tokens_in_url_params</code></span>
-        <span>2026-11-05 12:46:05</span>
-        <span>15.00s</span>
+        <span>2026-11-06 12:26:30</span>
+        <span>13.76s</span>
         
         
       </div>
@@ -1767,7 +1526,7 @@ E     - navigating to &quot;https://dev.mehadedu.com/en/find-tutors&quot;, waiti
   </div>
   <div class="info-block actual">
     <div class="ib-label">What actually happened</div>
-    <div>The test could not load the page within 15000ms — the server is too slow or unreachable.</div>
+    <div>Auth token in URL query param: 'https://eauthenticate.saudibusiness.gov.sa/EAuthSealApi/seal?token=R1JVYkIyaTdBa2VnWXM4L1M3YnRkQT09&amp;'</div>
   </div>
 </div>
     
@@ -1777,32 +1536,24 @@ E     - navigating to &quot;https://dev.mehadedu.com/en/find-tutors&quot;, waiti
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-8')">
+<button class="err-toggle" onclick="toggleErr('err-6')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-8">
-  <pre style="margin-top:8px"><strong style="color:var(--bad)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</strong>
+<div class="err-body" id="err-6">
+  <pre style="margin-top:8px"><strong style="color:var(--bad)">E     
+E     'token=' is contained here:
+E       https://eauthenticate.saudibusiness.gov.sa/eauthsealapi/seal?token=r1jvykiyatdba2vnwxm4l1m3ynrkqt09&amp;lang=en&amp;pos=top
+E     ?                                                              ++++++</strong>
 
-tests/test_qa_comprehensive.py:2203: in test_qa06_no_auth_tokens_in_url_params
-    page.goto(BASE_URL)
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py:18528: in goto
-    self._sync(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_page.py:564: in goto
-    return await self._main_frame.goto(**locals_to_params(locals()))
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_frame.py:157: in goto
-    await self._channel.send(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:78: in send
-    return await self._connection.wrap_api_call(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:636: in wrap_api_call
-    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</pre>
+tests/test_qa_comprehensive.py:2208: in test_qa06_no_auth_tokens_in_url_params
+    assert s not in url.lower(), (
+E   AssertionError: Auth token in URL query param: 'https://eauthenticate.saudibusiness.gov.sa/EAuthSealApi/seal?token=R1JVYkIyaTdBa2VnWXM4L1M3YnRkQT09&amp;'
+E   assert 'token=' not in 'https://eau...g=en&amp;pos=top'
+E     
+E     'token=' is contained here:
+E       https://eauthenticate.saudibusiness.gov.sa/eauthsealapi/seal?token=r1jvykiyatdba2vnwxm4l1m3ynrkqt09&amp;lang=en&amp;pos=top
+E     ?                                                              ++++++</pre>
 </div>
     
     <div style="margin-top:16px"></div>
@@ -1813,104 +1564,11 @@ E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &qu
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-06 -009" data-priority="P3">
+<div class="bug-card" id="QA-06 -007" data-priority="P2">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-06 -009</span>
-        <span class="badge LOW">LOW</span>
-        <span class="badge P3">P3</span>
-        
-      </div>
-      <div class="bug-title">Failed: Test qa06 csp header present or meta</div>
-      <div class="bug-meta">
-        <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
-        <span><code>test_qa06_csp_header_present_or_meta</code></span>
-        <span>2026-11-05 12:46:05</span>
-        <span>15.01s</span>
-        
-        
-      </div>
-    </div>
-  </div>
-  <div class="bug-body">
-    
-    
-<div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">What this test was checking</div>
-  <div>Content-Security-Policy should be set (header or meta tag) — verified against https://dev.mehadedu.com/en.</div>
-</div>
-    
-<div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">Test data used</div>
-  <div style="font-family:var(--mono);color:var(--accent);font-size:12px">BASE_URL</div>
-</div>
-    
-<div style="margin-bottom:16px">
-  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
-              color:var(--ink-3);margin-bottom:8px">Steps to Reproduce</div>
-  <ol class="steps"><li>Open a browser and go to https://dev.mehadedu.com/en</li><li>Observe the result: it does NOT match what the test expected (see Actual Behavior)</li></ol>
-</div>
-    
-<div class="two-col">
-  <div class="info-block expected">
-    <div class="ib-label">What should happen</div>
-    <div>Content-Security-Policy should be set (header or meta tag).</div>
-  </div>
-  <div class="info-block actual">
-    <div class="ib-label">What actually happened</div>
-    <div>The test could not load the page within 15000ms — the server is too slow or unreachable.</div>
-  </div>
-</div>
-    
-<div class="shot-wrap">
-  <div class="shot-label">Proof of Concept — Screenshot</div>
-  <div class="no-shot">No screenshot captured (test may have failed before page loaded)</div>
-</div>
-    
-    
-<button class="err-toggle" onclick="toggleErr('err-9')">
-  <span>▶ Show error details</span>
-  <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
-</button>
-<div class="err-body" id="err-9">
-  <pre style="margin-top:8px"><strong style="color:var(--bad)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</strong>
-
-tests/test_qa_comprehensive.py:2213: in test_qa06_csp_header_present_or_meta
-    resp = page.goto(BASE_URL)
-           ^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/sync_api/_generated.py:18528: in goto
-    self._sync(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_page.py:564: in goto
-    return await self._main_frame.goto(**locals_to_params(locals()))
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_frame.py:157: in goto
-    await self._channel.send(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:78: in send
-    return await self._connection.wrap_api_call(
-/opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/site-packages/playwright/_impl/_connection.py:636: in wrap_api_call
-    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
-E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
-E   Call log:
-E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &quot;load&quot;</pre>
-</div>
-    
-    <div style="margin-top:16px"></div>
-    <div class="env-strip">
-      <span><b>Browser:</b> Chromium</span>
-      <span><b>Viewport:</b> 1280x720</span>
-      <span><b>Env:</b> Staging</span>
-    </div>
-  </div>
-</div>
-<div class="bug-card" id="QA-06 -010" data-priority="P2">
-  <div class="bug-card-hdr">
-    <div>
-      <div class="left">
-        <span class="bug-id">QA-06 -010</span>
+        <span class="bug-id">QA-06 -007</span>
         <span class="badge MEDIUM">MEDIUM</span>
         <span class="badge P2">P2</span>
         
@@ -1919,7 +1577,7 @@ E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &qu
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_find_tutors_no_cors_error</code></span>
-        <span>2026-11-05 12:46:05</span>
+        <span>2026-11-06 12:26:30</span>
         <span>15.00s</span>
         
         
@@ -1958,11 +1616,11 @@ E     - navigating to &quot;https://dev.mehadedu.com/en&quot;, waiting until &qu
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-10')">
+<button class="err-toggle" onclick="toggleErr('err-7')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-10">
+<div class="err-body" id="err-7">
   <pre style="margin-top:8px"><strong style="color:var(--bad)">    raise rewrite_error(error, f&quot;{parsed_st['apiName']}: {error}&quot;) from None
 E   playwright._impl._errors.TimeoutError: Page.goto: Timeout 15000ms exceeded.
 E   Call log:
@@ -1994,11 +1652,11 @@ E     - navigating to &quot;https://dev.mehadedu.com/en/find-tutors&quot;, waiti
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-06 -011" data-priority="P2">
+<div class="bug-card" id="QA-06 -008" data-priority="P2">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-06 -011</span>
+        <span class="bug-id">QA-06 -008</span>
         <span class="badge MEDIUM">MEDIUM</span>
         <span class="badge P2">P2</span>
         
@@ -2007,7 +1665,7 @@ E     - navigating to &quot;https://dev.mehadedu.com/en/find-tutors&quot;, waiti
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_json_responses_are_well_formed</code></span>
-        <span>2026-11-05 12:46:05</span>
+        <span>2026-11-06 12:26:30</span>
         <span>0.00s</span>
         
         
@@ -2053,11 +1711,11 @@ and truncated responses — verified against https://dev.mehadedu.com/en.</div>
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-11')">
+<button class="err-toggle" onclick="toggleErr('err-8')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-11">
+<div class="err-body" id="err-8">
   <pre style="margin-top:8px"><strong style="color:var(--bad)">tests/test_qa_comprehensive.py:2241: in test_qa06_json_responses_are_well_formed
     from jsonschema import validate, ValidationError
 E   ModuleNotFoundError: No module named 'jsonschema'</strong>
@@ -2075,11 +1733,11 @@ E   ModuleNotFoundError: No module named 'jsonschema'</pre>
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-06 -012" data-priority="P1">
+<div class="bug-card" id="QA-06 -009" data-priority="P1">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-06 -012</span>
+        <span class="bug-id">QA-06 -009</span>
         <span class="badge HIGH">HIGH</span>
         <span class="badge P1">P1</span>
         
@@ -2088,8 +1746,8 @@ E   ModuleNotFoundError: No module named 'jsonschema'</pre>
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_api_rejects_invalid_student_otp_without_token</code></span>
-        <span>2026-11-05 12:46:05</span>
-        <span>0.52s</span>
+        <span>2026-11-06 12:26:30</span>
+        <span>0.51s</span>
         
         
       </div>
@@ -2127,11 +1785,11 @@ E   ModuleNotFoundError: No module named 'jsonschema'</pre>
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-12')">
+<button class="err-toggle" onclick="toggleErr('err-9')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-12">
+<div class="err-body" id="err-9">
   <pre style="margin-top:8px"><strong style="color:var(--bad)">    return self.do_open(http.client.HTTPSConnection, req,
 /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py:1360: in do_open
     raise URLError(err)
@@ -2177,11 +1835,11 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-06 -013" data-priority="P1">
+<div class="bug-card" id="QA-06 -010" data-priority="P1">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-06 -013</span>
+        <span class="bug-id">QA-06 -010</span>
         <span class="badge HIGH">HIGH</span>
         <span class="badge P1">P1</span>
         
@@ -2190,8 +1848,8 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_api_student_auth_response_has_no_secret_fields</code></span>
-        <span>2026-11-05 12:46:05</span>
-        <span>0.46s</span>
+        <span>2026-11-06 12:26:30</span>
+        <span>0.49s</span>
         
         
       </div>
@@ -2229,11 +1887,11 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-13')">
+<button class="err-toggle" onclick="toggleErr('err-10')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-13">
+<div class="err-body" id="err-10">
   <pre style="margin-top:8px"><strong style="color:var(--bad)">    return self.do_open(http.client.HTTPSConnection, req,
 /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py:1360: in do_open
     raise URLError(err)
@@ -2279,11 +1937,11 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-06 -014" data-priority="P1">
+<div class="bug-card" id="QA-06 -011" data-priority="P1">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-06 -014</span>
+        <span class="bug-id">QA-06 -011</span>
         <span class="badge HIGH">HIGH</span>
         <span class="badge P1">P1</span>
         
@@ -2292,8 +1950,8 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_api_protected_tutor_calendar_requires_auth</code></span>
-        <span>2026-11-05 12:46:05</span>
-        <span>0.52s</span>
+        <span>2026-11-06 12:26:30</span>
+        <span>0.51s</span>
         
         
       </div>
@@ -2331,11 +1989,11 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-14')">
+<button class="err-toggle" onclick="toggleErr('err-11')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-14">
+<div class="err-body" id="err-11">
   <pre style="margin-top:8px"><strong style="color:var(--bad)">    return self.do_open(http.client.HTTPSConnection, req,
 /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py:1360: in do_open
     raise URLError(err)
@@ -2382,11 +2040,11 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-06 -015" data-priority="P2">
+<div class="bug-card" id="QA-06 -012" data-priority="P2">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-06 -015</span>
+        <span class="bug-id">QA-06 -012</span>
         <span class="badge MEDIUM">MEDIUM</span>
         <span class="badge P2">P2</span>
         
@@ -2395,8 +2053,8 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_api_can_generate_real_tutor_slot_and_calendar_contract</code></span>
-        <span>2026-11-05 12:46:05</span>
-        <span>0.50s</span>
+        <span>2026-11-06 12:26:30</span>
+        <span>0.48s</span>
         
         
       </div>
@@ -2434,11 +2092,11 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-15')">
+<button class="err-toggle" onclick="toggleErr('err-12')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-15">
+<div class="err-body" id="err-12">
   <pre style="margin-top:8px"><strong style="color:var(--bad)">    return self.do_open(http.client.HTTPSConnection, req,
 /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py:1360: in do_open
     raise URLError(err)
@@ -2484,11 +2142,11 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
     </div>
   </div>
 </div>
-<div class="bug-card" id="QA-06 -016" data-priority="P1">
+<div class="bug-card" id="QA-06 -013" data-priority="P1">
   <div class="bug-card-hdr">
     <div>
       <div class="left">
-        <span class="bug-id">QA-06 -016</span>
+        <span class="bug-id">QA-06 -013</span>
         <span class="badge HIGH">HIGH</span>
         <span class="badge P1">P1</span>
         
@@ -2497,8 +2155,8 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
       <div class="bug-meta">
         <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
         <span><code>test_qa06_api_booking_checkout_rejects_invalid_payload</code></span>
-        <span>2026-11-05 12:46:05</span>
-        <span>0.49s</span>
+        <span>2026-11-06 12:26:30</span>
+        <span>0.50s</span>
         
         
       </div>
@@ -2536,11 +2194,11 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
 </div>
     
     
-<button class="err-toggle" onclick="toggleErr('err-16')">
+<button class="err-toggle" onclick="toggleErr('err-13')">
   <span>▶ Show error details</span>
   <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
 </button>
-<div class="err-body" id="err-16">
+<div class="err-body" id="err-13">
   <pre style="margin-top:8px"><strong style="color:var(--bad)">    return self.do_open(http.client.HTTPSConnection, req,
 /opt/hostedtoolcache/Python/3.12.16/x64/lib/python3.12/urllib/request.py:1360: in do_open
     raise URLError(err)
@@ -2604,10 +2262,10 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
       <svg class="ring" viewBox="0 0 44 44">
         <circle cx="22" cy="22" r="18" fill="none" stroke="var(--bg-3)" stroke-width="5"/>
         <circle cx="22" cy="22" r="18" fill="none" stroke="oklch(0.85 0.18 25)" stroke-width="5"
-          stroke-dasharray="113.1" stroke-dashoffset="113.1"
+          stroke-dasharray="113.1" stroke-dashoffset="91.84"
           stroke-linecap="round" transform="rotate(-90 22 22)"/>
         <text x="22" y="25" text-anchor="middle" font-size="8" font-weight="700"
-          fill="oklch(0.85 0.18 25)" font-family="'JetBrains Mono',monospace">0.0%</text>
+          fill="oklch(0.85 0.18 25)" font-family="'JetBrains Mono',monospace">18.8%</text>
       </svg>
     </div>
     <div class="mini-stats">
@@ -2620,11 +2278,11 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
         <div class="ms-l">P1 bugs</div>
       </div>
       <div class="ms ok">
-        <div class="ms-v">10</div>
+        <div class="ms-v">8</div>
         <div class="ms-l">P2 bugs</div>
       </div>
       <div class="ms">
-        <div class="ms-v">1</div>
+        <div class="ms-v">0</div>
         <div class="ms-l">P3 bugs</div>
       </div>
     </div>
@@ -2633,10 +2291,10 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
   <div class="card" style="margin-bottom:16px">
     <div class="card-head"><h4>Run Info</h4></div>
     <dl class="run-dl">
-      <dt>Run #</dt><dd>261</dd>
-      <dt>Date</dt><dd>2026-11-05 12:46:09</dd>
+      <dt>Run #</dt><dd>262</dd>
+      <dt>Date</dt><dd>2026-11-06 12:26:34</dd>
       <dt>Target URL</dt><dd style="word-break:break-all">https://dev.mehadedu.com/en</dd>
-      <dt>AI Model</dt><dd>qwen2.5-coder:7b</dd>
+      <dt>AI Model</dt><dd>unknown</dd>
       <dt>Browser</dt><dd>Chromium (headless)</dd>
     </dl>
   </div>
@@ -2646,12 +2304,12 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
     <dl class="run-dl">
       <dt>Critical (P0)</dt><dd style="color:var(--bad)">0 · 24h SLA</dd>
       <dt>High (P1)</dt><dd style="color:var(--warn)">5 · 2–3 days</dd>
-      <dt>Medium (P2)</dt><dd style="color:var(--ok)">10 · current sprint</dd>
-      <dt>Low (P3)</dt><dd style="color:var(--accent)">1 · backlog</dd>
+      <dt>Medium (P2)</dt><dd style="color:var(--ok)">8 · current sprint</dd>
+      <dt>Low (P3)</dt><dd style="color:var(--accent)">0 · backlog</dd>
       <dt>Severity: Critical</dt><dd style="color:var(--bad)">0</dd>
       <dt>Severity: High</dt><dd style="color:var(--warn)">5</dd>
-      <dt>Severity: Medium</dt><dd style="color:var(--accent)">10</dd>
-      <dt>Severity: Low</dt><dd style="color:var(--ok)">1</dd>
+      <dt>Severity: Medium</dt><dd style="color:var(--accent)">8</dd>
+      <dt>Severity: Low</dt><dd style="color:var(--ok)">0</dd>
     </dl>
   </div>
 </aside>
@@ -2683,12 +2341,12 @@ tests/test_qa_comprehensive.py:112: in _qa_api_request
     </div>
   </div>
   <div>
-    <div class="col-head">Run #261</div>
+    <div class="col-head">Run #262</div>
     <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
-      2026-11-05 12:46:09<br/>
+      2026-11-06 12:26:34<br/>
       16 tests<br/>
       1 specs<br/>
-      0.0% pass rate
+      18.8% pass rate
     </div>
   </div>
 </footer>
