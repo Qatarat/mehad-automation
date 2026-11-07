@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Mehad QA — Run #262 · 2026-11-06 12:26:34</title>
+<title>Mehad QA — Run #263 · 2026-11-07 11:33:07</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"/>
@@ -538,7 +538,7 @@ ol.steps li{margin-bottom:5px}
   <div class="crumbs">
     <a href="index.html">Mehad QA</a>
     <span class="sep">/</span>
-    <span class="current">Run #262</span>
+    <span class="current">Run #263</span>
   </div>
   <button class="btn primary" onclick="window.print()">Export PDF</button>
 </nav>
@@ -553,38 +553,38 @@ ol.steps li{margin-bottom:5px}
 <!-- ── Run header ── -->
 <section class="commit">
   <div class="badge-row">
-    <span class="pill run">Run #262</span>
+    <span class="pill run">Run #263</span>
     <span class="pill">dev.mehadedu.com/en</span>
-    <span class="pill fail">Needs review</span>
+    <span class="pill ok">Ready for production</span>
   </div>
-  <h1>75.0% — 1 test(s) need attention</h1>
+  <h1>all 4 tests passed</h1>
   <div class="commit-meta">
-    <span><b>Date:</b> 2026-11-06 12:26:34</span>
+    <span><b>Date:</b> 2026-11-07 11:33:07</span>
     <span><b>Model:</b> unknown</span>
     <span><b>Specs:</b> 1</span>
     <span><b>Tests:</b> 4</span>
   </div>
-  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">AI-driven spec validation completed on https://dev.mehadedu.com/en. 0 critical, 0 high, 1 medium, 0 low priority bugs found across 1 spec(s).</p>
-  <span class="stamp ">Review</span>
+  <p style="font-size:13px;color:var(--ink-2);margin-bottom:16px">AI-driven spec validation completed successfully on https://dev.mehadedu.com/en. All 4 tests passed across 1 spec(s).</p>
+  <span class="stamp pass-stamp">Ready</span>
 </section>
 
 <!-- ── Quality overview ── -->
 <section class="card">
   <div class="card-head">
     <h4>Quality Overview</h4>
-    <span style="font-size:12px;color:var(--ink-3)">3/4 passing</span>
+    <span style="font-size:12px;color:var(--ink-3)">4/4 passing</span>
   </div>
   <div class="card-body">
     <div class="diff-rows">
+      <div class="diff-row up">
+        <span class="sym">+</span>
+        <span class="lbl">Pass rate</span>
+        <span class="val">100.0%</span>
+      </div>
       <div class="diff-row neutral">
         <span class="sym">·</span>
-        <span class="lbl">Pass rate</span>
-        <span class="val">75.0%</span>
-      </div>
-      <div class="diff-row add">
-        <span class="sym">+</span>
         <span class="lbl">Failing tests</span>
-        <span class="val">1</span>
+        <span class="val">0</span>
       </div>
       <div class="diff-row neutral">
         <span class="sym">·</span>
@@ -614,7 +614,7 @@ ol.steps li{margin-bottom:5px}
   </div>
   <div class="pstrip-item p2">
     <div class="pstrip-label">P2 Medium</div>
-    <div class="pstrip-val">1</div>
+    <div class="pstrip-val">0</div>
     <div class="pstrip-sla">Current sprint</div>
   </div>
   <div class="pstrip-item p3">
@@ -631,9 +631,9 @@ ol.steps li{margin-bottom:5px}
 
 <!-- ── Spec trace waterfall ── -->
 <section class="card">
-  <div class="card-head"><h4>Spec Trace</h4><span style="font-size:12px;color:var(--ink-3)">0/1 specs clean</span></div>
+  <div class="card-head"><h4>Spec Trace</h4><span style="font-size:12px;color:var(--ink-3)">1/1 specs clean</span></div>
   <div class="trace-axis"><span>Spec</span><span>Tests run</span></div>
-  <div class="trace-row"><span class="nm" title="qa18_network">qa18_network</span><div class="lane"><div class="trace-bar fail" style="width:100%">4</div></div></div>
+  <div class="trace-row"><span class="nm" title="qa18_network">qa18_network</span><div class="lane"><div class="trace-bar pass" style="width:100%">4</div></div></div>
 </section>
 
 <!-- ── All tests ── -->
@@ -641,138 +641,23 @@ ol.steps li{margin-bottom:5px}
   <div class="card-head"><h4>All Tests</h4><span style="font-size:12px;color:var(--ink-3)">4 total</span></div>
   <div class="tests-tools">
     <span class="chip active" data-tf="all">All (4)</span>
-    <span class="chip fail" data-tf="failed">Failed (1)</span>
-    <span class="chip pass" data-tf="passed">Passed (3)</span>
+    <span class="chip fail" data-tf="failed">Failed (0)</span>
+    <span class="chip pass" data-tf="passed">Passed (4)</span>
     <span class="chip" data-tf="p0">P0</span>
     <span class="chip" data-tf="p1">P1</span>
     <input id="testSearch" type="text" placeholder="Search tests…"/>
   </div>
   <div id="tests-body">
-    <div class="group" data-spec="qa18_network"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa18_network</span><span class="count">3 pass · 1 fail</span></div><div class="group-body"><div class="test" data-outcome="fail" data-pri="p2"><div class="test-row"><span class="chev">▶</span><div class="statdot fail">✗</div><div class="name-cell"><div class="tname">test_qa18_offline_does_not_crash_page</div></div><span class="tag p2">P2</span></div><div class="test-body"><div class="meta-grid"><div class="meta-cell"><div class="k">URL</div><div class="v" style="word-break:break-all">https://dev.mehadedu.com/en</div></div><div class="meta-cell"><div class="k">Timestamp</div><div class="v">2026-11-06 12:26:30</div></div><div class="meta-cell"><div class="k">Bug ID</div><div class="v"><a href="#QA-18 -001">QA-18 -001</a></div></div><div class="meta-cell"><div class="k">Priority</div><div class="v">P2</div></div></div><p style="font-size:13px;color:var(--ink-1);margin-bottom:12px">Going offline mid-session must not produce uncaught JS errors — verified against https://dev.mehadedu.com/en.</p><div class="er-grid"><div class="er-card ok"><div class="k">Expected</div><div class="v">Going offline mid-session must not produce uncaught JS errors.</div></div><div class="er-card bad"><div class="k">Actual</div><div class="v">Offline mode triggered uncaught JS exception(s): ['Installations: Could not process request. Application offline. (installations/app-offline).']</div></div></div><button class="trace-toggle" onclick="var w=this.nextElementSibling;w.style.display=w.style.display==='block'?'none':'block';this.querySelector('.arr').textContent=w.style.display==='block'?'▼':'▶';"><span>Traceback / Error</span><span class="arr">▶</span></button><div style="display:none"><div class="codebox">tests/test_qa_comprehensive.py:3591: in test_qa18_offline_does_not_crash_page
-    assert not real, (
-E   AssertionError: Offline mode triggered uncaught JS exception(s): ['Installations: Could not process request. Application offline. (installations/app-offline).']
-E   assert not ['Installations: Could not process request. Application offline. (installations/app-offline).']
-
-tests/test_qa_comprehensive.py:3591: in test_qa18_offline_does_not_crash_page
-    assert not real, (
-E   AssertionError: Offline mode triggered uncaught JS exception(s): ['Installations: Could not process request. Application offline. (installations/app-offline).']
-E   assert not ['Installations: Could not process request. Application offline. (installations/app-offline).']</div></div></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_blocked_api_shows_no_white_screen</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_blocked_api_shows_no_white_screen</dd><dt>What it checks</dt><dd>If the main API is unreachable, the page must still render
+    <div class="group" data-spec="qa18_network"><div class="group-head"><span class="chev">▶</span><span class="gtag">qa18_network</span><span class="count">4 pass · 0 fail</span></div><div class="group-body"><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_offline_does_not_crash_page</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_offline_does_not_crash_page</dd><dt>What it checks</dt><dd>Going offline mid-session must not produce uncaught JS errors.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>5.18s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_blocked_api_shows_no_white_screen</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_blocked_api_shows_no_white_screen</dd><dt>What it checks</dt><dd>If the main API is unreachable, the page must still render
 SOMETHING (loader, error message, fallback content) — never a
-completely blank white page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>11.52s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_slow_network_does_not_show_partial_data</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_slow_network_does_not_show_partial_data</dd><dt>What it checks</dt><dd>3G-throttled load must not display half-rendered components
-(e.g., 'undefined' user names from partial data).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>17.40s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_5xx_response_shown_friendly</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_5xx_response_shown_friendly</dd><dt>What it checks</dt><dd>If a backend route returns 500, the user-facing page should
-not display a raw stacktrace or framework debug page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>11.49s</dd></dl></div></div></div></div>
+completely blank white page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>12.72s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_slow_network_does_not_show_partial_data</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_slow_network_does_not_show_partial_data</dd><dt>What it checks</dt><dd>3G-throttled load must not display half-rendered components
+(e.g., 'undefined' user names from partial data).</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>11.86s</dd></dl></div></div><div class="test" data-outcome="pass"><div class="test-row"><span class="chev">▶</span><div class="statdot pass">✓</div><div class="name-cell"><div class="tname">test_qa18_5xx_response_shown_friendly</div></div></div><div class="pass-body"><dl class="pass-fields"><dt>Test function</dt><dd>test_qa18_5xx_response_shown_friendly</dd><dt>What it checks</dt><dd>If a backend route returns 500, the user-facing page should
+not display a raw stacktrace or framework debug page.</dd><dt>Test data</dt><dd>BASE_URL</dd><dt>Duration</dt><dd>14.27s</dd></dl></div></div></div></div>
   </div>
 </section>
 
 <!-- ── Bug tickets ── -->
-<section class="card" id="bugs"><div class="card-head"><h4>Bug Tickets</h4><span style="font-size:12px;color:var(--ink-3)">1 total</span></div><div class="card-body" style="padding:0">
-<section class="card">
-  <div class="card-head"><h4>Root-Cause Summary</h4><span style="font-size:12px;color:var(--ink-3)">1 clusters</span></div>
-  <div class="card-body">
-    <div class="cluster-headline">1 bug ticket(s) → <strong>1 unique root cause(s)</strong></div>
-    <div class="cluster-list">
-<div class="cluster-row">
-  <div class="cluster-meta">
-    <span class="badge MEDIUM">MEDIUM</span>
-    <span class="badge P2">P2</span>
-    <span class="cluster-count">1x affected</span>
-    <span class="recurrence-badge">30x consecutive</span>
-  </div>
-  <div class="cluster-title">Generic assertion failure</div>
-  <div class="cluster-tickets"><a href="#QA-18 -001" class="cluster-bug-link">QA-18 -001</a></div>
-</div></div>
-    <div class="cluster-help">
-      Bugs sharing a root cause are grouped here. Click any ticket ID to jump to its full bug card.
-    </div>
-  </div>
-</section><div id="bug-list" style="padding:20px">
-<div class="bug-card" id="QA-18 -001" data-priority="P2">
-  <div class="bug-card-hdr">
-    <div>
-      <div class="left">
-        <span class="bug-id">QA-18 -001</span>
-        <span class="badge MEDIUM">MEDIUM</span>
-        <span class="badge P2">P2</span>
-        
-      </div>
-      <div class="bug-title">Failed: Test qa18 offline does not crash page</div>
-      <div class="bug-meta">
-        <span><a href="https://dev.mehadedu.com/en" target="_blank">https://dev.mehadedu.com/en</a></span>
-        <span><code>test_qa18_offline_does_not_crash_page</code></span>
-        <span>2026-11-06 12:26:30</span>
-        <span>16.50s</span>
-        
-        
-      </div>
-    </div>
-  </div>
-  <div class="bug-body">
-    
-    
-<div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">What this test was checking</div>
-  <div>Going offline mid-session must not produce uncaught JS errors — verified against https://dev.mehadedu.com/en.</div>
-</div>
-    
-<div class="info-block analysis" style="margin-bottom:16px">
-  <div class="ib-label">Test data used</div>
-  <div style="font-family:var(--mono);color:var(--accent);font-size:12px">BASE_URL</div>
-</div>
-    
-<div style="margin-bottom:16px">
-  <div style="font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;
-              color:var(--ink-3);margin-bottom:8px">Steps to Reproduce</div>
-  <ol class="steps"><li>Open a browser and go to https://dev.mehadedu.com/en</li><li>Observe the result: it does NOT match what the test expected (see Actual Behavior)</li></ol>
-</div>
-    
-<div class="two-col">
-  <div class="info-block expected">
-    <div class="ib-label">What should happen</div>
-    <div>Going offline mid-session must not produce uncaught JS errors.</div>
-  </div>
-  <div class="info-block actual">
-    <div class="ib-label">What actually happened</div>
-    <div>Offline mode triggered uncaught JS exception(s): ['Installations: Could not process request. Application offline. (installations/app-offline).']</div>
-  </div>
-</div>
-    
-<div class="shot-wrap">
-  <div class="shot-label">Proof of Concept — Screenshot</div>
-  <img class="screenshot" src="data:image/png;base64,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sA832twhQw77wx+yevYMn0nLzU3Lzc0sKck96KAgCD554ol/8ADeP/cSRUceuePI0ty86v77ExjDqgce6Petb6WkpxcecUTx8cdXtHwC1kGrfvvbJTfeaD06JMUirUuXITfc0Hvq1CAlJXwyNSMjPS8vp3//onHjCg8/fO5ZZ9nt22AE8O6lpPT62tdaPdfzq19dduutzY2NFm6yfO7fps0uLT38mWcyu3ePnFisvO++NY8+Wldenjt06KB/+7eu48enpKb2Pf/8nP7937vwwuampvAf5g0fHj5e/+yzkfoNgiB/xIjw+YoXX4zUL8A+l5KaOuKeeyL1W79x46If/KBq5szG6uouAwb0OOmkPueck1FcbCntn/qef37kwaZ33qn+6KMExlBXXl75+uvdJkwIgqDveeclK4Ah1vrNzR39+ON5LedIW+bNW37HHZtmz26ur88ZMKDk1FP7nneepYQAbkfXceOy+/SJPG6qq4tcnZ/Vs2fX8eM3fvq66M+07UuXvlxWZlvpPMP/8z931G8QLL/rrhV33RXumuedd96oJ54oGDkyCILiSZP6XXjhyqj33dNycsLHTbW14ePU7Ow2n7d+vR5h3yoYNSr3wAMjjz+6557y55+PPN66YMHWBQtW3nffgKuuin6bj/1kD5BZXNz9hBMij9c//XTC41n3zDORAO567LHZffrUrFljndre9pqht94a1m/l9Onzzj03/ORg6/z5W+fPX/voo6Vnn229I4D3JPr652W33DL42mt3PD9lyq4BnNO/f98LL+x61FHZffqkZmXVrV9fs3bt5nfe2fB//7dp5szweB/jYEEQpOfl9f7GN7p/8Yu5Bx6YXlDQuG3b1oUL1z/77Md/+lN087T6nv38732v7JJLSk4+OatPn63vv19fWVl8/PHR03lc1BdrXxk0qLmhYQ/f1E8vKCg966ziSZNyhwxJz89v3L69esWKjdOmrXn00dp163Y3De9fdFG/Cy7oNXVqTllZU3X1pjlzVtx11+a5cxNbC3uewdn/9E/tDtCRedl1bIN//ON+LYvog8sua/dEoev48YVjxkQe11dWrrz33ui/baqvX3brrSP/678if+x/0UWrH364qbb2wJ/9rM+550YPubtrm4f89KdDfvrTIAiW3nRTRVvvy8R4d41Y1lqM2+TuRF+hHVm2A668suTkkzO6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AhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAACAALYIAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAIYIsAAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAAAAAhgAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAAAEMAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAAIAABgAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAABAAAMAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAAIIABAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAIAAtggAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAABDAAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAAAIYAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAAABDAAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAACAAAYAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAQAADAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAACCAAQAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAQwAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAAACGAAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAAAAAQwAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAgAAGAABAAAMAAIAABgAAAAEMAAAAAhgAAAAEMAAAAAhgAAAAEMAAAAAggAEAAEAAAwAAIIABAABAAAMAAMBn2v8HlJ05zQJW8LcAAAAASUVORK5CYII=" alt="Test failure screenshot" title="Click to enlarge"/>
-</div>
-    
-<div class="video-wrap">
-  <div class="video-label">Proof of Concept — Screen Recording</div>
-  <video class="poc-video" controls preload="metadata" src="videos-embed/test_qa18_offline_does_not_crash_page.webm" type="video/webm">
-    Your browser does not support embedded video.
-  </video>
-  <div><a href="videos-embed/test_qa18_offline_does_not_crash_page.webm" download style="font-size:11px;color:var(--accent)">Download .webm</a></div>
-</div>
-    
-<button class="err-toggle" onclick="toggleErr('err-1')">
-  <span>▶ Show error details</span>
-  <span style="font-size:11px;color:var(--ink-3)">AssertionError / Traceback</span>
-</button>
-<div class="err-body" id="err-1">
-  <pre style="margin-top:8px"><strong style="color:var(--bad)">tests/test_qa_comprehensive.py:3591: in test_qa18_offline_does_not_crash_page
-    assert not real, (
-E   AssertionError: Offline mode triggered uncaught JS exception(s): ['Installations: Could not process request. Application offline. (installations/app-offline).']
-E   assert not ['Installations: Could not process request. Application offline. (installations/app-offline).']</strong>
-
-tests/test_qa_comprehensive.py:3591: in test_qa18_offline_does_not_crash_page
-    assert not real, (
-E   AssertionError: Offline mode triggered uncaught JS exception(s): ['Installations: Could not process request. Application offline. (installations/app-offline).']
-E   assert not ['Installations: Could not process request. Application offline. (installations/app-offline).']</pre>
-</div>
-    
-    <div style="margin-top:16px"></div>
-    <div class="env-strip">
-      <span><b>Browser:</b> Chromium</span>
-      <span><b>Viewport:</b> 1280x720</span>
-      <span><b>Env:</b> Staging</span>
-    </div>
-  </div>
-</div></div></div></section>
+<section class="card" id="bugs"><div class="card-head"><h4>Bug Tickets</h4><span style="font-size:12px;color:var(--ok)">0 bugs found</span></div><div class="card-body" style="text-align:center;color:var(--ok);padding:32px">No bugs detected — all tests passed.</div></section>
 
 <!-- ── Coverage gaps ── -->
 
@@ -790,11 +675,11 @@ E   assert not ['Installations: Could not process request. Application offline. 
     <div class="ringwrap">
       <svg class="ring" viewBox="0 0 44 44">
         <circle cx="22" cy="22" r="18" fill="none" stroke="var(--bg-3)" stroke-width="5"/>
-        <circle cx="22" cy="22" r="18" fill="none" stroke="oklch(0.92 0.14 85)" stroke-width="5"
-          stroke-dasharray="113.1" stroke-dashoffset="28.27"
+        <circle cx="22" cy="22" r="18" fill="none" stroke="oklch(0.85 0.14 155)" stroke-width="5"
+          stroke-dasharray="113.1" stroke-dashoffset="0.0"
           stroke-linecap="round" transform="rotate(-90 22 22)"/>
         <text x="22" y="25" text-anchor="middle" font-size="8" font-weight="700"
-          fill="oklch(0.92 0.14 85)" font-family="'JetBrains Mono',monospace">75.0%</text>
+          fill="oklch(0.85 0.14 155)" font-family="'JetBrains Mono',monospace">100.0%</text>
       </svg>
     </div>
     <div class="mini-stats">
@@ -806,8 +691,8 @@ E   assert not ['Installations: Could not process request. Application offline. 
         <div class="ms-v">0</div>
         <div class="ms-l">P1 bugs</div>
       </div>
-      <div class="ms ok">
-        <div class="ms-v">1</div>
+      <div class="ms ">
+        <div class="ms-v">0</div>
         <div class="ms-l">P2 bugs</div>
       </div>
       <div class="ms">
@@ -820,8 +705,8 @@ E   assert not ['Installations: Could not process request. Application offline. 
   <div class="card" style="margin-bottom:16px">
     <div class="card-head"><h4>Run Info</h4></div>
     <dl class="run-dl">
-      <dt>Run #</dt><dd>262</dd>
-      <dt>Date</dt><dd>2026-11-06 12:26:34</dd>
+      <dt>Run #</dt><dd>263</dd>
+      <dt>Date</dt><dd>2026-11-07 11:33:07</dd>
       <dt>Target URL</dt><dd style="word-break:break-all">https://dev.mehadedu.com/en</dd>
       <dt>AI Model</dt><dd>unknown</dd>
       <dt>Browser</dt><dd>Chromium (headless)</dd>
@@ -833,11 +718,11 @@ E   assert not ['Installations: Could not process request. Application offline. 
     <dl class="run-dl">
       <dt>Critical (P0)</dt><dd style="color:var(--bad)">0 · 24h SLA</dd>
       <dt>High (P1)</dt><dd style="color:var(--warn)">0 · 2–3 days</dd>
-      <dt>Medium (P2)</dt><dd style="color:var(--ok)">1 · current sprint</dd>
+      <dt>Medium (P2)</dt><dd style="color:var(--ok)">0 · current sprint</dd>
       <dt>Low (P3)</dt><dd style="color:var(--accent)">0 · backlog</dd>
       <dt>Severity: Critical</dt><dd style="color:var(--bad)">0</dd>
       <dt>Severity: High</dt><dd style="color:var(--warn)">0</dd>
-      <dt>Severity: Medium</dt><dd style="color:var(--accent)">1</dd>
+      <dt>Severity: Medium</dt><dd style="color:var(--accent)">0</dd>
       <dt>Severity: Low</dt><dd style="color:var(--ok)">0</dd>
     </dl>
   </div>
@@ -870,12 +755,12 @@ E   assert not ['Installations: Could not process request. Application offline. 
     </div>
   </div>
   <div>
-    <div class="col-head">Run #262</div>
+    <div class="col-head">Run #263</div>
     <div style="font-size:12px;color:var(--ink-3);line-height:1.8">
-      2026-11-06 12:26:34<br/>
+      2026-11-07 11:33:07<br/>
       4 tests<br/>
       1 specs<br/>
-      75.0% pass rate
+      100.0% pass rate
     </div>
   </div>
 </footer>
